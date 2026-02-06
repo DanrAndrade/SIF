@@ -1,0 +1,55 @@
+import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Menu } from 'lucide-react'; // Importe o ícone Menu
+import AdminSidebar from '../../components/admin/AdminSidebar';
+import { LeadsView, CandidatesView, JobsManagerView, NotificationsManagerView } from '../../components/admin/AdminViews';
+
+export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState('leads');
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Estado para controlar sidebar mobile
+  const { logout } = useAuth();
+
+  return (
+    <div className="flex h-screen bg-[#f3f4f6] font-sans text-[#1f2937] overflow-hidden">
+      
+      {/* SIDEBAR COM CONTROLE MOBILE */}
+      <AdminSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        logout={logout}
+        isOpen={sidebarOpen}
+        closeMobile={() => setSidebarOpen(false)}
+      />
+
+      {/* ÁREA DE CONTEÚDO */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-8">
+            <div className="flex items-center gap-4">
+                {/* Botão Menu (Só aparece no mobile) */}
+                <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 p-2 hover:bg-gray-100 rounded-lg">
+                    <Menu size={24} />
+                </button>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 hidden sm:block">
+                    Painel Administrativo
+                </h2>
+            </div>
+            
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs font-bold text-gray-600">Sistema Online</span>
+            </div>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-4 lg:p-12">
+            <div className="max-w-6xl mx-auto">
+                {activeTab === 'leads' && <LeadsView />}
+                {activeTab === 'candidates' && <CandidatesView />}
+                {activeTab === 'jobs' && <JobsManagerView />}
+                {activeTab === 'notifications' && <NotificationsManagerView />}
+            </div>
+        </div>
+      </main>
+    </div>
+  );
+}

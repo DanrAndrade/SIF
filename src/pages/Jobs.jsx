@@ -1,0 +1,302 @@
+import React, { useState, useEffect } from 'react';
+import { Briefcase, MapPin, Clock, Upload, CheckCircle2, FileText, ChevronRight, Target, Eye, Heart, ChevronLeft, X, DollarSign } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Button from '../components/ui/Button';
+import { Input } from '../components/ui/FormElements';
+
+// Em produção, troque localhost pelo seu domínio real
+const API_URL = 'http://localhost/chocosul-api';
+
+export default function Jobs() {
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // Busca Vagas
+  useEffect(() => {
+      fetch(`${API_URL}/jobs.php`)
+        .then(res => res.json())
+        .then(data => {
+            const formattedData = data.map(j => ({
+                ...j,
+                requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements) : j.requirements
+            }));
+            setJobs(formattedData);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.error(err);
+            setLoading(false);
+        });
+  }, []);
+
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentJobs = jobs.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    const section = document.getElementById('jobs-section');
+    if (section) {
+        const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
+        window.scrollTo({top: y, behavior: 'smooth'});
+    }
+  };
+
+  return (
+    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#D91A3C] selection:text-white flex flex-col">
+      <Navbar scrolled={true} />
+      <svg width="0" height="0" className="absolute"><defs><linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#D91A3C" /><stop offset="100%" stopColor="#FF4D6D" /></linearGradient><linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#d97706" /><stop offset="100%" stopColor="#fbbf24" /></linearGradient><linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#1e3a8a" /><stop offset="100%" stopColor="#3b82f6" /></linearGradient></defs></svg>
+
+      <div className="flex flex-col gap-24 w-full">
+          {/* HERO */}
+          <div className="pt-40 pb-24 px-4 text-center bg-[#1f2937] rounded-b-[60px] relative overflow-hidden shadow-xl w-full">
+             <div className="absolute top-0 right-0 w-96 h-96 bg-[#D91A3C] rounded-full blur-[120px] opacity-20 pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
+             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#FFC107] rounded-full blur-[120px] opacity-10 pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
+             <div className="relative z-10 max-w-3xl mx-auto">
+                <span className="text-[#FFC107] font-bold uppercase tracking-[0.3em] text-xs mb-4 block animate-pulse">Carreira</span>
+                <h1 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white mb-6">Trabalhe <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D91A3C] to-[#ff4d6d]">Conosco</span></h1>
+                <p className="text-gray-400 text-lg">Faça parte de uma das maiores distribuidoras do sul da Bahia.</p>
+             </div>
+          </div>
+
+          {/* VALORES */}
+          <div className="container mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative max-w-5xl mx-auto">
+                    <div className="relative z-10 flex flex-col items-center text-center group">
+                        <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2"><Target size={48} style={{ stroke: "url(#grad-red)" }} strokeWidth={1.5} /></div>
+                        <h3 className="text-xl font-bold font-heading uppercase mb-3 text-[#1f2937]">Missão</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed max-w-xs font-medium">Distribuir produtos de qualidade com agilidade.</p>
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center text-center group">
+                        <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2"><Eye size={48} style={{ stroke: "url(#grad-gold)" }} strokeWidth={1.5} /></div>
+                        <h3 className="text-xl font-bold font-heading uppercase mb-3 text-[#1f2937]">Visão</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed max-w-xs font-medium">Ser a referência absoluta em logística até 2030.</p>
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center text-center group">
+                        <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2"><Heart size={48} style={{ stroke: "url(#grad-blue)" }} strokeWidth={1.5} /></div>
+                        <h3 className="text-xl font-bold font-heading uppercase mb-3 text-[#1f2937]">Valores</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed max-w-xs font-medium">Ética, compromisso, inovação e respeito.</p>
+                    </div>
+                </div>
+          </div>
+
+          {/* LISTA VAGAS */}
+          <div id="jobs-section" className="container mx-auto px-4 max-w-6xl">
+             <div className="flex items-center justify-between mb-12 px-2">
+                <div><span className="text-[#D91A3C] font-bold uppercase tracking-widest text-xs block mb-2">Oportunidades</span><h2 className="text-3xl md:text-4xl font-bold uppercase text-[#1f2937] section-heading">Vagas Disponíveis</h2></div>
+                <span className="hidden md:inline-block px-4 py-2 bg-gray-100 rounded-full text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">{jobs.length} Posições</span>
+             </div>
+             
+             {loading ? (
+                 <div className="text-center py-20 text-gray-400">Carregando vagas...</div>
+             ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {currentJobs.map((job) => (
+                        <div key={job.id} onClick={() => setSelectedJob(job)} className="w-full bg-white rounded-[32px] p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D91A3C] to-[#ff4d6d] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                            <div>
+                                <div className="w-12 h-12 rounded-2xl bg-[#f8f9fa] flex items-center justify-center text-[#D91A3C] mb-6 group-hover:bg-[#D91A3C] group-hover:text-white transition-colors shadow-sm"><Briefcase size={22} /></div>
+                                <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-3 leading-tight group-hover:text-[#D91A3C] transition-colors line-clamp-2">{job.title}</h3>
+                                <div className="flex flex-col gap-2.5 mb-6">
+                                    <span className="flex items-center gap-2 text-xs text-gray-500 font-bold uppercase tracking-wide"><MapPin size={14} className="text-[#FFC107]" /> {job.location}</span>
+                                    <span className="flex items-center gap-2 text-xs text-gray-500 font-bold uppercase tracking-wide"><Clock size={14} className="text-[#FFC107]" /> {job.type}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 group-hover:text-[#D91A3C] transition-colors">Detalhes</span>
+                                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#1f2937] group-hover:text-white transition-all shadow-sm"><ChevronRight size={14} /></div>
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+             )}
+
+             {totalPages > 1 && (
+                 <div className="mt-16 flex justify-center items-center gap-2">
+                     <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-30"><ChevronLeft size={20} /></button>
+                     <span className="text-sm font-bold text-gray-500 px-4">Página {currentPage} de {totalPages}</span>
+                     <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-30"><ChevronRight size={20} /></button>
+                 </div>
+             )}
+          </div>
+          
+          {/* BANCO DE TALENTOS */}
+          <div className="container mx-auto px-4 max-w-6xl pb-20">
+             <div className="mt-12 mb-40 bg-[#fff] border border-gray-200 rounded-[32px] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50 rounded-full -translate-y-1/2 translate-x-1/2 -z-0 transition-transform duration-700 group-hover:scale-125"></div>
+                 <div className="relative z-10 text-center md:text-left">
+                     <h3 className="text-2xl font-bold uppercase text-[#1f2937] mb-2 font-heading">Não encontrou sua vaga?</h3>
+                     <p className="text-gray-500 font-medium">Cadastre seu currículo em nosso Banco de Talentos Geral.</p>
+                 </div>
+                 <Button onClick={() => setSelectedJob({ id: 'banco', title: "Banco de Talentos", location: "Geral", type: "Cadastro Reserva", description: "Seu currículo ficará em nossa base para futuras oportunidades.", requirements: [] })} variant="primary" icon={Upload} className="relative z-10">Enviar Currículo</Button>
+             </div>
+          </div>
+      </div>
+      <Footer />
+      {selectedJob && <ApplicationModal job={selectedJob} onClose={() => setSelectedJob(null)} />}
+    </div>
+  );
+}
+
+// --- MODAL DE APLICAÇÃO ---
+function ApplicationModal({ job, onClose }) {
+    const [step, setStep] = useState(1);
+    const [submitStatus, setSubmitStatus] = useState('idle'); 
+    
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', linkedin: '' });
+    const [file, setFile] = useState(null);
+
+    // --- MÁSCARA DE TELEFONE (Interna) ---
+    const maskPhone = (value) => {
+      return value
+        .replace(/\D/g, "") 
+        .replace(/^(\d{2})(\d)/g, "($1) $2") 
+        .replace(/(\d)(\d{4})$/, "$1-$2") 
+        .slice(0, 15); 
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitStatus('loading');
+
+        const data = new FormData();
+        data.append('job_id', job.id);
+        data.append('job_title', job.title);
+        data.append('name', formData.name);
+        data.append('email', formData.email);
+        data.append('phone', formData.phone);
+        data.append('linkedin', formData.linkedin);
+        if (file) data.append('cv', file);
+
+        try {
+            const response = await fetch(`${API_URL}/candidates.php`, {
+                method: 'POST',
+                body: data 
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                setSubmitStatus('success');
+            } else {
+                setSubmitStatus('error');
+            }
+        } catch (error) {
+            console.error(error);
+            setSubmitStatus('error');
+        }
+    };
+
+    if (submitStatus === 'success') {
+        return (
+            <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-[#1f2937]/80 backdrop-blur-sm" onClick={onClose}></div>
+                <div className="bg-white w-full max-w-md rounded-[32px] p-8 relative z-10 text-center animate-in zoom-in-95">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 size={40} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-[#1f2937] uppercase mb-2 font-heading">Sucesso!</h3>
+                    <p className="text-gray-500 mb-8">Sua candidatura para <strong>{job.title}</strong> foi enviada. Boa sorte!</p>
+                    <Button onClick={onClose} variant="primary" className="w-full">Fechar</Button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-[#1f2937]/60 backdrop-blur-sm" onClick={onClose}></div>
+            <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-4 duration-300">
+                
+                <div className="bg-[#1f2937] p-6 text-white flex justify-between items-start shrink-0">
+                    <div>
+                        <span className="text-[#FFC107] font-bold text-xs uppercase tracking-widest mb-2 block">
+                            {step === 1 ? "Detalhes da Vaga" : "Ficha de Inscrição"}
+                        </span>
+                        <h2 className="text-2xl font-bold font-heading uppercase leading-none">{job.title}</h2>
+                    </div>
+                    <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-[#D91A3C] transition-colors"><X size={20} /></button>
+                </div>
+
+                <div className="p-6 overflow-y-auto custom-scrollbar">
+                    {step === 1 ? (
+                        <div className="space-y-6">
+                            <div className="flex flex-wrap gap-4 text-sm font-medium text-gray-500">
+                                <span className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"><MapPin size={14} className="text-[#D91A3C]"/> {job.location}</span>
+                                <span className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"><Clock size={14} className="text-[#D91A3C]"/> {job.type}</span>
+                                {job.salary && <span className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"><DollarSign size={14} className="text-[#D91A3C]"/> {job.salary}</span>}
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <h4 className="font-bold text-[#1f2937] uppercase tracking-wider">Sobre a Vaga</h4>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{job.description}</p>
+                            </div>
+
+                            {job.requirements && job.requirements.length > 0 && (
+                                <div className="space-y-4">
+                                    <h4 className="font-bold text-[#1f2937] uppercase tracking-wider">Requisitos</h4>
+                                    <ul className="space-y-2">
+                                        {job.requirements.map((req, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                                                <CheckCircle2 size={16} className="text-[#D91A3C] mt-0.5 shrink-0" /> {req}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div className="pt-6 border-t border-gray-100">
+                                <Button onClick={() => setStep(2)} variant="primary" className="w-full">Quero me candidatar</Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <Input label="Nome Completo" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                                <Input label="Email" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required />
+                                
+                                {/* INPUT MASCARADO */}
+                                <Input 
+                                    label="Telefone" 
+                                    type="tel" 
+                                    value={formData.phone} 
+                                    onChange={e => setFormData({...formData, phone: maskPhone(e.target.value)})} 
+                                    required 
+                                    placeholder="(00) 00000-0000"
+                                    maxLength={15}
+                                />
+
+                                <Input label="LinkedIn" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} />
+                            </div>
+                            
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold uppercase text-gray-500 ml-1">Currículo (PDF/DOC)</label>
+                                <div className="relative group">
+                                    <input type="file" accept=".pdf,.doc,.docx" onChange={e => setFile(e.target.files[0])} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
+                                    <div className="w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl px-4 py-8 flex flex-col items-center justify-center text-center group-hover:border-[#D91A3C] group-hover:bg-red-50/30 transition-all">
+                                        <div className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center mb-3 text-[#D91A3C]">
+                                            {file ? <FileText size={24}/> : <Upload size={24} />}
+                                        </div>
+                                        {file ? <p className="text-sm font-bold text-[#1f2937]">{file.name}</p> : <><p className="text-sm font-bold text-gray-600">Clique para selecionar</p><p className="text-xs text-gray-400">PDF/DOCX (Max 5MB)</p></>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {submitStatus === 'error' && <p className="text-red-500 text-xs font-bold text-center">Erro ao enviar. Tente novamente.</p>}
+
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setStep(1)} className="flex-1 py-4 bg-gray-100 text-gray-600 font-bold rounded-xl uppercase tracking-wider hover:bg-gray-200 transition-all">Voltar</button>
+                                <Button type="submit" variant="primary" className="flex-[2]" isLoading={submitStatus === 'loading'}>
+                                    {submitStatus === 'loading' ? 'Enviando...' : 'Enviar Inscrição'}
+                                </Button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
