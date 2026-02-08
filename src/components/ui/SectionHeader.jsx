@@ -10,10 +10,12 @@ export default function SectionHeader({
   const alignClass = align === 'center' ? 'items-center text-center' : 'items-start text-left';
   const textColor = lightMode ? 'text-white' : 'text-[#1f2937]';
   
-  // Lógica para manter as cores originais (Amarelo ou Vermelho dependendo do contexto, aqui padronizei no ouro/laranja usado na maioria)
+  // Lógica para manter as cores originais (adaptadas para Verde SIF)
+  // Amarelo (#FFC107) virou Verde Claro (#92b735)
+  // Vermelho (#D91A3C) virou Verde SIF (#3c7a43)
   const tagStyles = lightMode 
-    ? 'border-[#FFC107]/40 text-[#FFC107] bg-[#FFC107]/10' 
-    : 'border-[#D91A3C]/30 text-[#D91A3C] bg-[#D91A3C]/5';
+    ? 'border-[#92b735]/40 text-[#92b735] bg-[#92b735]/10' 
+    : 'border-[#3c7a43]/30 text-[#3c7a43] bg-[#3c7a43]/5';
 
   return (
     <div className={`flex flex-col mb-12 ${alignClass}`}>

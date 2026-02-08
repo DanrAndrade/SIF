@@ -3,10 +3,10 @@ import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
 
-// Ajuste a URL conforme seu ambiente (localhost ou produção)
-const API_URL = 'http://localhost/chocosul-api'; 
+// Ajuste a URL conforme seu ambiente
+const API_URL = 'http://localhost/sif-api'; 
 
-// Modal Responsivo
+// Modal Responsivo (Restaurado)
 const Modal = ({ title, onClose, children }) => (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
@@ -57,7 +57,7 @@ export const LeadsView = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gestão de Leads</h2><button onClick={fetchLeads} className="text-xs text-gray-500 underline hover:text-[#D91A3C]">Atualizar Lista</button></div>
+            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gestão de Leads</h2><button onClick={fetchLeads} className="text-xs text-gray-500 underline hover:text-[#3c7a43]">Atualizar Lista</button></div>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
                     <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider"><tr><th className="p-4">Status</th><th className="p-4">Nome / Empresa</th><th className="p-4">Assunto</th><th className="p-4">Data</th><th className="p-4 text-right">Ações</th></tr></thead>
@@ -94,7 +94,7 @@ export const LeadsView = () => {
     );
 };
 
-// --- VIEW 2: CANDIDATOS (ATUALIZADO) ---
+// --- VIEW 2: CANDIDATOS ---
 export const CandidatesView = () => {
     const [candidates, setCandidates] = useState([]);
     const [viewCandidate, setViewCandidate] = useState(null);
@@ -128,14 +128,13 @@ export const CandidatesView = () => {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-[#1f2937] uppercase">Candidaturas</h2>
-                <button onClick={fetchCandidates} className="text-xs text-gray-500 underline hover:text-[#D91A3C]">Atualizar</button>
+                <button onClick={fetchCandidates} className="text-xs text-gray-500 underline hover:text-[#3c7a43]">Atualizar</button>
             </div>
             
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
                     <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider">
                         <tr>
-                            {/* COLUNA STATUS MOVIDA PARA O INÍCIO */}
                             <th className="p-4 w-24">Status</th>
                             <th className="p-4">Candidato</th>
                             <th className="p-4">Vaga</th>
@@ -146,7 +145,6 @@ export const CandidatesView = () => {
                     <tbody className="divide-y divide-gray-100">
                         {candidates.map(c => (
                             <tr key={c.id} className={`hover:bg-gray-50 transition-colors ${c.status === 'unread' ? 'bg-red-50/10' : ''}`}>
-                                {/* LÓGICA DE STATUS NO INÍCIO + COR VERDE PARA VISTO */}
                                 <td className="p-4">
                                     {c.status === 'unread' ? (
                                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-100 text-[10px] font-bold text-red-700 uppercase border border-red-200">
@@ -158,7 +156,6 @@ export const CandidatesView = () => {
                                         </span>
                                     )}
                                 </td>
-
                                 <td className="p-4"><p className="font-bold text-[#1f2937]">{c.name}</p><p className="text-xs text-gray-500">{c.email}</p></td>
                                 <td className="p-4"><span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700 whitespace-nowrap">{c.job_title || "Geral"}</span></td>
                                 <td className="p-4 text-xs font-bold text-gray-500">{new Date(c.created_at).toLocaleDateString()}</td>
@@ -199,7 +196,6 @@ export const CandidatesView = () => {
                                     <button onClick={() => updateCandidateStatus(viewCandidate.id, 'unread')} className="w-full md:w-auto py-2 text-xs font-bold text-red-500 hover:bg-red-50 rounded-lg transition-colors">Marcar como Não Lido</button>
                                 )}
                             </div>
-
                             {viewCandidate.cv_filename ? <Button className="w-full md:w-auto" variant="primary" icon={Download} onClick={() => handleDownload(viewCandidate.cv_filename)}>Baixar Currículo</Button> : <p className="text-red-500 text-sm">Sem arquivo</p>}
                         </div>
                     </div>

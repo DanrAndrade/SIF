@@ -9,31 +9,34 @@ export default function Performance() {
                   
                   {/* Item 1 */}
                   <div className="flex flex-col gap-4">
-                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#1f2937] tracking-wide leading-tight">
-                        Experiência<br/>Consolidada
+                      {/* Título com a cor #d6e2b2 */}
+                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#d6e2b2] tracking-wide leading-tight">
+                        50 Anos de<br/>Inovação
                       </h3>
-                      <p className="text-sm text-[#1f2937]/90 font-medium leading-relaxed">
-                        Há mais de duas décadas liderando o mercado com eficiência tangível e resultados comprovados.
+                      {/* Texto com a cor #d6e2b2 */}
+                      <p className="text-sm text-[#d6e2b2] font-medium leading-relaxed">
+                        Meio século promovendo o desenvolvimento científico e a sustentabilidade no setor florestal brasileiro.
                       </p>
                   </div>
                   
                   {/* Item 2 */}
-                  <div className="flex flex-col gap-4 md:border-l md:border-black/10 md:pl-8">
-                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#1f2937] tracking-wide leading-tight">
-                        Frota<br/>Própria
+                  {/* Borda ajustada para combinar com a cor do texto (20% de opacidade) */}
+                  <div className="flex flex-col gap-4 md:border-l md:border-[#d6e2b2]/20 md:pl-8">
+                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#d6e2b2] tracking-wide leading-tight">
+                        +30 Empresas<br/>Associadas
                       </h3>
-                      <p className="text-sm text-[#1f2937]/90 font-medium leading-relaxed">
-                        Infraestrutura robusta com mais de 120 veículos monitorados via satélite 24 horas.
+                      <p className="text-sm text-[#d6e2b2] font-medium leading-relaxed">
+                        Agregamos gigantes de celulose, siderurgia, painéis e novos negócios em um modelo cooperativo único.
                       </p>
                   </div>
                   
                   {/* Item 3 */}
-                  <div className="flex flex-col gap-4 md:border-l md:border-black/10 md:pl-8">
-                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#1f2937] tracking-wide leading-tight">
-                        Capilaridade<br/>Extrema
+                  <div className="flex flex-col gap-4 md:border-l md:border-[#d6e2b2]/20 md:pl-8">
+                      <h3 className="text-2xl md:text-2xl font-bold font-heading uppercase text-[#d6e2b2] tracking-wide leading-tight">
+                        Conexão<br/>Universidade
                       </h3>
-                      <p className="text-sm text-[#1f2937]/90 font-medium leading-relaxed">
-                        Atendimento direto a mais de 4.000 pontos de venda em todo o extremo sul do estado.
+                      <p className="text-sm text-[#d6e2b2] font-medium leading-relaxed">
+                        A ponte estratégica entre a excelência acadêmica da UFV e as demandas reais do mercado florestal.
                       </p>
                   </div>
               </div>

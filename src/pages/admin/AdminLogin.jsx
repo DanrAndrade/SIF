@@ -5,8 +5,8 @@ import { Input } from '../../components/ui/FormElements';
 import Button from '../../components/ui/Button';
 import iconLogo from '../../assets/icone.svg';
 
-// Ajuste a URL se necessário (Garanta que o XAMPP está rodando!)
-const API_URL = 'http://localhost/chocosul-api/login_admin.php';
+// Ajuste a URL se necessário
+const API_URL = 'http://localhost/sif-api/login_admin.php';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -25,18 +25,17 @@ export default function AdminLogin() {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            // --- CORREÇÃO VITAL AQUI ---
+            // Isso obriga o navegador a salvar o cookie de sessão do PHP
+            credentials: 'include', 
             body: JSON.stringify(formData)
         });
 
         const data = await response.json();
 
         if (data.success) {
-            // --- CORREÇÃO FUNDAMENTAL AQUI ---
-            // Gravamos o "Crachá" que o App.jsx exige para deixar entrar
             localStorage.setItem('admin_user', JSON.stringify(data.user));
             localStorage.setItem('admin_mode', 'true');
-            
-            // Forçamos a entrada
             window.location.href = '/admin/dashboard';
         } else {
             setError(data.message || "Acesso não autorizado.");
@@ -52,7 +51,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-[#111827] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden relative">
-            <div className="h-2 bg-gradient-to-r from-[#D91A3C] to-[#FFC107]"></div>
+            <div className="h-2 bg-gradient-to-r from-[#3c7a43] to-[#2E7D32]"></div>
             
             <div className="p-10">
                 <div className="flex justify-center mb-8">
@@ -63,9 +62,9 @@ export default function AdminLogin() {
 
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-bold text-[#1f2937] uppercase tracking-wide flex items-center justify-center gap-2">
-                        <ShieldCheck size={24} className="text-[#D91A3C]" /> Acesso Restrito
+                        <ShieldCheck size={24} className="text-[#3c7a43]" /> Acesso Restrito
                     </h1>
-                    <p className="text-xs text-gray-500 mt-2 font-medium">Painel Corporativo</p>
+                    <p className="text-xs text-gray-500 mt-2 font-medium">Painel SIF</p>
                 </div>
 
                 {error && (
@@ -78,7 +77,7 @@ export default function AdminLogin() {
                     <Input 
                         label="Usuário Corporativo" 
                         icon={User} 
-                        placeholder="admin@chocosul.com" 
+                        placeholder="admin@sif.com" 
                         name="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -87,12 +86,12 @@ export default function AdminLogin() {
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase ml-1">Chave de Acesso</label>
                         <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#D91A3C] transition-colors">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#3c7a43] transition-colors">
                                 <Lock size={18} />
                             </div>
                             <input 
                                 type={showPassword ? "text" : "password"} 
-                                className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#D91A3C] focus:ring-4 focus:ring-red-50 transition-all font-medium text-gray-700 placeholder-gray-400"
+                                className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#3c7a43] focus:ring-4 focus:ring-green-50 transition-all font-medium text-gray-700 placeholder-gray-400"
                                 placeholder="••••••••"
                                 name="password"
                                 value={formData.password}

@@ -3,9 +3,9 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
 
-// Note o "../" para voltar uma pasta e achar os componentes
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
+import BannerCarousel from '../components/BannerCarousel'; // <--- IMPORTADO AQUI
 import Performance from '../components/Performance';
 import About from '../components/About';
 import Partners from '../components/Partners';
@@ -50,7 +50,6 @@ export default function Home() {
             requestAnimationFrame(raf);
             
             const scrollY = lenis.scroll;
-            // Debounce visual simples para evitar re-renders desnecessários
             if (scrollY > 50 && !scrolled) setScrolled(true);
             if (scrollY <= 50 && scrolled) setScrolled(false);
         };
@@ -87,11 +86,9 @@ export default function Home() {
       if (ctx) ctx.revert();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, [scrolled]); // Dependência adicionada para evitar stale closure
+  }, [scrolled]);
 
-  // --- OTIMIZAÇÃO DE PERFORMANCE ---
-  // Substituímos o SVG Filter (que calcula pixels em tempo real) por uma imagem Base64 estática.
-  // Isso remove 90% da carga da CPU no Hero.
+  // Noise Otimizado (Base64)
   const noisePattern = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAABMTExERERmZmYzMzNmZmYAAABVvhyhAAAACHRSTlMAMwAzzP//zMzMzHJLEwAAACVJREFUOMtjYCAJcDEwMDBxMQAJUEGrcQqhqXHBGk200UYbsRoAAGOAAwD314OTAAAAAElFTkSuQmCC")`;
 
   return (
@@ -102,30 +99,35 @@ export default function Home() {
         setMobileMenuOpen={setMobileMenuOpen} 
       />
 
-      {/* OTIMIZAÇÃO: gpu-layer força a renderização na placa de vídeo */}
-      <div className="relative w-full bg-[#fba819] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden z-0 shadow-2xl pb-16 gpu-layer">
-         
-         {/* Camadas de fundo com will-change para avisar o browser */}
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#fba819_0%,_#d98e0a_100%)] z-0 will-change-transform"></div>
-         
-         <div 
-             className="absolute inset-0 opacity-40 mix-blend-overlay z-0 pointer-events-none bg-noise will-change-transform"
-             style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
-         ></div>
+      {/* BACKGROUND PRINCIPAL - VERDE FLORESTA */}
+      {/* Contém Hero + Performance (Frota) */}
+      <div className="relative w-full bg-[#1B5E20] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden z-0 shadow-2xl pb-16 gpu-layer">
+          
+          {/* Gradiente Verde Profundo */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#2E7D32_0%,_#1B5E20_100%)] z-0 will-change-transform"></div>
+          
+          <div 
+              className="absolute inset-0 opacity-30 mix-blend-overlay z-0 pointer-events-none bg-noise will-change-transform"
+              style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
+          ></div>
 
-         <div className="relative z-10">
-            <HeroSection 
+          <div className="relative z-10">
+             <HeroSection 
                 wrapperRef={heroRef}
                 bgRef={heroBgRef}
                 contentRef={heroContentRef}
-            />
-         </div>
+             />
+          </div>
 
-         {/* optimize-paint isola a repintura desta div */}
-         <div id="frota" className="relative z-20 pt-4 px-4 optimize-paint">
-             <Performance />
-         </div>
+          <div id="frota" className="relative z-20 pt-4 px-4 optimize-paint">
+              <Performance />
+          </div>
       </div>
+
+      {/* --- BANNER CAROUSEL --- */}
+      {/* Adicionado AQUI, fora do bloco verde para não quebrar o layout. */}
+      {/* Ele vai aparecer no fundo cinza claro, logo abaixo da curva verde. */}
+      <BannerCarousel />
 
       <div id="quem-somos" className="optimize-paint">
         <About />
