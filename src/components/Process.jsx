@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { PackageCheck, Warehouse, ScanBarcode, MapPin, Plus, CheckCircle2 } from 'lucide-react';
+import { Newspaper, BookOpen, TreePine, ScrollText, Plus, CheckCircle2 } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
 import NoiseOverlay from './ui/NoiseOverlay';
 
@@ -11,47 +11,51 @@ export default function Process() {
   const steps = [
     { 
         id: "01", 
-        title: "Recebimento", 
-        icon: PackageCheck,
-        img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop", 
-        shortDesc: "Entrada fiscal automatizada e conferência cega.",
-        fullDesc: "Validação imediata da NFe na portaria e conferência cega para garantir integridade física e fiscal.",
-        benefits: ["Validação Fiscal", "Conferência Cega", "Etiquetagem"],
-        color: "bg-blue-600",
-        textColor: "text-blue-600"
+        title: "Jornal SIF", 
+        icon: Newspaper,
+        img: "https://images.unsplash.com/photo-1624269305548-1527ef905ff6", 
+        shortDesc: "Informativo oficial de notícias.",
+        fullDesc: "O principal canal de comunicação do SIF, trazendo novidades sobre projetos e parcerias.",
+        benefits: ["Notícias", "Projetos", "Eventos"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        textColor: "text-[#4ADE80]",
+        link: "#" 
     },
     { 
         id: "02", 
-        title: "Armazenagem", 
-        icon: Warehouse,
-        img: "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2070&auto=format&fit=crop", 
-        shortDesc: "Endereçamento inteligente via Mapa de Calor.",
-        fullDesc: "Algoritmos de Curva ABC definem o local ideal, otimizando o trajeto e garantindo o FEFO.",
-        benefits: ["Curva ABC", "Controle FEFO", "Verticalização"],
-        color: "bg-purple-600",
-        textColor: "text-purple-600"
+        title: "Boletim Técnico", 
+        icon: BookOpen,
+        img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2015", 
+        shortDesc: "Resultados e tecnologias.",
+        fullDesc: "Publicações voltadas para a transferência de tecnologia e resultados práticos das pesquisas.",
+        benefits: ["Tecnologia", "Pesquisa", "Resultados"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        textColor: "text-[#4ADE80]",
+        link: "#"
     },
     { 
         id: "03", 
-        title: "Separação", 
-        icon: ScanBarcode,
-        img: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=2070&auto=format&fit=crop", 
-        shortDesc: "Picking com coletores de alta precisão.",
-        fullDesc: "Separação guiada por sistema (voice/coletor), eliminando papel com 99.9% de acuracidade.",
-        benefits: ["Zero Papel", "Acuracidade 99.9%", "Auditoria"],
-        color: "bg-orange-600",
-        textColor: "text-orange-600"
+        title: "Revista Árvore", 
+        icon: TreePine,
+        img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=2070", 
+        shortDesc: "Referência científica mundial.",
+        fullDesc: "Uma das revistas mais respeitadas na Ciência Florestal, com alto impacto global.",
+        benefits: ["Impacto", "Ciência", "Global"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        textColor: "text-[#4ADE80]",
+        link: "#"
     },
     { 
         id: "04", 
-        title: "Entrega", 
-        icon: MapPin,
-        img: "https://images.unsplash.com/photo-1605618720893-d201914644e2?q=80&w=2070&auto=format&fit=crop", 
-        shortDesc: "Tracking Last-Mile em tempo real.",
-        fullDesc: "Monitoramento via satélite da frota com previsão de chegada e comprovante digital.",
-        benefits: ["Roteirização", "Tracking Real", "Comprovante"],
-        color: "bg-[#D91A3C]",
-        textColor: "text-[#D91A3C]"
+        title: "Código de Conduta", 
+        icon: ScrollText,
+        img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071", 
+        shortDesc: "Ética e integridade SIF.",
+        fullDesc: "Nossas diretrizes de conformidade e ética, garantindo os mais altos padrões institucionais.",
+        benefits: ["Ética", "Compliance", "Transparência"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        textColor: "text-[#4ADE80]",
+        link: "#"
     }
   ];
 
@@ -66,78 +70,78 @@ export default function Process() {
 
   return (
       <div className="wrapper mb-4">
-        <section className="relative w-full rounded-[32px] overflow-hidden bg-[#fba819] text-[#1f2937] py-16 lg:py-20">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#fba819_0%,_#e09616_100%)] z-0"></div>
-            <NoiseOverlay opacity={0.4} />
+        <section className="relative w-full rounded-[32px] overflow-hidden bg-[#1f2937] py-12 lg:py-16 shadow-2xl">
+            
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2E7D32] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
+            <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-[#4ADE80] rounded-full blur-[100px] opacity-15 pointer-events-none -translate-x-1/4 translate-y-1/4"></div>
+            
+            <NoiseOverlay opacity={0.2} />
 
             <div className="container relative z-10 flex flex-col items-center">
-                
-                {/* OTIMIZAÇÃO: Usando o SectionHeader centralizado */}
-                <div className="max-w-2xl px-6 w-full">
-                    <SectionHeader 
-                        align="center"
-                        tag="Logística Integrada"
-                        tagColor="text-[#D91A3C]" // Personalização específica desta seção se precisar
-                        title="Processo Operacional"
-                        subtitle="Passe o mouse sobre os cards e conheça cada etapa."
-                    />
+                <div className="max-w-2xl px-6 w-full text-center mb-10">
+                    <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">Comunicação e Ética</span>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Inovação e Transparência</h2>
+                    <p className="text-gray-400 text-sm md:text-base font-light">Explore nossas publicações oficiais e diretrizes.</p>
                 </div>
 
                 {/* --- DESKTOP VIEW --- */}
-                <div className="hidden lg:flex w-full h-[460px] gap-4 items-stretch px-4">
+                <div className="hidden lg:flex w-full h-[440px] gap-4 items-stretch px-4">
                     {steps.map((step, index) => {
                         const isActive = activeStep === index;
                         return (
-                        <div 
+                        <a 
                             key={index}
+                            href={step.link}
                             onMouseEnter={() => setActiveStep(index)}
                             className={`
-                                relative h-full rounded-3xl bg-white shadow-2xl overflow-hidden cursor-default 
-                                transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]
-                                ${isActive ? 'flex-[3]' : 'flex-[1] hover:flex-[1.1]'}
-                                border-2 border-white
+                                relative h-full rounded-[32px] overflow-hidden cursor-pointer 
+                                transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] p-[2px]
+                                bg-gradient-to-b from-[#1B5E20] to-[#2E7D32]
+                                ${isActive ? 'flex-[3.5]' : 'flex-[1] opacity-60'}
                             `}
                         >
-                            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-                                <div className={`relative w-full overflow-hidden transition-all duration-700 ease-in-out ${isActive ? 'h-[50%]' : 'h-full'}`}>
-                                    <img 
-                                        src={step.img} 
-                                        alt={step.title} 
-                                        className={`w-full h-full object-cover transition-transform duration-700 ${isActive ? 'scale-105' : 'scale-100 grayscale'}`} 
-                                        style={{ maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)' }}
-                                    />
+                            <div className="relative w-full h-full bg-[#0a0f16] rounded-[30px] overflow-hidden">
+                                <div className="absolute inset-0 z-0">
+                                    <img src={step.img} alt={step.title} className="w-full h-full object-cover brightness-[0.45]" />
+                                    <NoiseOverlay opacity={0.3} />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                                 </div>
-                            </div>
 
-                            <div className="relative z-10 h-full flex flex-col justify-between p-6">
-                                <div className="flex justify-between items-start">
-                                    <span className={`text-4xl font-black font-heading drop-shadow-md transition-colors duration-300 ${isActive ? step.textColor : 'text-white'}`}>{step.id}</span>
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-500 backdrop-blur-md border border-white/20 ${step.color} ${isActive ? 'scale-100 opacity-100' : 'scale-90 opacity-90 grayscale'}`}>
-                                        <step.icon size={20} />
+                                <div className="relative z-10 h-full flex flex-col justify-between p-6">
+                                    <div className="flex justify-between items-start">
+                                        <span className={`text-3xl font-black transition-all duration-500 ${isActive ? 'text-[#4ADE80]' : 'text-white/10'}`}>{step.id}</span>
+                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white backdrop-blur-xl border border-white/10 ${step.color} ${isActive ? 'scale-110' : 'scale-90 opacity-60'}`}>
+                                            <step.icon size={22} />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="relative mt-auto">
-                                    <div className={`absolute bottom-10 left-8 origin-bottom-left -rotate-90 w-max transition-all duration-500 ease-in-out ${isActive ? 'opacity-0 -translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0 delay-200'}`}>
-                                        <h3 className="text-xl font-bold uppercase text-[#1f2937] tracking-[0.15em] whitespace-nowrap bg-white/80 px-3 py-1.5 rounded-lg backdrop-blur-md shadow-sm border border-white/40">{step.title}</h3>
+                                    
+                                    <div className="relative flex flex-col justify-end min-h-[140px]">
+                                        {/* Título Vertical Ajustado */}
+                                        <div className={`absolute bottom-4 left-2 origin-bottom-left -rotate-90 w-max transition-all duration-500 ${isActive ? 'opacity-0 -translate-x-8' : 'opacity-100 translate-x-0'}`}>
+                                            <h3 className="text-lg font-bold uppercase text-white tracking-[0.2em] whitespace-nowrap">{step.title}</h3>
+                                        </div>
+                                        
+                                        {/* Conteúdo Expandido com altura flexível para não cortar */}
+                                        <div className={`transition-all duration-500 flex flex-col justify-end ${isActive ? 'opacity-100 translate-y-0 relative' : 'opacity-0 translate-y-8 absolute inset-x-0'}`}>
+                                            <h3 className="text-xl md:text-2xl font-bold uppercase text-white mb-2 leading-tight">{step.title}</h3>
+                                            <p className={`text-xs font-bold ${step.textColor} mb-2 leading-tight uppercase`}>{step.shortDesc}</p>
+                                            <p className="text-[11px] md:text-xs text-gray-300 leading-relaxed mb-4 font-light">{step.fullDesc}</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {step.benefits.map((benefit, i) => (
+                                                    <div key={i} className="flex items-center gap-1.5 text-[9px] font-bold text-white uppercase tracking-wider bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
+                                                        <CheckCircle2 size={10} className="text-[#4ADE80]" />{benefit}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className={`flex flex-col justify-end transition-all duration-500 delay-100 ease-out ${isActive ? 'opacity-100 translate-y-0 relative' : 'opacity-0 translate-y-8 absolute bottom-0 left-0 pointer-events-none'}`}>
-                                        <h3 className="text-2xl font-bold uppercase text-[#1f2937] mb-2 section-heading leading-none">{step.title}</h3>
-                                        <p className={`text-sm font-bold ${step.textColor} mb-3 leading-tight`}>{step.shortDesc}</p>
-                                        <p className="text-xs text-gray-600 leading-relaxed mb-4 line-clamp-2 font-medium">{step.fullDesc}</p>
-                                        <ul className="space-y-1.5">
-                                            {step.benefits.map((benefit, i) => (
-                                                <li key={i} className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                                                    <CheckCircle2 size={12} className={step.textColor} />{benefit}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                    
+                                    <div className={`absolute bottom-6 right-6 transition-all duration-500 ${isActive ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
+                                        <div className="bg-white/10 p-2 rounded-full border border-white/20 text-[#4ADE80] shadow-xl"><Plus size={18} /></div>
                                     </div>
-                                </div>
-                                <div className={`absolute bottom-6 right-6 transition-all duration-500 ${isActive ? 'opacity-0 scale-0' : 'opacity-100 scale-100 delay-200'}`}>
-                                    <div className="bg-white/90 p-2 rounded-full shadow-md hover:scale-110 transition-transform backdrop-blur-sm"><Plus size={20} className="text-gray-500" /></div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     )})}
                 </div>
 
@@ -145,36 +149,38 @@ export default function Process() {
                 <div className="w-full lg:hidden relative">
                     <div ref={scrollContainerRef} onScroll={handleMobileScroll} className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 px-6 pb-8 pt-2">
                         {steps.map((step, index) => (
-                            <div key={index} className="min-w-[85vw] snap-center bg-white rounded-3xl shadow-xl overflow-hidden border-2 border-white flex flex-col">
-                                <div className="relative h-48 shrink-0">
-                                    <img src={step.img} alt={step.title} className="w-full h-full object-cover" style={{ maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)' }}/>
-                                    <div className="absolute bottom-2 left-6 flex items-center gap-3">
-                                         <span className="text-3xl font-black text-[#1f2937] font-heading drop-shadow-sm">{step.id}</span>
-                                        <h3 className="text-lg font-bold uppercase text-[#1f2937] relative z-10">{step.title}</h3>
+                            <a key={index} href={step.link} className="min-w-[85vw] snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#2E7D32] rounded-[32px]">
+                                <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px]">
+                                    <div className="absolute inset-0 z-0">
+                                        <img src={step.img} alt={step.title} className="w-full h-full object-cover brightness-[0.4]" />
+                                        <NoiseOverlay opacity={0.3} />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
                                     </div>
-                                </div>
-                                <div className="p-6 pt-0 flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <div className="flex items-start gap-3 mb-3">
-                                            <div className={`w-8 h-8 min-w-[2rem] rounded-lg flex items-center justify-center text-white ${step.color}`}><step.icon size={16} /></div>
-                                             <p className={`text-xs font-bold ${step.textColor} leading-tight`}>{step.shortDesc}</p>
+                                    <div className="relative z-10 p-6 flex flex-col h-full justify-between text-white">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-6">
+                                                <span className="text-3xl font-black text-[#4ADE80]">{step.id}</span>
+                                                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white ${step.color}`}><step.icon size={22} /></div>
+                                            </div>
+                                            <h3 className="text-xl font-bold uppercase text-white mb-1">{step.title}</h3>
+                                            <p className={`text-xs font-bold ${step.textColor} mb-3`}>{step.shortDesc}</p>
+                                            <p className="text-xs text-gray-200 font-light leading-relaxed mb-6">{step.fullDesc}</p>
                                         </div>
-                                        <p className="text-xs text-gray-600 font-medium leading-relaxed mb-4">{step.fullDesc}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {step.benefits.map((benefit, i) => (
+                                                <div key={i} className="flex items-center gap-1.5 text-[10px] font-bold text-white uppercase bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                                    <CheckCircle2 size={12} className="text-[#4ADE80]" />{benefit}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                     <ul className="space-y-1.5 pl-2 border-l-2 border-gray-100">
-                                        {step.benefits.map((benefit, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                                                <div className={`w-1 h-1 rounded-full ${step.color}`}></div>{benefit}
-                                            </li>
-                                        ))}
-                                    </ul>
                                 </div>
-                            </div>
+                            </a>
                         ))}
                     </div>
                     <div className="flex justify-center gap-2">
                         {steps.map((_, index) => (
-                            <div key={index} className={`h-2 rounded-full transition-all duration-300 ${mobileActiveIndex === index ? 'w-6 bg-[#1f2937]' : 'w-2 bg-[#1f2937]/30'}`}/>
+                            <div key={index} className={`h-1.5 rounded-full transition-all duration-300 ${mobileActiveIndex === index ? 'w-8 bg-[#4ADE80]' : 'w-2 bg-white/20'}`}/>
                         ))}
                     </div>
                 </div>

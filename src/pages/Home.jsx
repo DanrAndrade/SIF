@@ -5,15 +5,17 @@ import Lenis from '@studio-freight/lenis';
 
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
-import BannerCarousel from '../components/BannerCarousel'; // <--- IMPORTADO AQUI
+import BannerCarousel from '../components/BannerCarousel';
 import Performance from '../components/Performance';
 import About from '../components/About';
 import Partners from '../components/Partners';
 import Services from '../components/Services';
-import Regional from '../components/Regional';
 import Process from '../components/Process';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
+
+// Importação do ícone para o favicon
+import iconeSif from '../assets/icone.svg';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -31,6 +33,18 @@ export default function Home() {
   const servicesTrackRef = useRef(null);
 
   useEffect(() => {
+    // Lógica para garantir o favicon e o título da aba
+    document.title = "SIF | Sociedade de Investigações Florestais";
+    const link = document.querySelector("link[rel~='icon']");
+    if (link) {
+      link.href = iconeSif;
+    } else {
+      const newLink = document.createElement('link');
+      newLink.rel = 'icon';
+      newLink.href = iconeSif;
+      document.head.appendChild(newLink);
+    }
+
     let lenis;
     let ctx; 
 
@@ -88,7 +102,6 @@ export default function Home() {
     };
   }, [scrolled]);
 
-  // Noise Otimizado (Base64)
   const noisePattern = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAABMTExERERmZmYzMzNmZmYAAABVvhyhAAAACHRSTlMAMwAzzP//zMzMzHJLEwAAACVJREFUOMtjYCAJcDEwMDBxMQAJUEGrcQqhqXHBGk200UYbsRoAAGOAAwD314OTAAAAAElFTkSuQmCC")`;
 
   return (
@@ -99,15 +112,11 @@ export default function Home() {
         setMobileMenuOpen={setMobileMenuOpen} 
       />
 
-      {/* BACKGROUND PRINCIPAL - VERDE FLORESTA */}
-      {/* Contém Hero + Performance (Frota) */}
       <div className="relative w-full bg-[#1B5E20] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden z-0 shadow-2xl pb-16 gpu-layer">
-          
-          {/* Gradiente Verde Profundo */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#2E7D32_0%,_#1B5E20_100%)] z-0 will-change-transform"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#2E7D32_0%,_#1B5E20_100%)] z-0"></div>
           
           <div 
-              className="absolute inset-0 opacity-30 mix-blend-overlay z-0 pointer-events-none bg-noise will-change-transform"
+              className="absolute inset-0 opacity-30 mix-blend-overlay z-0 pointer-events-none bg-noise"
               style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
           ></div>
 
@@ -124,9 +133,6 @@ export default function Home() {
           </div>
       </div>
 
-      {/* --- BANNER CAROUSEL --- */}
-      {/* Adicionado AQUI, fora do bloco verde para não quebrar o layout. */}
-      {/* Ele vai aparecer no fundo cinza claro, logo abaixo da curva verde. */}
       <BannerCarousel />
 
       <div id="quem-somos" className="optimize-paint">
@@ -138,8 +144,6 @@ export default function Home() {
       <div id="servicos">
         <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} />
       </div>
-      
-      <Regional />
       
       <div id="tecnologia" className="optimize-paint">
         <Process />

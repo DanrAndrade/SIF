@@ -14,6 +14,8 @@ const Jobs = lazy(() => import('./pages/Jobs'));
 const Login = lazy(() => import('./pages/Login'));
 const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+// NOVA PÁGINA ADICIONADA AQUI:
+const AreasAtuacao = lazy(() => import('./pages/AreasAtuacao'));
 
 // Tela de carregamento
 const LoadingScreen = () => (
@@ -46,6 +48,9 @@ export default function App() {
           <Route path="/historia" element={<History />} />
           <Route path="/trabalhe-conosco" element={<Jobs />} />
           <Route path="/login" element={<Login />}/>
+          
+          {/* NOVA ROTA DE ÁREAS DE ATUAÇÃO */}
+          <Route path="/areas-atuacao" element={<AreasAtuacao />} />
           
           {/* Rota Protegida Cliente */}
           <Route 

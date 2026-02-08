@@ -7,23 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        // As cores exatas usadas no design
-        primary: '#D91A3C',
-        'primary-dark': '#b01530',
-        'pill-green': '#22c55e',
-        'accent-yellow': '#FFC107',
-        'hero-bg': '#0a0a0a',
-        'text-main': '#1f2937',
-        'text-secondary': '#4b5563',
-        'bg-body': '#ffffff',
+        primary: {
+          DEFAULT: '#2E7D32', // Verde Floresta (Identidade SIF)
+          dark: '#1B5E20',    // Verde Escuro
+          light: '#4CAF50',   // Verde Claro
+        },
+        secondary: {
+          DEFAULT: '#1565C0', // Azul Institucional
+          dark: '#0D47A1',
+        },
+        accent: {
+          DEFAULT: '#F9A825', // Amarelo/Dourado (Detalhes)
+        },
+        background: '#F1F8E9', // Fundo levemente esverdeado/off-white
+        surface: '#FFFFFF',
       },
       fontFamily: {
-        // Fontes Google importadas no CSS
-        sans: ['Montserrat', 'sans-serif'],
-        heading: ['Oswald', 'sans-serif'], // Usada nos títulos h2.section-heading
-      },
-      maxWidth: {
-        'container': '1280px',
+        sans: ['Inter', 'sans-serif'],
       }
     },
   },
