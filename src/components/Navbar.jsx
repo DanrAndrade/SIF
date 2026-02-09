@@ -41,14 +41,20 @@ export default function Navbar({ scrolled: forceScrolled }) {
       href: '#', 
       submenu: [
         { name: 'EMBRAPII', href: '/embrapii' },
-        // ATUALIZADO: Link externo para o portal da conveniar
         { name: 'Portal Transparência', href: 'https://sif.conveniar.com.br/portaltransparencia/#projetos', external: true },
         { name: 'Projetos', href: '/projetos' },
       ]
     },
     { name: 'Nossa História', href: '/historia' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Contato', href: '/contato' }
+    { 
+      name: 'Contato', 
+      href: '#', 
+      submenu: [
+        { name: 'Fale Conosco', href: '/contato' },
+        { name: 'Trabalhe Conosco', href: '/trabalhe-conosco' },
+      ]
+    }
   ];
 
   const associadoLinks = [

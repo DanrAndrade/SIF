@@ -1,1 +1,13 @@
+# Dependências do Node
+sif/node_modules/
+sif/dist/
+
+# Uploads do PHP (Não suba imagens/pdfs de teste)
+sif-api/uploads/images/*
+sif-api/uploads/docs/*
+
+# Logs e arquivos de sistema
+.DS_Store
+Thumbs.db
+.env
 node_modules

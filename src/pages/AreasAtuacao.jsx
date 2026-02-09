@@ -5,14 +5,13 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Check, ArrowRight, Map, Shield, Settings, Sprout, Leaf, ChevronDown } from 'lucide-react';
 
-// Importando o icone (apenas o símbolo) para o favicon
+// Importando o icone para o favicon
 import iconLogo from '../assets/icone.svg'; 
 
 export default function AreasAtuacao() {
   const { hash } = useLocation();
 
   useEffect(() => {
-    // 1. Configura Título e Favicon (Forçando o icone.svg)
     document.title = "SIF | Áreas de Atuação";
     
     const link = document.querySelector("link[rel~='icon']");
@@ -25,7 +24,6 @@ export default function AreasAtuacao() {
       document.head.appendChild(newLink);
     }
 
-    // 2. Lógica de Scroll
     window.scrollTo(0, 0);
     if (hash) {
       const element = document.querySelector(hash);
@@ -50,7 +48,8 @@ export default function AreasAtuacao() {
       tagline: "Cultivando o Futuro",
       desc: "A arte e a ciência de cultivar florestas. Focamos no plantio, regeneração e melhoramento genético para garantir produtividade sustentável.",
       icon: <Sprout className="w-6 h-6" />,
-      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5c73?q=80&w=2574&auto=format&fit=crop",
+      // IMAGEM ATUALIZADA: Mudas e plantio
+      image: "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=2070&auto=format&fit=crop",
       items: ["Biotecnologia", "Controle de Plantas Invasoras", "Dendrologia", "Ecologia Florestal", "Genética e Melhoramento", "Propagação de Plantas", "Sementes e Mudas", "Sistemas Agroflorestais", "Solos e Fertilização", "Técnicas Silviculturais"]
     },
     {
@@ -59,7 +58,8 @@ export default function AreasAtuacao() {
       tagline: "Inteligência e Estratégia",
       desc: "Planejamento estratégico para o uso racional dos recursos, assegurando a colheita contínua sem comprometer o ecossistema.",
       icon: <Map className="w-6 h-6" />,
-      image: "https://images.unsplash.com/photo-1448375240586-dfd8d3f5d8db?q=80&w=2670&auto=format&fit=crop",
+      // IMAGEM ATUALIZADA: Floresta densa e planejada
+      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071&auto=format&fit=crop",
       items: ["Computação Aplicada", "Colheita e Transporte", "Inventário Florestal", "Economia Florestal", "Planejamento e Admin.", "Ergonomia e Segurança", "Estradas Florestais", "Sensoriamento Remoto", "Manejo Sustentável", "Sistemas GIS"]
     },
     {
@@ -68,7 +68,7 @@ export default function AreasAtuacao() {
       tagline: "Harmonia e Sustentabilidade",
       desc: "O equilíbrio vital entre produção e conservação. Estudos de impacto, biodiversidade e a relação da floresta com a sociedade.",
       icon: <Leaf className="w-6 h-6" />,
-      image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2574&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2070&auto=format&fit=crop",
       items: ["Arborização e Paisagismo", "Impactos Ambientais", "Meio Ambiente", "Manejo de Bacias", "Parques e Reservas", "Reciclagem Urbana", "Recuperação de Áreas"]
     },
     {
@@ -77,7 +77,7 @@ export default function AreasAtuacao() {
       tagline: "Defesa e Sanidade",
       desc: "Monitoramento e defesa ativa das florestas contra pragas, doenças e incêndios, garantindo a saúde e longevidade dos plantios.",
       icon: <Shield className="w-6 h-6" />,
-      image: "https://images.unsplash.com/photo-1516214104703-d870798883c5?q=80&w=2670&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2070&auto=format&fit=crop",
       items: ["Entomologia Florestal", "Incêndios Florestais", "Patologia Florestal", "Controle Biológico", "Monitoramento Integrado"]
     },
     {
@@ -86,7 +86,7 @@ export default function AreasAtuacao() {
       tagline: "Inovação e Valor Agregado",
       desc: "Inovação no processamento da madeira e seus derivados, desenvolvendo novos produtos e otimizando a cadeia industrial.",
       icon: <Settings className="w-6 h-6" />,
-      image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2670&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop",
       items: ["Anatomia da Madeira", "Celulose e Papel", "Energia da Madeira", "Óleos Essenciais", "Preservação da Madeira", "Resinagem", "Serraria e Secagem"]
     }
   ];
@@ -96,30 +96,30 @@ export default function AreasAtuacao() {
       <Navbar />
       
       {/* --- HERO SECTION --- */}
-      <div className="relative min-h-[80vh] flex items-center pt-20 overflow-hidden">
+      <div className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden">
          <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center bg-fixed"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#051a08]/95 via-[#051a08]/80 to-transparent"></div>
-            <NoiseOverlay opacity={0.4} />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-black/20"></div>
+            <NoiseOverlay opacity={0.45} />
          </div>
          
          <div className="absolute bottom-0 left-0 right-0 h-24 bg-slate-50 rounded-tr-[80px] z-10"></div>
 
-         <div className="container mx-auto px-6 relative z-10 grid md:grid-cols-12 gap-12 items-center">
+         <div className="container mx-auto px-6 relative z-10 grid md:grid-cols-12 gap-12 items-center text-white">
             <div className="md:col-span-7">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
                     <span className="flex h-2 w-2 rounded-full bg-[#FFC107] animate-pulse"></span>
                     <span className="text-gray-300 text-xs font-bold tracking-[0.2em] uppercase">Expertise & Inovação</span>
                 </div>
                 
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
+                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
                     Nossas Áreas <br/>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4ADE80] to-[#2E7D32]">
                         de Atuação
                     </span>
                 </h1>
                 
-                <p className="text-lg text-gray-400 max-w-xl leading-relaxed font-light mb-10 border-l border-white/20 pl-6">
+                <p className="text-lg text-gray-400 max-w-xl leading-relaxed font-light mb-10 border-l-2 border-[#2E7D32] pl-6">
                     Mergulhe nas frentes tecnológicas e científicas onde o SIF lidera o desenvolvimento florestal sustentável, conectando pesquisa de ponta à prática de mercado.
                 </p>
 
@@ -175,8 +175,7 @@ export default function AreasAtuacao() {
         ))}
       </main>
 
-      {/* --- CTA FINAL: REFINADO COM VAZIO --- */}
-      {/* O pb-32/pb-48 garante o "vazio" entre o bloco escuro do CTA e o bloco escuro do Footer */}
+      {/* --- CTA FINAL --- */}
       <div className="container mx-auto px-6 mt-10 pb-32 md:pb-48">
         <div className="relative rounded-[2.5rem] overflow-hidden bg-[#1f2937] px-6 py-12 md:py-16 text-center shadow-2xl max-w-4xl mx-auto">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
@@ -191,7 +190,6 @@ export default function AreasAtuacao() {
                 
                 <a 
                     href="/contato" 
-                    // BOTÃO: Gradiente solicitado (Escuro -> Folha) e texto branco
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-[#1B5E20] to-[#2E7D32] hover:brightness-110 text-white px-10 py-3.5 rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-black/20"
                 >
                     Fale com um Especialista <ArrowRight size={18} />

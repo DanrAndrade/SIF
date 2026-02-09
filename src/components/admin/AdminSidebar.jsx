@@ -1,17 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon } from 'lucide-react';
-import iconLogo from '../../assets/icone.svg'; // Verifique se o caminho do logo está correto
+import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon, FileText } from 'lucide-react';
+import iconLogo from '../../assets/icone.svg'; 
 
 // Componente do Item do Menu (Botão)
 const SidebarItem = ({ icon, label, active, onClick }) => (
     <button 
         onClick={onClick} 
-        // CORREÇÃO DE COR: Trocado bg-[#D91A3C] (Vermelho) por bg-[#3c7a43] (Verde SIF)
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
             active 
-            ? 'bg-[#3c7a43] text-white shadow-md shadow-green-900/20' // Ativo: Verde
-            : 'text-gray-400 hover:bg-gray-800 hover:text-white' // Inativo: Cinza escuro
+            ? 'bg-[#3c7a43] text-white shadow-md shadow-green-900/20' 
+            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
         }`}
     >
         <div className={`${active ? 'text-white' : 'text-gray-500 group-hover:text-white'}`}>
@@ -70,7 +69,6 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                 <div className="mb-6 px-2">
                     <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Site & Institucional</p>
                     
-                    {/* Botão de Banners */}
                     <SidebarItem 
                         icon={<ImageIcon size={18}/>} 
                         label="Banners Home" 
@@ -84,6 +82,15 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                         active={activeTab === 'jobs'} 
                         onClick={() => {setActiveTab('jobs'); closeMobile();}} 
                     />
+
+                    {/* NOVO ITEM: GERENCIAR BLOG */}
+                    <SidebarItem 
+                        icon={<FileText size={18}/>} 
+                        label="Gerenciar Blog" 
+                        active={activeTab === 'blog'} 
+                        onClick={() => {setActiveTab('blog'); closeMobile();}} 
+                    />
+                    
                     <SidebarItem 
                         icon={<LayoutGrid size={18}/>} 
                         label="Notificações" 

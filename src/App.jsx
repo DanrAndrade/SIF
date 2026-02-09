@@ -2,6 +2,9 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import BlogAdmin from './pages/BlogAdmin';
 
 // --- COMPONENTES LEVES (Carregamento Imediato) ---
 import Home from './pages/Home'; 
@@ -48,6 +51,9 @@ export default function App() {
           <Route path="/historia" element={<History />} />
           <Route path="/trabalhe-conosco" element={<Jobs />} />
           <Route path="/login" element={<Login />}/>
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/admin/blog" element={<BlogAdmin />} />
           
           {/* NOVA ROTA DE ÁREAS DE ATUAÇÃO */}
           <Route path="/areas-atuacao" element={<AreasAtuacao />} />
