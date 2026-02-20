@@ -146,3 +146,18 @@ html { scrollbar-color: #92b735 #f1f1f1; }
 .animate-scroll {
   animation: scroll 40s linear infinite;
 }
+
+/* --- Estilos para o conteúdo do Blog (React Quill) --- */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+
+/* Garante que os vídeos fiquem centralizados e bonitos */
+iframe.ql-video {
+  display: block;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 720px;
+  height: 400px;
+  border-radius: 12px;
+}

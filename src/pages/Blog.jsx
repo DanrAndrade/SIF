@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { Calendar, ArrowRight, PlayCircle, FileText } from 'lucide-react';
+import { Calendar, ArrowRight } from 'lucide-react';
 
 const API_URL = 'http://localhost/sif-api/blog.php';
 
@@ -32,7 +32,7 @@ export default function Blog() {
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-20 flex-grow">
+      <main className="container mx-auto px-6 pt-20 flex-grow">
         {loading ? (
           <div className="text-center py-20 font-bold text-gray-400 animate-pulse uppercase tracking-widest">Carregando Artigos...</div>
         ) : (
@@ -57,6 +57,10 @@ export default function Blog() {
           </div>
         )}
       </main>
+
+      {/* BLOCO FÍSICO INVISÍVEL PARA FORÇAR O ESPAÇAMENTO DO FOOTER */}
+      <div className="w-full h-24 md:h-32 flex-shrink-0"></div>
+
       <Footer />
     </div>
   );
