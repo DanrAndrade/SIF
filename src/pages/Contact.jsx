@@ -11,7 +11,7 @@ import SectionHeader from '../components/ui/SectionHeader';
 // Importando o icone para o favicon
 import iconLogo from '../assets/icone.svg'; 
 
-const API_URL = 'http://localhost/chocosul-api/leads.php';
+const API_URL = 'http://localhost/sif-api/leads.php';
 
 export default function Contact() {
   const { hash } = useLocation();

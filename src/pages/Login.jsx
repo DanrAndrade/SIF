@@ -34,7 +34,7 @@ export default function Login() {
             </div>
             <div className="relative z-10 text-center max-w-lg">
                 <div className="w-32 h-32 mx-auto mb-8 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
-                    <img src={iconLogo} alt="Chocosul Logo" className="w-20 h-20 object-contain drop-shadow-lg" />
+                    <img src={iconLogo} alt="Sif Logo" className="w-20 h-20 object-contain drop-shadow-lg" />
                 </div>
                 <h2 className="text-4xl font-bold uppercase text-white mb-4 tracking-tight">Bem-vindo à <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFC107] to-[#fbbf24]">Área do Cliente</span></h2>
                 <p className="text-gray-400 text-lg font-medium leading-relaxed">Acompanhe seus pedidos, baixe notas fiscais e gerencie sua conta com a agilidade que seu negócio precisa.</p>
@@ -90,7 +90,7 @@ export default function Login() {
                     </div>
                 </form>
             </div>
-            <div className="absolute bottom-6 text-center w-full text-xs text-gray-400 font-medium opacity-60">&copy; {new Date().getFullYear()} Chocosul Distribuidora. Painel Seguro.</div>
+            <div className="absolute bottom-6 text-center w-full text-xs text-gray-400 font-medium opacity-60">&copy; {new Date().getFullYear()}SIF. Painel Seguro.</div>
         </div>
       </div>
     </div>
