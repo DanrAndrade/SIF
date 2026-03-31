@@ -27,7 +27,7 @@ export default function FAQ() {
   ];
 
   return (
-      <section className="bg-transparent w-full py-20 px-6 md:px-12 lg:px-24 overflow-visible pb-24">
+      <section id="faq" className="bg-transparent w-full py-20 px-6 md:px-12 lg:px-24 overflow-visible pb-24">
         <SectionHeader 
             tag="Tire suas Dúvidas" 
             title="Perguntas Frequentes" 

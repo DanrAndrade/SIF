@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Calendar, ArrowLeft, Tag as TagIcon, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { getImageUrl } from '../apiConfig';
 
 const API_URL = 'http://localhost/sif-api/blog.php';
 
@@ -45,32 +46,56 @@ export default function BlogPost() {
 
   return (
     <div className="bg-white min-h-screen flex flex-col font-sans overflow-x-hidden">
-      <Navbar scrolled={true} />
+      <Navbar />
       
-      <article className="flex-grow pt-32 container mx-auto px-6 max-w-4xl">
-        <a href="/blog" className="flex items-center gap-2 text-gray-400 hover:text-[#2E7D32] mb-12 font-bold uppercase text-[10px] tracking-widest transition-colors"><ArrowLeft size={16}/> Voltar ao Blog</a>
-        
-        {/* 1. Imagem de Capa (Hero) */}
-        <div className="mb-16">
-            <img src={post.image_url} className="w-full h-[500px] object-cover rounded-[56px] shadow-2xl border border-gray-100" alt={post.title} />
+      {/* HERO DA NOTÍCIA */}
+      <div className="relative h-[60vh] md:h-[70vh] flex items-end pb-20 overflow-hidden bg-[#0f1f11]">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={getImageUrl(post.image_url)} 
+            className="w-full h-full object-cover opacity-60" 
+            alt="" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f1f11] via-[#0f1f11]/40 to-transparent"></div>
         </div>
 
-        {/* 2. Título */}
-        <header className="mb-16">
-            <h1 className="text-4xl md:text-7xl font-black text-gray-900 leading-tight mb-6 tracking-tighter uppercase">{post.title}</h1>
-            <div className="flex items-center gap-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
-                <span className="flex items-center gap-1.5"><Calendar size={14} className="text-[#2E7D32]"/> {new Date(post.created_at).toLocaleDateString()}</span>
+        <div className="container mx-auto px-6 relative z-10">
+            <a href="/blog" className="inline-flex items-center gap-2 text-white/70 hover:text-[#92b735] mb-8 font-bold uppercase text-[10px] tracking-[0.2em] transition-colors bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                <ArrowLeft size={14}/> Voltar ao Blog
+            </a>
+            
+            <div className="flex items-center gap-3 text-[#92b735] font-black uppercase text-[10px] tracking-[0.3em] mb-4">
+                <Calendar size={14}/> {new Date(post.created_at).toLocaleDateString()}
             </div>
-        </header>
+            
+            <h1 className="text-4xl md:text-7xl font-black text-white leading-[0.9] tracking-tighter uppercase max-w-4xl">
+                {post.title}
+            </h1>
+        </div>
+      </div>
 
-        {/* 3. Conteúdo Rico (HTML do Editor) */}
+      <article className="flex-grow pt-16 container mx-auto px-6 max-w-4xl">
+        {/* Conteúdo Rico (HTML do Editor) */}
         <div 
           className="prose prose-lg max-w-none text-gray-700 leading-relaxed sif-content-rich"
           dangerouslySetInnerHTML={{ __html: post.content }} 
         />
 
-        {/* 4. Tags de Rodapé */}
-        <div className="flex flex-wrap gap-2 mt-8 mb-8 pt-6 border-t border-gray-100">
+        {/* Estilização Extra para imagens dentro do conteúdo */}
+        <style dangerouslySetInnerHTML={{ __html: `
+            .sif-content-rich img { 
+                max-width: 100%; 
+                height: auto; 
+                border-radius: 24px; 
+                margin: 40px auto; 
+                display: block;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            }
+            .sif-content-rich p { margin-bottom: 1.5rem; }
+        ` }} />
+
+        {/* Tags de Rodapé */}
+        <div className="flex flex-wrap gap-2 mt-12 mb-8 pt-8 border-t border-gray-100">
             {post.tags?.split(',').map(tag => {
                 if(!tag.trim()) return null;
                 return (
@@ -88,8 +113,13 @@ export default function BlogPost() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {relatedPosts.map(relPost => (
                         <a key={relPost.id} href={`/blog/${relPost.slug}`} className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-gray-100 transition-all hover:-translate-y-2 flex flex-col">
-                            <div className="relative h-40 overflow-hidden flex-shrink-0">
-                                <img src={relPost.image_url || 'https://via.placeholder.com/800x600'} alt={relPost.title} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                            <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
+                                <img 
+                                    src={getImageUrl(relPost.image_url)} 
+                                    alt={relPost.title} 
+                                    className="w-full h-full object-cover transition-transform group-hover:scale-110" 
+                                    onError={(e) => e.target.src = 'https://via.placeholder.com/800x600?text=SIF'}
+                                />
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">

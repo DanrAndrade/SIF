@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 export default function BannerCarousel() {
   const [banners, setBanners] = useState([]);
@@ -13,7 +14,7 @@ export default function BannerCarousel() {
   const minSwipeDistance = 50; 
 
   // URL da API
-  const API_URL = 'http://localhost/sif-api/banners.php'; 
+  const API_URL = `${API_BASE_URL}/banners.php`; 
 
   useEffect(() => {
     fetchBanners();
@@ -106,7 +107,7 @@ export default function BannerCarousel() {
                         {banner.link_url ? (
                             <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer">
                                 <img 
-                                    src={banner.image_url} 
+                                    src={getImageUrl(banner.image_url)} 
                                     alt="Banner" 
                                     className="w-full h-full object-cover pointer-events-none" 
                                     onError={(e) => { e.target.style.display = 'none'; }}
@@ -115,7 +116,7 @@ export default function BannerCarousel() {
                         ) : (
                             <div className="w-full h-full">
                                 <img 
-                                    src={banner.image_url} 
+                                    src={getImageUrl(banner.image_url)} 
                                     alt="Banner" 
                                     className="w-full h-full object-cover pointer-events-none"
                                     onError={(e) => { e.target.style.display = 'none'; }}

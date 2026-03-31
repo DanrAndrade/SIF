@@ -16,6 +16,9 @@ export default function Navbar({ scrolled: forceScrolled }) {
   }, []);
 
   const scrolled = forceScrolled || isScrolled;
+  
+  // Se estivermos em uma página que NÃO inicia com Hero escuro, podemos forçar o estado 'scrolled'
+  // Ou simplesmente usar a prop forceScrolled que já existe.
   const closeMenu = () => {
     setMobileMenuOpen(false);
     setMobileExpanded(null);
@@ -28,25 +31,44 @@ export default function Navbar({ scrolled: forceScrolled }) {
   const navLinks = [
     { 
       name: 'Institucional', 
-      href: '#', 
+      href: '/institucional', 
       submenu: [
-        { name: 'Quem Somos', href: '/#quem-somos' },
-        { name: 'Nossa Gente', href: '/nossa-gente' },
-        { name: 'Estatutos e Normas', href: '/normas' },
-        { name: 'Áreas de Atuação', href: '/areas-atuacao' },
+        { name: 'Quem Somos / História', href: '/institucional#quem-somos' },
+        { name: 'Nossa Gente', href: '/institucional#nossa-gente' },
+        { name: 'Estatuto e Normas', href: '/institucional#estatutos-normas' },
+        { name: 'Áreas de Atuação', href: '/institucional#areas-atuacao' },
+        { name: 'FAQ', href: '/institucional#faq' },
       ]
     },
+    { 
+      name: 'Empresas Associadas', 
+      href: '/associadas', 
+    },
+    { 
+      name: 'Produtos e Serviços', 
+      href: '/produtos-servicos', 
+    },
+    { 
+      name: 'Eventos & Treinamentos', 
+      href: '#', 
+      submenu: [
+        { name: 'Eventos', href: '/eventos' },
+        { name: 'Treinamentos', href: '/treinamentos' },
+        { name: 'Treinamentos In-Company', href: '/treinamentos-in-company' },
+      ]
+    },
+    { name: 'Grupos Temáticos', href: '/grupos-tematicos' },
+    { name: 'Blog', href: '/blog' },
     { 
       name: 'Projetos & Transparência', 
       href: '#', 
       submenu: [
-        { name: 'EMBRAPII', href: '/embrapii' },
-        { name: 'Portal Transparência', href: 'https://sif.conveniar.com.br/portaltransparencia/#projetos', external: true },
         { name: 'Projetos', href: '/projetos' },
+        { name: 'Portal da Transparência', href: '/transparencia' },
+        { name: 'Conveniar', href: 'https://sif.conveniar.com.br/', external: true },
+        { name: 'EMBRAPII', href: 'https://sif.org.br/embrapii/', external: true },
       ]
     },
-    { name: 'Nossa História', href: '/historia' },
-    { name: 'Blog', href: '/blog' },
     { 
       name: 'Contato', 
       href: '#', 
@@ -68,19 +90,22 @@ export default function Navbar({ scrolled: forceScrolled }) {
     : 'bg-transparent py-4 border-transparent';
 
   const commonTextColor = scrolled ? 'text-[#1f2937]' : 'text-white';
-  const hoverColor = scrolled ? 'hover:text-[#3c7a43]' : 'hover:text-[#92b735]';
+  const hoverColor = scrolled ? 'hover:text-[#92b735]' : 'hover:text-[#92b735]'; // Estabilizando cor de hover
+  
+// Se a página for branca e não tivermos scroll, a navbar transparente com texto branco fica invisível.
+// O ideal é que páginas sem Hero passem a prop scrolled={true} ou definamos um padrão.
 
   return (
     <>
       {/* --- DESKTOP HEADER --- */}
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${headerBg}`}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">
+        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center gap-16">
             
             <a href="/" className="flex items-center gap-2 cursor-pointer z-20">
-                <img src={logoSif} alt="SIF" className="h-8 w-auto object-contain" />
+                <img src={logoSif} alt="SIF" className="h-10 w-auto object-contain" />
             </a>
 
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-10">
                 {navLinks.map((link) => (
                     <div key={link.name} className="relative group py-2">
                         <a 

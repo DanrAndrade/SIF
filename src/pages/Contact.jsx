@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
 import { Input, Select, TextArea } from '../components/ui/FormElements';
 import Button from '../components/ui/Button';
 import SectionHeader from '../components/ui/SectionHeader';
@@ -23,7 +23,7 @@ export default function Contact() {
   });
 
   useEffect(() => {
-    document.title = "SIF | Fale Conosco";
+    document.title = "SIF | Contato";
     
     const link = document.querySelector("link[rel~='icon']");
     if (link) {
@@ -49,7 +49,11 @@ export default function Contact() {
   }, [hash]);
 
   const scrollToContent = () => {
-    window.scrollTo({ top: window.innerHeight - 100, behavior: 'smooth' });
+    const section = document.getElementById('contact-form');
+    if (section) {
+        const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
   const maskPhone = (value) => {
@@ -92,83 +96,79 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen flex flex-col font-sans overflow-x-hidden">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
       <Navbar />
       
-      {/* --- HERO SECTION --- */}
-      <div className="relative min-h-[85vh] flex items-center pt-20 overflow-hidden">
-         <div className="absolute inset-0 z-0">
-            {/* Imagem de Fundo Florestal */}
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=2682&auto=format&fit=crop')] bg-cover bg-center bg-fixed"></div>
-            
-            {/* OVERLAY FUMÊ MAIS ESCURO */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-black/20"></div>
-            
-            <NoiseOverlay opacity={0.45} />
-         </div>
-         
-         {/* Recorte Curvo SIF */}
-         <div className="absolute bottom-0 left-0 right-0 h-24 bg-slate-50 rounded-tr-[80px] z-10"></div>
+      {/* HERO PADRÃO SIF COM IMAGEM */}
+      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557426272-fc759fbb7a8d?q=80&w=2070')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
+          <NoiseOverlay opacity={0.4} />
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
+              <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Conecte-se Conosco</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
+              Fale com <br/>
+              <span className="text-[#059669]">Nossa Equipe</span>
+          </h1>
+          
+          <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+              Transparência e proximidade são nossos pilares. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas.
+          </p>
 
-         <div className="container mx-auto px-6 relative z-10 grid md:grid-cols-12 gap-12 items-center">
-            <div className="md:col-span-8 lg:col-span-7">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
-                    <span className="flex h-2 w-2 rounded-full bg-[#FFC107] animate-pulse"></span>
-                    <span className="text-gray-300 text-xs font-bold tracking-[0.2em] uppercase">Contato SIF</span>
-                </div>
-                
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-                    Fale com <br/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4ADE80] to-[#2E7D32]">
-                        Nossa Equipe
-                    </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed font-light mb-10 border-l-2 border-[#2E7D32] pl-6">
-                    A SIF valoriza a transparência e a proximidade. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas sobre nossas atividades.
-                </p>
-
-                <button onClick={scrollToContent} className="group flex items-center gap-3 text-white font-medium hover:text-[#FFC107] transition-colors">
-                    <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#FFC107] transition-all">
-                        <ChevronDown className="animate-bounce" size={24} />
-                    </div>
-                    <span className="uppercase text-xs tracking-widest font-bold">Enviar Mensagem</span>
-                </button>
-            </div>
-         </div>
+          <button 
+              onClick={scrollToContent} 
+              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#059669]"
+          >
+              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all shadow-sm">
+                  <ChevronDown className="animate-bounce" size={20} />
+              </div>
+          </button>
+        </div>
       </div>
 
-      <main className="flex-grow pt-10 pb-24 px-6">
-        <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
+      <main className="flex-grow py-24 px-6">
+        <div id="contact-form" className="container mx-auto max-w-7xl scroll-mt-32">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
                 
                 {/* Lateral: Informações */}
-                <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 overflow-hidden group">
-                        <h3 className="text-xl font-bold uppercase mb-8 tracking-widest text-[#1f2937] flex items-center gap-3">
-                            <span className="w-8 h-[2px] bg-[#2E7D32]"></span> Canais Diretos
+                <div className="lg:col-span-4 flex flex-col gap-8">
+                    <div className="bg-white p-10 rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden relative group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[80px] -z-0"></div>
+                        
+                        <h3 className="text-xs font-black uppercase mb-12 tracking-[0.3em] text-[#059669] flex items-center gap-4 relative z-10">
+                            <span className="w-10 h-[2px] bg-[#059669]"></span> Canais Diretos
                         </h3>
-                        <div className="flex flex-col gap-8">
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-[#2E7D32]/10 text-[#2E7D32] rounded-2xl flex items-center justify-center shrink-0 transition-colors group-hover:bg-[#2E7D32] group-hover:text-white"><Phone size={24} /></div>
+                        
+                        <div className="flex flex-col gap-10 relative z-10">
+                            <div className="flex items-start gap-6 group/item">
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><Phone size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Telefone</span>
-                                    <p className="font-bold text-lg text-[#1f2937]">+55 (31) 3612-3950</p>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Telefone Centex</span>
+                                    <p className="font-bold text-xl text-[#1f2937]">+55 (31) 3612-3950</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-[#FFC107]/10 text-[#b45309] rounded-2xl flex items-center justify-center shrink-0"><Mail size={24} /></div>
+                            
+                            <div className="flex items-start gap-6 group/item">
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><Mail size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Email</span>
-                                    <p className="font-bold text-lg text-[#1f2937] break-all">contato@sif.org.br</p>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">E-mail Corporativo</span>
+                                    <p className="font-bold text-xl text-[#1f2937] break-all">contato@sif.org.br</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center shrink-0"><MapPin size={24} /></div>
+                            
+                            <div className="flex items-start gap-6 group/item pt-10 border-t border-gray-50">
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><MapPin size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Localização</span>
-                                    <p className="font-bold text-sm text-[#1f2937] leading-relaxed">
-                                        Departamento de Engenharia Florestal<br/>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sede Administrativa</span>
+                                    <p className="font-medium text-sm text-[#1f2937] leading-relaxed">
+                                        DEP de Engenharia Florestal<br/>
                                         Av. P.H. Rolfs, s/n – Campus da UFV<br/>
                                         Viçosa - MG | CEP: 36570-900
                                     </p>
@@ -180,32 +180,34 @@ export default function Contact() {
 
                 {/* Formulário de Mensagem */}
                 <div className="lg:col-span-8">
-                    <div className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl border border-gray-100 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#2E7D32]/5 rounded-bl-[100px] pointer-events-none"></div>
+                    <div className="bg-white p-8 md:p-16 rounded-[40px] shadow-2xl border border-gray-100 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-[200px] pointer-events-none opacity-50"></div>
                         
-                        <SectionHeader 
-                            align="left"
-                            tag="Fale Conosco"
-                            title="Mande sua Mensagem"
-                            subtitle="Dúvidas ou interesse em parcerias? Nossa equipe técnica retornará seu contato."
-                        />
+                        <div className="mb-12">
+                            <span className="text-[#059669] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Mensagem</span>
+                            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tight">Atendimento <br/>Técnico</h2>
+                        </div>
                         
                         {status === 'success' && (
-                            <div className="mb-8 p-5 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-3 text-green-800 animate-in fade-in">
-                                <CheckCircle size={24} />
-                                <span className="font-bold text-sm">Mensagem enviada com sucesso!</span>
+                            <div className="mb-12 p-6 bg-emerald-50 border border-emerald-100 rounded-[2rem] flex items-center gap-4 text-[#059669] animate-in zoom-in-95">
+                                <CheckCircle size={32} />
+                                <div className="flex flex-col">
+                                    <span className="font-black text-xs uppercase tracking-widest">Sucesso</span>
+                                    <span className="text-sm font-medium">Sua mensagem foi entregue à nossa secretaria técnica.</span>
+                                </div>
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                            <Input label="Nome Completo" name="name" value={formData.name} onChange={handleChange} required />
-                            <Input label="E-mail" name="email" value={formData.email} onChange={handleChange} type="email" required />
-                            <Input label="Telefone" name="phone" value={formData.phone} onChange={handleChange} maxLength={15} required />
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                            <Input label="Nome Completo" name="name" value={formData.name} onChange={handleChange} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
+                            <Input label="E-mail" name="email" value={formData.email} onChange={handleChange} type="email" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
+                            <Input label="Telefone" name="phone" value={formData.phone} onChange={handleChange} maxLength={15} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
                             <Select 
                                 label="Assunto" 
                                 name="subject"
                                 value={formData.subject}
                                 onChange={handleChange}
+                                className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl"
                                 options={[
                                     {label: "Dúvida Institucional", value: "institucional"}, 
                                     {label: "Parcerias de Pesquisa", value: "parceria"}, 
@@ -214,16 +216,20 @@ export default function Contact() {
                                 ]} 
                             />
                             <div className="md:col-span-2">
-                                <TextArea label="Como podemos ajudar?" name="message" value={formData.message} onChange={handleChange} rows="5" required />
+                                <TextArea label="Como podemos ajudar?" name="message" value={formData.message} onChange={handleChange} rows="6" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
                             </div>
                             <div className="md:col-span-2 mt-4">
-                                <Button 
+                                <button 
                                     type="submit" 
-                                    className="w-full md:w-auto bg-gradient-to-r from-[#1B5E20] to-[#2E7D32] hover:brightness-110 text-white font-bold py-4 px-12 rounded-full border-0 shadow-lg transition-transform hover:scale-105"
-                                    isLoading={loading}
+                                    disabled={loading}
+                                    className="w-full md:w-auto bg-[#1f2937] hover:bg-[#059669] text-white font-black uppercase tracking-[0.2em] text-[10px] py-6 px-16 rounded-2xl transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-4 disabled:opacity-50"
                                 >
-                                    {loading ? 'Enviando...' : 'Enviar Agora'}
-                                </Button>
+                                    {loading ? 'Processando envio...' : (
+                                        <>
+                                            Enviar Mensagem <Send size={16} />
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </form>
                     </div>

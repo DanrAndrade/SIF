@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import BlogAdmin from './pages/BlogAdmin';
@@ -12,18 +12,31 @@ import AdminLogin from './pages/admin/AdminLogin';
 
 // --- LAZY LOADING (Carregamento sob Demanda) ---
 const Contact = lazy(() => import('./pages/Contact'));
-const History = lazy(() => import('./pages/History'));
+const Institucional = lazy(() => import('./pages/Institucional'));
 const Jobs = lazy(() => import('./pages/Jobs'));
-const Login = lazy(() => import('./pages/Login'));
-const ClientDashboard = lazy(() => import('./pages/ClientDashboard'));
+
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-// NOVA PÁGINA ADICIONADA AQUI:
-const AreasAtuacao = lazy(() => import('./pages/AreasAtuacao'));
+const Associadas = lazy(() => import('./pages/Associadas'));
+const ProdutosServicos = lazy(() => import('./pages/ProdutosServicos'));
+const Eventos = lazy(() => import('./pages/Eventos'));
+const EventoDetalhe = lazy(() => import('./pages/EventoDetalhe'));
+const Treinamentos = lazy(() => import('./pages/Treinamentos'));
+const TreinamentoDetalhe = lazy(() => import('./pages/TreinamentoDetalhe'));
+const TreinamentosInCompany = lazy(() => import('./pages/TreinamentosInCompany'));
+const GruposTematicos = lazy(() => import('./pages/GruposTematicos'));
+const GrupoTematicoDetalhe = lazy(() => import('./pages/GrupoTematicoDetalhe'));
+const Projetos = lazy(() => import('./pages/Projetos'));
+const Transparencia = lazy(() => import('./pages/Transparencia'));
+
+// Admin Pages
+const EventosAdmin = lazy(() => import('./pages/admin/EventosAdmin'));
+const TreinamentosAdmin = lazy(() => import('./pages/admin/TreinamentosAdmin'));
+const GTAdmin = lazy(() => import('./pages/admin/GTAdmin'));
 
 // Tela de carregamento
 const LoadingScreen = () => (
   <div className="min-h-screen flex items-center justify-center bg-[#f8f9fa]">
-    <div className="w-12 h-12 border-4 border-[#D91A3C] border-t-transparent rounded-full animate-spin"></div>
+    <div className="w-12 h-12 border-4 border-[#059669] border-t-transparent rounded-full animate-spin"></div>
   </div>
 );
 
@@ -48,25 +61,27 @@ export default function App() {
           {/* Rotas Públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/contato" element={<Contact />} />
-          <Route path="/historia" element={<History />} />
+          <Route path="/institucional" element={<Institucional />} />
           <Route path="/trabalhe-conosco" element={<Jobs />} />
-          <Route path="/login" element={<Login />}/>
+
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/admin/blog" element={<BlogAdmin />} />
           
-          {/* NOVA ROTA DE ÁREAS DE ATUAÇÃO */}
-          <Route path="/areas-atuacao" element={<AreasAtuacao />} />
+          {/* ROTA DE ASSOCIADAS */}
+          <Route path="/associadas" element={<Associadas />} />
+          <Route path="/produtos-servicos" element={<ProdutosServicos />} />
+          <Route path="/eventos" element={<Eventos />} />
+          <Route path="/eventos/:slug" element={<EventoDetalhe />} />
+          <Route path="/treinamentos" element={<Treinamentos />} />
+          <Route path="/treinamentos/:slug" element={<TreinamentoDetalhe />} />
+          <Route path="/treinamentos-in-company" element={<TreinamentosInCompany />} />
+          <Route path="/grupos-tematicos" element={<GruposTematicos />} />
+          <Route path="/grupos-tematicos/:slug" element={<GrupoTematicoDetalhe />} />
+          <Route path="/projetos" element={<Projetos />} />
+          <Route path="/transparencia" element={<Transparencia />} />
           
-          {/* Rota Protegida Cliente */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <ClientDashboard />
-              </ProtectedRoute>
-            } 
-          />
+
 
           {/* Rotas Admin */}
           <Route path="/admin" element={<AdminLogin />} />
@@ -76,6 +91,30 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminDashboard />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/admin/eventos" 
+            element={
+              <AdminRoute>
+                <AdminDashboard currentTab="eventos" />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/admin/treinamentos" 
+            element={
+              <AdminRoute>
+                <AdminDashboard currentTab="treinamentos" />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/admin/gt" 
+            element={
+              <AdminRoute>
+                <AdminDashboard currentTab="gt" />
               </AdminRoute>
             } 
           />

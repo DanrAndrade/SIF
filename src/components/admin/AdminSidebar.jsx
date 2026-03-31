@@ -83,20 +83,36 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                         onClick={() => {setActiveTab('jobs'); closeMobile();}} 
                     />
 
-                    {/* NOVO ITEM: GERENCIAR BLOG */}
-                    <SidebarItem 
-                        icon={<FileText size={18}/>} 
-                        label="Gerenciar Blog" 
-                        active={activeTab === 'blog'} 
-                        onClick={() => {setActiveTab('blog'); closeMobile();}} 
-                    />
-                    
-                    <SidebarItem 
-                        icon={<LayoutGrid size={18}/>} 
-                        label="Notificações" 
-                        active={activeTab === 'notifications'} 
-                        onClick={() => {setActiveTab('notifications'); closeMobile();}} 
-                    />
+                    {/* NOVOS ITENS: EVENTOS, TREINAMENTOS E GTS */}
+                    <div className="pt-4 border-t border-gray-800/50 mt-4 space-y-2">
+                        <SidebarItem 
+                            icon={<FileText size={18}/>} 
+                            label="Gerenciar Blog" 
+                            active={activeTab === 'blog'} 
+                            onClick={() => {setActiveTab('blog'); closeMobile();}} 
+                        />
+                        
+                        <SidebarItem 
+                            icon={<LayoutGrid size={18}/>} 
+                            label="Eventos" 
+                            active={activeTab === 'eventos'} 
+                            onClick={() => {setActiveTab('eventos'); closeMobile();}} 
+                        />
+
+                        <SidebarItem 
+                            icon={<FileText size={18}/>} 
+                            label="Treinamentos" 
+                            active={activeTab === 'treinamentos'} 
+                            onClick={() => {setActiveTab('treinamentos'); closeMobile();}} 
+                        />
+
+                        <SidebarItem 
+                            icon={<LayoutGrid size={18}/>} 
+                            label="Grupos Temáticos" 
+                            active={activeTab === 'gt'} 
+                            onClick={() => {setActiveTab('gt'); closeMobile();}} 
+                        />
+                    </div>
                 </div>
             </nav>
 

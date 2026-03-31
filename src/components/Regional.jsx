@@ -25,23 +25,23 @@ export default function Regional() {
                 {/* OTIMIZAÇÃO: SectionHeader */}
                 <SectionHeader 
                     tag="Extremo Sul" 
-                    title="Atuamos <span class='text-[#D91A3C]'>Em</span>"
+                    title="Atuamos <span class='text-[#059669]'>Em</span>"
                     subtitle="Sediada em <strong>Eunápolis</strong>, nossa operação garante a capilaridade necessária para conectar sua marca aos principais mercados da região com total eficiência."
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 w-full">
                     {regionalCities.map((city, i) => (
                         <div key={i} className="flex items-center gap-3 py-1 border-b border-gray-50 last:border-0 group cursor-default">
-                            <div className="w-1.5 h-1.5 bg-[#D91A3C] rounded-full group-hover:scale-125 transition-transform"></div>
-                            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-800 transition-colors">{city.name}</span>
+                            <div className="w-1.5 h-1.5 bg-[#059669] rounded-full group-hover:scale-125 transition-transform"></div>
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-800 transition-colors group-hover:text-[#059669]">{city.name}</span>
                         </div>
                     ))}
                 </div>
                 <div className="mt-12 flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-[#111] text-white rounded-2xl flex items-center justify-center group-hover:bg-[#D91A3C] transition-colors shadow-lg"><Navigation size={20} /></div>
+                    <div className="w-12 h-12 bg-[#111] text-white rounded-2xl flex items-center justify-center group-hover:bg-[#059669] transition-colors shadow-lg"><Navigation size={20} /></div>
                     <div>
-                        <span className="block text-xs font-bold uppercase tracking-widest text-text-main">Logística Local</span>
-                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">Entregas em até 24h na região</span>
+                        <span className="block text-xs font-bold uppercase tracking-widest text-[#1f2937]">Logística Local</span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">Conexão Estratégica Regional</span>
                     </div>
                 </div>
             </div>
@@ -51,8 +51,8 @@ export default function Regional() {
                     <MapContainer center={mapCenter} zoom={9} scrollWheelZoom={false} className="w-full h-full z-0" style={{ background: '#f8f9fa' }}>
                         <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
                         {regionalCities.map((city, idx) => (
-                            <CircleMarker key={idx} center={city.coords} pathOptions={{ color: '#D91A3C', fillColor: '#D91A3C', fillOpacity: 0.8, weight: 2 }} radius={6}>
-                                <Popup><span className="font-bold text-[#D91A3C] uppercase text-xs">{city.name}</span></Popup>
+                            <CircleMarker key={idx} center={city.coords} pathOptions={{ color: '#059669', fillColor: '#059669', fillOpacity: 0.8, weight: 2 }} radius={6}>
+                                <Popup><span className="font-bold text-[#059669] uppercase text-xs">{city.name}</span></Popup>
                             </CircleMarker>
                         ))}
                     </MapContainer>

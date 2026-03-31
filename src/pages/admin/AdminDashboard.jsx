@@ -7,9 +7,11 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminBanners from '../../components/admin/AdminBanners';
 import { LeadsView, CandidatesView, JobsManagerView, NotificationsManagerView } from '../../components/admin/AdminViews';
 
-// 1. IMPORTAÇÃO DO GERENCIADOR DE BLOG
-// Assumindo que você criou o arquivo em src/pages/BlogAdmin.jsx
+// 1. IMPORTAÇÃO DO GERENCIADOR DE BLOG E NOVOS MÓDULOS
 import BlogAdmin from '../BlogAdmin'; 
+import EventosAdmin from './EventosAdmin';
+import TreinamentosAdmin from './TreinamentosAdmin';
+import GTAdmin from './GTAdmin';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('leads');
@@ -56,8 +58,11 @@ export default function AdminDashboard() {
                 {activeTab === 'jobs' && <JobsManagerView />}
                 {activeTab === 'notifications' && <NotificationsManagerView />}
                 
-                {/* 2. CONDIÇÃO PARA EXIBIR O BLOG */}
+                {/* 2. CONDIÇÃO PARA EXIBIR O BLOG E NOVOS ITENS */}
                 {activeTab === 'blog' && <BlogAdmin />}
+                {activeTab === 'eventos' && <EventosAdmin />}
+                {activeTab === 'treinamentos' && <TreinamentosAdmin />}
+                {activeTab === 'gt' && <GTAdmin />}
             </div>
         </div>
       </main>

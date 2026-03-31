@@ -3,8 +3,7 @@ import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
 
-// Ajuste a URL conforme seu ambiente
-const API_URL = 'http://localhost/sif-api'; 
+import { API_BASE_URL } from '../../apiConfig';
 
 // Modal Responsivo (Restaurado)
 const Modal = ({ title, onClose, children }) => (
@@ -26,7 +25,7 @@ export const LeadsView = () => {
 
     const fetchLeads = async () => {
         try {
-            const res = await fetch(`${API_URL}/leads.php`, { credentials: 'include' });
+            const res = await fetch(`${API_BASE_URL}/leads.php`, { credentials: 'include' });
             const data = await res.json();
             if(Array.isArray(data)) setLeads(data);
         } catch (error) { console.error(error); }
@@ -36,7 +35,7 @@ export const LeadsView = () => {
 
     const updateStatus = async (id, newStatus) => {
         try {
-            await fetch(`${API_URL}/leads.php`, {
+            await fetch(`${API_BASE_URL}/leads.php`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({ id, status: newStatus })
@@ -209,7 +208,7 @@ export const CandidatesView = () => {
 export const JobsManagerView = () => {
     const [jobs, setJobs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', requirements: [] });
+    const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', active: 1, requirements: [] });
     const [tempReq, setTempReq] = useState("");
 
     const fetchJobs = async () => {
@@ -254,6 +253,10 @@ export const JobsManagerView = () => {
                         <Input label="Salário" value={currentJob.salary} onChange={e=>setCurrentJob({...currentJob, salary:e.target.value})}/>
                         <Input label="Local" value={currentJob.location} onChange={e=>setCurrentJob({...currentJob, location:e.target.value})}/>
                         <Input label="Tipo" value={currentJob.type} onChange={e=>setCurrentJob({...currentJob, type:e.target.value})}/>
+                        <div className="flex items-center gap-2 pt-2">
+                             <input type="checkbox" id="job-active" checked={currentJob.active == 1} onChange={e=>setCurrentJob({...currentJob, active: e.target.checked ? 1 : 0})} className="w-4 h-4 text-[#059669] rounded border-gray-300 focus:ring-[#059669]" />
+                             <label htmlFor="job-active" className="text-xs font-bold uppercase text-gray-700">Vaga Ativa (Visível no site)</label>
+                        </div>
                     </div>
                     <TextArea label="Descrição" value={currentJob.description} onChange={e=>setCurrentJob({...currentJob, description:e.target.value})} rows={4}/>
                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">

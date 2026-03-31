@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus } from 'lucide-react';
-import Button from '../components/ui/Button'; // Import Navbar removido!
+import Button from '../components/ui/Button'; 
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
-const API_URL = 'http://localhost/sif-api/blog.php';
+const API_URL = `${API_BASE_URL}/blog.php`;
 
 const AVAILABLE_TAGS = [
   'Silvicultura', 'Inovação', 'Sustentabilidade', 'Tecnologia', 
@@ -20,20 +21,54 @@ export default function BlogAdmin() {
 
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [formData, setFormData] = useState({ title: '', content: '', image_url_base64: '' });
+  const [formData, setFormData] = useState({ title: '', content: '', image_url_base64: '', imageFile: null });
   
   const [selectedTags, setSelectedTags] = useState([]);
+  const quillRef = React.useRef(null);
 
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{ 'align': [] }],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-      ['link', 'image', 'video'],
-      ['clean']
-    ],
-  };
+  const imageHandler = React.useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/upload.php`, {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success) {
+          const quill = quillRef.current.getEditor();
+          const range = quill.getSelection();
+          quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
+        }
+      } catch (err) {
+        console.error("Erro no upload da imagem do editor:", err);
+      }
+    };
+  }, []);
+
+  const modules = React.useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'align': [] }],
+        [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    },
+  }), [imageHandler]);
 
   const fetchPosts = () => {
     fetch(API_URL).then(res => res.json()).then(data => setPosts(Array.isArray(data) ? data : []));
@@ -47,7 +82,7 @@ export default function BlogAdmin() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result); 
-        setFormData({ ...formData, image_url_base64: reader.result }); 
+        setFormData({ ...formData, image_url_base64: reader.result, imageFile: file }); 
       };
       reader.readAsDataURL(file);
     }
@@ -73,7 +108,6 @@ export default function BlogAdmin() {
     }
   };
 
-  // --- CORREÇÃO: Busca o texto completo do artigo ao clicar em Editar ---
   const handleEdit = async (post) => {
     setLoading(true);
     try {
@@ -81,7 +115,7 @@ export default function BlogAdmin() {
         const fullPost = await res.json();
         
         setEditingId(fullPost.id);
-        setFormData({ title: fullPost.title, content: fullPost.content || '', image_url_base64: '' });
+        setFormData({ title: fullPost.title, content: fullPost.content || '', image_url_base64: '', imageFile: null });
         setSelectedTags(fullPost.tags ? fullPost.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
         setPreview(fullPost.image_url);
         setView('form');
@@ -102,7 +136,9 @@ export default function BlogAdmin() {
     data.append('tags', selectedTags.join(', '));
     
     if (editingId) data.append('id', editingId);
-    if (formData.image_url_base64) data.append('image_url_base64', formData.image_url_base64);
+    if (formData.imageFile) {
+        data.append('image', formData.imageFile);
+    }
 
     try {
         const res = await fetch(API_URL, { method: 'POST', body: data });
@@ -123,7 +159,7 @@ export default function BlogAdmin() {
   const resetForm = () => {
     setEditingId(null);
     setPreview(null);
-    setFormData({ title: '', content: '', image_url_base64: '' });
+    setFormData({ title: '', content: '', image_url_base64: '', imageFile: null });
     setSelectedTags([]);
     setView('list');
   };
@@ -131,7 +167,6 @@ export default function BlogAdmin() {
   return (
     <div className="w-full relative">
         
-      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
       {deleteId && (
           <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center backdrop-blur-sm px-4">
               <div className="bg-white p-8 rounded-3xl max-w-md w-full shadow-2xl transition-all">
@@ -154,7 +189,6 @@ export default function BlogAdmin() {
           </div>
       )}
 
-      {/* TELA 1: LISTA DE POSTAGENS */}
       {view === 'list' && (
           <div className="bg-white rounded-[40px] shadow-sm overflow-hidden border border-gray-100 mb-12">
               <div className="p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -176,7 +210,7 @@ export default function BlogAdmin() {
                               <div className="flex items-center gap-4">
                                   <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gray-100 border flex-shrink-0">
                                       {post.image_url ? (
-                                          <img src={post.image_url} className="w-full h-full object-cover" alt="" />
+                                          <img src={getImageUrl(post.image_url)} className="w-full h-full object-cover" alt="" />
                                       ) : (
                                           <div className="w-full h-full flex items-center justify-center text-gray-300"><ImageIcon/></div>
                                       )}
@@ -194,7 +228,6 @@ export default function BlogAdmin() {
           </div>
       )}
 
-      {/* TELA 2: FORMULÁRIO DE CRIAÇÃO/EDIÇÃO */}
       {view === 'form' && (
           <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="flex justify-between items-center mb-8 pb-6 border-b">
@@ -213,7 +246,7 @@ export default function BlogAdmin() {
                       <div className="space-y-3">
                           <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest ml-1">Imagem de Capa (Hero)</label>
                           <div className="relative h-56 bg-gray-50 rounded-[32px] overflow-hidden border-2 border-dashed flex items-center justify-center group hover:bg-gray-100 transition-all">
-                              {preview ? <img src={preview} className="w-full h-full object-cover" /> : <ImageIcon className="text-gray-300" size={48} />}
+                              {preview ? <img src={getImageUrl(preview)} className="w-full h-full object-cover" /> : <ImageIcon className="text-gray-300" size={48} />}
                               <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleImageChange} />
                           </div>
                       </div>
@@ -240,8 +273,9 @@ export default function BlogAdmin() {
                   </div>
 
                   {/* CORREÇÃO: Altura aumentada (h-[600px]) e remoção do overflow-hidden para as tooltips não cortarem */}
-                  <div className="bg-white rounded-[24px] border border-gray-200">
+                   <div className="bg-white rounded-[24px] border border-gray-200">
                       <ReactQuill 
+                          ref={quillRef}
                           theme="snow" 
                           modules={modules} 
                           value={formData.content} 

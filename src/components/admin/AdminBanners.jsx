@@ -3,6 +3,7 @@ import { Plus, Trash2, Image as ImageIcon, ToggleLeft, ToggleRight, Save, Upload
 import axios from 'axios';
 import Button from '../ui/Button';
 import { Input } from '../ui/FormElements';
+import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 export default function AdminBanners() {
   const [banners, setBanners] = useState([]);
@@ -22,7 +23,7 @@ export default function AdminBanners() {
   const [bannerToDelete, setBannerToDelete] = useState(null);
 
   // URL da API (Já atualizada para SIF)
-  const API_URL = 'http://localhost/sif-api/banners.php'; 
+  const API_URL = `${API_BASE_URL}/banners.php`; 
 
   useEffect(() => {
     fetchBanners();
@@ -64,7 +65,7 @@ export default function AdminBanners() {
     setEditingId(banner.id);
     setLinkUrl(banner.link_url || '');
     setIsActive(banner.active == 1);
-    setPreviewUrl(banner.image_url);
+    setPreviewUrl(getImageUrl(banner.image_url));
     setSelectedFile(null);
     setError('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -279,7 +280,7 @@ export default function AdminBanners() {
         {banners.map((banner) => (
             <div key={banner.id} className={`group flex items-center gap-4 p-3 border rounded-lg bg-white transition-all ${editingId === banner.id ? 'border-blue-400 ring-1 ring-blue-400' : 'border-gray-100 hover:border-gray-300'}`}>
                 <div className="w-32 h-14 rounded bg-gray-100 overflow-hidden relative border border-gray-200">
-                    <img src={banner.image_url} alt="Banner" className="w-full h-full object-cover" />
+                    <img src={getImageUrl(banner.image_url)} alt="Banner" className="w-full h-full object-cover" />
                     {(banner.active == 0 || banner.active === false) && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-[1px]">
                             Inativo

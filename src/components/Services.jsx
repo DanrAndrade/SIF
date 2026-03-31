@@ -33,47 +33,39 @@ export default function Services({ sectionRef, trackRef }) {
       }
   }, [trackRef]);
 
-  // AQUI: Links atualizados para apontar para a nova página e seção específica
+  // AQUI: Categorias atualizadas para o PASSO 1 (Estrutura Horizontal de Serviços)
   const categories = [
     { 
       id: "01", 
-      tag: "Silvicultura", 
-      title: "Silvicultura", 
-      desc: "Implantação, manejo e regeneração de florestas. Foco em melhoramento genético e alta produtividade sustentável.", 
-      link: "/areas-atuacao#silvicultura", // Link atualizado
-      image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=2670&auto=format&fit=crop" 
+      tag: "Comercial", 
+      title: "Comercial", 
+      desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", 
+      link: "/comercial",
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop" 
     },
     { 
       id: "02", 
-      tag: "Manejo", 
-      title: "Manejo de Recursos Florestais", 
-      desc: "Planejamento estratégico da produção florestal, colheita e transporte, garantindo o uso racional dos recursos.", 
-      link: "/areas-atuacao#manejo", // Link atualizado
-      image: "https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=2670&auto=format&fit=crop" 
+      tag: "Germinar", 
+      title: "Programa Germinar", 
+      desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", 
+      link: "/trabalhe-conosco",
+      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" 
     },
     { 
       id: "03", 
-      tag: "Ambiência", 
-      title: "Ambiência", 
-      desc: "Harmonização entre produção e meio ambiente, conservação da biodiversidade e gestão de recursos hídricos.", 
-      link: "/areas-atuacao#ambiencia", // Link atualizado
-      image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2574&auto=format&fit=crop" 
+      tag: "Informativo", 
+      title: "Boletim Técnico", 
+      desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", 
+      link: "/blog",
+      image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop" 
     },
     { 
       id: "04", 
-      tag: "Proteção", 
-      title: "Proteção Florestal", 
-      desc: "Monitoramento e controle integrado de pragas, doenças e incêndios para assegurar a sanidade da floresta.", 
-      link: "/areas-atuacao#protecao", // Link atualizado
-      image: "https://images.unsplash.com/photo-1516214104703-d870798883c5?q=80&w=2670&auto=format&fit=crop" 
-    },
-    { 
-      id: "05", 
-      tag: "Tecnologia", 
-      title: "Tecnologia de Produtos Florestais", 
-      desc: "Inovação e qualidade no processamento da madeira, celulose e novos materiais de base biológica.", 
-      link: "/areas-atuacao#tecnologia", // Link atualizado
-      image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2670&auto=format&fit=crop" 
+      tag: "Pesquisa", 
+      title: "Serviços de P&D", 
+      desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", 
+      link: "/projetos",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop" 
     }
   ];
 
