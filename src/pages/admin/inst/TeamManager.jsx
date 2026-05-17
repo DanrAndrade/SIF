@@ -165,7 +165,24 @@ export default function TeamManager() {
     try {
       const res = await fetch(API + '?resource=team');
       const data = await res.json();
-      setMembers(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+
+      // Auto-seed: se banco vazio, importa silenciosamente a equipe da página estática
+      if (list.length === 0) {
+        for (const m of STATIC_TEAM) {
+          const fd = new FormData();
+          fd.append('name', m.name);
+          fd.append('role', m.role);
+          fd.append('group_name', m.group);
+          fd.append('photo_url', m.photo_url);
+          await fetch(API + '?resource=team', { method: 'POST', body: fd });
+        }
+        const res2 = await fetch(API + '?resource=team');
+        const data2 = await res2.json();
+        setMembers(Array.isArray(data2) ? data2 : []);
+      } else {
+        setMembers(list);
+      }
     } catch { setMembers([]); }
     finally { setLoading(false); }
   };
@@ -175,23 +192,6 @@ export default function TeamManager() {
   const handleDelete = async (id) => {
     await fetch(API + `?resource=team&id=${id}`, { method: 'DELETE' });
     fetch_();
-  };
-
-  const [importing, setImporting] = useState(false);
-  const handleImportStatic = async () => {
-    if (!window.confirm(`Importar os ${STATIC_TEAM.length} membros que estão hoje na página /institucional? Isso ADICIONA ao que já existe — não substitui nem apaga.`)) return;
-    setImporting(true);
-    try {
-      for (const m of STATIC_TEAM) {
-        const fd = new FormData();
-        fd.append('name', m.name);
-        fd.append('role', m.role);
-        fd.append('group_name', m.group);
-        fd.append('photo_url', m.photo_url);
-        await fetch(API + '?resource=team', { method: 'POST', body: fd });
-      }
-      fetch_();
-    } finally { setImporting(false); }
   };
 
   const handleAdd = async () => {
@@ -214,26 +214,6 @@ export default function TeamManager() {
 
   return (
     <div className="space-y-6">
-      {/* Banner de importação — só aparece se banco vazio */}
-      {!loading && members.length === 0 && (
-        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-            <DownloadCloud size={22} />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-sm font-bold text-emerald-900">Importar equipe atual do site</h4>
-            <p className="text-xs text-emerald-700 mt-1">
-              Detectamos que não há ninguém cadastrado. Posso importar os {STATIC_TEAM.length} membros que estão hoje
-              na página <code>/institucional</code> (com nome, cargo, grupo e foto) para você só editar/completar contatos depois.
-            </p>
-          </div>
-          <button onClick={handleImportStatic} disabled={importing} className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] disabled:opacity-60">
-            {importing ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <DownloadCloud size={16} />}
-            Importar {STATIC_TEAM.length}
-          </button>
-        </div>
-      )}
-
       {/* Abas de grupo */}
       <div className="flex flex-wrap gap-2">
         {GROUPS.map(g => {

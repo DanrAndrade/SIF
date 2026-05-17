@@ -170,8 +170,10 @@ export default function AssociadasAdmin() {
   });
 
   useEffect(() => {
-    fetchPartners();
-    fetchPageConfig();
+    (async () => {
+      await fetchPartners();
+      fetchPageConfig();
+    })();
   }, []);
 
   const fetchPartners = async () => {
@@ -179,7 +181,23 @@ export default function AssociadasAdmin() {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      setPartners(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+
+      // Se o banco está vazio na primeira carga, semeia silenciosamente
+      // com as empresas que estão hoje na página estática.
+      if (list.length === 0) {
+        for (const p of STATIC_PARTNERS) {
+          const fd = new FormData();
+          fd.append('name', p.name);
+          fd.append('logo_url', p.logo);
+          await fetch(API_URL, { method: 'POST', body: fd });
+        }
+        const res2 = await fetch(API_URL);
+        const data2 = await res2.json();
+        setPartners(Array.isArray(data2) ? data2 : []);
+      } else {
+        setPartners(list);
+      }
     } catch { setPartners([]); }
     finally { setLoadingPartners(false); }
   };
@@ -192,22 +210,6 @@ export default function AssociadasAdmin() {
         setPageConfig(prev => ({ ...prev, ...data }));
       }
     } catch {}
-  };
-
-  // ── Importar lista da página estática (one-shot) ──────
-  const [importing, setImporting] = useState(false);
-  const handleImportStatic = async () => {
-    if (!window.confirm(`Importar as ${STATIC_PARTNERS.length} empresas que estão hoje na página? Isso adiciona ao que já existe — não substitui nem apaga.`)) return;
-    setImporting(true);
-    try {
-      for (const p of STATIC_PARTNERS) {
-        const fd = new FormData();
-        fd.append('name', p.name);
-        fd.append('logo_url', p.logo);
-        await fetch(API_URL, { method: 'POST', body: fd });
-      }
-      fetchPartners();
-    } finally { setImporting(false); }
   };
 
   // ── Adicionar novo parceiro ───────────────────────────
@@ -302,24 +304,6 @@ export default function AssociadasAdmin() {
         )}
       </div>
 
-      {/* Banner de importação — aparece se o banco está vazio */}
-      {!loadingPartners && partners.length === 0 && (
-        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-            <DownloadCloud size={22} />
-          </div>
-          <div className="flex-1">
-            <h4 className="text-sm font-bold text-emerald-900">Importar conteúdo atual do site</h4>
-            <p className="text-xs text-emerald-700 mt-1">
-              Detectamos que a lista está vazia. Posso importar as {STATIC_PARTNERS.length} empresas que estão hoje
-              na página <code>/associadas</code> (com logos) para você começar a editar.
-            </p>
-          </div>
-          <Button onClick={handleImportStatic} isLoading={importing} className="shrink-0">
-            <DownloadCloud size={16} /> Importar {STATIC_PARTNERS.length} empresas
-          </Button>
-        </div>
-      )}
 
       {/* ════════════════════════════════════════════════
           SEÇÃO 1 — TEXTOS DA PÁGINA
