@@ -2,12 +2,14 @@ import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 // --- DADOS DA EQUIPE (fotos reais de /public/nossa-gente) ---
 
@@ -262,6 +264,39 @@ export default function Institucional() {
   const mainRef = useRef(null);
   const areasScrollRef = useRef(null);
 
+  // Equipe vinda do banco (admin de Institucional → aba Equipe).
+  // Se a API responder vazio ou falhar, cai nos arrays estáticos como fallback.
+  const [teamFromApi, setTeamFromApi] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/institucional.php?resource=team`)
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (list.length === 0) return;
+        // Filtra inativos e remapeia para o shape esperado pelo GalleryCarousel
+        const active = list.filter(m => m.active == 1 || m.active === undefined);
+        const byGroup = {};
+        for (const m of active) {
+          (byGroup[m.group_name] = byGroup[m.group_name] || []).push({
+            id: m.id,
+            name: m.name,
+            role: m.role,
+            image: m.photo_url ? getImageUrl(m.photo_url) : null,
+          });
+        }
+        setTeamFromApi(byGroup);
+      })
+      .catch(() => setTeamFromApi(null));
+  }, []);
+
+  // Função utilitária: usa dados da API se houver para aquele grupo, senão fallback estático.
+  const pickTeam = (groupName, fallback) => {
+    if (teamFromApi && teamFromApi[groupName] && teamFromApi[groupName].length > 0) {
+      return teamFromApi[groupName];
+    }
+    return fallback;
+  };
+
   const scrollAreas = (direction) => {
     if (areasScrollRef.current) {
         const { scrollLeft, clientWidth } = areasScrollRef.current;
@@ -371,14 +406,14 @@ export default function Institucional() {
                 </div>
 
                 {/* CARROSSEIS — dados reais das pastas de /public/nossa-gente */}
-                <GalleryCarousel title="Diretoria" data={diretoria} />
-                <GalleryCarousel title="Coordenadoras" data={coordenadoras} />
-                <GalleryCarousel title="Coord. Fundação SIF & EMBRAPII" data={coordFundacao} />
-                <GalleryCarousel title="Coord. Inovação e Projetos" data={coordInovacao} />
-                <GalleryCarousel title="Coord. de CSC" data={coordCSC} />
-                <GalleryCarousel title="Coord. de Produtos e Serviços" data={coordProdutos} />
-                <GalleryCarousel title="Coord. de RH & Facilities" data={coordRH} />
-                <GalleryCarousel title="Consultores" data={consultores} />
+                <GalleryCarousel title="Diretoria" data={pickTeam('Diretoria', diretoria)} />
+                <GalleryCarousel title="Coordenadoras" data={pickTeam('Coordenadoras', coordenadoras)} />
+                <GalleryCarousel title="Coord. Fundação SIF & EMBRAPII" data={pickTeam('Coord. Fundação SIF & EMBRAPII', coordFundacao)} />
+                <GalleryCarousel title="Coord. Inovação e Projetos" data={pickTeam('Coord. Inovação e Projetos', coordInovacao)} />
+                <GalleryCarousel title="Coord. de CSC" data={pickTeam('Coord. de CSC', coordCSC)} />
+                <GalleryCarousel title="Coord. de Produtos e Serviços" data={pickTeam('Coord. de Produtos e Serviços', coordProdutos)} />
+                <GalleryCarousel title="Coord. de RH & Facilities" data={pickTeam('Coord. de RH & Facilities', coordRH)} />
+                <GalleryCarousel title="Consultores" data={pickTeam('Consultores', consultores)} />
             </div>
         </div>
         
