@@ -16,6 +16,7 @@ import EincolAdmin from './EincolAdmin';
 import ProjetosAdmin from './ProjetosAdmin';
 import AssociadasAdmin from './AssociadasAdmin';
 import InstitucionalAdmin from './InstitucionalAdmin';
+import AdminHome from '../../components/admin/AdminHome';
 
 export default function AdminDashboard({ currentTab }) {
   const [activeTab, setActiveTab] = useState(currentTab || 'leads');
@@ -71,6 +72,7 @@ export default function AdminDashboard({ currentTab }) {
                 {activeTab === 'projetos' && <ProjetosAdmin />}
                 {activeTab === 'associadas' && <AssociadasAdmin />}
                 {activeTab === 'institucional' && <InstitucionalAdmin />}
+                {activeTab === 'home' && <AdminHome />}
             </div>
         </div>
       </main>

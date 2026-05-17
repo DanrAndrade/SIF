@@ -119,6 +119,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                 <div className="mb-6 px-2">
                     <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Páginas</p>
                     <SidebarItem
+                        icon={<Home size={18}/>}
+                        label="Página Home"
+                        active={activeTab === 'home'}
+                        onClick={() => {setActiveTab('home'); closeMobile();}}
+                    />
+                    <SidebarItem
                         icon={<Building2 size={18}/>}
                         label="Institucional"
                         active={activeTab === 'institucional'}
