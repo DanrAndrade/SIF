@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft } from 'lucide-react';
+import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
 
 import Navbar from '../components/Navbar';
@@ -10,6 +10,66 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+
+// Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
+// quando o admin ainda não preencheu nada.
+const DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2071',
+  hero_badge: 'A SIF & Sua História',
+  hero_title_line1: 'Nossa',
+  hero_title_highlight: 'História',
+  hero_subtitle: 'Mais do que uma entidade, somos o catalisador da inovação florestal no Brasil e no mundo.',
+
+  quem_somos_image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2013&auto=format&fit=crop',
+  quem_somos_title_line1: 'Nossa',
+  quem_somos_title_highlight: 'História',
+  quem_somos_text1: 'A Sociedade de Investigações Florestais (SIF) nasceu em 1974 da percepção estratégica de que o futuro do setor florestal brasileiro dependia de uma conexão indissociável entre a academia e a indústria. Naquele período, o crescimento da silvicultura exigia respostas que apenas a pesquisa científica aplicada poderia fornecer. Através de uma parceria pioneira com a Universidade Federal de Viçosa (UFV), a SIF foi estabelecida para ser o braço executor dessa transformação, convertendo o capital intelectual universitário em produtividade e sustentabilidade para as empresas.',
+  quem_somos_text2: 'Ao longo de cinco décadas, a SIF deixou de ser apenas uma ponte de apoio para se tornar uma Instituição Científica, Tecnológica e de Inovação (ICT) essencial ao país. O modelo de cooperação público-privada desenvolvido em Viçosa permitiu a modernização de laboratórios, a formação de gerações de especialistas e a condução de projetos que posicionaram o Brasil como líder global em tecnologia florestal. Hoje, ao ultrapassar o marco de 50 anos, a instituição reafirma seu papel na vanguarda da bioeconomia, liderando frentes de inovação que vão do manejo clássico aos modernos ativos de crédito de carbono.',
+  quem_somos_image_caption_top: 'Campus UFV',
+  quem_somos_image_caption_main: 'Onde a Ciência Acontece',
+
+  team_tag: 'Conheça',
+  team_title: 'Nossa Gente',
+  team_subtitle: 'As mentes que construíram cinco décadas de inovação e excelência florestal.',
+
+  areas_tag: 'Fronteira Tecnológica',
+  areas_title_line1: 'Nossas Áreas',
+  areas_title_highlight: 'de Atuação',
+  areas_subtitle: 'Mergulhe nas frentes científicas onde o SIF lidera o desenvolvimento florestal de ponta.',
+
+  estatuto_tag: 'Governança',
+  estatuto_title_line1: 'Documentação',
+  estatuto_title_highlight: '& Transparência',
+  estatuto_subtitle: 'A transparência e a ética são os pilares da nossa estrutura organizacional. Acesse os documentos oficiais que regem nossas atividades.',
+  estatuto_footer_title_line1: 'A importância do Estatuto',
+  estatuto_footer_title_highlight: 'e das Normas',
+  estatuto_footer_p1: 'O Estatuto Social e as normas internas são os pilares que garantem a governança, a transparência e a segurança jurídica de uma organização como a SIF.',
+  estatuto_footer_p2: 'O Estatuto funciona como a constituição da entidade. É o seu documento de fundação, que define sua identidade, propósito, estrutura de poder e os direitos e deveres dos seus membros. Ele é o alicerce que confere legitimidade e orienta as decisões estratégicas mais importantes.',
+  estatuto_footer_p3: 'As normas, como regulamentos e regimentos, são o desdobramento prático do estatuto. Elas detalham os procedimentos do dia a dia, garantindo que as atividades sejam conduzidas de forma justa, padronizada e eficiente.',
+  estatuto_footer_quote: 'Em conjunto, o estatuto estabelece "o que" a organização é, enquanto as normas definem "como" ela deve operar para cumprir sua missão com integridade e organização.',
+
+  historia_tag: 'Nossa Jornada',
+  historia_title_line1: 'Cinco',
+  historia_title_highlight: 'Décadas',
+  historia_title_line2: 'de Ciência',
+
+  cta_title_line1: 'O Amanhã é',
+  cta_title_highlight: 'Científico',
+  cta_btn1_label: 'Seja uma Associada',
+  cta_btn1_link: '/contato',
+  cta_btn2_label: 'Trabalhe Conosco',
+  cta_btn2_link: '/trabalhe-conosco',
+};
+
+const DEFAULT_AREAS = [
+  { title: 'Silvicultura de Precisão', icon: 'Sprout',   desc: 'Desenvolvimento de protocolos avançados de biotecnologia, produção de sementes certificadas e mudas de alta performance. Atuamos na fronteira da nutrição florestal e técnicas silviculturais automatizadas para maximizar o ganho genético no campo.' },
+  { title: 'Manejo & Inteligência',    icon: 'Map',      desc: 'Soluções integradas em inventário florestal contínuo, planejamento estratégico de colheita e economia de recursos. Utilizamos sensoriamento remoto e GIS de alta resolução para modelagem preditiva e tomada de decisão baseada em dados.' },
+  { title: 'Ambiência & Clima',        icon: 'Leaf',     desc: 'Pesquisas focadas na conservação da biodiversidade, monitoramento hidrológico e recuperação de ecossistemas degradados. Lideramos projetos de regulação hídrica e estratégias de adaptação às mudanças climáticas para o setor florestal.' },
+  { title: 'Proteção & Sanidade',      icon: 'Shield',   desc: 'Monitoramento ativo e controle biológico de pragas e doenças florestais. Desenvolvemos sistemas inteligentes de prevenção contra incêndios e protocolos de defesa fitossanitária que garantem a segurança do patrimônio biológico das empresas.' },
+  { title: 'Tecnologia de Produtos',   icon: 'Settings', desc: 'Fomento à inovação em processos industriais para energia, celulose, papel e multiprodutos da madeira. Investigamos a anatomia e as propriedades físico-químicas das fibras para o desenvolvimento de bioprodutos de alto valor agregado.' },
+];
+
+const AREA_ICON_MAP = { Sprout, Map, Leaf, Shield, Settings, Microscope, Globe, Users };
 
 // --- DADOS DA EQUIPE (fotos reais de /public/nossa-gente) ---
 
@@ -253,6 +313,33 @@ const GalleryCarousel = ({ title, data }) => {
                         <h4 className="font-bold text-[#1f2937] text-xs sm:text-sm uppercase tracking-tight leading-tight">
                             {member.name}
                         </h4>
+                        {/* Contatos (só aparece quando preenchido no admin) */}
+                        {(member.link_email || member.link_whatsapp) && (
+                            <div className="flex gap-2 justify-center mt-2">
+                                {member.link_email && (
+                                    <a
+                                        href={`mailto:${member.link_email}`}
+                                        title={member.link_email}
+                                        className="w-7 h-7 rounded-full bg-gray-100 hover:bg-[#007a3d] hover:text-white text-gray-500 flex items-center justify-center transition-all"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <Mail size={12} />
+                                    </a>
+                                )}
+                                {member.link_whatsapp && (
+                                    <a
+                                        href={`https://wa.me/55${member.link_whatsapp.replace(/\D/g, '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title={member.link_whatsapp}
+                                        className="w-7 h-7 rounded-full bg-gray-100 hover:bg-[#25D366] hover:text-white text-gray-500 flex items-center justify-center transition-all"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <Phone size={12} />
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
@@ -268,7 +355,28 @@ export default function Institucional() {
   // Se a API responder vazio ou falhar, cai nos arrays estáticos como fallback.
   const [teamFromApi, setTeamFromApi] = useState(null);
 
+  // Config geral (textos/imagens da página)
+  const [cfg, setCfg] = useState(DEFAULTS);
+  // Áreas de atuação (vem do config_json como array)
+  const [areas, setAreas] = useState(DEFAULT_AREAS);
+  // Linha do tempo (do banco — tabela timeline_items)
+  const [timeline, setTimeline] = useState(null);
+
   useEffect(() => {
+    // Config geral + áreas
+    axios.get(`${API_BASE_URL}/institucional.php?resource=config`).then(res => {
+      const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
+      setCfg(prev => ({ ...prev, ...data }));
+      if (Array.isArray(data.areas) && data.areas.length > 0) setAreas(data.areas);
+    }).catch(() => {});
+
+    // Linha do tempo (tabela própria)
+    axios.get(`${API_BASE_URL}/institucional.php?resource=timeline`).then(res => {
+      const list = Array.isArray(res.data) ? res.data : [];
+      const active = list.filter(t => t.active == 1 || t.active === undefined);
+      if (active.length > 0) setTimeline(active);
+    }).catch(() => {});
+
     axios.get(`${API_BASE_URL}/institucional.php?resource=team`)
       .then((res) => {
         const list = Array.isArray(res.data) ? res.data : [];
@@ -282,6 +390,8 @@ export default function Institucional() {
             name: m.name,
             role: m.role,
             image: m.photo_url ? getImageUrl(m.photo_url) : null,
+            link_email: m.link_email,
+            link_whatsapp: m.link_whatsapp,
           });
         }
         setTeamFromApi(byGroup);
@@ -322,7 +432,7 @@ export default function Institucional() {
 
       <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2071')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image) : cfg.hero_image}')` }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
           <NoiseOverlay opacity={0.4} />
         </div>
@@ -330,16 +440,16 @@ export default function Institucional() {
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">A SIF & Sua História</span>
+              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{cfg.hero_badge}</span>
           </div>
-          
+
           <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Nossa <br/>
-              <span className="text-[#007a3d]">História</span>
+              {cfg.hero_title_line1} <br/>
+              <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
           </h1>
-          
+
           <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Mais do que uma entidade, somos o catalisador da inovação florestal no Brasil e no mundo.
+              {cfg.hero_subtitle}
           </p>
 
           <button 
@@ -366,26 +476,22 @@ export default function Institucional() {
                 <div className="space-y-8 animate-in slide-in-from-left duration-1000">
                     <div className="w-16 h-1.5 bg-[#007a3d]"></div>
                     <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[1.0] tracking-tight">
-                        Nossa <br/><span className="text-[#007a3d]">História</span>
+                        {cfg.quem_somos_title_line1} <br/><span className="text-[#007a3d]">{cfg.quem_somos_title_highlight}</span>
                     </h2>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium">
-                        A Sociedade de Investigações Florestais (SIF) nasceu em 1974 da percepção estratégica de que o futuro do setor florestal brasileiro dependia de uma conexão indissociável entre a academia e a indústria. Naquele período, o crescimento da silvicultura exigia respostas que apenas a pesquisa científica aplicada poderia fornecer. Através de uma parceria pioneira com a Universidade Federal de Viçosa (UFV), a SIF foi estabelecida para ser o braço executor dessa transformação, convertendo o capital intelectual universitário em produtividade e sustentabilidade para as empresas.
-                    </p>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium">
-                        Ao longo de cinco décadas, a SIF deixou de ser apenas uma ponte de apoio para se tornar uma Instituição Científica, Tecnológica e de Inovação (ICT) essencial ao país. O modelo de cooperação público-privada desenvolvido em Viçosa permitiu a modernização de laboratórios, a formação de gerações de especialistas e a condução de projetos que posicionaram o Brasil como líder global em tecnologia florestal. Hoje, ao ultrapassar o marco de 50 anos, a instituição reafirma seu papel na vanguarda da bioeconomia, liderando frentes de inovação que vão do manejo clássico aos modernos ativos de crédito de carbono.
-                    </p>
+                    <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text1}</p>
+                    <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text2}</p>
                 </div>
                 <div className="relative animate-in zoom-in duration-1000">
                     <div className="absolute inset-0 bg-emerald-100/50 rounded-[60px] translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
                     <div className="rounded-[60px] overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
-                        <img 
-                            src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2013&auto=format&fit=crop" 
-                            alt="Manejo Florestal" 
-                            className="w-full h-full object-cover" 
+                        <img
+                            src={cfg.quem_somos_image && !cfg.quem_somos_image.startsWith('http') ? getImageUrl(cfg.quem_somos_image) : cfg.quem_somos_image}
+                            alt="Quem Somos"
+                            className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-[#1f2937] via-transparent to-transparent">
-                            <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">Campus UFV</p>
-                            <p className="text-white text-2xl font-bold uppercase font-heading">Onde a Ciência Acontece</p>
+                            <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
+                            <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
                         </div>
                     </div>
                 </div>
@@ -398,11 +504,9 @@ export default function Institucional() {
         <div id="nossa-gente" className="py-32">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-20">
-                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block underline underline-offset-8">Conheça</span>
-                    <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937]">Nossa Gente</h2>
-                    <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">
-                        As mentes que construíram cinco décadas de inovação e excelência florestal.
-                    </p>
+                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block underline underline-offset-8">{cfg.team_tag}</span>
+                    <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937]">{cfg.team_title}</h2>
+                    <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
                 {/* CARROSSEIS — dados reais das pastas de /public/nossa-gente */}
@@ -422,12 +526,12 @@ export default function Institucional() {
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8">
                     <div className="max-w-2xl">
-                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">Fronteira Tecnológica</span>
-                        <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">Nossas Áreas <br/><span className="text-[#007a3d]">de Atuação</span></h2>
+                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.areas_tag}</span>
+                        <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
                     </div>
-                    
+
                     <div className="flex flex-col md:flex-row gap-8 items-center">
-                        <p className="text-gray-400 font-medium text-base max-w-sm">Mergulhe nas frentes científicas onde o SIF lidera o desenvolvimento florestal de ponta.</p>
+                        <p className="text-gray-400 font-medium text-base max-w-sm">{cfg.areas_subtitle}</p>
                         <div className="flex gap-4">
                             <button 
                                 onClick={() => scrollAreas('left')}
@@ -449,46 +553,23 @@ export default function Institucional() {
                     ref={areasScrollRef} 
                     className="flex overflow-x-auto gap-10 no-scrollbar pb-16 snap-x snap-mandatory px-4"
                 >
-                    {[
-                        { 
-                            title: "Silvicultura de Precisão", 
-                            icon: Sprout, 
-                            desc: "Desenvolvimento de protocolos avançados de biotecnologia, produção de sementes certificadas e mudas de alta performance. Atuamos na fronteira da nutrição florestal e técnicas silviculturais automatizadas para maximizar o ganho genético no campo." 
-                        },
-                        { 
-                            title: "Manejo & Inteligência", 
-                            icon: Map, 
-                            desc: "Soluções integradas em inventário florestal contínuo, planejamento estratégico de colheita e economia de recursos. Utilizamos sensoriamento remoto e GIS de alta resolução para modelagem preditiva e tomada de decisão baseada em dados." 
-                        },
-                        { 
-                            title: "Ambiência & Clima", 
-                            icon: Leaf, 
-                            desc: "Pesquisas focadas na conservação da biodiversidade, monitoramento hidrológico e recuperação de ecossistemas degradados. Lideramos projetos de regulação hídrica e estratégias de adaptação às mudanças climáticas para o setor florestal." 
-                        },
-                        { 
-                            title: "Proteção & Sanidade", 
-                            icon: Shield, 
-                            desc: "Monitoramento ativo e controle biológico de pragas e doenças florestais. Desenvolvemos sistemas inteligentes de prevenção contra incêndios e protocolos de defesa fitossanitária que garantem a segurança do patrimônio biológico das empresas." 
-                        },
-                        { 
-                            title: "Tecnologia de Produtos", 
-                            icon: Settings, 
-                            desc: "Fomento à inovação em processos industriais para energia, celulose, papel e multiprodutos da madeira. Investigamos a anatomia e as propriedades físico-químicas das fibras para o desenvolvimento de bioprodutos de alto valor agregado." 
-                        },
-                    ].map((area, i) => (
-                        <div 
-                            key={i} 
+                    {areas.map((area, i) => {
+                        const Icon = AREA_ICON_MAP[area.icon] || Sprout;
+                        return (
+                          <div
+                            key={i}
                             className="group flex-shrink-0 w-[350px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-center border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
-                        >
+                          >
                             <div className="text-[#007a3d] mb-10 group-hover:scale-110 transition-transform origin-left duration-500">
-                                <area.icon size={42} strokeWidth={1.5} />
+                                <Icon size={42} strokeWidth={1.5} />
                             </div>
                             <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-6 group-hover:text-[#007a3d] transition-colors leading-tight">{area.title}</h3>
                             <p className="text-gray-500 text-base leading-relaxed font-medium">
                                 {area.desc}
                             </p>
-                        </div>
-                    ))}
+                          </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -499,13 +580,11 @@ export default function Institucional() {
 
                 {/* Cabeçalho */}
                 <div className="mb-20 max-w-3xl">
-                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-6 block underline underline-offset-8">Governança</span>
+                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-6 block underline underline-offset-8">{cfg.estatuto_tag}</span>
                     <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-6">
-                        Documentação <br/><span className="text-[#007a3d]">&amp; Transparência</span>
+                        {cfg.estatuto_title_line1} <br/><span className="text-[#007a3d]">{cfg.estatuto_title_highlight}</span>
                     </h2>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">
-                        A transparência e a ética são os pilares da nossa estrutura organizacional. Acesse os documentos oficiais que regem nossas atividades.
-                    </p>
+                    <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
                 </div>
 
                 {/* Documento 1 — Estatuto Social */}
@@ -612,21 +691,13 @@ export default function Institucional() {
                 {/* Texto de Encerramento — centralizado */}
                 <div className="text-center max-w-3xl mx-auto">
                     <h3 className="text-2xl md:text-3xl font-bold uppercase text-[#1f2937] font-heading leading-tight mb-10">
-                        A importância do Estatuto <span className="text-[#007a3d]">e das Normas</span>
+                        {cfg.estatuto_footer_title_line1} <span className="text-[#007a3d]">{cfg.estatuto_footer_title_highlight}</span>
                     </h3>
                     <div className="space-y-5 text-gray-500 text-base leading-relaxed font-medium text-left">
-                        <p>
-                            O Estatuto Social e as normas internas são os pilares que garantem a governança, a transparência e a segurança jurídica de uma organização como a SIF.
-                        </p>
-                        <p>
-                            O Estatuto funciona como a constituição da entidade. É o seu documento de fundação, que define sua identidade, propósito, estrutura de poder e os direitos e deveres dos seus membros. Ele é o alicerce que confere legitimidade e orienta as decisões estratégicas mais importantes.
-                        </p>
-                        <p>
-                            As normas, como regulamentos e regimentos, são o desdobramento prático do estatuto. Elas detalham os procedimentos do dia a dia, garantindo que as atividades sejam conduzidas de forma justa, padronizada e eficiente.
-                        </p>
-                        <p className="text-gray-400 italic border-l-2 border-[#007a3d] pl-4">
-                            Em conjunto, o estatuto estabelece "o que" a organização é, enquanto as normas definem "como" ela deve operar para cumprir sua missão com integridade e organização.
-                        </p>
+                        <p>{cfg.estatuto_footer_p1}</p>
+                        <p>{cfg.estatuto_footer_p2}</p>
+                        <p>{cfg.estatuto_footer_p3}</p>
+                        <p className="text-gray-400 italic border-l-2 border-[#007a3d] pl-4">{cfg.estatuto_footer_quote}</p>
                     </div>
                 </div>
 
@@ -637,68 +708,44 @@ export default function Institucional() {
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                     <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
-                    <span className="text-[#007a3d] font-bold uppercase tracking-[0.4em] text-xs mb-6 block">Nossa Jornada</span>
+                    <span className="text-[#007a3d] font-bold uppercase tracking-[0.4em] text-xs mb-6 block">{cfg.historia_tag}</span>
                     <h2 className="text-5xl md:text-8xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">
-                        Cinco <span className="text-[#007a3d]">Décadas</span><br/>de Ciência
+                        {cfg.historia_title_line1} <span className="text-[#007a3d]">{cfg.historia_title_highlight}</span><br/>{cfg.historia_title_line2}
                     </h2>
                 </div>
 
                 <div className="relative space-y-10">
-                    <HistoryItem 
-                        year={1974} 
-                        title="A <span className='text-[#007a3d]'>Fundação</span>" 
-                        imgSrc="https://images.unsplash.com/photo-1581093806997-124204d9ad9d?q=80&w=2670&auto=format&fit=crop"
-                    >
-                        Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.
-                    </HistoryItem>
-
-                    <HistoryItem 
-                        year={1975} 
-                        title="Revista <span className='text-[#007a3d]'>Árvore</span>" 
-                        imgSrc="https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop"
-                        layout="image-right"
-                    >
-                        Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.
-                    </HistoryItem>
-
-                    <HistoryItem 
-                        year={2020} 
-                        title="Unidade <span className='text-[#007a3d]'>EMBRAPII</span>" 
-                        imgSrc="https://images.unsplash.com/photo-1532187875605-1838d7370324?q=80&w=2670&auto=format&fit=crop"
-                    >
-                        O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.
-                    </HistoryItem>
-
-                    <HistoryItem 
-                        year={2021} 
-                        title="Expansão e <span className='text-[#007a3d]'>Startups</span>" 
-                        imgSrc="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2670&auto=format&fit=crop"
-                        layout="image-right"
-                    >
-                        Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.
-                    </HistoryItem>
-
-                    <HistoryItem 
-                        year={2024} 
-                        title="O <span className='text-[#007a3d]'>Cinquentenário</span>" 
-                        imgSrc="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop"
-                    >
-                        Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.
-                    </HistoryItem>
+                    {(timeline || [
+                        { year: 1974, title: "A <span class='text-[#007a3d]'>Fundação</span>", content: "Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.", image_url: "https://images.unsplash.com/photo-1581093806997-124204d9ad9d?q=80&w=2670&auto=format&fit=crop", layout: "image-left" },
+                        { year: 1975, title: "Revista <span class='text-[#007a3d]'>Árvore</span>", content: "Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.", image_url: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop", layout: "image-right" },
+                        { year: 2020, title: "Unidade <span class='text-[#007a3d]'>EMBRAPII</span>", content: "O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.", image_url: "https://images.unsplash.com/photo-1532187875605-1838d7370324?q=80&w=2670&auto=format&fit=crop", layout: "image-left" },
+                        { year: 2021, title: "Expansão e <span class='text-[#007a3d]'>Startups</span>", content: "Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.", image_url: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2670&auto=format&fit=crop", layout: "image-right" },
+                        { year: 2024, title: "O <span class='text-[#007a3d]'>Cinquentenário</span>", content: "Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.", image_url: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop", layout: "image-left" },
+                    ]).map((item, i) => (
+                        <HistoryItem
+                            key={item.id ?? i}
+                            year={item.year}
+                            title={item.title}
+                            imgSrc={item.image_url && !item.image_url.startsWith('http') ? getImageUrl(item.image_url) : item.image_url}
+                            layout={item.layout || 'image-left'}
+                        >
+                            {item.content}
+                        </HistoryItem>
+                    ))}
                 </div>
 
                 {/* CTA FINAL */}
                 <div className="mt-32 text-center">
                     <div className="timeline-marker w-1 h-1 bg-transparent mb-12 mx-auto"></div>
                     <h2 className="text-5xl md:text-8xl font-bold font-heading uppercase text-[#1f2937] mb-12 leading-none">
-                        O Amanhã é<br/><span className="text-[#007a3d]">Científico</span>
+                        {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
                     </h2>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <Button href="/contato" variant="primary" icon={ArrowRight}>
-                            Seja uma Associada
+                        <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
+                            {cfg.cta_btn1_label}
                         </Button>
-                        <Button href="/trabalhe-conosco" variant="outline">
-                            Trabalhe Conosco
+                        <Button href={cfg.cta_btn2_link} variant="outline">
+                            {cfg.cta_btn2_label}
                         </Button>
                     </div>
                 </div>
