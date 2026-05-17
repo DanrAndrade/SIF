@@ -313,17 +313,16 @@ const GalleryCarousel = ({ title, data }) => {
                         <h4 className="font-bold text-[#1f2937] text-xs sm:text-sm uppercase tracking-tight leading-tight">
                             {member.name}
                         </h4>
-                        {/* Contatos (só aparece quando preenchido no admin) */}
+                        {/* Contatos por extenso (só aparece quando preenchido no admin) */}
                         {(member.link_email || member.link_whatsapp) && (
-                            <div className="flex gap-2 justify-center mt-2">
+                            <div className="mt-2 space-y-0.5">
                                 {member.link_email && (
                                     <a
                                         href={`mailto:${member.link_email}`}
-                                        title={member.link_email}
-                                        className="w-7 h-7 rounded-full bg-gray-100 hover:bg-[#007a3d] hover:text-white text-gray-500 flex items-center justify-center transition-all"
+                                        className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] break-all leading-tight"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <Mail size={12} />
+                                        {member.link_email}
                                     </a>
                                 )}
                                 {member.link_whatsapp && (
@@ -331,11 +330,10 @@ const GalleryCarousel = ({ title, data }) => {
                                         href={`https://wa.me/55${member.link_whatsapp.replace(/\D/g, '')}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        title={member.link_whatsapp}
-                                        className="w-7 h-7 rounded-full bg-gray-100 hover:bg-[#25D366] hover:text-white text-gray-500 flex items-center justify-center transition-all"
+                                        className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <Phone size={12} />
+                                        {member.link_whatsapp}
                                     </a>
                                 )}
                             </div>
