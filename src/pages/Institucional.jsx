@@ -41,6 +41,35 @@ const DEFAULTS = {
   estatuto_title_line1: 'Documentação',
   estatuto_title_highlight: '& Transparência',
   estatuto_subtitle: 'A transparência e a ética são os pilares da nossa estrutura organizacional. Acesse os documentos oficiais que regem nossas atividades.',
+  estatuto_blocks: [
+    {
+      icon: 'Scale',
+      title: 'Estatuto Social',
+      subtitle: 'O alicerce da nossa Governança',
+      paragraphs: [
+        'O Estatuto Social é o documento magno que estabelece a finalidade, a estrutura e as normas de funcionamento da SIF. Ele é a nossa constituição, definindo nossa identidade, propósito, estrutura de poder e os direitos e deveres dos nossos membros.',
+        'O Estatuto é o alicerce que confere legitimidade e orienta as decisões estratégicas mais importantes da nossa organização.',
+      ],
+      pdfs: [
+        { label: 'Estatuto Social SIF', url: '/docs/estatutosif.pdf', icon: 'Scale' },
+      ],
+    },
+    {
+      icon: 'FileText',
+      title: 'Regulamentos Internos',
+      subtitle: '',
+      paragraphs: [
+        'Os regulamentos que normatizam as políticas e os procedimentos internos da SIF são os desdobramentos práticos do nosso estatuto, detalhando as operações do dia a dia e garantindo que todas as atividades sejam conduzidas de forma justa, padronizada e eficiente.',
+        'Sua função é oferecer clareza e segurança para todos os envolvidos, minimizando conflitos e assegurando a ordem operacional.',
+      ],
+      pdfs: [
+        { label: 'Código de Conduta e Ética',                          url: '/docs/Codigo-de-Conduta-e-Etica-SIF-2022.pdf',                  icon: 'FileBadge' },
+        { label: 'Declaração Anticorrupção e Antifraude',              url: '/docs/Dec_Anticorrup_Antifraude_SIF.pdf',                       icon: 'Shield' },
+        { label: 'Regulamento de Bolsa 2024',                          url: '/docs/REGULAMENTO-DE-BOLSA-2024-1.pdf',                         icon: 'FileText' },
+        { label: 'Regulamento de Aquisições e Contratações 2024',      url: '/docs/REGULAMENTO-PARA-AQUISICOES-E-CONTRATACOES-2024-1.pdf',   icon: 'FileText' },
+      ],
+    },
+  ],
   estatuto_footer_title_line1: 'A importância do Estatuto',
   estatuto_footer_title_highlight: 'e das Normas',
   estatuto_footer_p1: 'O Estatuto Social e as normas internas são os pilares que garantem a governança, a transparência e a segurança jurídica de uma organização como a SIF.',
@@ -69,7 +98,7 @@ const DEFAULT_AREAS = [
   { title: 'Tecnologia de Produtos',   icon: 'Settings', desc: 'Fomento à inovação em processos industriais para energia, celulose, papel e multiprodutos da madeira. Investigamos a anatomia e as propriedades físico-químicas das fibras para o desenvolvimento de bioprodutos de alto valor agregado.' },
 ];
 
-const AREA_ICON_MAP = { Sprout, Map, Leaf, Shield, Settings, Microscope, Globe, Users };
+const AREA_ICON_MAP = { Sprout, Map, Leaf, Shield, Settings, Microscope, Globe, Users, Scale, FileBadge, FileText };
 
 // --- DADOS DA EQUIPE (fotos reais de /public/nossa-gente) ---
 
@@ -585,106 +614,48 @@ export default function Institucional() {
                     <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
                 </div>
 
-                {/* Documento 1 — Estatuto Social */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16 pb-16 border-b border-gray-200">
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
-                                <Scale size={20} />
-                            </div>
-                            <h3 className="text-2xl font-bold uppercase text-[#1f2937] font-heading tracking-tight">Estatuto Social</h3>
-                        </div>
-                        <p className="text-[#007a3d] text-xs font-black uppercase tracking-[0.2em]">O alicerce da nossa Governança</p>
-                        <p className="text-gray-600 text-base leading-relaxed font-medium">
-                            O Estatuto Social é o documento magno que estabelece a finalidade, a estrutura e as normas de funcionamento da SIF. Ele é a nossa constituição, definindo nossa identidade, propósito, estrutura de poder e os direitos e deveres dos nossos membros.
-                        </p>
-                        <p className="text-gray-500 text-base leading-relaxed font-medium">
-                            O Estatuto é o alicerce que confere legitimidade e orienta as decisões estratégicas mais importantes da nossa organização.
-                        </p>
-                    </div>
-                    <div>
-                        <a href="/docs/estatutosif.pdf" download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                            <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                <Scale size={24} />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">Estatuto Social SIF</p>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                <Download size={16} />
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                {/* Documento 2 — Regulamentos Internos */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-20 pb-16 border-b border-gray-200">
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
-                                <FileText size={20} />
-                            </div>
-                            <h3 className="text-2xl font-bold uppercase text-[#1f2937] font-heading tracking-tight">Regulamentos Internos</h3>
-                        </div>
-                        <p className="text-gray-600 text-base leading-relaxed font-medium">
-                            Os regulamentos que normatizam as políticas e os procedimentos internos da SIF são os desdobramentos práticos do nosso estatuto, detalhando as operações do dia a dia e garantindo que todas as atividades sejam conduzidas de forma justa, padronizada e eficiente.
-                        </p>
-                        <p className="text-gray-500 text-base leading-relaxed font-medium">
-                            Sua função é oferecer clareza e segurança para todos os envolvidos, minimizando conflitos e assegurando a ordem operacional.
-                        </p>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <a href="/docs/Codigo-de-Conduta-e-Etica-SIF-2022.pdf" download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                            <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                <FileBadge size={24} />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">Código de Conduta e Ética</p>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                <Download size={16} />
-                            </div>
-                        </a>
-                        <a href="/docs/Dec_Anticorrup_Antifraude_SIF.pdf" download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                            <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                <Shield size={24} />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">Declaração Anticorrupção e Antifraude</p>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                <Download size={16} />
-                            </div>
-                        </a>
-                        <a href="/docs/REGULAMENTO-DE-BOLSA-2024-1.pdf" download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                            <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                <FileText size={24} />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">Regulamento de Bolsa 2024</p>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                <Download size={16} />
-                            </div>
-                        </a>
-                        <a href="/docs/REGULAMENTO-PARA-AQUISICOES-E-CONTRATACOES-2024-1.pdf" download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                            <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                <FileText size={24} />
-                            </div>
-                            <div className="flex-1 text-left">
-                                <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">Regulamento de Aquisições e Contratações 2024</p>
-                                <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                <Download size={16} />
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                {/* BLOCOS DE DOCUMENTOS — vêm de cfg.estatuto_blocks (editáveis no admin) */}
+                {(Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : []).map((block, bIdx) => {
+                    const BlockIcon = AREA_ICON_MAP[block.icon] || FileText;
+                    return (
+                      <div key={bIdx} className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16 pb-16 border-b border-gray-200">
+                          <div className="space-y-4">
+                              <div className="flex items-center gap-3 mb-4">
+                                  <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
+                                      <BlockIcon size={20} />
+                                  </div>
+                                  <h3 className="text-2xl font-bold uppercase text-[#1f2937] font-heading tracking-tight">{block.title}</h3>
+                              </div>
+                              {block.subtitle && (
+                                <p className="text-[#007a3d] text-xs font-black uppercase tracking-[0.2em]">{block.subtitle}</p>
+                              )}
+                              {(block.paragraphs || []).map((p, i) => (
+                                <p key={i} className={i === 0 ? "text-gray-600 text-base leading-relaxed font-medium" : "text-gray-500 text-base leading-relaxed font-medium"}>{p}</p>
+                              ))}
+                          </div>
+                          <div className="flex flex-col gap-4">
+                              {(block.pdfs || []).map((pdf, i) => {
+                                const PdfIcon = AREA_ICON_MAP[pdf.icon] || FileText;
+                                const url = pdf.url && !pdf.url.startsWith('http') && !pdf.url.startsWith('/docs/') ? getImageUrl(pdf.url) : pdf.url;
+                                return (
+                                  <a key={i} href={url} download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
+                                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
+                                        <PdfIcon size={24} />
+                                    </div>
+                                    <div className="flex-1 text-left">
+                                        <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">{pdf.label}</p>
+                                        <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
+                                        <Download size={16} />
+                                    </div>
+                                  </a>
+                                );
+                              })}
+                          </div>
+                      </div>
+                    );
+                })}
 
                 {/* Texto de Encerramento — centralizado */}
                 <div className="text-center max-w-3xl mx-auto">

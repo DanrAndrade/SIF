@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check,
+  Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check, Upload,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import TeamManager from './inst/TeamManager';
 import TimelineManager from './inst/TimelineManager';
-import DocumentsManager from './inst/DocumentsManager';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -48,6 +47,35 @@ const DEFAULTS = {
   estatuto_title_line1: 'Documentação',
   estatuto_title_highlight: '& Transparência',
   estatuto_subtitle: 'A transparência e a ética são os pilares da nossa estrutura organizacional. Acesse os documentos oficiais que regem nossas atividades.',
+  estatuto_blocks: [
+    {
+      icon: 'Scale',
+      title: 'Estatuto Social',
+      subtitle: 'O alicerce da nossa Governança',
+      paragraphs: [
+        'O Estatuto Social é o documento magno que estabelece a finalidade, a estrutura e as normas de funcionamento da SIF. Ele é a nossa constituição, definindo nossa identidade, propósito, estrutura de poder e os direitos e deveres dos nossos membros.',
+        'O Estatuto é o alicerce que confere legitimidade e orienta as decisões estratégicas mais importantes da nossa organização.',
+      ],
+      pdfs: [
+        { label: 'Estatuto Social SIF', url: '/docs/estatutosif.pdf', icon: 'Scale' },
+      ],
+    },
+    {
+      icon: 'FileText',
+      title: 'Regulamentos Internos',
+      subtitle: '',
+      paragraphs: [
+        'Os regulamentos que normatizam as políticas e os procedimentos internos da SIF são os desdobramentos práticos do nosso estatuto, detalhando as operações do dia a dia e garantindo que todas as atividades sejam conduzidas de forma justa, padronizada e eficiente.',
+        'Sua função é oferecer clareza e segurança para todos os envolvidos, minimizando conflitos e assegurando a ordem operacional.',
+      ],
+      pdfs: [
+        { label: 'Código de Conduta e Ética',                          url: '/docs/Codigo-de-Conduta-e-Etica-SIF-2022.pdf',                  icon: 'FileBadge' },
+        { label: 'Declaração Anticorrupção e Antifraude',              url: '/docs/Dec_Anticorrup_Antifraude_SIF.pdf',                       icon: 'Shield' },
+        { label: 'Regulamento de Bolsa 2024',                          url: '/docs/REGULAMENTO-DE-BOLSA-2024-1.pdf',                         icon: 'FileText' },
+        { label: 'Regulamento de Aquisições e Contratações 2024',      url: '/docs/REGULAMENTO-PARA-AQUISICOES-E-CONTRATACOES-2024-1.pdf',   icon: 'FileText' },
+      ],
+    },
+  ],
   estatuto_footer_title_line1: 'A importância do Estatuto',
   estatuto_footer_title_highlight: 'e das Normas',
   estatuto_footer_p1: 'O Estatuto Social e as normas internas são os pilares que garantem a governança, a transparência e a segurança jurídica de uma organização como a SIF.',
@@ -86,6 +114,9 @@ const mergeCfg = (base, incoming) => {
   }
   if (!Array.isArray(incoming.areas) || incoming.areas.length === 0) {
     out.areas = base.areas;
+  }
+  if (!Array.isArray(incoming.estatuto_blocks) || incoming.estatuto_blocks.length === 0) {
+    out.estatuto_blocks = base.estatuto_blocks;
   }
   return out;
 };
@@ -164,7 +195,7 @@ export default function InstitucionalAdmin() {
               <Check size={14} /> Salvo
             </span>
           )}
-          {!['team', 'timeline', 'estatuto'].includes(activeTab) && (
+          {!['team', 'timeline'].includes(activeTab) && (
             <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
               <Save size={16} /> {saving ? 'Salvando...' : 'Salvar alterações'}
             </Button>
@@ -209,14 +240,6 @@ export default function InstitucionalAdmin() {
       {activeTab === 'estatuto' && (
         <div>
           <EstatutoForm cfg={config} set={set} />
-          <div className="flex justify-end mb-6">
-            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> Salvar textos do Estatuto
-            </Button>
-          </div>
-          <hr className="my-6 border-gray-100" />
-          <p className="text-xs text-gray-500 mb-4">Documentos PDF (CRUD):</p>
-          <DocumentsManager />
         </div>
       )}
       {activeTab === 'timeline' && (
@@ -322,10 +345,49 @@ function AreasForm({ cfg, set }) {
 }
 
 // ─── ESTATUTOS ────────────────────────────────────────────────
+// Editor visual dos BLOCOS de documentos. Cada bloco tem:
+//   - ícone, título, subtítulo (opcional), parágrafos (textos do lado esquerdo)
+//   - lista de PDFs (cada um com label, ícone, arquivo enviado ou URL direta)
 function EstatutoForm({ cfg, set }) {
+  const blocks = Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : [];
+
+  const updateBlock = (idx, patch) => set('estatuto_blocks', blocks.map((b, i) => i === idx ? { ...b, ...patch } : b));
+  const addBlock = () => set('estatuto_blocks', [...blocks, { icon: 'FileText', title: 'Novo bloco', subtitle: '', paragraphs: [''], pdfs: [] }]);
+  const removeBlock = (idx) => { if (window.confirm('Remover este bloco inteiro (textos e PDFs)?')) set('estatuto_blocks', blocks.filter((_, i) => i !== idx)); };
+  const moveBlock = (idx, dir) => {
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= blocks.length) return;
+    const next = [...blocks];
+    [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
+    set('estatuto_blocks', next);
+  };
+
   return (
     <div className="space-y-5">
       <SectionHeader cfg={cfg} set={set} prefix="estatuto" />
+
+      <hr className="my-6 border-gray-100" />
+
+      <div className="space-y-4">
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Blocos de documentos (cada bloco aparece como uma fileira na página)</p>
+        {blocks.map((block, idx) => (
+          <BlockEditor
+            key={idx}
+            idx={idx}
+            block={block}
+            isFirst={idx === 0}
+            isLast={idx === blocks.length - 1}
+            onUpdate={(patch) => updateBlock(idx, patch)}
+            onRemove={() => removeBlock(idx)}
+            onMoveUp={() => moveBlock(idx, -1)}
+            onMoveDown={() => moveBlock(idx, 1)}
+          />
+        ))}
+        <button onClick={addBlock} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+          <Plus size={18} /> Adicionar bloco
+        </button>
+      </div>
+
       <hr className="my-6 border-gray-100" />
       <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Texto final ("A importância do Estatuto e das Normas")</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -336,6 +398,125 @@ function EstatutoForm({ cfg, set }) {
       <Field label="Parágrafo 2" type="textarea" rows={3} value={cfg.estatuto_footer_p2} onChange={v => set('estatuto_footer_p2', v)} />
       <Field label="Parágrafo 3" type="textarea" rows={3} value={cfg.estatuto_footer_p3} onChange={v => set('estatuto_footer_p3', v)} />
       <Field label="Citação final (itálico verde)" type="textarea" rows={2} value={cfg.estatuto_footer_quote} onChange={v => set('estatuto_footer_quote', v)} />
+    </div>
+  );
+}
+
+function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp, onMoveDown }) {
+  const paragraphs = Array.isArray(block.paragraphs) ? block.paragraphs : [];
+  const pdfs = Array.isArray(block.pdfs) ? block.pdfs : [];
+
+  const updatePar = (i, v) => onUpdate({ paragraphs: paragraphs.map((p, j) => j === i ? v : p) });
+  const addPar = () => onUpdate({ paragraphs: [...paragraphs, ''] });
+  const removePar = (i) => onUpdate({ paragraphs: paragraphs.filter((_, j) => j !== i) });
+
+  const updatePdf = (i, patch) => onUpdate({ pdfs: pdfs.map((p, j) => j === i ? { ...p, ...patch } : p) });
+  const addPdf = () => onUpdate({ pdfs: [...pdfs, { label: 'Novo documento', url: '', icon: 'FileText' }] });
+  const removePdf = (i) => { if (window.confirm('Remover este PDF do bloco?')) onUpdate({ pdfs: pdfs.filter((_, j) => j !== i) }); };
+  const movePdf = (i, dir) => {
+    const newIdx = i + dir;
+    if (newIdx < 0 || newIdx >= pdfs.length) return;
+    const next = [...pdfs];
+    [next[i], next[newIdx]] = [next[newIdx], next[i]];
+    onUpdate({ pdfs: next });
+  };
+
+  const handlePdfUpload = async (pdfIdx, file) => {
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success && data.url) {
+        updatePdf(pdfIdx, { url: '/' + data.url.replace(/^\/+/, '') });
+      } else {
+        alert('Erro ao enviar PDF: ' + (data.message || ''));
+      }
+    } catch (err) {
+      alert('Erro ao enviar PDF.');
+    }
+  };
+
+  return (
+    <div className="p-5 bg-gray-50 border-2 border-gray-200 rounded-xl">
+      {/* Cabeçalho do bloco */}
+      <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+        <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+          Bloco #{idx + 1} <span className="text-gray-400 normal-case font-normal">— {block.title || 'sem título'}</span>
+        </h4>
+        <div className="flex items-center gap-1">
+          <button onClick={onMoveUp} disabled={isFirst} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20" title="Mover para cima"><ChevronUp size={16} /></button>
+          <button onClick={onMoveDown} disabled={isLast} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20" title="Mover para baixo"><ChevronDown size={16} /></button>
+          <button onClick={onRemove} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded ml-1" title="Remover bloco"><Trash2 size={16} /></button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Lado ESQUERDO — textos */}
+        <div className="space-y-3">
+          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">📝 Textos (lado esquerdo)</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Field label="Título do bloco" value={block.title} onChange={v => onUpdate({ title: v })} />
+            <Field label="Ícone (Scale/FileText/FileBadge/Shield)" value={block.icon} onChange={v => onUpdate({ icon: v })} />
+          </div>
+          <Field label="Subtítulo (texto verde — opcional)" value={block.subtitle} onChange={v => onUpdate({ subtitle: v })} />
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Parágrafos do bloco</p>
+            {paragraphs.map((p, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <textarea
+                  className="flex-1 p-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-[#007a3d] focus:ring-2 focus:ring-emerald-200 resize-y"
+                  rows={3}
+                  value={p || ''}
+                  onChange={e => updatePar(i, e.target.value)}
+                  placeholder={`Parágrafo ${i + 1}`}
+                />
+                {paragraphs.length > 1 && (
+                  <button onClick={() => removePar(i)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded mt-1"><Trash2 size={14} /></button>
+                )}
+              </div>
+            ))}
+            <button onClick={addPar} className="text-xs text-emerald-700 font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+              <Plus size={14} /> Adicionar parágrafo
+            </button>
+          </div>
+        </div>
+
+        {/* Lado DIREITO — PDFs */}
+        <div className="space-y-3">
+          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">📄 PDFs (lado direito)</p>
+          {pdfs.map((pdf, i) => (
+            <div key={i} className="p-3 bg-white border border-gray-200 rounded-xl space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">PDF #{i + 1}</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => movePdf(i, -1)} disabled={i === 0} className="p-1 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronUp size={14} /></button>
+                  <button onClick={() => movePdf(i, 1)} disabled={i === pdfs.length - 1} className="p-1 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronDown size={14} /></button>
+                  <button onClick={() => removePdf(i)} className="p-1 text-gray-400 hover:text-red-600"><Trash2 size={14} /></button>
+                </div>
+              </div>
+              <Field label="Título do PDF" value={pdf.label} onChange={v => updatePdf(i, { label: v })} />
+              <Field label="Ícone (FileText/FileBadge/Shield/Scale)" value={pdf.icon} onChange={v => updatePdf(i, { icon: v })} />
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Arquivo PDF</label>
+                {pdf.url && (
+                  <div className="text-[11px] text-gray-500 mb-2 break-all bg-gray-50 p-2 rounded">
+                    <span className="font-bold">Atual:</span> {pdf.url}
+                  </div>
+                )}
+                <label className="flex items-center gap-2 p-2 bg-emerald-50 border-2 border-dashed border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-500 text-xs font-bold text-emerald-700">
+                  <Upload size={14} /> {pdf.url ? 'Trocar PDF' : 'Enviar PDF'}
+                  <input type="file" accept="application/pdf" className="hidden" onChange={e => handlePdfUpload(i, e.target.files[0])} />
+                </label>
+              </div>
+            </div>
+          ))}
+          <button onClick={addPdf} className="w-full p-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1">
+            <Plus size={14} /> Adicionar PDF a este bloco
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
