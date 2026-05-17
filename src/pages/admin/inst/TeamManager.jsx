@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail } from 'lucide-react';
+import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 
 const API = `${API_BASE_URL}/institucional.php`;
@@ -13,6 +13,43 @@ const GROUPS = [
   'Coord. de Produtos e Serviços',
   'Coord. de RH & Facilities',
   'Consultores',
+];
+
+// Equipe atual da página estática /institucional — usada apenas para o botão
+// "Importar equipe atual" quando o banco está vazio. As fotos vivem em
+// /public/nossa-gente/ e são servidas pelo próprio Vite.
+const parseFile = (file, folder) => {
+  const noExt = file.replace(/\.(jpg|jpeg|png|webp|gif)$/i, '');
+  const idx = noExt.indexOf(' - ');
+  const name = idx !== -1 ? noExt.substring(0, idx).trim() : noExt.trim();
+  const role = idx !== -1 ? noExt.substring(idx + 3).trim() : '';
+  return { name, role, photo_url: `/nossa-gente/${folder}/${file}` };
+};
+const STATIC_TEAM = [
+  // Diretoria
+  ...['Gilciano - Diretor Geral Fundação SIF.jpg', 'Gleison - Diretor Geral EMBRAPII  e Diretor Cientifico SIF.jpg', 'Gumercindo - Diretor Geral da SIF.png', 'Michele Brandão  - Gerente Executiva.jpg']
+    .map(f => ({ ...parseFile(f, 'Diretoria'), group: 'Diretoria' })),
+  // Coordenadoras
+  ...['Camila - Coord. Produtos e Serviços.png', 'Cintia - Coord da Fudação SIF e EMBRAPII.png', 'Helen  - Coord de Inovação e Projetos.png', 'Larissa  - Coord. de CSC.png', 'Ângela Silva - Coord. de Rh e Faciliities.png']
+    .map(f => ({ ...parseFile(f, 'Coordenadoras'), group: 'Coordenadoras' })),
+  // Coord. Fundação SIF & EMBRAPII
+  ...['Flávia - Estagiária.png', 'Gabriela Camilo - Gestora de Convênios.png', 'Otávio Silveira - Estagiário.png']
+    .map(f => ({ ...parseFile(f, 'Coordenações/Coord. Fundação SIF e EMBRAPII'), group: 'Coord. Fundação SIF & EMBRAPII' })),
+  // Coord. Inovação e Projetos
+  ...['Tamara Braga - Analista de Inovação.png', 'Thamires Carvalho - Analista de Proejtos.png']
+    .map(f => ({ ...parseFile(f, 'Coordenações/Coordenação Inovação e Projetos'), group: 'Coord. Inovação e Projetos' })),
+  // Coord. de CSC
+  ...['Adilson Abranches - Informática.png', 'Joyce Aquino - Contratos Internos.png', 'Kellen Souza - Compras.png', 'Lidiane Heleno - Contas a Pagar.png', 'Mauricio Seiffer - Estagiário.png', 'Rafaela Vilar - Contas a Receber.png', 'Silmara Pena  - Controle Financeiro.png']
+    .map(f => ({ ...parseFile(f, 'Coordenações/Coordenação de CSC'), group: 'Coord. de CSC' })),
+  // Coord. de Produtos e Serviços
+  ...['Angelina Melo - GT Sociedade.png', 'Giovanna Oliveira - GT Colheita e Logística.png', 'Juliana Melo - GT Carvão Vegetal.png', 'Laís Luz - Analista de Eventos.png', 'Lucas Sousa - Assistente de Comunicação e Marketing.png', 'Mateus Costa - Analista de Comunicação e Marketing.png', 'Mirian Valente - GT Restauração.png', 'Nathália Ramos - GT Bambu.png', 'Otávio Fernandes - GT Segurança.png', 'Pedro Almada - Analista Comercial.png', 'Samuel Souza - GT Ferroligas.png', 'Silas Sardinha - GT Manejo.png']
+    .map(f => ({ ...parseFile(f, 'Coordenações/Coordenação de Produtos e Serviços'), group: 'Coord. de Produtos e Serviços' })),
+  // Coord. de RH & Facilities
+  ...['Adão Vitorio - Recepção.png', 'Ana Clarisse - Estagiária.png', 'Maria Auxiliadora - Serviços Gerais.png', 'Monalisa Meireles - Estagiária.png', 'Roberta Finamore - Formação de RH.jpg', 'Samara Soares - Analista de RH.png']
+    .map(f => ({ ...parseFile(f, 'Coordenações/Coordenação de RH'), group: 'Coord. de RH & Facilities' })),
+  // Consultores
+  ...['Andreia - Organizacional.jpg', 'Marinês - Juridico.jpg', 'Rômulo - Contábil.png']
+    .map(f => ({ ...parseFile(f, 'Consultores'), group: 'Consultores' })),
 ];
 
 function MemberCard({ member, onDelete, onUpdate }) {
@@ -140,6 +177,23 @@ export default function TeamManager() {
     fetch_();
   };
 
+  const [importing, setImporting] = useState(false);
+  const handleImportStatic = async () => {
+    if (!window.confirm(`Importar os ${STATIC_TEAM.length} membros que estão hoje na página /institucional? Isso ADICIONA ao que já existe — não substitui nem apaga.`)) return;
+    setImporting(true);
+    try {
+      for (const m of STATIC_TEAM) {
+        const fd = new FormData();
+        fd.append('name', m.name);
+        fd.append('role', m.role);
+        fd.append('group_name', m.group);
+        fd.append('photo_url', m.photo_url);
+        await fetch(API + '?resource=team', { method: 'POST', body: fd });
+      }
+      fetch_();
+    } finally { setImporting(false); }
+  };
+
   const handleAdd = async () => {
     if (!newForm.name.trim()) return;
     setAdding(true);
@@ -160,6 +214,26 @@ export default function TeamManager() {
 
   return (
     <div className="space-y-6">
+      {/* Banner de importação — só aparece se banco vazio */}
+      {!loading && members.length === 0 && (
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+            <DownloadCloud size={22} />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-emerald-900">Importar equipe atual do site</h4>
+            <p className="text-xs text-emerald-700 mt-1">
+              Detectamos que não há ninguém cadastrado. Posso importar os {STATIC_TEAM.length} membros que estão hoje
+              na página <code>/institucional</code> (com nome, cargo, grupo e foto) para você só editar/completar contatos depois.
+            </p>
+          </div>
+          <button onClick={handleImportStatic} disabled={importing} className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] disabled:opacity-60">
+            {importing ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <DownloadCloud size={16} />}
+            Importar {STATIC_TEAM.length}
+          </button>
+        </div>
+      )}
+
       {/* Abas de grupo */}
       <div className="flex flex-wrap gap-2">
         {GROUPS.map(g => {

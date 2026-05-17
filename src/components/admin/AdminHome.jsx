@@ -261,50 +261,40 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
         <Input label="Link Botão 2" value={config.cta2_link} onChange={(e) => update({ cta2_link: e.target.value })} />
       </div>
 
-      <ImageField label="Imagem de fundo do Hero" currentUrl={currentImage} previewUrl={preview} fieldName="hero_bg" onFile={onFile} hint="Recomendado 2000×1000px. Se vazio, usa a imagem padrão." />
+      <ImageField
+        label="Imagem de fundo do Hero"
+        currentUrl={currentImage || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop'}
+        previewUrl={preview}
+        fieldName="hero_bg"
+        onFile={onFile}
+        hint="A imagem mostrada acima é a que está sendo exibida na Home. Clique para trocar."
+      />
     </div>
   );
 }
 
 // ─── PERFORMANCE (Missão/Visão/Valores) ────────────────────────
+// Quantidade fixa de 3 blocos — o layout depende disso (grid 3 colunas).
+// Só edição inline; sem adicionar/remover/reordenar.
 function PerformanceForm({ config, update }) {
   const items = config.items || [];
   const updateItem = (idx, patch) => {
     const newItems = items.map((it, i) => i === idx ? { ...it, ...patch } : it);
     update({ items: newItems });
   };
-  const addItem = () => update({ items: [...items, { title: 'Novo bloco', text: '' }] });
-  const removeItem = (idx) => { if (window.confirm('Remover este bloco?')) update({ items: items.filter((_, i) => i !== idx) }); };
-  const move = (idx, dir) => {
-    const newIdx = idx + dir;
-    if (newIdx < 0 || newIdx >= items.length) return;
-    const next = [...items];
-    [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
-    update({ items: next });
-  };
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-gray-500">Blocos exibidos abaixo do Hero (sobre fundo verde). Originalmente: Missão, Visão e Valores.</p>
+      <p className="text-xs text-gray-500">Blocos exibidos abaixo do Hero (sobre fundo verde). Quantidade fixa em 3 para manter o layout.</p>
       {items.map((item, idx) => (
         <div key={idx} className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Bloco #{idx + 1}</h4>
-            <div className="flex items-center gap-1">
-              <button onClick={() => move(idx, -1)} disabled={idx === 0} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronUp size={16} /></button>
-              <button onClick={() => move(idx, 1)} disabled={idx === items.length - 1} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronDown size={16} /></button>
-              <button onClick={() => removeItem(idx)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded ml-1"><Trash2 size={16} /></button>
-            </div>
-          </div>
+          <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Bloco #{idx + 1}</h4>
           <Input label="Título" value={item.title} onChange={(e) => updateItem(idx, { title: e.target.value })} />
           <div className="mt-3">
             <TextArea label="Texto" rows={2} value={item.text} onChange={(e) => updateItem(idx, { text: e.target.value })} />
           </div>
         </div>
       ))}
-      <button onClick={addItem} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-        <Plus size={18} /> Adicionar bloco
-      </button>
     </div>
   );
 }

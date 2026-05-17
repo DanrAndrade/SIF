@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import { CheckCircle, ArrowRight, ShieldCheck, Globe, Zap, Users, ChevronDown } from 'lucide-react';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 // --- IMPORTAÇÃO DOS LOGOS ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.png';
@@ -36,7 +38,7 @@ import logoVallourec from '../assets/logos/VALLOUREC-LOGO-200x47.png';
 import logoVeracel from '../assets/logos/VERACEL-LOGO-200x73.png';
 import logoVetorial from '../assets/logos/Vetorial-Logo-200x113.png';
 
-const partners = [
+const fallbackPartners = [
   { name: 'Suzano', src: logoSuzano },
   { name: 'Gerdau', src: logoGerdau },
   { name: 'ArcelorMittal', src: logoArcelor },
@@ -92,6 +94,21 @@ const benefits = [
 ];
 
 export default function Associadas() {
+  const [partners, setPartners] = useState(fallbackPartners);
+
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
+      .then((res) => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setPartners(res.data.map(a => ({
+            name: a.name,
+            src: a.logo_url ? getImageUrl(a.logo_url) : null,
+          })));
+        }
+      })
+      .catch(() => { /* mantém fallback */ });
+  }, []);
+
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
@@ -170,16 +187,20 @@ export default function Associadas() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-10">
             {partners.map((partner, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-[#f8f9fa] rounded-3xl p-6 flex items-center justify-center aspect-square border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group cursor-pointer"
                 title={partner.name}
               >
-                <img 
-                  src={partner.src} 
-                  alt={partner.name} 
-                  className="max-h-[70%] max-w-[80%] object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" 
-                />
+                {partner.src ? (
+                  <img
+                    src={partner.src}
+                    alt={partner.name}
+                    className="max-h-[70%] max-w-[80%] object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                  />
+                ) : (
+                  <span className="text-xs font-bold uppercase text-gray-500 text-center px-2">{partner.name}</span>
+                )}
               </div>
             ))}
           </div>

@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 // --- IMPORTAÇÃO DOS LOGOS ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.png';
@@ -32,7 +34,7 @@ import logoVeracel from '../assets/logos/VERACEL-LOGO-200x73.png';
 import logoVetorial from '../assets/logos/Vetorial-Logo-200x113.png';
 
 export default function Partners() {
-  const partners = [
+  const fallback = [
     { name: 'Suzano', src: logoSuzano },
     { name: 'Gerdau', src: logoGerdau },
     { name: 'ArcelorMittal', src: logoArcelor },
@@ -64,6 +66,21 @@ export default function Partners() {
     { name: 'Outros', src: logoAssociadaUnknown },
   ];
 
+  const [partners, setPartners] = useState(fallback);
+
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
+      .then((res) => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setPartners(res.data.map(a => ({
+            name: a.name,
+            src: a.logo_url ? getImageUrl(a.logo_url) : null,
+          })));
+        }
+      })
+      .catch(() => { /* mantém fallback */ });
+  }, []);
+
   const duplicatedPartners = [...partners, ...partners];
 
   return (
@@ -83,16 +100,20 @@ export default function Partners() {
             {/* ALTERADO: Removi a classe 'hover:[animation-play-state:paused]' */}
             <div className="flex w-max animate-scroll" style={{ animationDuration: '80s' }}>
                 {duplicatedPartners.map((partner, index) => (
-                    <div 
-                        key={index} 
+                    <div
+                        key={index}
                         className="flex items-center justify-center mx-8 w-[180px] h-[100px] opacity-100 grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer"
                         title={partner.name}
                     >
-                        <img 
-                            src={partner.src} 
-                            alt={partner.name} 
-                            className="max-h-16 max-w-full object-contain mix-blend-multiply" 
-                        />
+                        {partner.src ? (
+                          <img
+                              src={partner.src}
+                              alt={partner.name}
+                              className="max-h-16 max-w-full object-contain mix-blend-multiply"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold uppercase text-gray-400 text-center px-2">{partner.name}</span>
+                        )}
                     </div>
                 ))}
             </div>

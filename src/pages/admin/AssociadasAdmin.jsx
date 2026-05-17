@@ -1,10 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Save, Image as ImageIcon, GripVertical, Eye, EyeOff, X } from 'lucide-react';
+import { Plus, Trash2, Save, Image as ImageIcon, GripVertical, Eye, EyeOff, X, DownloadCloud } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL   = `${API_BASE_URL}/associadas.php`;
 const PAGE_URL  = `${API_BASE_URL}/page_content.php`;
+
+// Lista atual da página estática /associadas — usada apenas para o botão
+// "Importar conteúdo atual" quando o banco está vazio.
+const STATIC_PARTNERS = [
+  { name: 'Suzano',              logo: '/logos/SUZANO-HORIZONTAL-LOGO-200x53.png' },
+  { name: 'Gerdau',              logo: '/logos/GERDAU-LOGO-HORIZONTAL-200x113.png' },
+  { name: 'ArcelorMittal',       logo: '/logos/ARCELORMITTAL-LOGO-200x113.png' },
+  { name: 'Cenibra',             logo: '/logos/CENIBRA-LOGO-200x198.png' },
+  { name: 'Veracel',             logo: '/logos/VERACEL-LOGO-200x73.png' },
+  { name: 'Aperam',              logo: '/logos/APERAM-LOGO-200x113.png' },
+  { name: 'Bracell',             logo: '/logos/bracell-logo-200x45.png' },
+  { name: 'Vallourec',           logo: '/logos/VALLOUREC-LOGO-200x47.png' },
+  { name: 'Arauco',              logo: '/logos/ARAUCO-LOGO-200x37.png' },
+  { name: 'CMPC',                logo: '/logos/Logo-CMPC-1024x496.png' },
+  { name: 'Smurfit Westrock',    logo: '/logos/SMURFIT-WESTROCK-1.png' },
+  { name: 'Dexco',               logo: '/logos/logo-dexco.jpg' },
+  { name: 'LD Celulose',         logo: '/logos/LD-CELULOSE-1.png' },
+  { name: 'Agropalma',           logo: '/logos/Agropalma-Logo.png' },
+  { name: 'Bunge',               logo: '/logos/Bunge-Logo-200x46.png' },
+  { name: 'ArborGen',            logo: '/logos/ArborGen-2021-Logo-with-Tagline-SMALL-200x145.png' },
+  { name: 'Placas do Brasil',    logo: '/logos/Placas-Do-Brasil-LOGO-200x67.png' },
+  { name: 'Paracel',             logo: '/logos/PARACEL-LOGO-200x47.png' },
+  { name: 'Montes del Plata',    logo: '/logos/Logo-Montes-del-Plata-200x100.png' },
+  { name: 'Sinobras',            logo: '/logos/SINOBRAS-LOGO-200x71.png' },
+  { name: 'Vetorial',            logo: '/logos/Vetorial-Logo-200x113.png' },
+  { name: 'Metal Sider',         logo: '/logos/Metal-Sider-Logo-200x113.png' },
+  { name: 'Grupo Maringá',       logo: '/logos/GRUPO-MARINGA-LOGO-200x112.png' },
+  { name: 'Grupo Index',         logo: '/logos/GRUPO-INDEX-LOGO-200x78.png' },
+  { name: 'Deforsa',             logo: '/logos/DEFORSA-LOGO-200x228.png' },
+  { name: 'Concrem',             logo: '/logos/CONCREM.png' },
+  { name: 'The Forest Company',  logo: '/logos/THE-FOREST-COMPANY.png' },
+  { name: 'Pan Bioenergia',      logo: '/logos/PAN-BIOENERGIA.png' },
+];
 
 // ─────────────────────────────────────────────────────────
 // Sub-componente: Card de empresa no admin
@@ -161,6 +194,22 @@ export default function AssociadasAdmin() {
     } catch {}
   };
 
+  // ── Importar lista da página estática (one-shot) ──────
+  const [importing, setImporting] = useState(false);
+  const handleImportStatic = async () => {
+    if (!window.confirm(`Importar as ${STATIC_PARTNERS.length} empresas que estão hoje na página? Isso adiciona ao que já existe — não substitui nem apaga.`)) return;
+    setImporting(true);
+    try {
+      for (const p of STATIC_PARTNERS) {
+        const fd = new FormData();
+        fd.append('name', p.name);
+        fd.append('logo_url', p.logo);
+        await fetch(API_URL, { method: 'POST', body: fd });
+      }
+      fetchPartners();
+    } finally { setImporting(false); }
+  };
+
   // ── Adicionar novo parceiro ───────────────────────────
   const handleAdd = async () => {
     if (!newName.trim()) return;
@@ -252,6 +301,25 @@ export default function AssociadasAdmin() {
           </span>
         )}
       </div>
+
+      {/* Banner de importação — aparece se o banco está vazio */}
+      {!loadingPartners && partners.length === 0 && (
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+            <DownloadCloud size={22} />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-bold text-emerald-900">Importar conteúdo atual do site</h4>
+            <p className="text-xs text-emerald-700 mt-1">
+              Detectamos que a lista está vazia. Posso importar as {STATIC_PARTNERS.length} empresas que estão hoje
+              na página <code>/associadas</code> (com logos) para você começar a editar.
+            </p>
+          </div>
+          <Button onClick={handleImportStatic} isLoading={importing} className="shrink-0">
+            <DownloadCloud size={16} /> Importar {STATIC_PARTNERS.length} empresas
+          </Button>
+        </div>
+      )}
 
       {/* ════════════════════════════════════════════════
           SEÇÃO 1 — TEXTOS DA PÁGINA
