@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
+import { getImageUrl } from '../apiConfig';
 
-export default function Services({ sectionRef, trackRef }) {
+const DEFAULT_CARDS = [
+  { id: "01", tag: "Comercial", title: "Comercial", desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", link: "/comercial", image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop" },
+  { id: "02", tag: "Germinar", title: "Programa Germinar", desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", link: "/trabalhe-conosco", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" },
+  { id: "03", tag: "Informativo", title: "Boletim Técnico", desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", link: "/blog", image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop" },
+  { id: "04", tag: "Pesquisa", title: "Serviços de P&D", desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", link: "/projetos", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop" }
+];
+
+export default function Services({ sectionRef, trackRef, config = {} }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const scrollTOIndex = (index) => {
@@ -33,41 +41,17 @@ export default function Services({ sectionRef, trackRef }) {
       }
   }, [trackRef]);
 
-  // AQUI: Categorias atualizadas para o PASSO 1 (Estrutura Horizontal de Serviços)
-  const categories = [
-    { 
-      id: "01", 
-      tag: "Comercial", 
-      title: "Comercial", 
-      desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", 
-      link: "/comercial",
-      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop" 
-    },
-    { 
-      id: "02", 
-      tag: "Germinar", 
-      title: "Programa Germinar", 
-      desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", 
-      link: "/trabalhe-conosco",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" 
-    },
-    { 
-      id: "03", 
-      tag: "Informativo", 
-      title: "Boletim Técnico", 
-      desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", 
-      link: "/blog",
-      image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop" 
-    },
-    { 
-      id: "04", 
-      tag: "Pesquisa", 
-      title: "Serviços de P&D", 
-      desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", 
-      link: "/projetos",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop" 
-    }
-  ];
+  const rawCards = Array.isArray(config.cards) && config.cards.length > 0 ? config.cards : DEFAULT_CARDS;
+  const categories = rawCards.map((c, i) => ({
+    id: c.id || String(i + 1).padStart(2, '0'),
+    tag: c.tag || '',
+    title: c.title || '',
+    desc: c.desc || '',
+    link: c.link || '#',
+    image: c.image ? (c.image.startsWith('http') ? c.image : getImageUrl(c.image)) : (DEFAULT_CARDS[i % DEFAULT_CARDS.length]?.image || ''),
+  }));
+  const sectionTag = config.section_tag || 'Áreas de Atuação';
+  const sectionTitle = config.section_title || 'Nossos Serviços';
 
   return (
     <section ref={sectionRef} className="relative w-full py-16 md:py-20 overflow-hidden bg-[#f8f9fa] z-20">
@@ -75,7 +59,7 @@ export default function Services({ sectionRef, trackRef }) {
         
         <div className="container mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
             <div className="max-w-xl">
-                 <SectionHeader tag="Áreas de Atuação" title="Nossos Serviços" />
+                 <SectionHeader tag={sectionTag} title={sectionTitle} />
             </div>
         </div>
 

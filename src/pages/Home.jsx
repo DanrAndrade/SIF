@@ -18,6 +18,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { usePageConfig } from '../hooks/usePageConfig';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -26,7 +27,10 @@ if (typeof window !== 'undefined') {
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
+  // Config editável via /admin/home. Tudo tem fallback nos componentes filhos.
+  const { config } = usePageConfig('home');
+
   const heroRef = useRef(null);
   const heroBgRef = useRef(null);
   const heroContentRef = useRef(null);
@@ -115,15 +119,17 @@ export default function Home() {
               ></div>
 
               <div className="relative z-10">
-                 <HeroSection 
+                 <HeroSection
                     wrapperRef={heroRef}
                     bgRef={heroBgRef}
                     contentRef={heroContentRef}
+                    config={config.hero}
+                    bgImage={config.hero_bg}
                  />
               </div>
 
               <div className="relative z-20 pt-4 px-4">
-                  <Performance />
+                  <Performance config={config.performance} />
               </div>
           </div>
 
@@ -132,11 +138,11 @@ export default function Home() {
 
           {/* --- SOBRE NÓS --- */}
           <div id="quem-somos" className="py-12">
-            <About />
+            <About config={config.about} />
           </div>
 
           {/* --- PRODUTOS E SERVIÇOS --- */}
-          <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} />
+          <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
 
           {/* --- PARCEIROS --- */}
           <Partners />
@@ -144,12 +150,12 @@ export default function Home() {
           {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
       <div className="py-24 px-6 bg-white">
         <div className="container mx-auto">
-            <Process />
+            <Process config={config.process} />
         </div>
       </div>
-      
-      
-      <FAQ />
+
+
+      <FAQ pageKey="home" sideConfig={config.faq_side} />
       <Footer />
     </div>
   );

@@ -1,11 +1,25 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
-import iconLogo from '../assets/sif.svg'; 
+import iconLogo from '../assets/sif.svg';
 import NoiseOverlay from './ui/NoiseOverlay';
 import Button from './ui/Button';
+import { getImageUrl } from '../apiConfig';
 
-export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
+const DEFAULT_BG = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop";
+
+export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}, bgImage }) {
   const scrollToExplore = () => window.scrollTo({top: 800, behavior: 'smooth'});
+
+  const tag         = config.tag         || 'Sustentabilidade & Inovação';
+  const titleLine1  = config.title_line1 || 'Sociedade de';
+  const titleLine2  = config.title_line2 || 'Investigações Florestais';
+  const subtitle    = config.subtitle    || 'Há mais de 40 anos promovendo o desenvolvimento científico e tecnológico do setor florestal brasileiro. Conexão entre universidade e grandes empresas.';
+  const cta1Label   = config.cta1_label  || 'Seja Associada';
+  const cta1Link    = config.cta1_link   || '/contato';
+  const cta2Label   = config.cta2_label  || 'Nossos Projetos';
+  const cta2Link    = config.cta2_link   || '/projetos';
+  const scrollLabel = config.scroll_label|| 'Conheça';
+  const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : DEFAULT_BG;
 
   return (
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
@@ -18,7 +32,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
         <div ref={bgRef} className="absolute top-16 left-0 right-0 h-full bg-transparent rounded-bl-[40px] md:rounded-bl-[80px] z-0 will-change-transform"></div>
 
         <section className="relative z-10 min-h-[95vh] flex items-center bg-fixed bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop')" }}>
+            style={{ backgroundImage: `url('${resolvedBg}')` }}>
             
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
             {/* Gradiente lateral escuro (preto/cinza escuro) */}
@@ -29,26 +43,24 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
             <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full grid grid-cols-1 md:grid-cols-12 items-center gap-12 pt-0 will-change-transform">
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
                     <div className="inline-flex items-center px-3 py-1 border border-[#7FBA00]/40 rounded-full bg-[#7FBA00]/10">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7FBA00]">Sustentabilidade & Inovação</span>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7FBA00]">{tag}</span>
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold uppercase leading-[1.1] tracking-tight text-white">
-                        Sociedade de <br/>
-                        <span className="text-[#cce399]">Investigações Florestais</span>
+                        {titleLine1} <br/>
+                        <span className="text-[#cce399]">{titleLine2}</span>
                     </h1>
-                    
+
                     <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-lg leading-relaxed font-medium">
-                        Há mais de 40 anos promovendo o desenvolvimento científico e tecnológico do setor florestal brasileiro. Conexão entre universidade e grandes empresas.
+                        {subtitle}
                     </p>
-                    
+
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
-                        {/* Botão Gradiente SIF (Verde Escuro -> Folha) ou o Azul/Verde que definimos no Button.jsx */}
-                        <Button href="/contato" variant="primary" className="w-full sm:w-auto">
-                            Seja Associada
+                        <Button href={cta1Link} variant="primary" className="w-full sm:w-auto">
+                            {cta1Label}
                         </Button>
-                        
-                        <Button href="/projetos" variant="glass" className="w-full sm:w-auto">
-                            Nossos Projetos
+                        <Button href={cta2Link} variant="glass" className="w-full sm:w-auto">
+                            {cta2Label}
                         </Button>
                     </div>
                 </div>
@@ -64,7 +76,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
             </div>
             
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-100 animate-bounce cursor-pointer z-20" onClick={scrollToExplore}>
-                <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-white">Conheça</span>
+                <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-white">{scrollLabel}</span>
                 <ChevronDown className="text-white w-6 h-6" />
             </div>
         </section>

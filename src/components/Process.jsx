@@ -1,65 +1,48 @@
 import React, { useState, useRef } from 'react';
-import { Newspaper, BookOpen, TreePine, ScrollText, Plus, CheckCircle2 } from 'lucide-react';
+import { Newspaper, BookOpen, TreePine, ScrollText, Plus, CheckCircle2, Tent, Award, FlaskConical, FileText, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SectionHeader from './ui/SectionHeader';
 import NoiseOverlay from './ui/NoiseOverlay';
+import { getImageUrl } from '../apiConfig';
 
-export default function Process() {
+const ICON_MAP = { Newspaper, BookOpen, TreePine, ScrollText, Tent, Award, FlaskConical, FileText, Calendar, Users };
+
+const DEFAULT_STEPS = [
+  { id: "01", title: "Blog e Notícias", icon_type: "Newspaper", img: "https://images.unsplash.com/photo-1624269305548-1527ef905ff6", shortDesc: "Fique por dentro das novidades.", fullDesc: "Acompanhe as últimas notícias, eventos e inovações do setor florestal brasileiro.", benefits: "Novidades, Artigos, Eventos", link: "/blog", external: false },
+  { id: "02", title: "Treinamentos", icon_type: "BookOpen", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2015", shortDesc: "Qualificação profissional.", fullDesc: "Consulte nossa agenda completa de treinamentos e cursos especializados para o setor.", benefits: "Cursos, Certificados, Expertise", link: "/treinamentos", external: false },
+  { id: "03", title: "Nossos Projetos", icon_type: "TreePine", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=2070", shortDesc: "Inovação em P&D+I.", fullDesc: "Conheça os projetos de pesquisa e desenvolvimento que estamos realizando no campo.", benefits: "P&D+I, Tecnologia, Campo", link: "/projetos", external: false },
+  { id: "04", title: "Transparência", icon_type: "ScrollText", img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071", shortDesc: "Ética e Integridade.", fullDesc: "Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.", benefits: "Ética, Compliance, Governança", link: "https://sif.conveniar.com.br/portaltransparencia/", external: true },
+];
+
+export default function Process({ config = {} }) {
   const [activeStep, setActiveStep] = useState(0);
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const scrollContainerRef = useRef(null);
 
-  const steps = [
-    { 
-        id: "01", 
-        title: "Blog e Notícias", 
-        icon: Newspaper,
-        img: "https://images.unsplash.com/photo-1624269305548-1527ef905ff6", 
-        shortDesc: "Fique por dentro das novidades.",
-        fullDesc: "Acompanhe as últimas notícias, eventos e inovações do setor florestal brasileiro.",
-        benefits: ["Novidades", "Artigos", "Eventos"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
-        textColor: "text-[#4ADE80]",
-        link: "/blog" 
-    },
-    { 
-        id: "02", 
-        title: "Treinamentos", 
-        icon: BookOpen,
-        img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2015", 
-        shortDesc: "Qualificação profissional.",
-        fullDesc: "Consulte nossa agenda completa de treinamentos e cursos especializados para o setor.",
-        benefits: ["Cursos", "Certificados", "Expertise"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
-        textColor: "text-[#4ADE80]",
-        link: "/treinamentos"
-    },
-    { 
-        id: "03", 
-        title: "Nossos Projetos", 
-        icon: TreePine,
-        img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=2070", 
-        shortDesc: "Inovação em P&D+I.",
-        fullDesc: "Conheça os projetos de pesquisa e desenvolvimento que estamos realizando no campo.",
-        benefits: ["P&D+I", "Tecnologia", "Campo"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
-        textColor: "text-[#4ADE80]",
-        link: "/projetos"
-    },
-    { 
-        id: "04", 
-        title: "Transparência", 
-        icon: ScrollText,
-        img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071", 
-        shortDesc: "Ética e Integridade.",
-        fullDesc: "Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.",
-        benefits: ["Ética", "Compliance", "Governança"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
-        textColor: "text-[#4ADE80]",
-        link: "https://sif.conveniar.com.br/portaltransparencia/",
-        external: true
-    }
-  ];
+  const sectionTag = config.section_tag || 'Inovação e Transparência';
+  const sectionTitle = config.section_title || 'Explore nossos recursos';
+  const sectionSubtitle = config.section_subtitle || 'Acesse as principais áreas e conteúdos da nossa plataforma.';
+
+  const rawSteps = Array.isArray(config.steps) && config.steps.length > 0 ? config.steps : DEFAULT_STEPS;
+  const steps = rawSteps.map((s) => {
+    const Icon = ICON_MAP[s.icon_type] || Newspaper;
+    const benefitsArr = typeof s.benefits === 'string'
+      ? s.benefits.split(',').map(b => b.trim()).filter(Boolean)
+      : (Array.isArray(s.benefits) ? s.benefits : []);
+    return {
+      id: s.id || '',
+      title: s.title || '',
+      icon: Icon,
+      img: s.img ? (s.img.startsWith('http') ? s.img : getImageUrl(s.img)) : '',
+      shortDesc: s.shortDesc || '',
+      fullDesc: s.fullDesc || '',
+      benefits: benefitsArr,
+      color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
+      textColor: "text-[#4ADE80]",
+      link: s.link || '#',
+      external: !!s.external,
+    };
+  });
 
   const handleMobileScroll = () => {
       if (scrollContainerRef.current) {
@@ -81,9 +64,9 @@ export default function Process() {
 
             <div className="container relative z-10 flex flex-col items-center">
                 <div className="max-w-2xl px-6 w-full text-center mb-10">
-                    <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">Inovação e Transparência</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight uppercase">Explore nossos recursos</h2>
-                    <p className="text-gray-400 text-sm md:text-base font-light">Acesse as principais áreas e conteúdos da nossa plataforma.</p>
+                    <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">{sectionTag}</span>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight uppercase">{sectionTitle}</h2>
+                    <p className="text-gray-400 text-sm md:text-base font-light">{sectionSubtitle}</p>
                 </div>
 
                 {/* --- DESKTOP VIEW --- */}
