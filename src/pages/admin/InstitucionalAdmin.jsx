@@ -8,6 +8,14 @@ import DocumentsManager from './inst/DocumentsManager';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
+// Imagens que estão hoje na página estática /institucional — usadas como
+// preview no admin enquanto o usuário não fez upload das próprias.
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2071';
+const DEFAULT_QUEM_SOMOS_IMAGE = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2013&auto=format&fit=crop';
+
+const DEFAULT_QUEM_SOMOS_TEXT1 = 'Fundada em 1974, a Sociedade de Investigações Florestais (SIF) consolida uma trajetória de cinco décadas como o elo estratégico entre a Universidade Federal de Viçosa (UFV) e o setor produtivo florestal brasileiro.';
+const DEFAULT_QUEM_SOMOS_TEXT2 = 'Conectamos mais de 28 empresas associadas em projetos de pesquisa, desenvolvimento e inovação, formando a maior rede de cooperação universidade-empresa do setor no país.';
+
 const SECTIONS = [
   { id: 'geral',      label: '🖼️ Hero & Quem Somos' },
   { id: 'nossa-gente', label: '👥 Nossa Gente' },
@@ -59,13 +67,30 @@ export default function InstitucionalAdmin() {
     fetch(API + '?resource=config')
       .then(r => r.json())
       .then(data => {
-        if (data && Object.keys(data).length > 0) {
-          setConfig(prev => ({ ...prev, ...data }));
-          if (data.hero_image) setHeroPreview(getImageUrl(data.hero_image));
-          if (data.quem_somos_image) setQuemSomosPreview(getImageUrl(data.quem_somos_image));
-        }
+        const merged = (data && Object.keys(data).length > 0) ? data : {};
+        setConfig(prev => ({
+          ...prev,
+          ...merged,
+          // Garante que os textos do "Quem Somos" venham com o conteúdo atual
+          // da página caso o admin ainda não tenha editado nada.
+          quem_somos_text1: merged.quem_somos_text1 || prev.quem_somos_text1 || DEFAULT_QUEM_SOMOS_TEXT1,
+          quem_somos_text2: merged.quem_somos_text2 || prev.quem_somos_text2 || DEFAULT_QUEM_SOMOS_TEXT2,
+        }));
+        // Imagens: mostra o que está no banco; se vazio, mostra o que está hoje
+        // na página estática (fallback). Assim o admin sempre vê a imagem atual.
+        setHeroPreview(merged.hero_image ? getImageUrl(merged.hero_image) : DEFAULT_HERO_IMAGE);
+        setQuemSomosPreview(merged.quem_somos_image ? getImageUrl(merged.quem_somos_image) : DEFAULT_QUEM_SOMOS_IMAGE);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Backend offline — pelo menos exibe as imagens atuais da página
+        setHeroPreview(DEFAULT_HERO_IMAGE);
+        setQuemSomosPreview(DEFAULT_QUEM_SOMOS_IMAGE);
+        setConfig(prev => ({
+          ...prev,
+          quem_somos_text1: prev.quem_somos_text1 || DEFAULT_QUEM_SOMOS_TEXT1,
+          quem_somos_text2: prev.quem_somos_text2 || DEFAULT_QUEM_SOMOS_TEXT2,
+        }));
+      });
   }, []);
 
   const toggleSection = (id) => setActiveSection(prev => prev === id ? null : id);
