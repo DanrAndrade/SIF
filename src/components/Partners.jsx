@@ -67,8 +67,7 @@ export default function Partners() {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-      // ALTERADO: Aumentei para 'my-40' (mais espaço vertical)
-      <div className="wrapper my-40 border-y border-gray-100 bg-[#f8f9fa] py-16 relative overflow-hidden">
+      <div className="wrapper mt-24 mb-24 border-y border-gray-100 bg-[#f8f9fa] py-16 relative overflow-hidden z-10">
         
         <div className="text-center mb-14">
             <h3 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-400">

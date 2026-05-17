@@ -11,7 +11,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
         <div className="absolute bottom-0 left-0 right-0 h-[200px] -z-20 overflow-hidden pointer-events-none">
             {/* Mantido o gradiente de base verde suave, pode ser útil para transição, mas o NoiseOverlay ajuda */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,_#2E7D32_0%,_#1B5E20_100%)] opacity-50"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,_#007a3d_0%,_#1B5E20_100%)] opacity-50"></div>
             <NoiseOverlay opacity={0.4} />
         </div>
 
@@ -28,13 +28,13 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef }) {
 
             <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full grid grid-cols-1 md:grid-cols-12 items-center gap-12 pt-0 will-change-transform">
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
-                    <div className="inline-flex items-center px-3 py-1 border border-[#92b735]/40 rounded-full bg-[#92b735]/10">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#92b735]">Sustentabilidade & Inovação</span>
+                    <div className="inline-flex items-center px-3 py-1 border border-[#7FBA00]/40 rounded-full bg-[#7FBA00]/10">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7FBA00]">Sustentabilidade & Inovação</span>
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold uppercase leading-[1.1] tracking-tight text-white">
                         Sociedade de <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#92b735] to-[#d6e2b2]">Investigações Florestais</span>
+                        <span className="text-[#cce399]">Investigações Florestais</span>
                     </h1>
                     
                     <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-lg leading-relaxed font-medium">

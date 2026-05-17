@@ -8,10 +8,10 @@ import { Input, Select, TextArea } from '../components/ui/FormElements';
 import Button from '../components/ui/Button';
 import SectionHeader from '../components/ui/SectionHeader';
 
-// Importando o icone para o favicon
+// Importando o icone para uso em componentes
 import iconLogo from '../assets/icone.svg'; 
 
-const API_URL = 'http://localhost/sif-api/leads.php';
+import { API_BASE_URL } from '../apiConfig';
 
 export default function Contact() {
   const { hash } = useLocation();
@@ -24,16 +24,6 @@ export default function Contact() {
 
   useEffect(() => {
     document.title = "SIF | Contato";
-    
-    const link = document.querySelector("link[rel~='icon']");
-    if (link) {
-      link.href = iconLogo;
-    } else {
-      const newLink = document.createElement('link');
-      newLink.rel = 'icon';
-      newLink.href = iconLogo;
-      document.head.appendChild(newLink);
-    }
 
     window.scrollTo(0, 0);
     if (hash) {
@@ -57,11 +47,22 @@ export default function Contact() {
   };
 
   const maskPhone = (value) => {
-    return value
-      .replace(/\D/g, "")
-      .replace(/^(\d{2})(\d)/g, "($1) $2")
-      .replace(/(\d)(\d{4})$/, "$1-$2")
-      .slice(0, 15);
+    if (!value) return "";
+    let v = value.replace(/\D/g, "");
+    if (v.length > 11) v = v.slice(0, 11);
+    
+    if (v.length > 10) {
+        // Mobile: (73) 98192-8547
+        return v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+    } else if (v.length > 6) {
+        // Fixed: (73) 3211-1234
+        return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+    } else if (v.length > 2) {
+        return v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+    } else if (v.length > 0) {
+        return v.replace(/(\d*)/, "($1");
+    }
+    return v;
   };
 
   const handleChange = (e) => {
@@ -76,7 +77,7 @@ export default function Contact() {
       setStatus(null);
 
       try {
-          const response = await fetch(API_URL, {
+          const response = await fetch(`${API_BASE_URL}/leads.php`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(formData)
@@ -96,7 +97,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
       {/* HERO PADRÃO SIF COM IMAGEM */}
@@ -109,24 +110,24 @@ export default function Contact() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Conecte-se Conosco</span>
           </div>
           
           <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
               Fale com <br/>
-              <span className="text-[#059669]">Nossa Equipe</span>
+              <span className="text-[#007a3d]">Nossa Equipe</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
               Transparência e proximidade são nossos pilares. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas.
           </p>
 
           <button 
               onClick={scrollToContent} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#059669]"
+              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
           >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
                   <ChevronDown className="animate-bounce" size={20} />
               </div>
           </button>
@@ -142,13 +143,13 @@ export default function Contact() {
                     <div className="bg-white p-10 rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden relative group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[80px] -z-0"></div>
                         
-                        <h3 className="text-xs font-black uppercase mb-12 tracking-[0.3em] text-[#059669] flex items-center gap-4 relative z-10">
-                            <span className="w-10 h-[2px] bg-[#059669]"></span> Canais Diretos
+                        <h3 className="text-xs font-black uppercase mb-12 tracking-[0.3em] text-[#007a3d] flex items-center gap-4 relative z-10">
+                            <span className="w-10 h-[2px] bg-[#007a3d]"></span> Canais Diretos
                         </h3>
                         
                         <div className="flex flex-col gap-10 relative z-10">
                             <div className="flex items-start gap-6 group/item">
-                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><Phone size={24} /></div>
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><Phone size={24} /></div>
                                 <div className="flex-1 min-w-0">
                                     <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Telefone Centex</span>
                                     <p className="font-bold text-xl text-[#1f2937]">+55 (31) 3612-3950</p>
@@ -156,7 +157,7 @@ export default function Contact() {
                             </div>
                             
                             <div className="flex items-start gap-6 group/item">
-                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><Mail size={24} /></div>
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><Mail size={24} /></div>
                                 <div className="flex-1 min-w-0">
                                     <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">E-mail Corporativo</span>
                                     <p className="font-bold text-xl text-[#1f2937] break-all">contato@sif.org.br</p>
@@ -164,7 +165,7 @@ export default function Contact() {
                             </div>
                             
                             <div className="flex items-start gap-6 group/item pt-10 border-t border-gray-50">
-                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#059669] group-hover/item:text-white shadow-sm border border-gray-50"><MapPin size={24} /></div>
+                                <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><MapPin size={24} /></div>
                                 <div className="flex-1 min-w-0">
                                     <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sede Administrativa</span>
                                     <p className="font-medium text-sm text-[#1f2937] leading-relaxed">
@@ -184,12 +185,12 @@ export default function Contact() {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-[200px] pointer-events-none opacity-50"></div>
                         
                         <div className="mb-12">
-                            <span className="text-[#059669] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Mensagem</span>
+                            <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Mensagem</span>
                             <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tight">Atendimento <br/>Técnico</h2>
                         </div>
                         
                         {status === 'success' && (
-                            <div className="mb-12 p-6 bg-emerald-50 border border-emerald-100 rounded-[2rem] flex items-center gap-4 text-[#059669] animate-in zoom-in-95">
+                            <div className="mb-12 p-6 bg-emerald-50 border border-emerald-100 rounded-[2rem] flex items-center gap-4 text-[#007a3d] animate-in zoom-in-95">
                                 <CheckCircle size={32} />
                                 <div className="flex flex-col">
                                     <span className="font-black text-xs uppercase tracking-widest">Sucesso</span>
@@ -199,30 +200,29 @@ export default function Contact() {
                         )}
 
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-                            <Input label="Nome Completo" name="name" value={formData.name} onChange={handleChange} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
-                            <Input label="E-mail" name="email" value={formData.email} onChange={handleChange} type="email" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
-                            <Input label="Telefone" name="phone" value={formData.phone} onChange={handleChange} maxLength={15} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
+                            <Input label="Nome Completo" name="name" value={formData.name} onChange={handleChange} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />
+                            <Input label="E-mail" name="email" value={formData.email} onChange={handleChange} type="email" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />
+                            <Input label="Telefone" name="phone" value={formData.phone} onChange={handleChange} type="tel" inputMode="numeric" maxLength={15} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />
                             <Select 
                                 label="Assunto" 
                                 name="subject"
                                 value={formData.subject}
                                 onChange={handleChange}
-                                className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl"
+                                className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl"
                                 options={[
                                     {label: "Dúvida Institucional", value: "institucional"}, 
                                     {label: "Parcerias de Pesquisa", value: "parceria"}, 
-                                    {label: "Trabalhe Conosco", value: "rh"},
-                                    {label: "Portal da Transparência", value: "transparencia"}
+                                    {label: "Trabalhe Conosco", value: "rh"}
                                 ]} 
                             />
                             <div className="md:col-span-2">
-                                <TextArea label="Como podemos ajudar?" name="message" value={formData.message} onChange={handleChange} rows="6" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#059669] rounded-2xl" />
+                                <TextArea label="Como podemos ajudar?" name="message" value={formData.message} onChange={handleChange} rows="6" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />
                             </div>
                             <div className="md:col-span-2 mt-4">
                                 <button 
                                     type="submit" 
                                     disabled={loading}
-                                    className="w-full md:w-auto bg-[#1f2937] hover:bg-[#059669] text-white font-black uppercase tracking-[0.2em] text-[10px] py-6 px-16 rounded-2xl transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-4 disabled:opacity-50"
+                                    className="w-full md:w-auto bg-[#1f2937] hover:bg-[#007a3d] text-white font-black uppercase tracking-[0.2em] text-[10px] py-6 px-16 rounded-2xl transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-4 disabled:opacity-50"
                                 >
                                     {loading ? 'Processando envio...' : (
                                         <>

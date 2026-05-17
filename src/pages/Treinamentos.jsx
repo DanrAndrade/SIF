@@ -39,29 +39,29 @@ export default function Treinamentos() {
     : trainings.filter(t => t.segment === selectedSegment);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
       {/* HERO SECTION DE TREINAMENTOS */}
-      <div className="relative h-[60vh] flex items-center pt-20 overflow-hidden bg-[#0f1f11]">
+      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070')] bg-cover bg-center opacity-40"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f1f11] via-[#0f1f11]/60 to-transparent"></div>
-          <NoiseOverlay opacity={0.3} />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
+          <NoiseOverlay opacity={0.4} />
         </div>
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6">
-              <span className="flex h-2 w-2 rounded-full bg-[#92b735] animate-pulse"></span>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
+              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Educação Executiva & Técnica</span>
           </div>
           
-          <h1 className="text-5xl md:text-8xl font-black uppercase text-white leading-[0.85] tracking-tighter mb-6">
+          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
               Nossos <br/>
-              <span className="text-[#92b735]">Treinamentos</span>
+              <span className="text-[#007a3d]">Treinamentos</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-10">
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
               Capacitação técnica de alto nível para os desafios contínuos do setor florestal brasileiro.
           </p>
 
@@ -70,10 +70,10 @@ export default function Treinamentos() {
                   const section = document.getElementById('treinamentos-content');
                   if (section) section.scrollIntoView({behavior: 'smooth', block: 'start'});
               }} 
-              className="flex items-center gap-4 text-white font-bold uppercase tracking-widest text-[10px] hover:text-[#92b735] transition-colors"
+              className="flex items-center gap-4 text-white font-bold uppercase tracking-widest text-[10px] hover:text-[#007a3d] transition-colors"
           >
-              <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-                  <ChevronDown size={18} className="animate-bounce" />
+              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] transition-all">
+                  <ChevronDown size={20} className="animate-bounce" />
               </div>
               Explorar Cursos
           </button>
@@ -93,7 +93,7 @@ export default function Treinamentos() {
                    className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
                      selectedSegment === segment 
                        ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-xl' 
-                       : 'bg-white text-gray-400 border-gray-100 hover:border-[#059669] hover:text-[#059669]'
+                       : 'bg-white text-gray-400 border-gray-100 hover:border-[#007a3d] hover:text-[#007a3d]'
                    }`}
                  >
                    {segment}
@@ -121,32 +121,33 @@ export default function Treinamentos() {
                     className="group bg-white rounded-[48px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
                   >
                     <div className="h-64 relative overflow-hidden bg-gray-100">
-                      <img 
-                        src={getImageUrl(training.image_url)} 
-                        alt={training.title} 
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                      <img
+                        src={getImageUrl(training.image_url)}
+                        alt={training.title}
+                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        loading="lazy"
                         onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1599403816733-149d682054ea?q=80&w=2670'}
                       />
-                      <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest text-[#059669] shadow-md">{training.segment}</div>
+                      <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest text-[#007a3d] shadow-md">{training.segment}</div>
                       {training.video_url && (
-                        <div className="absolute bottom-6 right-6 w-10 h-10 bg-[#059669] rounded-full flex items-center justify-center text-white shadow-lg animate-pulse">
+                        <div className="absolute bottom-6 right-6 w-10 h-10 bg-[#007a3d] rounded-full flex items-center justify-center text-white shadow-lg animate-pulse">
                            <Play size={16} fill="white" />
                         </div>
                       )}
                     </div>
                     
                     <div className="p-10 flex flex-col flex-grow">
-                      <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#059669] transition-colors">{training.title}</h3>
+                      <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
                       
                       <div className="mt-auto space-y-4">
                         <div className="flex items-center justify-between pt-6 border-t border-gray-50">
                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-[#059669]">
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-[#007a3d]">
                                  <Clock size={16} />
                               </div>
                               <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{training.hours}</span>
                            </div>
-                           <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#059669] group-hover:text-white transition-all shadow-inner">
+                           <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-inner">
                               <ArrowRight size={20} />
                            </div>
                         </div>
@@ -171,10 +172,10 @@ export default function Treinamentos() {
             <NoiseOverlay opacity={1} />
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#059669]">capacitar a equipe?</span></h2>
-            <p className="text-gray-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
+            <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
+            <p className="text-gray-400 text-base mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
             <Link to="/treinamentos-in-company">
-              <Button className="px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl">Consultar Projeto Customizado</Button>
+              <Button className="rounded-2xl font-black uppercase tracking-widest shadow-2xl">Consultar Projeto Customizado</Button>
             </Link>
          </div>
       </section>

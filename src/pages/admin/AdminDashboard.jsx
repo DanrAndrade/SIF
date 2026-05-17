@@ -12,9 +12,13 @@ import BlogAdmin from '../BlogAdmin';
 import EventosAdmin from './EventosAdmin';
 import TreinamentosAdmin from './TreinamentosAdmin';
 import GTAdmin from './GTAdmin';
+import EincolAdmin from './EincolAdmin';
+import ProjetosAdmin from './ProjetosAdmin';
+import AssociadasAdmin from './AssociadasAdmin';
+import InstitucionalAdmin from './InstitucionalAdmin';
 
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('leads');
+export default function AdminDashboard({ currentTab }) {
+  const [activeTab, setActiveTab] = useState(currentTab || 'leads');
   const [sidebarOpen, setSidebarOpen] = useState(false); 
   const { logout } = useAuth();
 
@@ -63,6 +67,10 @@ export default function AdminDashboard() {
                 {activeTab === 'eventos' && <EventosAdmin />}
                 {activeTab === 'treinamentos' && <TreinamentosAdmin />}
                 {activeTab === 'gt' && <GTAdmin />}
+                {activeTab === 'eincol' && <EincolAdmin />}
+                {activeTab === 'projetos' && <ProjetosAdmin />}
+                {activeTab === 'associadas' && <AssociadasAdmin />}
+                {activeTab === 'institucional' && <InstitucionalAdmin />}
             </div>
         </div>
       </main>

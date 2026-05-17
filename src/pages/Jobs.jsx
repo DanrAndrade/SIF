@@ -6,7 +6,7 @@ import Button from '../components/ui/Button';
 import { Input } from '../components/ui/FormElements';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 
-// Importando o icone para o favicon
+// Importando o icone para uso em componentes
 import iconLogo from '../assets/icone.svg'; 
 
 import { API_BASE_URL } from '../apiConfig';
@@ -14,19 +14,13 @@ import { API_BASE_URL } from '../apiConfig';
 export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState('Todas');
   const itemsPerPage = 6;
 
-  const categories = ['Todas', 'SIF', 'Programa Germinar'];
-
   useEffect(() => {
-    // 1. Configura Título e Favicon
+    // 1. Configura Título
     document.title = "SIF | Trabalhe Conosco";
-    const link = document.querySelector("link[rel~='icon']");
-    if (link) link.href = iconLogo;
 
     // 2. Busca Vagas
     fetch(`${API_BASE_URL}/jobs.php`)
@@ -34,11 +28,9 @@ export default function Jobs() {
       .then(data => {
           const formattedData = data.map(j => ({
               ...j,
-              category: j.title.toLowerCase().includes('germinar') || j.location.toLowerCase().includes('campo') ? 'Programa Germinar' : 'SIF',
               requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements) : j.requirements
           })).filter(job => job.active == 1 || job.active === true);
           setJobs(formattedData);
-          setFilteredJobs(formattedData);
           setLoading(false);
       })
       .catch(err => {
@@ -47,18 +39,10 @@ export default function Jobs() {
       });
   }, []);
 
-  useEffect(() => {
-    if (activeCategory === 'Todas') {
-      setFilteredJobs(jobs);
-    } else {
-      setFilteredJobs(jobs.filter(j => j.category === activeCategory));
-    }
-    setCurrentPage(1);
-  }, [activeCategory, jobs]);
 
-  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
+  const currentJobs = jobs.slice(startIndex, startIndex + itemsPerPage);
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -78,14 +62,14 @@ export default function Jobs() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#059669] selection:text-white flex flex-col">
+    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
       
       {/* DEFINIÇÃO DE GRADIENTES SIF */}
       <svg width="0" height="0" className="absolute">
         <defs>
             <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#059669" />
+                <stop offset="0%" stopColor="#007a3d" />
                 <stop offset="100%" stopColor="#064e3b" />
             </linearGradient>
             <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -106,24 +90,24 @@ export default function Jobs() {
             <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
             <div className="container mx-auto px-6 md:px-12 relative z-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-                  <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+                  <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
                   <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Carreiras & Talentos SIF</span>
               </div>
               
               <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
                   Trabalhe <br/>
-                  <span className="text-[#059669]">Conosco</span>
+                  <span className="text-[#007a3d]">Conosco</span>
               </h1>
               
-              <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+              <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
                   Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.
               </p>
 
               <button 
                   onClick={scrollToContent} 
-                  className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#059669]"
+                  className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
               >
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all shadow-sm">
+                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
                       <ChevronDown className="animate-bounce" size={20} />
                   </div>
               </button>
@@ -170,25 +154,11 @@ export default function Jobs() {
              <div className="container mx-auto px-6 max-w-6xl">
                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-gray-100 pb-10 gap-8">
                     <div>
-                        <span className="text-[#059669] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">Oportunidades</span>
+                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">Oportunidades</span>
                         <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tight">Vagas Abertas</h2>
                     </div>
                     
-                    <div className="flex p-1 bg-white rounded-2xl w-max shadow-sm border border-gray-100">
-                      {categories.map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => setActiveCategory(cat)}
-                          className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                            activeCategory === cat 
-                            ? "bg-[#1f2937] text-white shadow-lg" 
-                            : "text-gray-400 hover:text-[#1f2937]"
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
+
                  </div>
                  
                  {loading ? (
@@ -197,33 +167,33 @@ export default function Jobs() {
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {currentJobs.map((job) => (
                             <div key={job.id} onClick={() => setSelectedJob(job)} className="w-full bg-white rounded-[40px] p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-full h-1.5 ${job.category === 'SIF' ? 'bg-[#059669]' : 'bg-orange-500'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
+                                <div className={`absolute top-0 left-0 w-full h-1.5 ${job.category === 'SIF' ? 'bg-[#007a3d]' : 'bg-orange-500'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
                                 
                                 <div>
                                     <div className="flex justify-between items-start mb-10">
                                       <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-sm ${
                                         job.category === 'SIF' 
-                                        ? "bg-emerald-50 text-[#059669] group-hover:bg-[#059669] group-hover:text-white" 
+                                        ? "bg-emerald-50 text-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white" 
                                         : "bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white"
                                       }`}>
                                         <Briefcase size={28} />
                                       </div>
                                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                                        job.category === 'SIF'
+                                        (job.tipo_vaga || 'Interna') === 'Interna'
                                         ? "border-emerald-100 text-emerald-600 bg-emerald-50/50"
                                         : "border-orange-100 text-orange-600 bg-orange-50/50"
                                       }`}>
-                                        {job.category}
+                                        {job.tipo_vaga || 'Interna'}
                                       </span>
                                     </div>
-                                    <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-6 leading-tight group-hover:text-[#059669] transition-colors line-clamp-2">{job.title}</h3>
+                                    <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-6 leading-tight group-hover:text-[#007a3d] transition-colors line-clamp-2">{job.title}</h3>
                                     <div className="flex flex-col gap-4 mb-10">
-                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><MapPin size={16} className="text-[#059669]" /> {job.location}</span>
-                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><Clock size={16} className="text-[#059669]" /> {job.type}</span>
+                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><MapPin size={16} className="text-[#007a3d]" /> {job.location}</span>
+                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><Clock size={16} className="text-[#007a3d]" /> {job.type}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between pt-8 border-t border-gray-50">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-[#059669] transition-colors">Detalhes da Oportunidade</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-[#007a3d] transition-colors">Detalhes da Oportunidade</span>
                                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#1f2937] group-hover:text-white transition-all shadow-sm"><ChevronRight size={18} /></div>
                                 </div>
                             </div>
@@ -245,15 +215,15 @@ export default function Jobs() {
           <div className="py-24 bg-white">
              <div className="container mx-auto px-6 max-w-6xl">
                  <div className="bg-[#1f2937] border border-gray-800 rounded-[60px] p-10 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 w-96 h-96 bg-[#059669] rounded-full blur-[120px] opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-125"></div>
+                     <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-125"></div>
                      <div className="relative z-10 text-center md:text-left">
-                         <span className="text-[#059669] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Banco de Talentos</span>
+                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Banco de Talentos</span>
                          <h3 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white mb-6 tracking-tight leading-none">Cresça com a SIF</h3>
-                         <p className="text-gray-400 font-medium text-lg leading-relaxed max-w-xl">Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.</p>
+                         <p className="text-gray-400 font-medium text-base leading-relaxed max-w-xl">Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.</p>
                      </div>
                      <button 
                         onClick={() => setSelectedJob({ id: 'banco', title: "Banco de Talentos", location: "Geral", type: "Cadastro Reserva", category: "SIF", description: "Seu currículo ficará em nossa base estratégica para futuras oportunidades dentro dos nossos pilares técnicos e científicos.", requirements: [] })} 
-                        className="relative z-10 bg-[#059669] hover:bg-[#047857] px-14 py-6 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center gap-4" 
+                        className="relative z-10 bg-[#007a3d] hover:bg-[#047857] px-14 py-6 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center gap-4" 
                      >
                         Enviar Currículo <Upload size={20} />
                      </button>
@@ -276,11 +246,22 @@ function ApplicationModal({ job, onClose }) {
     const [file, setFile] = useState(null);
 
     const maskPhone = (value) => {
-      return value
-        .replace(/\D/g, "") 
-        .replace(/^(\d{2})(\d)/g, "($1) $2") 
-        .replace(/(\d)(\d{4})$/, "$1-$2") 
-        .slice(0, 15); 
+        if (!value) return "";
+        let v = value.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+        
+        if (v.length > 10) {
+            // Mobile: (73) 98192-8547
+            return v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+        } else if (v.length > 6) {
+            // Fixed: (73) 3211-1234
+            return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+        } else if (v.length > 2) {
+            return v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+        } else if (v.length > 0) {
+            return v.replace(/(\d*)/, "($1");
+        }
+        return v;
     };
 
     const handleSubmit = async (e) => {
@@ -318,13 +299,13 @@ function ApplicationModal({ job, onClose }) {
             <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 animate-in fade-in duration-300">
                 <div className="absolute inset-0 bg-[#1f2937]/95 backdrop-blur-xl" onClick={onClose}></div>
                 <div className="bg-white w-full max-w-md rounded-[60px] p-12 relative z-10 text-center shadow-2xl overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-[#059669]"></div>
-                    <div className="w-24 h-24 bg-emerald-50 text-[#059669] rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-[#007a3d]"></div>
+                    <div className="w-24 h-24 bg-emerald-50 text-[#007a3d] rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
                         <CheckCircle2 size={48} />
                     </div>
                     <h3 className="text-3xl font-bold text-[#1f2937] uppercase mb-4 font-heading tracking-tight leading-none">Recebido!</h3>
-                    <p className="text-gray-500 mb-12 text-lg font-medium leading-relaxed">Sua candidatura para <strong>{job.title}</strong> foi registrada com sucesso.</p>
-                    <button onClick={onClose} className="w-full bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#059669] transition-all">Fechar Janela</button>
+                    <p className="text-gray-500 mb-12 text-base font-medium leading-relaxed">Sua candidatura para <strong>{job.title}</strong> foi registrada com sucesso.</p>
+                    <button onClick={onClose} className="w-full bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#007a3d] transition-all">Fechar Janela</button>
                 </div>
             </div>
         );
@@ -337,13 +318,13 @@ function ApplicationModal({ job, onClose }) {
                 
                 {/* HEAD PROGRESS BAR */}
                 <div className="w-full h-1.5 bg-gray-100 flex relative z-20">
-                    <div className={`h-full bg-[#059669] transition-all duration-700 ease-in-out ${step === 1 ? 'w-1/2' : 'w-full'}`}></div>
+                    <div className={`h-full bg-[#007a3d] transition-all duration-700 ease-in-out ${step === 1 ? 'w-1/2' : 'w-full'}`}></div>
                 </div>
 
                 <div className="bg-white p-10 flex justify-between items-start shrink-0 relative">
                     <div>
                         <div className="flex items-center gap-4 mb-4">
-                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${job.category === 'SIF' ? 'bg-[#059669] text-white' : 'bg-orange-500 text-white'}`}>
+                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${job.category === 'SIF' ? 'bg-[#007a3d] text-white' : 'bg-orange-500 text-white'}`}>
                             {job.category}
                           </span>
                           <span className="text-gray-300 font-black text-[9px] uppercase tracking-[0.3em]">
@@ -352,35 +333,35 @@ function ApplicationModal({ job, onClose }) {
                         </div>
                         <h2 className="text-3xl md:text-4xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tighter">{job.title}</h2>
                     </div>
-                    <button onClick={onClose} className="w-12 h-12 bg-gray-50 text-[#1f2937] rounded-full flex items-center justify-center hover:bg-[#059669] hover:text-white transition-all"><X size={24} /></button>
+                    <button onClick={onClose} className="w-12 h-12 bg-gray-50 text-[#1f2937] rounded-full flex items-center justify-center hover:bg-[#007a3d] hover:text-white transition-all"><X size={24} /></button>
                 </div>
 
                 <div className="p-10 overflow-y-auto custom-scrollbar bg-white flex-grow">
                     {step === 1 ? (
                         <div className="space-y-10">
                             <div className="flex flex-wrap gap-4">
-                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><MapPin size={16} className="text-[#059669]"/> {job.location}</span>
-                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><Clock size={16} className="text-[#059669]"/> {job.type}</span>
+                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><MapPin size={16} className="text-[#007a3d]"/> {job.location}</span>
+                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><Clock size={16} className="text-[#007a3d]"/> {job.type}</span>
                             </div>
                             
                             <div className="space-y-6">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#059669]">
-                                    <span className="w-10 h-[2px] bg-[#059669]"></span> Descrição da Vaga
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#007a3d]">
+                                    <span className="w-10 h-[2px] bg-[#007a3d]"></span> Descrição da Vaga
                                 </h4>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-lg font-medium">{job.description}</p>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-base font-medium">{job.description}</p>
                             </div>
 
-                            {job.salary && <span className="flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-2 rounded-xl border border-gray-100"><DollarSign size={16} className="text-[#2E7D32]"/> {job.salary}</span>}
+                            {job.salary && <span className="flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-2 rounded-xl border border-gray-100"><DollarSign size={16} className="text-[#007a3d]"/> {job.salary}</span>}
 
                             {job.requirements && job.requirements.length > 0 && (
                                 <div className="space-y-6 pt-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#059669]">
-                                        <span className="w-10 h-[2px] bg-[#059669]"></span> Requisitos & Diferenciais
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#007a3d]">
+                                        <span className="w-10 h-[2px] bg-[#007a3d]"></span> Requisitos & Diferenciais
                                     </h4>
                                     <ul className="grid grid-cols-1 gap-4">
                                         {job.requirements.map((req, i) => (
                                             <li key={i} className="flex items-start gap-4 text-base text-gray-600 font-medium">
-                                                <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5"><CheckCircle2 size={14} className="text-[#059669]" /></div> {req}
+                                                <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5"><CheckCircle2 size={14} className="text-[#007a3d]" /></div> {req}
                                             </li>
                                         ))}
                                     </ul>
@@ -390,7 +371,7 @@ function ApplicationModal({ job, onClose }) {
                             <div className="pt-12 border-t border-gray-50">
                                 <button 
                                     onClick={() => setStep(2)} 
-                                    className="w-full bg-[#1f2937] hover:bg-[#059669] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-4"
+                                    className="w-full bg-[#1f2937] hover:bg-[#007a3d] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-4"
                                 >
                                     Ir para Formulário <ArrowRight size={20} />
                                 </button>
@@ -401,19 +382,19 @@ function ApplicationModal({ job, onClose }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">Nome Completo</label>
-                                    <input placeholder="Ex: José Silva" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#059669] focus:ring-0 outline-none text-sm font-medium transition-all" />
+                                    <input placeholder="Ex: José Silva" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">E-mail Pessoal</label>
-                                    <input type="email" placeholder="jose@email.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#059669] focus:ring-0 outline-none text-sm font-medium transition-all" />
+                                    <input type="email" placeholder="jose@email.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">Telefone / WhatsApp</label>
-                                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: maskPhone(e.target.value)})} required placeholder="(00) 00000-0000" maxLength={15} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#059669] focus:ring-0 outline-none text-sm font-medium transition-all" />
+                                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: maskPhone(e.target.value)})} inputMode="numeric" required placeholder="(00) 00000-0000" maxLength={15} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">LinkedIn (Opcional)</label>
-                                    <input placeholder="linkedin.com/in/perfil" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#059669] focus:ring-0 outline-none text-sm font-medium transition-all" />
+                                    <input placeholder="linkedin.com/in/perfil" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
                                 </div>
                             </div>
                             
@@ -422,17 +403,17 @@ function ApplicationModal({ job, onClose }) {
                                 <div className="relative group">
                                     <input type="file" accept=".pdf,.doc,.docx" onChange={e => setFile(e.target.files[0])} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
                                     <div className={`w-full border-2 border-dashed rounded-[2.5rem] px-8 py-16 flex flex-col items-center justify-center text-center transition-all duration-500 ${
-                                      file ? 'border-[#059669] bg-emerald-50' : 'border-gray-100 bg-[#f8f9fa] group-hover:border-[#059669]'
+                                      file ? 'border-[#007a3d] bg-emerald-50' : 'border-gray-100 bg-[#f8f9fa] group-hover:border-[#007a3d]'
                                     }`}>
                                         <div className={`w-20 h-20 rounded-3xl shadow-lg flex items-center justify-center mb-6 transition-all duration-500 ${
-                                          file ? 'bg-[#059669] text-white scale-110' : 'bg-white text-[#059669]'
+                                          file ? 'bg-[#007a3d] text-white scale-110' : 'bg-white text-[#007a3d]'
                                         }`}>
                                             {file ? <CheckCircle2 size={36}/> : <Upload size={36} />}
                                         </div>
                                         {file ? (
                                           <div>
                                             <p className="text-lg font-bold text-[#1f2937]">{file.name}</p>
-                                            <p className="text-[10px] text-[#059669] font-black uppercase mt-2">Clique para substituir</p>
+                                            <p className="text-[10px] text-[#007a3d] font-black uppercase mt-2">Clique para substituir</p>
                                           </div>
                                         ) : (
                                           <>
@@ -451,7 +432,7 @@ function ApplicationModal({ job, onClose }) {
                                 <button 
                                     type="submit" 
                                     disabled={submitStatus === 'loading'}
-                                    className="flex-[2] bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#059669] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
+                                    className="flex-[2] bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#007a3d] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
                                 >
                                     {submitStatus === 'loading' ? (
                                       <>

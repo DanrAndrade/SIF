@@ -36,8 +36,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
         { name: 'Quem Somos / História', href: '/institucional#quem-somos' },
         { name: 'Nossa Gente', href: '/institucional#nossa-gente' },
         { name: 'Estatuto e Normas', href: '/institucional#estatutos-normas' },
-        { name: 'Áreas de Atuação', href: '/institucional#areas-atuacao' },
-        { name: 'FAQ', href: '/institucional#faq' },
+        { name: 'Áreas de Atuação', href: '/institucional#areas-atuacao' }
       ]
     },
     { 
@@ -55,6 +54,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
         { name: 'Eventos', href: '/eventos' },
         { name: 'Treinamentos', href: '/treinamentos' },
         { name: 'Treinamentos In-Company', href: '/treinamentos-in-company' },
+        { name: 'EINCOL', href: '/eincol' },
       ]
     },
     { name: 'Grupos Temáticos', href: '/grupos-tematicos' },
@@ -64,7 +64,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
       href: '#', 
       submenu: [
         { name: 'Projetos', href: '/projetos' },
-        { name: 'Portal da Transparência', href: '/transparencia' },
+        { name: 'Portal da Transparência', href: 'https://sif.conveniar.com.br/portaltransparencia/', external: true },
         { name: 'Conveniar', href: 'https://sif.conveniar.com.br/', external: true },
         { name: 'EMBRAPII', href: 'https://sif.org.br/embrapii/', external: true },
       ]
@@ -90,7 +90,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
     : 'bg-transparent py-4 border-transparent';
 
   const commonTextColor = scrolled ? 'text-[#1f2937]' : 'text-white';
-  const hoverColor = scrolled ? 'hover:text-[#92b735]' : 'hover:text-[#92b735]'; // Estabilizando cor de hover
+  const hoverColor = scrolled ? 'hover:text-[#7FBA00]' : 'hover:text-[#7FBA00]'; // Estabilizando cor de hover
   
 // Se a página for branca e não tivermos scroll, a navbar transparente com texto branco fica invisível.
 // O ideal é que páginas sem Hero passem a prop scrolled={true} ou definamos um padrão.
@@ -124,7 +124,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                         href={sub.href}
                                         target={sub.external ? "_blank" : "_self"}
                                         rel={sub.external ? "noopener noreferrer" : ""}
-                                        className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#3c7a43] transition-colors border-b border-gray-50 last:border-0"
+                                        className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
                                     >
                                         {sub.name}
                                     </a>
@@ -136,7 +136,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
             </nav>
 
             <div className="hidden lg:block z-20 relative group py-2">
-                <button className={`text-[10px] font-bold uppercase tracking-widest bg-transparent ${commonTextColor} hover:text-[#3c7a43] transition-all duration-300 flex items-center gap-2 cursor-pointer`}>
+                <button className={`text-[10px] font-bold uppercase tracking-widest bg-transparent ${commonTextColor} hover:text-[#007a3d] transition-all duration-300 flex items-center gap-2 cursor-pointer`}>
                     <User size={14} />
                     Área do Associado
                     <ChevronDown size={12} className="opacity-50 group-hover:rotate-180 transition-transform" />
@@ -149,7 +149,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                             href={sub.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#3c7a43] transition-colors border-b border-gray-50 last:border-0"
+                            className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
                         >
                             {sub.name}
                         </a>
@@ -172,7 +172,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
       <div className={`fixed top-0 right-0 h-full w-[85%] max-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out lg:hidden flex flex-col ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                 <img src={logoSif} alt="SIF" className="h-8 w-auto object-contain" />
-                <button onClick={closeMenu} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#3c7a43] hover:text-white transition-colors">
+                <button onClick={closeMenu} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#007a3d] hover:text-white transition-colors">
                     <X size={20} />
                 </button>
             </div>
@@ -187,7 +187,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                     className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm transition-colors"
                                 >
                                     {link.name}
-                                    <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === link.name ? 'rotate-180 text-[#3c7a43]' : 'text-gray-300'}`} />
+                                    <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === link.name ? 'rotate-180 text-[#007a3d]' : 'text-gray-300'}`} />
                                 </button>
                                 <div className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-lg ${mobileExpanded === link.name ? 'max-h-80 opacity-100 my-2' : 'max-h-0 opacity-0'}`}>
                                     {link.submenu.map((sub) => (
@@ -197,7 +197,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                             target={sub.external ? "_blank" : "_self"}
                                             rel={sub.external ? "noopener noreferrer" : ""}
                                             onClick={closeMenu} 
-                                            className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#3c7a43]"
+                                            className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
                                         >
                                             {sub.name}
                                         </a>
@@ -207,7 +207,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                         ) : (
                             <a href={link.href} onClick={closeMenu} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm group transition-colors">
                                 {link.name}
-                                <ChevronRight size={16} className="text-gray-300 group-hover:text-[#3c7a43]" />
+                                <ChevronRight size={16} className="text-gray-300 group-hover:text-[#007a3d]" />
                             </a>
                         )}
                     </div>
@@ -221,10 +221,10 @@ export default function Navbar({ scrolled: forceScrolled }) {
                         className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl text-[#1f2937] font-bold uppercase tracking-widest text-xs shadow-sm"
                     >
                         <div className="flex items-center gap-2">
-                            <User size={16} className="text-[#3c7a43]" />
+                            <User size={16} className="text-[#007a3d]" />
                             Área do Associado
                         </div>
-                        <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-[#3c7a43]' : 'text-gray-300'}`} />
+                        <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-[#007a3d]' : 'text-gray-300'}`} />
                     </button>
                     
                     <div className={`overflow-hidden transition-all duration-300 ${mobileExpanded === 'associado' ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -235,7 +235,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                     href={sub.href} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="p-3 pl-6 bg-white border border-gray-100 rounded-lg text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:text-[#3c7a43]"
+                                    className="p-3 pl-6 bg-white border border-gray-100 rounded-lg text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:text-[#007a3d]"
                                 >
                                     {sub.name}
                                 </a>
@@ -244,7 +244,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                     </div>
 
                     <div className="flex items-center gap-4 mt-4 px-2">
-                        <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[#3c7a43] shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[#007a3d] shadow-sm">
                             <Phone size={18} />
                         </div>
                         <div>

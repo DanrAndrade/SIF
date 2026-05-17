@@ -3,14 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, MessageSquare, Layers } from 'lucide-react';
+import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, MessageSquare, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 export default function TreinamentoDetalhe() {
   const { slug } = useParams();
   const [training, setTraining] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,10 +31,22 @@ export default function TreinamentoDetalhe() {
     }
   };
 
+  const sections = React.useMemo(() => {
+    if (!training?.extra_data) return null;
+    try { const s = JSON.parse(training.extra_data).sections; return Array.isArray(s) && s.length > 0 ? s : null; } catch { return null; }
+  }, [training]);
+
+  const parsed = React.useMemo(() => {
+    if (!training?.description) return null;
+    try { return JSON.parse(training.description); } catch { return null; }
+  }, [training]);
+
+  const tabs = parsed?.tabs || [];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#059669] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -49,7 +63,7 @@ export default function TreinamentoDetalhe() {
   }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO PREMIUM COM CONTRASTE */}
@@ -68,30 +82,18 @@ export default function TreinamentoDetalhe() {
         <div className="container mx-auto px-6 relative z-10">
           <Link 
             to="/treinamentos" 
-            className="inline-flex items-center gap-2 text-white/70 hover:text-[#92b735] mb-8 transition-colors group bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-[#7FBA00] mb-8 transition-colors group bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
           >
             <ChevronLeft size={16} />
             <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-1">Voltar aos Treinamentos</span>
           </Link>
           
           <div className="max-w-4xl">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-[#92b735] text-white text-[10px] font-black uppercase tracking-widest mb-6 shadow-lg shadow-emerald-900/20">
-              {training.segment || 'Capacitação Técnica'}
-            </span>
             <h1 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter leading-[0.9]">
               {training.title}
             </h1>
             
-            <div className="flex flex-wrap gap-8 text-white/90">
-              <div className="flex items-center gap-3">
-                <Clock className="text-[#92b735]" size={20} />
-                <span className="text-sm font-bold uppercase tracking-widest">{training.hours || '8h'} - Carga Horária</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="text-[#92b735]" size={20} />
-                <span className="text-sm font-bold uppercase tracking-widest">{training.location || 'Viçosa-MG'}</span>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -99,48 +101,74 @@ export default function TreinamentoDetalhe() {
       {/* CONTEÚDO PRINCIPAL */}
       <section className="py-24 relative -mt-32 z-20">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="flex flex-col gap-12">
             
-            {/* COLUNA ESQUERDA: EMENTA */}
-            <div className="lg:col-span-8 bg-white rounded-[40px] p-8 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
+            {/* CONTEÚDO PRINCIPAL */}
+            <div className="w-full bg-white rounded-[40px] p-8 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
               <h3 className="text-3xl font-bold text-gray-900 mb-12 uppercase tracking-tighter flex items-center gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#059669]">
-                   <Book size={20} />
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]">
+                   <Award size={20} />
                 </div>
                 Conteúdo Programático
               </h3>
               
-              {(() => {
-                if (!training.description) return null;
-                try {
-                  const parsed = JSON.parse(training.description);
-                  return (
-                    <div className="space-y-16">
-                      {parsed.presentation && (
-                         <div className="puzzle-section">
-                           <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#059669]" dangerouslySetInnerHTML={{ __html: parsed.presentation }} />
-                         </div>
-                      )}
-                      {parsed.audience && (
-                         <div className="puzzle-section pt-12 mt-12 border-t border-gray-100">
-                           <h4 className="text-xl font-bold uppercase tracking-widest text-[#059669] mb-8 flex items-center gap-3"><CheckCircle2 size={24}/> Público-Alvo Categoria</h4>
-                           <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: parsed.audience }} />
-                         </div>
-                      )}
-                      {parsed.modules_content && (
-                         <div className="puzzle-section pt-12 mt-12 border-t border-gray-100">
-                           <h4 className="text-xl font-bold uppercase tracking-widest text-[#059669] mb-8 flex items-center gap-3"><Layers size={24}/> Módulos do Treinamento</h4>
-                           <div className="prose prose-lg max-w-none text-gray-600 prose-h3:text-2xl prose-h3:text-[#1f2937] prose-li:font-medium" dangerouslySetInnerHTML={{ __html: parsed.modules_content }} />
-                         </div>
+              <div className="flex flex-wrap gap-6 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <Layers className="text-[#007a3d]" size={20} />
+                  <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.segment || 'Capacitação Técnica'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="text-[#007a3d]" size={20} />
+                  <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.hours || '8h'} - Carga Horária</span>
+                </div>
+              </div>
+              
+              {sections ? (
+                <ContentSectionsRenderer sections={sections} />
+              ) : !parsed ? (
+                <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: training.description || 'Descrição não disponível.' }} />
+              ) : (
+                <div className="space-y-16">
+                  {parsed.presentation && (
+                    <div>
+                      <h4 className="text-xl font-bold uppercase tracking-widest text-[#007a3d] mb-8 flex items-center gap-3"><Award size={24}/> Apresentação / Sobre o Curso</h4>
+                      <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: parsed.presentation }} />
+                    </div>
+                  )}
+                  {parsed.audience && (
+                    <div className="pt-12 mt-12 border-t border-gray-100">
+                      <h4 className="text-xl font-bold uppercase tracking-widest text-[#007a3d] mb-8 flex items-center gap-3"><CheckCircle2 size={24}/> Público-Alvo</h4>
+                      <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: parsed.audience }} />
+                    </div>
+                  )}
+                  {(tabs.length > 0 || parsed.modules_content) && (
+                    <div className="pt-12 mt-12 border-t border-gray-100">
+                      <h4 className="text-xl font-bold uppercase tracking-widest text-[#007a3d] mb-8 flex items-center gap-3"><Layers size={24}/> Módulos do Treinamento</h4>
+                      {tabs.length > 0 ? (
+                        <div className="mt-8">
+                          <div className="flex flex-wrap gap-3 mb-8">
+                            {tabs.map((tab, i) => (
+                              <button key={i} onClick={() => setActiveTab(i)}
+                                className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${activeTab === i ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-md' : 'bg-white text-gray-400 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+                                {tab.title}
+                              </button>
+                            ))}
+                          </div>
+                          {tabs[activeTab] && (
+                            <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100">
+                              <h4 className="text-base font-bold uppercase tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h4>
+                              <div className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
+                                dangerouslySetInnerHTML={{ __html: tabs[activeTab].content }} />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: parsed.modules_content }} />
                       )}
                     </div>
-                  );
-                } catch {
-                  return (
-                    <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#059669]" dangerouslySetInnerHTML={{ __html: training.description }} />
-                  );
-                }
-              })()}
+                  )}
+                </div>
+              )}
 
               {training.video_url && (
                 <div className="mt-16 bg-gray-900 rounded-[32px] overflow-hidden aspect-video shadow-2xl relative group">
@@ -156,10 +184,10 @@ export default function TreinamentoDetalhe() {
               )}
             </div>
 
-            {/* COLUNA DIREITA: CARDS DE AÇÃO */}
-            <div className="lg:col-span-4 space-y-8">
+            {/* CARDS DE AÇÃO (MOVIDOS PARA BAIXO) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
               {/* Card Inscrição */}
-              <div className="bg-[#059669] rounded-[40px] p-10 text-white shadow-2xl shadow-emerald-900/40 sticky top-32">
+              <div className="bg-[#007a3d] rounded-[40px] p-10 text-white shadow-2xl shadow-emerald-900/40 h-full">
                 <h4 className="text-2xl font-bold mb-6 uppercase tracking-tight">Tenho Interesse</h4>
                 <p className="text-emerald-100 mb-8 font-medium">Garanta sua vaga ou solicite uma proposta In-Company para sua empresa.</p>
                 
@@ -175,22 +203,22 @@ export default function TreinamentoDetalhe() {
                 </div>
 
                 <a href={`https://wa.me/553138991185?text=Olá, gostaria de mais informações sobre o treinamento: ${training.title}`} target="_blank" rel="noreferrer">
-                  <Button className="w-full py-6 bg-white text-[#059669] hover:bg-emerald-50 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest text-sm shadow-lg">
+                  <Button className="w-full bg-white text-[#007a3d] hover:bg-emerald-50 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest shadow-lg">
                     <MessageSquare size={18} /> Quero me Inscrever
                   </Button>
                 </a>
 
                 {training.pdf_url && (
-                  <a href={training.pdf_url} target="_blank" rel="noreferrer" className="block mt-6">
+                  <a href={getImageUrl(training.pdf_url)} target="_blank" rel="noreferrer" className="block mt-6">
                     <button className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100 hover:text-white transition-colors py-2">
-                       <FileText size={14} /> Baixar Ementa Completa (PDF)
+                       <FileText size={14} /> Clique Aqui e Saiba Mais
                     </button>
                   </a>
                 )}
               </div>
 
               {/* Card CTA Secundário */}
-              <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-xl shadow-gray-200/50">
+              <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-xl shadow-gray-200/50 h-full">
                  <h5 className="text-gray-900 font-bold mb-4 uppercase tracking-tight">Atendimento Direto</h5>
                  <p className="text-sm text-gray-500 mb-6">Dúvida sobre pré-requisitos ou turmas customizadas?</p>
                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 mb-2">
@@ -207,9 +235,4 @@ export default function TreinamentoDetalhe() {
       <Footer />
     </div>
   );
-}
-
-// Ícon auxiliar
-function Book({ size }) {
-  return <Award size={size} />;
 }

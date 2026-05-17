@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Newspaper, BookOpen, TreePine, ScrollText, Plus, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import SectionHeader from './ui/SectionHeader';
 import NoiseOverlay from './ui/NoiseOverlay';
 
@@ -11,51 +12,52 @@ export default function Process() {
   const steps = [
     { 
         id: "01", 
-        title: "Jornal SIF", 
+        title: "Blog e Notícias", 
         icon: Newspaper,
         img: "https://images.unsplash.com/photo-1624269305548-1527ef905ff6", 
-        shortDesc: "Informativo oficial de notícias.",
-        fullDesc: "O principal canal de comunicação do SIF, trazendo novidades sobre projetos e parcerias.",
-        benefits: ["Notícias", "Projetos", "Eventos"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        shortDesc: "Fique por dentro das novidades.",
+        fullDesc: "Acompanhe as últimas notícias, eventos e inovações do setor florestal brasileiro.",
+        benefits: ["Novidades", "Artigos", "Eventos"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
         textColor: "text-[#4ADE80]",
-        link: "#" 
+        link: "/blog" 
     },
     { 
         id: "02", 
-        title: "Boletim Técnico", 
+        title: "Treinamentos", 
         icon: BookOpen,
         img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2015", 
-        shortDesc: "Resultados e tecnologias.",
-        fullDesc: "Publicações voltadas para a transferência de tecnologia e resultados práticos das pesquisas.",
-        benefits: ["Tecnologia", "Pesquisa", "Resultados"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        shortDesc: "Qualificação profissional.",
+        fullDesc: "Consulte nossa agenda completa de treinamentos e cursos especializados para o setor.",
+        benefits: ["Cursos", "Certificados", "Expertise"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
         textColor: "text-[#4ADE80]",
-        link: "#"
+        link: "/treinamentos"
     },
     { 
         id: "03", 
-        title: "Revista Árvore", 
+        title: "Nossos Projetos", 
         icon: TreePine,
         img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=2070", 
-        shortDesc: "Referência científica mundial.",
-        fullDesc: "Uma das revistas mais respeitadas na Ciência Florestal, com alto impacto global.",
-        benefits: ["Impacto", "Ciência", "Global"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        shortDesc: "Inovação em P&D+I.",
+        fullDesc: "Conheça os projetos de pesquisa e desenvolvimento que estamos realizando no campo.",
+        benefits: ["P&D+I", "Tecnologia", "Campo"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
         textColor: "text-[#4ADE80]",
-        link: "#"
+        link: "/projetos"
     },
     { 
         id: "04", 
-        title: "Código de Conduta", 
+        title: "Transparência", 
         icon: ScrollText,
         img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071", 
-        shortDesc: "Ética e integridade SIF.",
-        fullDesc: "Nossas diretrizes de conformidade e ética, garantindo os mais altos padrões institucionais.",
-        benefits: ["Ética", "Compliance", "Transparência"],
-        color: "bg-gradient-to-br from-[#1B5E20] to-[#2E7D32]",
+        shortDesc: "Ética e Integridade.",
+        fullDesc: "Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.",
+        benefits: ["Ética", "Compliance", "Governança"],
+        color: "bg-gradient-to-br from-[#1B5E20] to-[#007a3d]",
         textColor: "text-[#4ADE80]",
-        link: "#"
+        link: "https://sif.conveniar.com.br/portaltransparencia/",
+        external: true
     }
   ];
 
@@ -72,31 +74,36 @@ export default function Process() {
       <div className="wrapper mb-4">
         <section className="relative w-full rounded-[32px] overflow-hidden bg-[#1f2937] py-12 lg:py-16 shadow-2xl">
             
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#2E7D32] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#007a3d] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
             <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-[#4ADE80] rounded-full blur-[100px] opacity-15 pointer-events-none -translate-x-1/4 translate-y-1/4"></div>
             
             <NoiseOverlay opacity={0.2} />
 
             <div className="container relative z-10 flex flex-col items-center">
                 <div className="max-w-2xl px-6 w-full text-center mb-10">
-                    <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">Comunicação e Ética</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">Inovação e Transparência</h2>
-                    <p className="text-gray-400 text-sm md:text-base font-light">Explore nossas publicações oficiais e diretrizes.</p>
+                    <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">Inovação e Transparência</span>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight uppercase">Explore nossos recursos</h2>
+                    <p className="text-gray-400 text-sm md:text-base font-light">Acesse as principais áreas e conteúdos da nossa plataforma.</p>
                 </div>
 
                 {/* --- DESKTOP VIEW --- */}
                 <div className="hidden lg:flex w-full h-[440px] gap-4 items-stretch px-4">
                     {steps.map((step, index) => {
                         const isActive = activeStep === index;
+                        const LinkComponent = step.external ? 'a' : Link;
+                        const linkProps = step.external 
+                            ? { href: step.link, target: "_blank", rel: "noopener noreferrer" } 
+                            : { to: step.link };
+
                         return (
-                        <a 
+                        <LinkComponent 
                             key={index}
-                            href={step.link}
+                            {...linkProps}
                             onMouseEnter={() => setActiveStep(index)}
                             className={`
                                 relative h-full rounded-[32px] overflow-hidden cursor-pointer 
                                 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] p-[2px]
-                                bg-gradient-to-b from-[#1B5E20] to-[#2E7D32]
+                                bg-gradient-to-b from-[#1B5E20] to-[#007a3d]
                                 ${isActive ? 'flex-[3.5]' : 'flex-[1] opacity-60'}
                             `}
                         >
@@ -141,15 +148,21 @@ export default function Process() {
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        </LinkComponent>
                     )})}
                 </div>
 
                 {/* --- MOBILE VIEW --- */}
                 <div className="w-full lg:hidden relative">
                     <div ref={scrollContainerRef} onScroll={handleMobileScroll} className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 px-6 pb-8 pt-2">
-                        {steps.map((step, index) => (
-                            <a key={index} href={step.link} className="min-w-[85vw] snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#2E7D32] rounded-[32px]">
+                        {steps.map((step, index) => {
+                            const LinkComponent = step.external ? 'a' : Link;
+                            const linkProps = step.external 
+                                ? { href: step.link, target: "_blank", rel: "noopener noreferrer" } 
+                                : { to: step.link };
+
+                            return (
+                            <LinkComponent key={index} {...linkProps} className="min-w-[85vw] snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d] rounded-[32px]">
                                 <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px]">
                                     <div className="absolute inset-0 z-0">
                                         <img src={step.img} alt={step.title} className="w-full h-full object-cover brightness-[0.4]" />
@@ -175,8 +188,8 @@ export default function Process() {
                                         </div>
                                     </div>
                                 </div>
-                            </a>
-                        ))}
+                            </LinkComponent>
+                        )})}
                     </div>
                     <div className="flex justify-center gap-2">
                         {steps.map((_, index) => (

@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2E7D32', // Verde Floresta (Identidade SIF)
-          dark: '#1B5E20',    // Verde Escuro
-          light: '#4CAF50',   // Verde Claro
+          DEFAULT: '#007a3d', // Verde Floresta (Identidade SIF)
+          dark: '#005a2d',    // Verde Escuro (Ajustado)
+          light: '#009a4d',   // Verde Claro (Ajustado)
         },
         secondary: {
           DEFAULT: '#1565C0', // Azul Institucional

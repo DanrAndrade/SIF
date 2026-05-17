@@ -36,7 +36,7 @@ export default function FAQ() {
         <div className="flex flex-col lg:flex-row gap-16 items-start mt-12">
             <div className="w-full lg:w-[40%] shrink-0">
                 {/* GRADIENTE ALTERADO: De Vermelho para Verde SIF */}
-                <div className="h-auto lg:aspect-[4/3] w-full bg-gradient-to-br from-[#1B5E20] to-[#2E7D32] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative shadow-2xl overflow-hidden group">
+                <div className="h-auto lg:aspect-[4/3] w-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative shadow-2xl overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative z-10 mb-8 lg:mb-0">
                         <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md border border-white/10">
@@ -55,11 +55,11 @@ export default function FAQ() {
                     <div key={index} className="border-b border-gray-200 mb-6 pb-6">
                         <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleFaq(index)}>
                             {/* HOVER ALTERADO: De Vermelho para Verde SIF */}
-                            <h4 className={`text-lg font-bold transition-colors uppercase section-heading ${openFaq === index ? 'text-[#2E7D32]' : 'text-[#1f2937] group-hover:text-[#2E7D32]'}`}>
+                            <h4 className={`text-lg font-bold transition-colors uppercase section-heading ${openFaq === index ? 'text-[#007a3d]' : 'text-[#1f2937] group-hover:text-[#007a3d]'}`}>
                                 {item.q}
                             </h4>
                             {/* CORES DO CHEVRON: Mantendo a lógica de Dark/Yellow quando aberto e cinza/verde no hover */}
-                            <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-[#1f2937] border-[#1f2937] text-[#FFC107] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#2E7D32] group-hover:text-[#2E7D32]'}`}>
+                            <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-[#1f2937] border-[#1f2937] text-[#FFC107] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#007a3d] group-hover:text-[#007a3d]'}`}>
                                 <ChevronDown size={16} />
                             </div>
                         </div>

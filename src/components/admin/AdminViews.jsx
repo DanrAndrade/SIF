@@ -56,7 +56,7 @@ export const LeadsView = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gestão de Leads</h2><button onClick={fetchLeads} className="text-xs text-gray-500 underline hover:text-[#3c7a43]">Atualizar Lista</button></div>
+            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gestão de Leads</h2><button onClick={fetchLeads} className="text-xs text-gray-500 underline hover:text-[#007a3d]">Atualizar Lista</button></div>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
                     <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider"><tr><th className="p-4">Status</th><th className="p-4">Nome / Empresa</th><th className="p-4">Assunto</th><th className="p-4">Data</th><th className="p-4 text-right">Ações</th></tr></thead>
@@ -67,7 +67,7 @@ export const LeadsView = () => {
                                 <td className="p-4"><p className="font-bold text-[#1f2937]">{lead.name}</p><p className="text-xs text-gray-500">{lead.email}</p></td>
                                 <td className="p-4"><span className="font-medium text-gray-700">{lead.subject}</span></td>
                                 <td className="p-4 text-xs text-gray-500">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</td>
-                                <td className="p-4 text-right"><Button variant="outline" onClick={() => setSelectedLead(lead)} className="px-3 py-1 text-[10px] h-8">Ver Detalhes</Button></td>
+                                <td className="p-4 text-right"><Button size="sm" variant="outline" onClick={() => setSelectedLead(lead)}>Ver Detalhes</Button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -83,8 +83,8 @@ export const LeadsView = () => {
                         </div>
                         <div className="flex gap-3 justify-end border-t border-gray-100 pt-4 flex-wrap">
                             {selectedLead.status !== 'unread' && <button onClick={() => updateStatus(selectedLead.id, 'unread')} className="px-4 py-2 rounded-lg border border-red-200 text-red-600 text-xs font-bold uppercase hover:bg-red-50 flex items-center gap-2"><Undo2 size={16} /> Não Lido</button>}
-                            {selectedLead.status === 'unread' && <Button onClick={() => updateStatus(selectedLead.id, 'read')} variant="outline">Marcar Em Análise</Button>}
-                            {selectedLead.status !== 'contacted' && <Button onClick={() => updateStatus(selectedLead.id, 'contacted')} variant="primary" icon={CheckCircle2}>Respondido</Button>}
+                            {selectedLead.status === 'unread' && <Button size="sm" onClick={() => updateStatus(selectedLead.id, 'read')} variant="outline">Marcar Em Análise</Button>}
+                            {selectedLead.status !== 'contacted' && <Button size="sm" onClick={() => updateStatus(selectedLead.id, 'contacted')} variant="primary" icon={CheckCircle2}>Respondido</Button>}
                         </div>
                     </div>
                 </Modal>
@@ -99,17 +99,17 @@ export const CandidatesView = () => {
     const [viewCandidate, setViewCandidate] = useState(null);
 
     const fetchCandidates = () => {
-        fetch(`${API_URL}/candidates.php`, { credentials: 'include' })
+        fetch(`${API_BASE_URL}/candidates.php`, { credentials: 'include' })
             .then(res => res.json())
             .then(data => { if(Array.isArray(data)) setCandidates(data); })
-            .catch(err => console.error(err));
+            .catch(err => console.error('Erro ao buscar candidatos:', err));
     };
 
     useEffect(() => { fetchCandidates(); }, []);
 
     const updateCandidateStatus = async (id, newStatus) => {
         try {
-            await fetch(`${API_URL}/candidates.php`, {
+            await fetch(`${API_BASE_URL}/candidates.php`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({ id, status: newStatus })
@@ -120,14 +120,14 @@ export const CandidatesView = () => {
     };
 
     const handleDownload = (filename) => {
-        window.open(`${API_URL}/download.php?file=${filename}`, '_blank');
+        window.open(`${API_BASE_URL}/download.php?file=${filename}`, '_blank');
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-[#1f2937] uppercase">Candidaturas</h2>
-                <button onClick={fetchCandidates} className="text-xs text-gray-500 underline hover:text-[#3c7a43]">Atualizar</button>
+                <button onClick={fetchCandidates} className="text-xs text-gray-500 underline hover:text-[#007a3d]">Atualizar</button>
             </div>
             
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
@@ -158,7 +158,7 @@ export const CandidatesView = () => {
                                 <td className="p-4"><p className="font-bold text-[#1f2937]">{c.name}</p><p className="text-xs text-gray-500">{c.email}</p></td>
                                 <td className="p-4"><span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700 whitespace-nowrap">{c.job_title || "Geral"}</span></td>
                                 <td className="p-4 text-xs font-bold text-gray-500">{new Date(c.created_at).toLocaleDateString()}</td>
-                                <td className="p-4 text-right"><Button variant="outline" onClick={() => setViewCandidate(c)} className="px-3 py-1 text-[10px]">Ver</Button></td>
+                                <td className="p-4 text-right"><Button size="sm" variant="outline" onClick={() => setViewCandidate(c)}>Ver</Button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -195,7 +195,7 @@ export const CandidatesView = () => {
                                     <button onClick={() => updateCandidateStatus(viewCandidate.id, 'unread')} className="w-full md:w-auto py-2 text-xs font-bold text-red-500 hover:bg-red-50 rounded-lg transition-colors">Marcar como Não Lido</button>
                                 )}
                             </div>
-                            {viewCandidate.cv_filename ? <Button className="w-full md:w-auto" variant="primary" icon={Download} onClick={() => handleDownload(viewCandidate.cv_filename)}>Baixar Currículo</Button> : <p className="text-red-500 text-sm">Sem arquivo</p>}
+                            {viewCandidate.cv_filename ? <Button size="sm" className="w-full md:w-auto" variant="primary" icon={Download} onClick={() => handleDownload(viewCandidate.cv_filename)}>Baixar Currículo</Button> : <p className="text-red-500 text-sm">Sem arquivo</p>}
                         </div>
                     </div>
                 </Modal>
@@ -208,14 +208,15 @@ export const CandidatesView = () => {
 export const JobsManagerView = () => {
     const [jobs, setJobs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', active: 1, requirements: [] });
+    const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', active: 1, tipo_vaga: 'Interna', requirements: [] });
     const [tempReq, setTempReq] = useState("");
 
     const fetchJobs = async () => {
         try {
-            const res = await fetch(`${API_URL}/jobs.php`);
+            const res = await fetch(`${API_BASE_URL}/jobs.php`);
             const data = await res.json();
-            const parsed = data.map(j => ({ ...j, requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements) : j.requirements }));
+            if (!Array.isArray(data)) return;
+            const parsed = data.map(j => ({ ...j, requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements || '[]') : (j.requirements || []) }));
             setJobs(parsed);
         } catch (e) { console.error(e); }
     };
@@ -225,7 +226,7 @@ export const JobsManagerView = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            await fetch(`${API_URL}/jobs.php`, {
+            await fetch(`${API_BASE_URL}/jobs.php`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify(currentJob)
@@ -236,7 +237,7 @@ export const JobsManagerView = () => {
 
     const handleDelete = async (id) => {
         if(!confirm("Tem certeza?")) return;
-        await fetch(`${API_URL}/jobs.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
+        await fetch(`${API_BASE_URL}/jobs.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
         fetchJobs();
     };
 
@@ -254,8 +255,19 @@ export const JobsManagerView = () => {
                         <Input label="Local" value={currentJob.location} onChange={e=>setCurrentJob({...currentJob, location:e.target.value})}/>
                         <Input label="Tipo" value={currentJob.type} onChange={e=>setCurrentJob({...currentJob, type:e.target.value})}/>
                         <div className="flex items-center gap-2 pt-2">
-                             <input type="checkbox" id="job-active" checked={currentJob.active == 1} onChange={e=>setCurrentJob({...currentJob, active: e.target.checked ? 1 : 0})} className="w-4 h-4 text-[#059669] rounded border-gray-300 focus:ring-[#059669]" />
+                             <input type="checkbox" id="job-active" checked={currentJob.active == 1} onChange={e=>setCurrentJob({...currentJob, active: e.target.checked ? 1 : 0})} className="w-4 h-4 text-[#007a3d] rounded border-gray-300 focus:ring-[#007a3d]" />
                              <label htmlFor="job-active" className="text-xs font-bold uppercase text-gray-700">Vaga Ativa (Visível no site)</label>
+                        </div>
+                        <div className="space-y-1 pt-1">
+                          <label className="text-xs font-bold uppercase text-gray-500 ml-1 block">Tipo de Vaga</label>
+                          <select
+                            className="w-full border border-gray-200 rounded-xl p-3 text-sm font-bold bg-gray-50 focus:border-[#007a3d] outline-none"
+                            value={currentJob.tipo_vaga || 'Interna'}
+                            onChange={e => setCurrentJob({...currentJob, tipo_vaga: e.target.value})}
+                          >
+                            <option value="Interna">Interna (SIF)</option>
+                            <option value="Externa">Externa (Parceiro / Germinar)</option>
+                          </select>
                         </div>
                     </div>
                     <TextArea label="Descrição" value={currentJob.description} onChange={e=>setCurrentJob({...currentJob, description:e.target.value})} rows={4}/>
@@ -264,7 +276,7 @@ export const JobsManagerView = () => {
                         <div className="flex gap-2 mb-3"><input className="flex-1 border p-2 rounded" value={tempReq} onChange={e=>setTempReq(e.target.value)} /><button type="button" onClick={addRequirement} className="bg-black text-white px-4 rounded">Add</button></div>
                         <ul className="space-y-2">{currentJob.requirements?.map((r,i)=>(<li key={i} className="flex justify-between bg-white p-2 border rounded"><span>{r}</span><button type="button" onClick={()=>removeRequirement(i)} className="text-red-500"><Trash2 size={14}/></button></li>))}</ul>
                     </div>
-                    <div className="flex justify-end gap-3 pt-4"><Button variant="outline" type="button" onClick={()=>setIsEditing(false)}>Cancelar</Button><Button variant="primary" type="submit">Salvar</Button></div>
+                    <div className="flex justify-end gap-3 pt-4"><Button size="sm" variant="outline" type="button" onClick={()=>setIsEditing(false)}>Cancelar</Button><Button size="sm" variant="primary" type="submit">Salvar</Button></div>
                 </form>
             </div>
         )
@@ -272,11 +284,19 @@ export const JobsManagerView = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gerenciar Vagas</h2><Button variant="primary" icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', requirements:[]}); setIsEditing(true);}}>Nova Vaga</Button></div>
+            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gerenciar Vagas</h2><Button size="sm" variant="primary" icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova Vaga</Button></div>
             <div className="grid gap-4">
                 {jobs.map(job => (
                     <div key={job.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex justify-between items-center shadow-sm hover:shadow-md transition-all group">
-                        <div><h3 className="font-bold text-[#1f2937] text-lg">{job.title}</h3><p className="text-xs text-gray-500 font-bold uppercase mt-1">{job.location} • {job.type}</p></div>
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-bold text-[#1f2937] text-lg">{job.title}</h3>
+                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                              job.tipo_vaga === 'Externa' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-700'
+                            }`}>{job.tipo_vaga || 'Interna'}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 font-bold uppercase mt-1">{job.location} • {job.type}</p>
+                        </div>
                         <div className="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                             <button onClick={()=>{setCurrentJob(job); setIsEditing(true);}} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><Edit size={18}/></button>
                             <button onClick={()=>handleDelete(job.id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><Trash2 size={18}/></button>

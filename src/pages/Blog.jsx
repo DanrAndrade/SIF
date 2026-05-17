@@ -3,9 +3,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Calendar, ArrowRight, ChevronDown, AlertCircle } from 'lucide-react';
-import { getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
-const API_URL = 'http://localhost/sif-api/blog.php';
+const API_URL = `${API_BASE_URL}/blog.php`;
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -40,7 +40,7 @@ export default function Blog() {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#059669] selection:text-white flex flex-col">
+    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* HERO PADRÃO SIF REPLICADO */}
@@ -53,16 +53,16 @@ export default function Blog() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">SIF Media Center</span>
           </div>
           
           <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
               Blog e <br/>
-              <span className="text-[#059669]">Notícias</span>
+              <span className="text-[#007a3d]">Notícias</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
               Conhecimento técnico, inovações e as principais atualizações da Sociedade de Investigações Florestais.
           </p>
 
@@ -74,16 +74,16 @@ export default function Blog() {
                       window.scrollTo({top: y, behavior: 'smooth'});
                   }
               }} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#059669]"
+              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
           >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
                   <ChevronDown className="animate-bounce" size={20} />
               </div>
           </button>
         </div>
       </div>
 
-      <main id="blog-posts" className="container mx-auto px-6 py-24 flex-grow scroll-mt-32">
+      <main id="blog-posts" className="container mx-auto px-6 pt-16 pb-32 flex-grow scroll-mt-32">
         {/* FIX: Add error state */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-3xl p-8 mb-12 flex items-start gap-4">
@@ -118,18 +118,14 @@ export default function Blog() {
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   <img 
-                    src={post.image_url ? getImageUrl(post.image_url) : 'https://via.placeholder.com/800x600?text=SIF'} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105" 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/800x600?text=SIF';
-                    }}
+                    src={post.image_url ? getImageUrl(post.image_url) : null}
+                    alt={post.title}
+                    className={`w-full h-full object-cover transition-transform group-hover:scale-105 ${!post.image_url ? 'hidden' : ''}`}
                     loading="lazy"
                   />
                 </div>
                 <div className="p-8">
-                  <div className="flex items-center gap-2 text-[#059669] text-xs font-bold uppercase tracking-widest mb-4">
+                  <div className="flex items-center gap-2 text-[#007a3d] text-xs font-bold uppercase tracking-widest mb-4">
                     <Calendar size={14} /> 
                     {/* FIX: Add try-catch for date formatting */}
                     {(() => {
@@ -140,12 +136,12 @@ export default function Blog() {
                       }
                     })()}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 line-clamp-2 uppercase leading-tight group-hover:text-[#059669] transition-colors">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 line-clamp-2 uppercase leading-tight group-hover:text-[#007a3d] transition-colors">
                     {post.title}
                   </h3>
                   <div className="flex items-center justify-between pt-6 border-t border-gray-50">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Ler Completo</span>
-                    <ArrowRight size={18} className="text-[#059669] group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight size={18} className="text-[#007a3d] group-hover:translate-x-2 transition-transform" />
                   </div>
                 </div>
               </a>

@@ -3,9 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, ArrowLeft, Tag as TagIcon, ArrowRight, AlertCircle } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
-const API_URL = 'http://localhost/sif-api/blog.php';
+const API_URL = `${API_BASE_URL}/blog.php`;
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -93,7 +94,7 @@ export default function BlogPost() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center font-bold text-[#059669]">
+      <div className="h-screen flex items-center justify-center font-bold text-[#007a3d]">
         Carregando Artigo...
       </div>
     );
@@ -111,7 +112,7 @@ export default function BlogPost() {
               <p className="text-red-600 mb-4">{error || 'Artigo não encontrado'}</p>
               <Link 
                 to="/blog" 
-                className="inline-flex items-center gap-2 text-white bg-[#059669] px-6 py-3 rounded-full hover:bg-[#047857] font-bold uppercase text-[10px] tracking-widest transition-all"
+                className="inline-flex items-center gap-2 text-white bg-[#007a3d] px-6 py-3 rounded-full hover:bg-[#047857] font-bold uppercase text-[10px] tracking-widest transition-all"
               >
                 <ArrowLeft size={16}/> Voltar ao Blog
               </Link>
@@ -124,33 +125,37 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="bg-white min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
+    <div className="bg-white min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar scrolled={true} />
       
-      <article className="flex-grow pt-32 container mx-auto px-6 max-w-4xl">
+      <article className="flex-grow pt-40 container mx-auto px-6 max-w-4xl">
         {/* BOTÃO DE VOLTAR CLARO E VISÍVEL */}
-        <Link to="/blog" className="inline-flex items-center gap-2 text-[#059669] bg-emerald-50 px-6 py-3 rounded-full hover:bg-[#059669] hover:text-white mb-10 font-bold uppercase text-[10px] tracking-widest transition-all shadow-sm">
-            <ArrowLeft size={16}/> Voltar ao Blog
-        </Link>
-        
-        <div className="mb-16">
-            <img 
-                src={post.image_url ? getImageUrl(post.image_url) : 'https://via.placeholder.com/1200x800?text=SIF'} 
-                className="w-full h-[500px] object-cover rounded-[56px] shadow-2xl border border-gray-100" 
-                alt={post.title} 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/1200x800?text=SIF';
-                }}
-                loading="eager"
-            />
+        <div className="mb-10">
+          <Link 
+            to="/blog" 
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-[#007a3d] transition-colors group bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm hover:border-[#007a3d] hover:shadow-md"
+          >
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-0.5">Voltar para o Blog</span>
+          </Link>
         </div>
+        
+            {post.image_url && (
+                <div className="mb-16">
+                    <img 
+                        src={getImageUrl(post.image_url)}
+                        className="w-full h-[500px] object-cover rounded-[56px] shadow-2xl border border-gray-100" 
+                        alt={post.title}
+                        loading="eager"
+                    />
+                </div>
+            )}
 
         <header className="mb-16">
             <h1 className="text-4xl md:text-7xl font-black text-gray-900 leading-tight mb-6 tracking-tighter uppercase">{post.title}</h1>
             <div className="flex items-center gap-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
                 <span className="flex items-center gap-1.5">
-                  <Calendar size={14} className="text-[#059669]"/> 
+                  <Calendar size={14} className="text-[#007a3d]"/> 
                   {/* FIX: Safe date formatting */}
                   {(() => {
                     try {
@@ -167,10 +172,18 @@ export default function BlogPost() {
             </div>
         </header>
 
-        <div 
+        <div
           className="prose prose-lg max-w-none text-gray-700 leading-relaxed sif-content-rich"
-          dangerouslySetInnerHTML={{ __html: post.content }} 
+          dangerouslySetInnerHTML={{ __html: post.content }}
         />
+
+        {(() => {
+          try {
+            const extra = post.extra_data ? JSON.parse(post.extra_data) : {};
+            if (extra.sections?.length) return <div className="mt-12 pt-8 border-t border-gray-100"><ContentSectionsRenderer sections={extra.sections} /></div>;
+          } catch {}
+          return null;
+        })()}
 
         <style dangerouslySetInnerHTML={{ __html: `
             .sif-content-rich img { 
@@ -185,10 +198,10 @@ export default function BlogPost() {
                 margin: 1.5rem 0; padding-left: 2rem;
             }
             .sif-content-rich a {
-                color: #059669; text-decoration: underline;
+                color: #007a3d; text-decoration: underline;
             }
             .sif-content-rich blockquote {
-                border-left: 4px solid #059669; padding-left: 1.5rem; 
+                border-left: 4px solid #007a3d; padding-left: 1.5rem; 
                 margin: 2rem 0; font-style: italic; color: #374151;
             }
         ` }} />
@@ -202,7 +215,7 @@ export default function BlogPost() {
                   return (
                       <span 
                         key={`${trimmedTag}-${index}`} 
-                        className="px-5 py-2.5 bg-gray-50 border rounded-full text-[10px] font-black text-gray-400 uppercase flex items-center gap-2 hover:text-[#059669] hover:border-[#059669] transition-colors"
+                        className="px-5 py-2.5 bg-gray-50 border rounded-full text-[10px] font-black text-gray-400 uppercase flex items-center gap-2 hover:text-[#007a3d] hover:border-[#007a3d] transition-colors"
                       >
                           <TagIcon size={12}/> {trimmedTag}
                       </span>
@@ -213,7 +226,7 @@ export default function BlogPost() {
 
         {relatedPosts.length > 0 && (
             <div className="pt-8 border-t border-gray-100">
-                <h3 className="text-2xl font-bold uppercase text-[#059669] tracking-tighter mb-8">Leia Também</h3>
+                <h3 className="text-2xl font-bold uppercase text-[#007a3d] tracking-tighter mb-8">Leia Também</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {relatedPosts.map(relPost => (
                         <a 
@@ -222,20 +235,18 @@ export default function BlogPost() {
                           className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-gray-100 transition-all hover:-translate-y-2 flex flex-col"
                         >
                             <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
-                                <img 
-                                    src={relPost.image_url ? getImageUrl(relPost.image_url) : 'https://via.placeholder.com/800x600?text=SIF'} 
-                                    alt={relPost.title} 
-                                    className="w-full h-full object-cover transition-transform group-hover:scale-110" 
-                                    onError={(e) => {
-                                      e.target.onerror = null;
-                                      e.target.src = 'https://via.placeholder.com/800x600?text=SIF';
-                                    }}
-                                    loading="lazy"
-                                />
+                                    {relPost.image_url && (
+                                        <img 
+                                            src={getImageUrl(relPost.image_url)}
+                                            alt={relPost.title} 
+                                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                            loading="lazy"
+                                        />
+                                    )}
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">
-                                    <Calendar size={12} className="text-[#059669]" /> 
+                                    <Calendar size={12} className="text-[#007a3d]" /> 
                                     {/* FIX: Safe date formatting */}
                                     {(() => {
                                       try {
@@ -245,10 +256,10 @@ export default function BlogPost() {
                                       }
                                     })()}
                                 </div>
-                                <h4 className="text-sm font-bold text-gray-900 mb-4 line-clamp-2 uppercase leading-tight group-hover:text-[#059669] transition-colors flex-grow">{relPost.title}</h4>
+                                <h4 className="text-sm font-bold text-gray-900 mb-4 line-clamp-2 uppercase leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">{relPost.title}</h4>
                                 <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
                                     <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Ler</span>
-                                    <ArrowRight size={14} className="text-[#059669] group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight size={14} className="text-[#007a3d] group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
                         </a>

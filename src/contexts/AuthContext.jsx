@@ -21,6 +21,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('chocosul_user');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('admin_mode');
+    window.location.href = '/admin';
   };
 
   return (

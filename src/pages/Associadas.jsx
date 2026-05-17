@@ -93,7 +93,7 @@ const benefits = [
 
 export default function Associadas() {
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#059669] selection:text-white flex flex-col">
+    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* HERO PADRÃO SIF COM IMAGEM */}
@@ -106,16 +106,16 @@ export default function Associadas() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Parceria Estratégica</span>
           </div>
           
           <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
               Empresas <br/>
-              <span className="text-[#059669]">Associadas</span>
+              <span className="text-[#007a3d]">Associadas</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
               O elo que une a ciência acadêmica às maiores potências da indústria florestal global.
           </p>
 
@@ -127,9 +127,9 @@ export default function Associadas() {
                       window.scrollTo({top: y, behavior: 'smooth'});
                   }
               }} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#059669]"
+              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
           >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
                   <ChevronDown className="animate-bounce" size={20} />
               </div>
           </button>
@@ -138,17 +138,17 @@ export default function Associadas() {
 
       {/* Benefícios Section */}
       <div id="beneficios" className="py-24 bg-[#1f2937] text-white relative overflow-hidden scroll-mt-32">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#059669] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
         <div className="container mx-auto px-6 md:px-12 lg:px-24 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6">Por que ser uma <br/><span className="text-[#059669]">Associada SIF?</span></h2>
-            <div className="w-20 h-1 bg-[#059669] mx-auto mt-6"></div>
+            <h2 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6">Por que ser uma <br/><span className="text-[#007a3d]">Associada SIF?</span></h2>
+            <div className="w-20 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-[40px] hover:bg-white/10 transition-all duration-300 group">
-                <div className="w-14 h-14 bg-[#059669] rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-900/20">
+                <div className="w-14 h-14 bg-[#007a3d] rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-emerald-900/20">
                   <benefit.icon size={28} />
                 </div>
                 <h3 className="text-xl font-bold uppercase font-heading mb-4 text-emerald-400">{benefit.title}</h3>
@@ -163,16 +163,16 @@ export default function Associadas() {
       <div className="py-24 bg-white">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <div className="text-center mb-20">
-            <span className="text-[#059669] font-bold uppercase tracking-widest text-xs mb-4 block">Nossa Rede</span>
-            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937]">Gigantes que <br/><span className="text-[#059669]">Confiam na SIF</span></h2>
-            <div className="w-16 h-1 bg-[#059669] mx-auto mt-6"></div>
+            <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">Nossa Rede</span>
+            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937]">Gigantes que <br/><span className="text-[#007a3d]">Confiam na SIF</span></h2>
+            <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-10">
             {partners.map((partner, index) => (
               <div 
                 key={index} 
-                className="bg-[#f8f9fa] rounded-3xl p-6 flex items-center justify-center aspect-square border border-gray-100 hover:border-[#059669] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group cursor-pointer"
+                className="bg-[#f8f9fa] rounded-3xl p-6 flex items-center justify-center aspect-square border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group cursor-pointer"
                 title={partner.name}
               >
                 <img 
@@ -189,7 +189,7 @@ export default function Associadas() {
               <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">Sua empresa quer fazer parte desta história?</h3>
               <p className="text-gray-500 text-lg">Junte-se ao maior cluster de inovação florestal da América Latina e transforme seus resultados através da ciência.</p>
             </div>
-            <Button href="/contato" variant="primary" icon={ArrowRight} className="px-12 py-5 text-sm bg-[#059669] hover:bg-[#047857]">
+            <Button href="/contato" variant="primary" icon={ArrowRight} className="bg-[#007a3d] hover:bg-[#047857]">
               Seja uma Associada
             </Button>
           </div>

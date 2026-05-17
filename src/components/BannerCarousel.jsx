@@ -135,13 +135,13 @@ export default function BannerCarousel() {
                 <>
                     <button 
                         onClick={prevSlide}
-                        className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/10 backdrop-blur-md hover:bg-[#3c7a43] text-white border border-white/20 transition-all opacity-0 group-hover:opacity-100 shadow-lg z-20"
+                        className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/10 backdrop-blur-md hover:bg-[#007a3d] text-white border border-white/20 transition-all opacity-0 group-hover:opacity-100 shadow-lg z-20"
                     >
                         <ChevronLeft size={28} />
                     </button>
                     <button 
                         onClick={nextSlide}
-                        className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/10 backdrop-blur-md hover:bg-[#3c7a43] text-white border border-white/20 transition-all opacity-0 group-hover:opacity-100 shadow-lg z-20"
+                        className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white/10 backdrop-blur-md hover:bg-[#007a3d] text-white border border-white/20 transition-all opacity-0 group-hover:opacity-100 shadow-lg z-20"
                     >
                         <ChevronRight size={28} />
                     </button>

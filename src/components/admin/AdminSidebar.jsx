@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon, FileText } from 'lucide-react';
+import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon, FileText, Star, Tent, BookOpen, CalendarDays, FlaskConical, Globe, Home, Building2 } from 'lucide-react';
 import iconLogo from '../../assets/icone.svg'; 
 
 // Componente do Item do Menu (Botão)
@@ -9,7 +9,7 @@ const SidebarItem = ({ icon, label, active, onClick }) => (
         onClick={onClick} 
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
             active 
-            ? 'bg-[#3c7a43] text-white shadow-md shadow-green-900/20' 
+            ? 'bg-[#007a3d] text-white shadow-md shadow-green-900/20' 
             : 'text-gray-400 hover:bg-gray-800 hover:text-white'
         }`}
     >
@@ -50,6 +50,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
 
             {/* Menu de Navegação */}
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                {/* GRUPO: Gestão */}
                 <div className="mb-6 px-2">
                     <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Gestão</p>
                     <SidebarItem 
@@ -66,6 +67,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                     />
                 </div>
 
+                {/* GRUPO: Site & Institucional */}
                 <div className="mb-6 px-2">
                     <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Site & Institucional</p>
                     
@@ -75,44 +77,70 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                         active={activeTab === 'banners'} 
                         onClick={() => {setActiveTab('banners'); closeMobile();}} 
                     />
-                    
                     <SidebarItem 
                         icon={<Briefcase size={18}/>} 
                         label="Gerenciar Vagas" 
                         active={activeTab === 'jobs'} 
                         onClick={() => {setActiveTab('jobs'); closeMobile();}} 
                     />
+                    <SidebarItem 
+                        icon={<FileText size={18}/>} 
+                        label="Gerenciar Blog" 
+                        active={activeTab === 'blog'} 
+                        onClick={() => {setActiveTab('blog'); closeMobile();}} 
+                    />
+                    <SidebarItem 
+                        icon={<CalendarDays size={18}/>} 
+                        label="Eventos" 
+                        active={activeTab === 'eventos'} 
+                        onClick={() => {setActiveTab('eventos'); closeMobile();}} 
+                    />
+                    <SidebarItem 
+                        icon={<BookOpen size={18}/>} 
+                        label="Treinamentos" 
+                        active={activeTab === 'treinamentos'} 
+                        onClick={() => {setActiveTab('treinamentos'); closeMobile();}} 
+                    />
+                    <SidebarItem 
+                        icon={<LayoutGrid size={18}/>} 
+                        label="Grupos Temáticos" 
+                        active={activeTab === 'gt'} 
+                        onClick={() => {setActiveTab('gt'); closeMobile();}} 
+                    />
+                    <SidebarItem 
+                        icon={<FlaskConical size={18}/>} 
+                        label="Projetos P&D" 
+                        active={activeTab === 'projetos'} 
+                        onClick={() => {setActiveTab('projetos'); closeMobile();}} 
+                    />
+                </div>
 
-                    {/* NOVOS ITENS: EVENTOS, TREINAMENTOS E GTS */}
-                    <div className="pt-4 border-t border-gray-800/50 mt-4 space-y-2">
-                        <SidebarItem 
-                            icon={<FileText size={18}/>} 
-                            label="Gerenciar Blog" 
-                            active={activeTab === 'blog'} 
-                            onClick={() => {setActiveTab('blog'); closeMobile();}} 
-                        />
-                        
-                        <SidebarItem 
-                            icon={<LayoutGrid size={18}/>} 
-                            label="Eventos" 
-                            active={activeTab === 'eventos'} 
-                            onClick={() => {setActiveTab('eventos'); closeMobile();}} 
-                        />
+                {/* GRUPO: Páginas Estáticas */}
+                <div className="mb-6 px-2">
+                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Páginas</p>
+                    <SidebarItem
+                        icon={<Building2 size={18}/>}
+                        label="Institucional"
+                        active={activeTab === 'institucional'}
+                        onClick={() => {setActiveTab('institucional'); closeMobile();}}
+                    />
+                    <SidebarItem
+                        icon={<Globe size={18}/>}
+                        label="Associadas"
+                        active={activeTab === 'associadas'}
+                        onClick={() => {setActiveTab('associadas'); closeMobile();}}
+                    />
+                </div>
 
-                        <SidebarItem 
-                            icon={<FileText size={18}/>} 
-                            label="Treinamentos" 
-                            active={activeTab === 'treinamentos'} 
-                            onClick={() => {setActiveTab('treinamentos'); closeMobile();}} 
-                        />
-
-                        <SidebarItem 
-                            icon={<LayoutGrid size={18}/>} 
-                            label="Grupos Temáticos" 
-                            active={activeTab === 'gt'} 
-                            onClick={() => {setActiveTab('gt'); closeMobile();}} 
-                        />
-                    </div>
+                {/* GRUPO: Evento Especial — EINCOL */}
+                <div className="px-2">
+                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-3">Evento Especial</p>
+                    <SidebarItem 
+                        icon={<Tent size={18}/>} 
+                        label="EINCOL" 
+                        active={activeTab === 'eincol'} 
+                        onClick={() => {setActiveTab('eincol'); closeMobile();}} 
+                    />
                 </div>
             </nav>
 

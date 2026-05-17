@@ -10,7 +10,7 @@ export function Input({ label, error, className = "", ...props }) {
         </label>
       )}
       <input
-        className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#3c7a43]/20 focus:border-[#3c7a43] disabled:bg-gray-100 disabled:text-gray-400 ${
+        className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] disabled:bg-gray-100 disabled:text-gray-400 ${
           error ? "border-red-400 focus:border-red-400" : "border-gray-200"
         } ${className}`}
         {...props}
@@ -30,7 +30,7 @@ export function TextArea({ label, error, className = "", ...props }) {
         </label>
       )}
       <textarea
-        className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#3c7a43]/20 focus:border-[#3c7a43] min-h-[100px] resize-y ${
+        className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] min-h-[100px] resize-y ${
           error ? "border-red-400 focus:border-red-400" : "border-gray-200"
         } ${className}`}
         {...props}
@@ -51,7 +51,7 @@ export function Select({ label, options = [], error, className = "", children, .
       )}
       <div className="relative">
         <select
-          className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 appearance-none transition-all focus:outline-none focus:ring-2 focus:ring-[#3c7a43]/20 focus:border-[#3c7a43] disabled:bg-gray-100 ${
+          className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 appearance-none transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] disabled:bg-gray-100 ${
             error ? "border-red-400 focus:border-red-400" : "border-gray-200"
           } ${className}`}
           {...props}

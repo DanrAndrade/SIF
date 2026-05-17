@@ -11,11 +11,11 @@ export default function SectionHeader({
   const textColor = lightMode ? 'text-white' : 'text-[#1f2937]';
   
   // Lógica para manter as cores originais (adaptadas para Verde SIF)
-  // Amarelo (#FFC107) virou Verde Claro (#92b735)
-  // Vermelho (#D91A3C) virou Verde SIF (#3c7a43)
+  // Amarelo (#FFC107) virou Verde Claro (#7FBA00)
+  // Vermelho (#D91A3C) virou Verde SIF (#007a3d)
   const tagStyles = lightMode 
-    ? 'border-[#92b735]/40 text-[#92b735] bg-[#92b735]/10' 
-    : 'border-[#3c7a43]/30 text-[#3c7a43] bg-[#3c7a43]/5';
+    ? 'border-[#7FBA00]/40 text-[#7FBA00] bg-[#7FBA00]/10' 
+    : 'border-[#007a3d]/30 text-[#007a3d] bg-[#007a3d]/5';
 
   return (
     <div className={`flex flex-col mb-12 ${alignClass}`}>

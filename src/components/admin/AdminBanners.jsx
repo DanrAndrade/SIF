@@ -214,13 +214,13 @@ export default function AdminBanners() {
                 </label>
                 
                 <div className={`relative w-full h-40 bg-white border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden group
-                    ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-[#3c7a43]'}`}>
+                    ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-[#007a3d]'}`}>
                     
                     {previewUrl ? (
                         <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
                         <div className="text-center p-4">
-                            <UploadCloud className="mx-auto h-8 w-8 text-gray-400 group-hover:text-[#3c7a43]" />
+                            <UploadCloud className="mx-auto h-8 w-8 text-gray-400 group-hover:text-[#007a3d]" />
                             <p className="mt-2 text-xs text-gray-500 font-medium">Clique para upload</p>
                         </div>
                     )}

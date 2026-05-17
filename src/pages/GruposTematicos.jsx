@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { Microscope, TreePine, Droplets, ShieldCheck, Zap, BarChart3, ArrowRight, Layers, Target, Activity, Shield, Globe } from 'lucide-react';
+import { ArrowRight, Layers, Target, Activity, ShieldCheck, Zap, Globe, Microscope } from 'lucide-react';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import Button from '../components/ui/Button';
 
 const iconMap = {
@@ -26,7 +27,7 @@ export default function GruposTematicos() {
 
   const fetchGts = async () => {
     try {
-      const res = await fetch('http://localhost/sif-api/gt.php');
+      const res = await fetch(`${API_BASE_URL}/gt.php`);
       const data = await res.json();
       setGts(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -37,7 +38,7 @@ export default function GruposTematicos() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#059669] selection:text-white">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
       {/* HERO PADRÃO SIF */}
@@ -50,16 +51,16 @@ export default function GruposTematicos() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#059669] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Clusters de Pesquisa</span>
           </div>
           
           <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
               Grupos <br/>
-              <span className="text-[#059669]">Temáticos</span>
+              <span className="text-[#007a3d]">Temáticos</span>
           </h1>
           
-          <p className="text-lg md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
               Cooperação técnica especializada em áreas chave para a excelência do setor florestal.
           </p>
         </div>
@@ -69,7 +70,7 @@ export default function GruposTematicos() {
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="max-w-3xl mb-24">
-            <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#059669]">ciência</span> encontra o campo.</h2>
+            <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
             <p className="text-gray-500 text-xl font-medium leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
           </div>
 
@@ -86,24 +87,43 @@ export default function GruposTematicos() {
                   <Link 
                     key={gt.id} 
                     to={`/grupos-tematicos/${gt.slug}`}
-                    className="group bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm hover:shadow-2xl transition-all block relative overflow-hidden h-full flex flex-col justify-between"
+                    className="group bg-white rounded-[48px] border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all block relative overflow-hidden h-full flex flex-col"
                   >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-bl-[80px] -z-0 transition-all group-hover:bg-[#059669] group-hover:opacity-10"></div>
-                    <div>
-                      <div 
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-10 shadow-inner group-hover:scale-110 transition-transform text-white"
-                        style={{ backgroundColor: gt.color || '#059669' }}
+                    {/* Banner (foto ou cor com ícone) */}
+                    <div className="relative h-44 overflow-hidden rounded-t-[48px] flex-shrink-0">
+                      {gt.image_url
+                        ? <img
+                            src={getImageUrl(gt.image_url)}
+                            alt={gt.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            loading="lazy"
+                          />
+                        : <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ backgroundColor: gt.color || '#007a3d' }}
+                          >
+                            <IconComponent size={64} className="text-white/40" />
+                          </div>
+                      }
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <div
+                        className="absolute bottom-4 left-6 w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-lg"
+                        style={{ backgroundColor: gt.color || '#007a3d' }}
                       >
-                        <IconComponent size={32} />
+                        <IconComponent size={16} />
                       </div>
-                      <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-4 group-hover:text-[#059669] transition-colors">{gt.title}</h3>
+                    </div>
+
+                    {/* Conteúdo do card */}
+                    <div className="p-8 flex flex-col flex-grow">
+                      <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-3 group-hover:text-[#007a3d] transition-colors">{gt.title}</h3>
                       <div 
-                        className="text-gray-400 font-medium leading-relaxed mb-10 line-clamp-3 text-sm"
+                        className="text-gray-400 font-medium leading-relaxed mb-6 line-clamp-3 text-sm flex-grow"
                         dangerouslySetInnerHTML={{ __html: gt.description?.substring(0, 150) + '...' }}
                       />
-                    </div>
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#1f2937] group-hover:gap-5 transition-all mt-auto pt-6 border-t border-gray-50">
-                      Saiba Mais <ArrowRight size={16} className="text-[#059669]" />
+                      <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#1f2937] group-hover:gap-5 transition-all pt-4 border-t border-gray-50">
+                        Saiba Mais <ArrowRight size={16} className="text-[#007a3d]" />
+                      </div>
                     </div>
                   </Link>
                 );
@@ -116,11 +136,11 @@ export default function GruposTematicos() {
              <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
                <div className="max-w-xl">
-                 <h3 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#059669]">parceira de um GT?</span></h3>
-                 <p className="text-gray-400 font-medium text-lg">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
+                 <h3 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">parceira de um GT?</span></h3>
+                 <p className="text-gray-400 font-medium text-base">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
                </div>
                <Link to="/associadas">
-                 <Button variant="primary" className="px-12 py-6 bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>
+                 <Button variant="primary" className="bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>
                </Link>
              </div>
           </div>
