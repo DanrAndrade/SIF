@@ -16,7 +16,7 @@ const SidebarItem = ({ icon, label, active, onClick }) => (
         <div className={`${active ? 'text-white' : 'text-gray-500 group-hover:text-white'}`}>
             {icon}
         </div>
-        <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap truncate">{label}</span>
     </button>
 );
 
