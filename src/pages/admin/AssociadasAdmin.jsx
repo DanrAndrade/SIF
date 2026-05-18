@@ -423,7 +423,7 @@ function EmpresasManager({ partners, loading, reload }) {
           <div className="flex-1 space-y-3">
             <input
               className="w-full p-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600"
-              placeholder="Nome da empresa (ex: Suzano, Gerdau...)"
+              placeholder="Nome da empresa"
               value={newName}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
@@ -539,7 +539,7 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
             <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Endereço</label>
             <input
               className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
-              placeholder="Ex: Av. Faria Lima, 1000 — São Paulo/SP"
+              placeholder="Endereço da empresa"
               value={address}
               onChange={e => setAddress(e.target.value)}
               onBlur={saveAddress}
