@@ -7,6 +7,7 @@ import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, Mes
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import EditablePageContact from '../components/EditablePageContact';
 
 export default function TreinamentoDetalhe() {
   const { slug } = useParams();
@@ -229,6 +230,13 @@ export default function TreinamentoDetalhe() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* CONTATO RESPONSÁVEL — configurado em /admin/treinamentos */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <EditablePageContact pageKey="treinamentos" fallbackTitle="Fale com o responsável" />
         </div>
       </section>
 

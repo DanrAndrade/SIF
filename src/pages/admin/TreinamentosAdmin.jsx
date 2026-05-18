@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
+import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -145,6 +146,7 @@ export default function TreinamentosAdmin() {
     <div className="w-full relative">
 
       {view === 'list' && <PageHeaderForm pageKey="treinamentos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /treinamentos" />}
+      {view === 'list' && <PageContactForm pageKey="treinamentos" title="Contato responsável por Treinamentos" />}
 
       {/* LISTA */}
       {view === 'list' && (

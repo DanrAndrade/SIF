@@ -5,6 +5,7 @@ import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
+import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug, projectStatusColor } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -117,6 +118,7 @@ export default function ProjetosAdmin() {
     <div className="w-full relative">
 
       {view === 'list' && <PageHeaderForm pageKey="projetos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /projetos" />}
+      {view === 'list' && <PageContactForm pageKey="projetos" title="Contato responsável por Projetos" />}
 
       {/* LISTA */}
       {view === 'list' && (

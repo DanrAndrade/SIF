@@ -6,6 +6,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import EditablePageContact from '../components/EditablePageContact';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
@@ -186,6 +187,13 @@ export default function ProjetoDetalhe() {
           )}
         </div>
       </main>
+
+      {/* CONTATO RESPONSÁVEL — configurado em /admin/projetos */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <EditablePageContact pageKey="projetos" fallbackTitle="Fale com o responsável" />
+        </div>
+      </section>
 
       <Footer />
     </div>

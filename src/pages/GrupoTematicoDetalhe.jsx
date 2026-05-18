@@ -7,6 +7,7 @@ import { ChevronLeft, Target, Users, BookOpen, ShieldCheck, ArrowRight, Microsco
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import EditablePageContact from '../components/EditablePageContact';
 
 const iconMap = {
   Target: Target,
@@ -190,6 +191,13 @@ export default function GrupoTematicoDetalhe() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* CONTATO RESPONSÁVEL — configurado em /admin/gt */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <EditablePageContact pageKey="gt" fallbackTitle="Fale com o responsável" />
         </div>
       </section>
 

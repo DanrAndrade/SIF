@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
+import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
@@ -216,6 +217,13 @@ export default function EventoDetalhe() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* CONTATO RESPONSÁVEL — configurado em /admin/eventos */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <EditablePageContact pageKey="eventos" fallbackTitle="Fale com o responsável" />
         </div>
       </section>
 
