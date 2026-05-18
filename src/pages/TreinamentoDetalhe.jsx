@@ -185,49 +185,14 @@ export default function TreinamentoDetalhe() {
               )}
             </div>
 
-            {/* CARDS DE AÇÃO (MOVIDOS PARA BAIXO) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-              {/* Card Inscrição */}
-              <div className="bg-[#007a3d] rounded-[40px] p-10 text-white shadow-2xl shadow-emerald-900/40 h-full">
-                <h4 className="text-2xl font-bold mb-6 uppercase tracking-tight">Tenho Interesse</h4>
-                <p className="text-emerald-100 mb-8 font-medium">Garanta sua vaga ou solicite uma proposta In-Company para sua empresa.</p>
-                
-                <div className="space-y-4 mb-10">
-                   <div className="flex items-start gap-3">
-                      <CheckCircle2 size={18} className="mt-0.5 text-emerald-300" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Certificado SIF incluso</span>
-                   </div>
-                   <div className="flex items-start gap-3">
-                      <CheckCircle2 size={18} className="mt-0.5 text-emerald-300" />
-                      <span className="text-xs font-bold uppercase tracking-wider">Material didático exclusivo</span>
-                   </div>
-                </div>
-
-                <a href={`https://wa.me/553138991185?text=Olá, gostaria de mais informações sobre o treinamento: ${training.title}`} target="_blank" rel="noreferrer">
-                  <Button className="w-full bg-white text-[#007a3d] hover:bg-emerald-50 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest shadow-lg">
-                    <MessageSquare size={18} /> Quero me Inscrever
-                  </Button>
+            {/* PDF do treinamento (se houver) — link discreto */}
+            {training.pdf_url && (
+              <div className="w-full">
+                <a href={getImageUrl(training.pdf_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 text-[#007a3d] hover:bg-[#007a3d] hover:text-white text-xs font-bold uppercase tracking-widest transition-all">
+                  <FileText size={16} /> Baixar Material do Curso (PDF)
                 </a>
-
-                {training.pdf_url && (
-                  <a href={getImageUrl(training.pdf_url)} target="_blank" rel="noreferrer" className="block mt-6">
-                    <button className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100 hover:text-white transition-colors py-2">
-                       <FileText size={14} /> Clique Aqui e Saiba Mais
-                    </button>
-                  </a>
-                )}
               </div>
-
-              {/* Card CTA Secundário */}
-              <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-xl shadow-gray-200/50 h-full">
-                 <h5 className="text-gray-900 font-bold mb-4 uppercase tracking-tight">Atendimento Direto</h5>
-                 <p className="text-sm text-gray-500 mb-6">Dúvida sobre pré-requisitos ou turmas customizadas?</p>
-                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 mb-2">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Telefone / WhatsApp</p>
-                    <p className="font-bold text-gray-800 tracking-tight">(31) 3899-1185</p>
-                 </div>
-              </div>
-            </div>
+            )}
 
           </div>
         </div>

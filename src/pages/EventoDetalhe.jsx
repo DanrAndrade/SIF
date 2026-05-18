@@ -202,20 +202,6 @@ export default function EventoDetalhe() {
               )}
             </div>
 
-            {/* Sidebar de Ação */}
-            <div className="w-full space-y-8">
-               <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-xl shadow-gray-200/50">
-                  <h4 className="text-gray-900 font-bold mb-6 uppercase tracking-tighter text-2xl">Gestão de Eventos</h4>
-                  <p className="text-sm text-gray-500 mb-10">Deseja expor sua marca neste evento ou solicitar informações técnicas?</p>
-                  
-                  <a href={`https://wa.me/553138991185?text=Interesse no Evento: ${event.title}`} target="_blank" rel="noreferrer" className="inline-block">
-                    <Button variant="primary" className="px-10 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest shadow-xl shadow-emerald-900/20">
-                      Entrar em Contato <ArrowRight size={18} />
-                    </Button>
-                  </a>
-               </div>
-            </div>
-
           </div>
         </div>
       </section>

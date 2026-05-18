@@ -119,10 +119,10 @@ export default function GrupoTematicoDetalhe() {
       {/* CONTEÚDO TÉCNICO */}
       <section className="py-24 relative -mt-20 z-20">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="grid grid-cols-1 gap-12">
             
             {/* Detalhes Técnicos */}
-            <div className="lg:col-span-8 bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
+            <div className="bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
               <div className="flex items-center gap-6 mb-16">
                  <div className="p-4 rounded-3xl bg-gray-50 text-[#007a3d]">
                     <IconComponent size={32} />
@@ -145,49 +145,6 @@ export default function GrupoTematicoDetalhe() {
                 } catch {}
                 return null;
               })()}
-            </div>
-
-            {/* Sidebar de Adesão */}
-            <div className="lg:col-span-4 space-y-8">
-               <div className="bg-[#1f2937] rounded-[48px] p-12 text-white shadow-2xl relative overflow-hidden group border border-white/5 sticky top-32">
-                  <div className="relative z-10">
-                    <h4 className="text-3xl font-bold mb-6 uppercase tracking-tight leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">Parceira?</span></h4>
-                    <p className="text-gray-400 mb-10 font-medium">Empresas parceiras têm acesso exclusivo a seminários técnicos, plantas baixas de experimentos e prioridade em novas tecnologias.</p>
-                    
-                    <div className="space-y-4 mb-12">
-                       {['Relatórios Técnicos', 'Dias de Campo', 'Softwares Exclusivos'].map(item => (
-                         <div key={item} className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-[#007a3d]/20 flex items-center justify-center text-[#007a3d]">
-                               <ArrowRight size={12} />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">{item}</span>
-                         </div>
-                       ))}
-                    </div>
-
-                    <a href={`https://wa.me/553138991185?text=Interesse em tornar minha empresa parceira do ${gt.title}`} target="_blank" rel="noreferrer">
-                      <Button variant="primary" className="w-full rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest shadow-xl shadow-emerald-900/40">
-                        Seja Parceiro <ArrowRight size={18} />
-                      </Button>
-                    </a>
-                  </div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#007a3d] opacity-5 rounded-bl-[100px] group-hover:w-full group-hover:h-full group-hover:rounded-none transition-all duration-700"></div>
-               </div>
-
-               {/* Card Secretaria */}
-               <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-xl shadow-gray-200/50">
-                  <h5 className="text-gray-900 font-bold mb-4 uppercase tracking-tight">Coordenadoria Técnica</h5>
-                  <p className="text-xs text-gray-500 mb-8 font-medium">Dúvidas sobre o escopo de pesquisa ou projetos específicos?</p>
-                  <div className="p-5 bg-gray-50 rounded-3xl border border-gray-100 flex items-center gap-4">
-                     <div className="w-12 h-12 bg-white rounded-2xl border border-gray-100 flex items-center justify-center text-[#007a3d]">
-                        <FileText size={20} />
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Secretaria de P&D</p>
-                        <p className="font-bold text-gray-800 tracking-tight text-sm">sif@sif.org.br</p>
-                     </div>
-                  </div>
-               </div>
             </div>
 
           </div>
