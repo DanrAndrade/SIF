@@ -21,8 +21,6 @@ const API_URL = `${API_BASE_URL}/projetos.php`;
 const STATUS_DOT = {
   'Em Andamento':     'bg-amber-400',
   'Concluído':        'bg-emerald-500',
-  'Em Planejamento':  'bg-blue-400',
-  'Suspenso':         'bg-red-400',
 };
 
 const isAtivo = (status) => status !== 'Concluído';
@@ -82,10 +80,9 @@ function ProjetoCard({ proj }) {
   );
 }
 
-function SectionTitle({ label, title, accent }) {
+function SectionTitle({ title, accent }) {
   return (
     <div className="mb-16 border-b border-gray-100 pb-10">
-      <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{label}</span>
       <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tighter">
         {title} <span className="text-[#007a3d]">{accent}</span>
       </h2>
@@ -119,7 +116,7 @@ export default function Projetos() {
         {/* ── PROJETOS EM ANDAMENTO ── */}
         <section id="projetos-lista" className="py-24 bg-[#f8f9fa] scroll-mt-24">
           <div className="container mx-auto px-6 max-w-7xl">
-            <SectionTitle label="Portfólio Ativo" title="Projetos em" accent="Andamento" />
+            <SectionTitle title="Projetos em" accent="Andamento" />
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -143,7 +140,7 @@ export default function Projetos() {
         {!loading && concluidos.length > 0 && (
           <section className="py-24 pb-32 bg-white border-t border-gray-100">
             <div className="container mx-auto px-6 max-w-7xl">
-              <SectionTitle label="Histórico de Pesquisa" title="Projetos" accent="Concluídos" />
+              <SectionTitle title="Projetos" accent="Concluídos" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {concluidos.map(proj => (
                   <div key={proj.id} className="opacity-80 hover:opacity-100 transition-opacity">

@@ -19,7 +19,7 @@ const HERO_DEFAULTS = {
   hero_subtitle: 'Transformando desafios em soluções aplicadas através de pesquisas de vanguarda e inovação florestal.',
   hero_scroll_label: 'Ver Projetos',
 };
-const STATUS_OPTIONS = ['Em Andamento', 'Concluído', 'Em Planejamento', 'Suspenso'];
+const STATUS_OPTIONS = ['Em Andamento', 'Concluído'];
 
 const emptyForm = {
   title: '', description: '', tag: '', lab: '',
