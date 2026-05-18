@@ -3,9 +3,19 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 import { Calendar, MapPin, ArrowRight, BookOpen, Clock, Award, X, MessageSquare, Play, ChevronDown } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070',
+  hero_badge: 'Educação Executiva & Técnica',
+  hero_title_line1: 'Nossos',
+  hero_title_highlight: 'Treinamentos',
+  hero_subtitle: 'Capacitação técnica de alto nível para os desafios contínuos do setor florestal brasileiro.',
+  hero_scroll_label: 'Explorar Cursos',
+};
 
 export default function Treinamentos() {
   const [trainings, setTrainings] = useState([]);
@@ -42,43 +52,7 @@ export default function Treinamentos() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      {/* HERO SECTION DE TREINAMENTOS */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Educação Executiva & Técnica</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Nossos <br/>
-              <span className="text-[#007a3d]">Treinamentos</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Capacitação técnica de alto nível para os desafios contínuos do setor florestal brasileiro.
-          </p>
-
-          <button 
-              onClick={() => {
-                  const section = document.getElementById('treinamentos-content');
-                  if (section) section.scrollIntoView({behavior: 'smooth', block: 'start'});
-              }} 
-              className="flex items-center gap-4 text-white font-bold uppercase tracking-widest text-[10px] hover:text-[#007a3d] transition-colors"
-          >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] transition-all">
-                  <ChevronDown size={20} className="animate-bounce" />
-              </div>
-              Explorar Cursos
-          </button>
-        </div>
-      </div>
+      <EditablePageHero pageKey="treinamentos" defaults={HERO_DEFAULTS} scrollTargetId="treinamentos-content" />
 
       <main id="treinamentos-content" className="flex-grow py-24">
         <div className="container mx-auto px-6 max-w-7xl">

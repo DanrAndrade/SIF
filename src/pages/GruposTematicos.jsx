@@ -3,9 +3,19 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, Layers, Target, Activity, ShieldCheck, Zap, Globe, Microscope } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import Button from '../components/ui/Button';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070',
+  hero_badge: 'Clusters de Pesquisa',
+  hero_title_line1: 'Grupos',
+  hero_title_highlight: 'Temáticos',
+  hero_subtitle: 'Cooperação técnica especializada em áreas chave para a excelência do setor florestal.',
+  hero_scroll_label: '',
+};
 
 const iconMap = {
   Target: Target,
@@ -41,30 +51,7 @@ export default function GruposTematicos() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      {/* HERO PADRÃO SIF */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Clusters de Pesquisa</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Grupos <br/>
-              <span className="text-[#007a3d]">Temáticos</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Cooperação técnica especializada em áreas chave para a excelência do setor florestal.
-          </p>
-        </div>
-      </div>
+      <EditablePageHero pageKey="gt" defaults={HERO_DEFAULTS} />
 
       <main className="flex-grow py-24">
         <div className="container mx-auto px-6 max-w-7xl">

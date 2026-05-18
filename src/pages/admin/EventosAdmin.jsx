@@ -4,6 +4,16 @@ import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import PageHeaderForm from '../../components/admin/PageHeaderForm';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?q=80&w=2070',
+  hero_badge: 'Networking & Negócios',
+  hero_title_line1: 'Nossos',
+  hero_title_highlight: 'Eventos',
+  hero_subtitle: 'Conectando lideranças e transformando o conhecimento em prática nos maiores fóruns florestais.',
+  hero_scroll_label: 'Ver Agenda',
+};
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -137,6 +147,9 @@ export default function EventosAdmin() {
 
   return (
     <div className="w-full relative">
+
+      {/* Cabeçalho da página /eventos (hero editável) */}
+      {view === 'list' && <PageHeaderForm pageKey="eventos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /eventos" />}
 
       {/* LISTA */}
       {view === 'list' && (

@@ -3,10 +3,20 @@ import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, E
 import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/treinamentos.php`;
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070',
+  hero_badge: 'Educação Executiva & Técnica',
+  hero_title_line1: 'Nossos',
+  hero_title_highlight: 'Treinamentos',
+  hero_subtitle: 'Capacitação técnica de alto nível para os desafios contínuos do setor florestal brasileiro.',
+  hero_scroll_label: 'Explorar Cursos',
+};
 
 const emptyForm = {
   title: '', segment: 'Silvicultura', hours: '', location: '',
@@ -133,6 +143,8 @@ export default function TreinamentosAdmin() {
 
   return (
     <div className="w-full relative">
+
+      {view === 'list' && <PageHeaderForm pageKey="treinamentos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /treinamentos" />}
 
       {/* LISTA */}
       {view === 'list' && (

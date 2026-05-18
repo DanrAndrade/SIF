@@ -4,9 +4,19 @@ import Button from '../components/ui/Button';
 import QuillEditor from '../components/admin/QuillEditor';
 import ImageUploadArea from '../components/admin/ImageUploadArea';
 import ContentSections from '../components/admin/ContentSections';
+import PageHeaderForm from '../components/admin/PageHeaderForm';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071',
+  hero_badge: 'SIF Media Center',
+  hero_title_line1: 'Blog e',
+  hero_title_highlight: 'Notícias',
+  hero_subtitle: 'Conhecimento técnico, inovações e as principais atualizações da Sociedade de Investigações Florestais.',
+  hero_scroll_label: '',
+};
 
 const AVAILABLE_TAGS = [
   'Silvicultura', 'Inovação', 'Sustentabilidade', 'Tecnologia',
@@ -169,6 +179,8 @@ export default function BlogAdmin() {
           <div><p className="text-red-800 font-semibold">Erro</p><p className="text-red-600 text-sm">{error}</p></div>
         </div>
       )}
+
+      {view === 'list' && <PageHeaderForm pageKey="blog" defaults={HERO_DEFAULTS} title="Cabeçalho da página /blog" />}
 
       {/* LISTA */}
       {view === 'list' && (

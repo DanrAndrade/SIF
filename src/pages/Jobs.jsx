@@ -73,8 +73,8 @@ export default function Jobs() {
                 <stop offset="100%" stopColor="#064e3b" />
             </linearGradient>
             <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#d97706" />
-                <stop offset="100%" stopColor="#FFC107" />
+                <stop offset="0%" stopColor="#007a3d" />
+                <stop offset="100%" stopColor="#4ADE80" />
             </linearGradient>
         </defs>
       </svg>
@@ -167,21 +167,21 @@ export default function Jobs() {
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {currentJobs.map((job) => (
                             <div key={job.id} onClick={() => setSelectedJob(job)} className="w-full bg-white rounded-[40px] p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-full h-1.5 ${job.category === 'SIF' ? 'bg-[#007a3d]' : 'bg-orange-500'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
+                                <div className={`absolute top-0 left-0 w-full h-1.5 ${job.category === 'SIF' ? 'bg-[#007a3d]' : 'bg-[#4ADE80]'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
                                 
                                 <div>
                                     <div className="flex justify-between items-start mb-10">
                                       <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-sm ${
                                         job.category === 'SIF' 
                                         ? "bg-emerald-50 text-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white" 
-                                        : "bg-orange-50 text-orange-600 group-hover:bg-orange-600 group-hover:text-white"
+                                        : "bg-emerald-50 text-emerald-700 group-hover:bg-[#007a3d] group-hover:text-white"
                                       }`}>
                                         <Briefcase size={28} />
                                       </div>
                                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                                         (job.tipo_vaga || 'Interna') === 'Interna'
                                         ? "border-emerald-100 text-emerald-600 bg-emerald-50/50"
-                                        : "border-orange-100 text-orange-600 bg-orange-50/50"
+                                        : "border-emerald-100 text-emerald-700 bg-emerald-50/50"
                                       }`}>
                                         {job.tipo_vaga || 'Interna'}
                                       </span>
@@ -324,7 +324,7 @@ function ApplicationModal({ job, onClose }) {
                 <div className="bg-white p-10 flex justify-between items-start shrink-0 relative">
                     <div>
                         <div className="flex items-center gap-4 mb-4">
-                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${job.category === 'SIF' ? 'bg-[#007a3d] text-white' : 'bg-orange-500 text-white'}`}>
+                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${job.category === 'SIF' ? 'bg-[#007a3d] text-white' : 'bg-[#4ADE80] text-white'}`}>
                             {job.category}
                           </span>
                           <span className="text-gray-300 font-black text-[9px] uppercase tracking-[0.3em]">

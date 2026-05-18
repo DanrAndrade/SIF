@@ -4,10 +4,20 @@ import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { generateSlug, projectStatusColor } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070',
+  hero_badge: 'P&D+I Estratégico',
+  hero_title_line1: 'Nossos',
+  hero_title_highlight: 'Projetos',
+  hero_subtitle: 'Transformando desafios em soluções aplicadas através de pesquisas de vanguarda e inovação florestal.',
+  hero_scroll_label: 'Ver Projetos',
+};
 const STATUS_OPTIONS = ['Em Andamento', 'Concluído', 'Em Planejamento', 'Suspenso'];
 
 const emptyForm = {
@@ -105,6 +115,8 @@ export default function ProjetosAdmin() {
 
   return (
     <div className="w-full relative">
+
+      {view === 'list' && <PageHeaderForm pageKey="projetos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /projetos" />}
 
       {/* LISTA */}
       {view === 'list' && (

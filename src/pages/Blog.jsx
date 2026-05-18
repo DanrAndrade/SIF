@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 import { Calendar, ArrowRight, ChevronDown, AlertCircle } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071',
+  hero_badge: 'SIF Media Center',
+  hero_title_line1: 'Blog e',
+  hero_title_highlight: 'Notícias',
+  hero_subtitle: 'Conhecimento técnico, inovações e as principais atualizações da Sociedade de Investigações Florestais.',
+  hero_scroll_label: '',
+};
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -43,45 +53,7 @@ export default function Blog() {
     <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
-      {/* HERO PADRÃO SIF REPLICADO */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">SIF Media Center</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Blog e <br/>
-              <span className="text-[#007a3d]">Notícias</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Conhecimento técnico, inovações e as principais atualizações da Sociedade de Investigações Florestais.
-          </p>
-
-          <button 
-              onClick={() => {
-                  const section = document.getElementById('blog-posts');
-                  if (section) {
-                      const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
-                      window.scrollTo({top: y, behavior: 'smooth'});
-                  }
-              }} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
-          >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
-                  <ChevronDown className="animate-bounce" size={20} />
-              </div>
-          </button>
-        </div>
-      </div>
+      <EditablePageHero pageKey="blog" defaults={HERO_DEFAULTS} scrollTargetId="blog-posts" />
 
       <main id="blog-posts" className="container mx-auto px-6 pt-16 pb-32 flex-grow scroll-mt-32">
         {/* FIX: Add error state */}

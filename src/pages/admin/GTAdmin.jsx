@@ -4,10 +4,20 @@ import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/gt.php`;
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070',
+  hero_badge: 'Clusters de Pesquisa',
+  hero_title_line1: 'Grupos',
+  hero_title_highlight: 'Temáticos',
+  hero_subtitle: 'Cooperação técnica especializada em áreas chave para a excelência do setor florestal.',
+  hero_scroll_label: '',
+};
 
 const emptyForm = {
   title: '', description: '', color: '#007a3d',
@@ -103,6 +113,8 @@ export default function GTAdmin() {
 
   return (
     <div className="w-full relative">
+
+      {view === 'list' && <PageHeaderForm pageKey="gt" defaults={HERO_DEFAULTS} title="Cabeçalho da página /grupos-tematicos" />}
 
       {/* LISTA */}
       {view === 'list' && (
