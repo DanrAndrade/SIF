@@ -21,7 +21,7 @@ import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 const API_URL = `${API_BASE_URL}/eventos.php`;
 
 const emptyForm = {
-  title: '', description: '', date: '', time: '', location: '', video_url: '',
+  title: '', description: '', date: '', event_date: '', time: '', location: '', video_url: '',
   image_url: '', imageFile: null, sections: [],
 };
 
@@ -70,7 +70,8 @@ export default function EventosAdmin() {
     setEditingId(event.id);
     setFormData({
       title: event.title || '', description: event.description || '',
-      date: event.date || '', time: extra.time || event.time || '',
+      date: event.date || '', event_date: event.event_date || '',
+      time: extra.time || event.time || '',
       location: event.location || '', video_url: event.video_url || '',
       image_url: event.image_url || '', imageFile: null, sections,
     });
@@ -110,6 +111,7 @@ export default function EventosAdmin() {
     fd.append('title', formData.title);
     fd.append('description', formData.description);
     fd.append('date', formData.date);
+    fd.append('event_date', formData.event_date || '');
     fd.append('time', formData.time);
     fd.append('location', formData.location);
     fd.append('video_url', formData.video_url);
@@ -220,10 +222,15 @@ export default function EventosAdmin() {
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Título do Evento</label>
                   <input className="w-full p-5 bg-gray-50 rounded-2xl font-bold text-lg outline-none border focus:border-[#007a3d]" placeholder="Ex: Seminário Florestal 2025" value={formData.title} onChange={e => setFormData(f => ({...f, title: e.target.value}))} required />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data exibida no site</label>
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 15-20 Out" value={formData.date} onChange={e => setFormData(f => ({...f, date: e.target.value}))} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data real (classificação)</label>
+                    <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.event_date || ''} onChange={e => setFormData(f => ({...f, event_date: e.target.value}))} />
+                    <p className="text-[9px] text-gray-400 ml-1">Usada para mover ao histórico após a data</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Clock size={10}/> Horário</label>

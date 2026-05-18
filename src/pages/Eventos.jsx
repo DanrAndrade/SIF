@@ -37,8 +37,19 @@ export default function Eventos() {
     }
   };
 
-  const featuredEvent = events[0]; // O primeiro evento cadastrado ou mais recente
-  const nextEvents = events.slice(1); // O restante
+  // Classificação automática por data: eventos com event_date >= hoje vão
+  // para "Próximos"; com event_date < hoje vão para "Concluídos". Eventos sem
+  // event_date entram em "Próximos" (fail-soft) — basta cadastrar no admin.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isUpcoming = (ev) => {
+    if (!ev.event_date) return true;
+    const d = new Date(ev.event_date);
+    return !isNaN(d) && d >= today;
+  };
+  const upcomingEvents = events.filter(isUpcoming);
+  const pastEvents = events.filter(ev => !isUpcoming(ev));
+  const featuredEvent = upcomingEvents[0]; // próximo evento (não o primeiro do array)
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
@@ -125,14 +136,13 @@ export default function Eventos() {
                          <div key={i} className="bg-white h-80 rounded-[40px] animate-pulse"></div>
                        ))
                     ) : (
-                      events.length > 0 ? (
-                        events.map((event, i) => (
+                      upcomingEvents.length > 0 ? (
+                        upcomingEvents.map((event) => (
                           <Link to={`/eventos/${event.slug}`} key={event.id} className="bg-white p-10 rounded-[40px] shadow-sm border border-gray-100 hover:shadow-xl transition-all group relative overflow-hidden flex flex-col justify-between">
                               <div className="absolute top-0 left-0 w-full h-1.5 bg-[#007a3d] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-                              
+
                               <div className="flex justify-between items-start mb-10">
                                   <div className="text-center bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100">
-                                      {/* Parse da data simples se for texto fixo */}
                                       <span className="block text-2xl font-black text-[#1f2937] font-heading leading-none uppercase">{event.date?.split(' ')[0] || 'TBD'}</span>
                                       <span className="text-[9px] font-black text-[#007a3d] uppercase tracking-widest">{event.date?.split(' ')[1] || ''}</span>
                                   </div>
@@ -143,7 +153,7 @@ export default function Eventos() {
                               </div>
 
                               <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-8 leading-tight group-hover:text-[#007a3d] transition-colors line-clamp-2">{event.title}</h3>
-                              
+
                               <div className="flex items-center justify-between pt-8 border-t border-gray-50">
                                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#007a3d]">Inscrições Abertas</span>
                                   <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#1f2937] group-hover:text-white transition-all shadow-inner"><ArrowRight size={18} /></div>
@@ -157,6 +167,41 @@ export default function Eventos() {
                 </div>
             </div>
         </section>
+
+        {/* EVENTOS CONCLUÍDOS — só aparece se há eventos passados */}
+        {pastEvents.length > 0 && (
+          <section className="py-24 bg-white border-t border-gray-100">
+            <div className="container mx-auto px-6 max-w-7xl">
+              <div className="flex justify-between items-end mb-16 border-b border-gray-100 pb-10">
+                <div>
+                  <span className="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px] block mb-4">Histórico</span>
+                  <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tighter">Eventos <span className="text-gray-400">Concluídos</span></h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {pastEvents.map((event) => (
+                  <Link to={`/eventos/${event.slug}`} key={event.id} className="bg-[#f8f9fa] p-10 rounded-[40px] shadow-sm border border-gray-100 hover:shadow-xl transition-all group relative overflow-hidden flex flex-col justify-between opacity-90 hover:opacity-100">
+                    <div className="flex justify-between items-start mb-10">
+                      <div className="text-center bg-white px-4 py-2 rounded-2xl border border-gray-100">
+                        <span className="block text-2xl font-black text-gray-500 font-heading leading-none uppercase">{event.date?.split(' ')[0] || 'TBD'}</span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{event.date?.split(' ')[1] || ''}</span>
+                      </div>
+                      <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest pt-2">{event.location}</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold font-heading uppercase text-gray-700 mb-8 leading-tight group-hover:text-[#007a3d] transition-colors line-clamp-2">{event.title}</h3>
+
+                    <div className="flex items-center justify-between pt-8 border-t border-gray-200">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Concluído</span>
+                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-300 group-hover:bg-[#1f2937] group-hover:text-white transition-all shadow-inner"><ArrowRight size={18} /></div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
       </main>
 
