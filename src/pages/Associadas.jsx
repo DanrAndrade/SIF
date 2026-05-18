@@ -39,7 +39,8 @@ import logoVeracel from '../assets/logos/VERACEL-LOGO-200x73.png';
 import logoVetorial from '../assets/logos/Vetorial-Logo-200x113.png';
 
 const fallbackPartners = [
-  { name: 'Suzano', src: logoSuzano }, { name: 'Gerdau', src: logoGerdau },
+  { name: 'Suzano', src: logoSuzano }, { name: 'Klabin', src: null },
+  { name: 'Gerdau', src: logoGerdau },
   { name: 'ArcelorMittal', src: logoArcelor }, { name: 'Cenibra', src: logoCenibra },
   { name: 'Veracel', src: logoVeracel }, { name: 'Aperam', src: logoAperam },
   { name: 'Bracell', src: logoBracell }, { name: 'Vallourec', src: logoVallourec },

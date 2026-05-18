@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit,
@@ -12,6 +12,7 @@ const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 // Lista atual da página estática — auto-seed silencioso quando o banco está vazio.
 const STATIC_PARTNERS = [
   { name: 'Suzano',              logo: '/logos/SUZANO-HORIZONTAL-LOGO-200x53.png' },
+  { name: 'Klabin',              logo: '' },
   { name: 'Gerdau',              logo: '/logos/GERDAU-LOGO-HORIZONTAL-200x113.png' },
   { name: 'ArcelorMittal',       logo: '/logos/ARCELORMITTAL-LOGO-200x113.png' },
   { name: 'Cenibra',             logo: '/logos/CENIBRA-LOGO-200x198.png' },
@@ -95,6 +96,7 @@ export default function AssociadasAdmin() {
   // Empresas (CRUD próprio — endpoint associadas.php)
   const [partners, setPartners] = useState([]);
   const [loadingPartners, setLoadingPartners] = useState(true);
+  const seedingRef = useRef(false); // evita auto-seed duplo (React StrictMode)
 
   // Carrega config geral
   useEffect(() => {
@@ -108,29 +110,31 @@ export default function AssociadasAdmin() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Carrega empresas (com auto-seed silencioso)
-  const fetchPartners = async () => {
+  // Carrega empresas (com auto-seed silencioso, protegido contra StrictMode)
+  const fetchPartners = useCallback(async () => {
     setLoadingPartners(true);
     try {
       const res = await fetch(ASSOC_URL);
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
 
-      if (list.length === 0) {
+      if (list.length === 0 && !seedingRef.current) {
+        seedingRef.current = true;
         for (const p of STATIC_PARTNERS) {
           const fd = new FormData();
           fd.append('name', p.name);
-          fd.append('logo_url', p.logo);
+          if (p.logo) fd.append('logo_url', p.logo);
           await fetch(ASSOC_URL, { method: 'POST', body: fd });
         }
         const res2 = await fetch(ASSOC_URL);
-        setPartners(Array.isArray(await res2.json()) ? (await (await fetch(ASSOC_URL)).json()) : []);
+        const data2 = await res2.json();
+        setPartners(Array.isArray(data2) ? data2 : []);
       } else {
         setPartners(list);
       }
     } catch { setPartners([]); }
     finally { setLoadingPartners(false); }
-  };
+  }, []);
 
   useEffect(() => { fetchPartners(); }, []);
 

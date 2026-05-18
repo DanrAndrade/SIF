@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
-// --- IMPORTAÇÃO DOS LOGOS ---
+// --- LOGOS (fallback se a API estiver offline) ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.png';
 import logoAperam from '../assets/logos/APERAM-LOGO-200x113.png';
 import logoArauco from '../assets/logos/ARAUCO-LOGO-200x37.png';
@@ -17,7 +17,7 @@ import logoDeforsa from '../assets/logos/DEFORSA-LOGO-200x228.png';
 import logoDexco from '../assets/logos/logo-dexco.jpg';
 import logoGerdau from '../assets/logos/GERDAU-LOGO-HORIZONTAL-200x113.png';
 import logoGrupoIndex from '../assets/logos/GRUPO-INDEX-LOGO-200x78.png';
-import logoAssociadaUnknown from '../assets/logos/associadas-13-1-e1568898614510.jpg'; 
+import logoAssociadaUnknown from '../assets/logos/associadas-13-1-e1568898614510.jpg';
 import logoLdCelulose from '../assets/logos/LD-CELULOSE-1.png';
 import logoGrupoMaringa from '../assets/logos/GRUPO-MARINGA-LOGO-200x112.png';
 import logoMetalSider from '../assets/logos/Metal-Sider-Logo-200x113.png';
@@ -33,44 +33,30 @@ import logoVallourec from '../assets/logos/VALLOUREC-LOGO-200x47.png';
 import logoVeracel from '../assets/logos/VERACEL-LOGO-200x73.png';
 import logoVetorial from '../assets/logos/Vetorial-Logo-200x113.png';
 
-export default function Partners() {
-  const fallback = [
-    { name: 'Suzano', src: logoSuzano },
-    { name: 'Gerdau', src: logoGerdau },
-    { name: 'ArcelorMittal', src: logoArcelor },
-    { name: 'Cenibra', src: logoCenibra },
-    { name: 'Veracel', src: logoVeracel },
-    { name: 'Aperam', src: logoAperam },
-    { name: 'Bracell', src: logoBracell },
-    { name: 'Vallourec', src: logoVallourec },
-    { name: 'Arauco', src: logoArauco },
-    { name: 'CMPC', src: logoCmpc },
-    { name: 'Smurfit Westrock', src: logoSmurfit },
-    { name: 'Dexco', src: logoDexco },
-    { name: 'LD Celulose', src: logoLdCelulose },
-    { name: 'Agropalma', src: logoAgropalma },
-    { name: 'Bunge', src: logoBunge },
-    { name: 'ArborGen', src: logoArborGen },
-    { name: 'Placas do Brasil', src: logoPlacasDoBrasil },
-    { name: 'Paracel', src: logoParacel },
-    { name: 'Montes del Plata', src: logoMontesDelPlata },
-    { name: 'Sinobras', src: logoSinobras },
-    { name: 'Vetorial', src: logoVetorial },
-    { name: 'Metal Sider', src: logoMetalSider },
-    { name: 'Grupo Maringá', src: logoGrupoMaringa },
-    { name: 'Grupo Index', src: logoGrupoIndex },
-    { name: 'Deforsa', src: logoDeforsa },
-    { name: 'Concrem', src: logoConcrem },
-    { name: 'The Forest Company', src: logoForestCompany },
-    { name: 'Pan Bioenergia', src: logoPanBioenergia },
-    { name: 'Outros', src: logoAssociadaUnknown },
-  ];
+const fallback = [
+  { name: 'Suzano', src: logoSuzano }, { name: 'Klabin', src: null },
+  { name: 'Gerdau', src: logoGerdau }, { name: 'ArcelorMittal', src: logoArcelor },
+  { name: 'Cenibra', src: logoCenibra }, { name: 'Veracel', src: logoVeracel },
+  { name: 'Aperam', src: logoAperam }, { name: 'Bracell', src: logoBracell },
+  { name: 'Vallourec', src: logoVallourec }, { name: 'Arauco', src: logoArauco },
+  { name: 'CMPC', src: logoCmpc }, { name: 'Smurfit Westrock', src: logoSmurfit },
+  { name: 'Dexco', src: logoDexco }, { name: 'LD Celulose', src: logoLdCelulose },
+  { name: 'Agropalma', src: logoAgropalma }, { name: 'Bunge', src: logoBunge },
+  { name: 'ArborGen', src: logoArborGen }, { name: 'Placas do Brasil', src: logoPlacasDoBrasil },
+  { name: 'Paracel', src: logoParacel }, { name: 'Montes del Plata', src: logoMontesDelPlata },
+  { name: 'Sinobras', src: logoSinobras }, { name: 'Vetorial', src: logoVetorial },
+  { name: 'Metal Sider', src: logoMetalSider }, { name: 'Grupo Maringá', src: logoGrupoMaringa },
+  { name: 'Grupo Index', src: logoGrupoIndex }, { name: 'Deforsa', src: logoDeforsa },
+  { name: 'Concrem', src: logoConcrem }, { name: 'The Forest Company', src: logoForestCompany },
+  { name: 'Pan Bioenergia', src: logoPanBioenergia }, { name: 'Outros', src: logoAssociadaUnknown },
+];
 
+export default function Partners() {
   const [partners, setPartners] = useState(fallback);
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
-      .then((res) => {
+      .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPartners(res.data.map(a => ({
             name: a.name,
@@ -81,11 +67,12 @@ export default function Partners() {
       .catch(() => { /* mantém fallback */ });
   }, []);
 
+  if (partners.length === 0) return null;
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-      <div className="wrapper mt-24 mb-24 border-y border-gray-100 bg-[#f8f9fa] py-16 relative overflow-hidden z-10">
-        
+      <div className="wrapper my-40 border-y border-gray-100 bg-[#f8f9fa] py-16 relative overflow-hidden">
+
         <div className="text-center mb-14">
             <h3 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-400">
                 Nossos Parceiros
@@ -93,11 +80,10 @@ export default function Partners() {
         </div>
 
         <div className="relative w-full overflow-hidden group">
-            
+
             <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-[#f8f9fa] to-transparent z-10 pointer-events-none"></div>
             <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-[#f8f9fa] to-transparent z-10 pointer-events-none"></div>
 
-            {/* ALTERADO: Removi a classe 'hover:[animation-play-state:paused]' */}
             <div className="flex w-max animate-scroll" style={{ animationDuration: '80s' }}>
                 {duplicatedPartners.map((partner, index) => (
                     <div
