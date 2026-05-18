@@ -125,10 +125,10 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
         {/* Campos */}
         <div className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Nome completo" value={cfg.contact_name} onChange={v => set('contact_name', v)} placeholder="Daniel Andrade" />
-            <Field label="Cargo / função" value={cfg.contact_role} onChange={v => set('contact_role', v)} placeholder="Gerente de Treinamentos" />
-            <Field label="E-mail" value={cfg.contact_email} onChange={v => set('contact_email', v)} placeholder="daniel@sif.org.br" />
-            <Field label="WhatsApp (só números)" value={cfg.contact_whatsapp} onChange={v => set('contact_whatsapp', v)} placeholder="31999999999" />
+            <Field label="Nome completo" value={cfg.contact_name} onChange={v => set('contact_name', v)} placeholder="Seu nome aqui" />
+            <Field label="Cargo / função" value={cfg.contact_role} onChange={v => set('contact_role', v)} placeholder="Cargo aqui" />
+            <Field label="E-mail" value={cfg.contact_email} onChange={v => set('contact_email', v)} placeholder="email@sif.org.br" />
+            <Field label="WhatsApp (só números)" value={cfg.contact_whatsapp} onChange={v => set('contact_whatsapp', v)} placeholder="(DDD) 00000-0000" />
           </div>
         </div>
       </div>
