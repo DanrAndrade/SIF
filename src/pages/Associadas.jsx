@@ -94,6 +94,7 @@ export default function Associadas() {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPartners(res.data.map(a => ({
             name: a.name,
+            address: a.address || '',
             src: a.logo_url ? getImageUrl(a.logo_url) : null,
           })));
         }
@@ -192,22 +193,29 @@ export default function Associadas() {
             <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {partners.map((partner, index) => (
               <div
                 key={index}
-                className="bg-[#f8f9fa] rounded-3xl p-6 flex items-center justify-center aspect-square border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group cursor-pointer"
-                title={partner.name}
+                className="bg-[#f8f9fa] rounded-3xl p-6 flex flex-col border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
               >
-                {partner.src ? (
-                  <img
-                    src={partner.src}
-                    alt={partner.name}
-                    className="max-h-[70%] max-w-[80%] object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-                  />
-                ) : (
-                  <span className="text-xs font-bold uppercase text-gray-500 text-center px-2">{partner.name}</span>
-                )}
+                <div className="flex-1 flex items-center justify-center h-32 mb-4">
+                  {partner.src ? (
+                    <img
+                      src={partner.src}
+                      alt={partner.name}
+                      className="max-h-full max-w-[80%] object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold uppercase text-gray-400 text-center">{partner.name}</span>
+                  )}
+                </div>
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="text-sm font-bold text-[#1f2937] uppercase tracking-tight leading-tight">{partner.name}</p>
+                  {partner.address && (
+                    <p className="text-xs text-gray-500 mt-1 leading-snug">{partner.address}</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

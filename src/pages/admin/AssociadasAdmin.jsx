@@ -357,14 +357,16 @@ function EmpresasManager({ partners, loading, reload }) {
     reload();
   };
 
-  const handleEditName = async (id, name) => {
+  const handleEditField = async (id, field, value) => {
     const fd = new FormData();
     fd.append('id', id);
-    fd.append('name', name);
+    fd.append(field, value);
     fd.append('_method', 'PUT');
     await fetch(ASSOC_URL, { method: 'POST', body: fd });
     reload();
   };
+  const handleEditName    = (id, name)    => handleEditField(id, 'name', name);
+  const handleEditAddress = (id, address) => handleEditField(id, 'address', address);
 
   const handleUploadLogo = async (id, file) => {
     const fd = new FormData();
@@ -459,6 +461,7 @@ function EmpresasManager({ partners, loading, reload }) {
                 onToggle={handleToggle}
                 onDelete={() => setToDelete(p)}
                 onEditName={handleEditName}
+                onEditAddress={handleEditAddress}
                 onUploadLogo={handleUploadLogo}
               />
             ))}
@@ -469,14 +472,20 @@ function EmpresasManager({ partners, loading, reload }) {
   );
 }
 
-function PartnerCard({ partner, onToggle, onDelete, onEditName, onUploadLogo }) {
-  const [editing, setEditing] = useState(false);
+function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, onUploadLogo }) {
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState(partner.name);
+  const [address, setAddress] = useState(partner.address || '');
   const fileRef = useRef();
 
-  const handleNameBlur = () => {
-    setEditing(false);
+  // Mantém local sincronizado quando o pai recarregar
+  useEffect(() => { setName(partner.name); setAddress(partner.address || ''); }, [partner.name, partner.address]);
+
+  const saveName = () => {
     if (name.trim() && name.trim() !== partner.name) onEditName(partner.id, name.trim());
+  };
+  const saveAddress = () => {
+    if ((address || '') !== (partner.address || '')) onEditAddress(partner.id, address.trim());
   };
 
   return (
@@ -498,27 +507,48 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onUploadLogo }) 
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { if (e.target.files[0]) onUploadLogo(partner.id, e.target.files[0]); }} />
         </div>
         <div className="flex-1 min-w-0">
-          {editing ? (
-            <input
-              className="w-full p-1.5 border border-emerald-500 rounded-lg text-sm font-bold outline-none"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onBlur={handleNameBlur}
-              onKeyDown={e => { if (e.key === 'Enter') handleNameBlur(); if (e.key === 'Escape') { setName(partner.name); setEditing(false); } }}
-              autoFocus
-            />
-          ) : (
-            <p className="font-bold text-sm text-gray-800 truncate cursor-pointer hover:text-emerald-700" onClick={() => setEditing(true)} title="Clique para editar">{partner.name}</p>
+          <p className="font-bold text-sm text-gray-800 truncate" title={partner.name}>{partner.name}</p>
+          {partner.address && (
+            <p className="text-[11px] text-gray-500 truncate" title={partner.address}>{partner.address}</p>
           )}
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => onToggle(partner.id, partner.active)} className={`p-1.5 rounded ${partner.active == 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100'}`} title={partner.active == 1 ? 'Ocultar' : 'Mostrar'}>
             {partner.active == 1 ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
           </button>
-          <button onClick={() => setEditing(true)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded" title="Editar nome"><Edit size={14} /></button>
+          <button onClick={() => setExpanded(e => !e)} className={`p-1.5 rounded ${expanded ? 'text-blue-700 bg-blue-50' : 'text-blue-500 hover:bg-blue-50'}`} title="Editar dados">
+            <Edit size={14} />
+          </button>
           <button onClick={onDelete} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 size={14} /></button>
         </div>
       </div>
+
+      {expanded && (
+        <div className="border-t border-gray-100 p-3 space-y-2 bg-gray-50">
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Nome</label>
+            <input
+              className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onBlur={saveName}
+              onKeyDown={e => { if (e.key === 'Enter') { saveName(); setExpanded(false); } }}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Endereço</label>
+            <input
+              className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
+              placeholder="Ex: Av. Faria Lima, 1000 — São Paulo/SP"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              onBlur={saveAddress}
+              onKeyDown={e => { if (e.key === 'Enter') { saveAddress(); setExpanded(false); } }}
+            />
+          </div>
+          <p className="text-[10px] text-gray-400">As alterações são salvas ao sair do campo (ou Enter).</p>
+        </div>
+      )}
     </div>
   );
 }
