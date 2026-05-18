@@ -207,7 +207,7 @@ export default function EventoDetalhe() {
       </section>
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/eventos */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-[#f8f9fa]">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="eventos" fallbackTitle="Fale com o responsável" />
         </div>
