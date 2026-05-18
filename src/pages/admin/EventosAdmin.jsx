@@ -110,7 +110,6 @@ export default function EventosAdmin() {
     fd.append('slug', generateSlug(formData.title));
     fd.append('title', formData.title);
     fd.append('description', formData.description);
-    fd.append('date', formData.date);
     fd.append('event_date', formData.event_date || '');
     fd.append('time', formData.time);
     fd.append('location', formData.location);
@@ -222,15 +221,11 @@ export default function EventosAdmin() {
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Título do Evento</label>
                   <input className="w-full p-5 bg-gray-50 rounded-2xl font-bold text-lg outline-none border focus:border-[#007a3d]" placeholder="Ex: Seminário Florestal 2025" value={formData.title} onChange={e => setFormData(f => ({...f, title: e.target.value}))} required />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data exibida no site</label>
-                    <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 15-20 Out" value={formData.date} onChange={e => setFormData(f => ({...f, date: e.target.value}))} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data real (classificação)</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data do evento</label>
                     <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.event_date || ''} onChange={e => setFormData(f => ({...f, event_date: e.target.value}))} />
-                    <p className="text-[9px] text-gray-400 ml-1">Usada para mover ao histórico após a data</p>
+                    <p className="text-[9px] text-gray-400 ml-1">Exibida formatada no site (ex: 20 Out 2026) e usada para mover ao histórico após passar.</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Clock size={10}/> Horário</label>
