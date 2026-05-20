@@ -11,3 +11,9 @@ sif-api/uploads/docs/*
 Thumbs.db
 .env
 node_modules
+
+# Worktrees do Claude Code (sessoes paralelas)
+.claude/worktrees/
+
+# Pastas locais nao versionadas
+fruto/
