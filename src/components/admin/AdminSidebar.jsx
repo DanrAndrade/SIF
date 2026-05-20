@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon, FileText, Star, Tent, BookOpen, CalendarDays, FlaskConical, Globe, Home, Building2 } from 'lucide-react';
+import { LayoutGrid, Users, Briefcase, MessageSquare, LogOut, X, Image as ImageIcon, FileText, Star, Tent, BookOpen, CalendarDays, FlaskConical, Globe, Home, Building2, ShoppingBag, GraduationCap, Mail } from 'lucide-react';
 import iconLogo from '../../assets/icone.svg'; 
 
 // Componente do Item do Menu (Botão)
@@ -135,6 +135,24 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                         label="Associadas"
                         active={activeTab === 'associadas'}
                         onClick={() => {setActiveTab('associadas'); closeMobile();}}
+                    />
+                    <SidebarItem
+                        icon={<ShoppingBag size={18}/>}
+                        label="Produtos & Serviços"
+                        active={activeTab === 'produtos'}
+                        onClick={() => {setActiveTab('produtos'); closeMobile();}}
+                    />
+                    <SidebarItem
+                        icon={<GraduationCap size={18}/>}
+                        label="Trein. In-Company"
+                        active={activeTab === 'in_company'}
+                        onClick={() => {setActiveTab('in_company'); closeMobile();}}
+                    />
+                    <SidebarItem
+                        icon={<Mail size={18}/>}
+                        label="Página Contato"
+                        active={activeTab === 'contato'}
+                        onClick={() => {setActiveTab('contato'); closeMobile();}}
                     />
                 </div>
 

@@ -2,8 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2 } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
+import PageHeaderForm from './PageHeaderForm';
 
 import { API_BASE_URL } from '../../apiConfig';
+
+const JOBS_HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071',
+  hero_badge: 'Carreiras & Talentos SIF',
+  hero_title_line1: 'Trabalhe',
+  hero_title_highlight: 'Conosco',
+  hero_subtitle: 'Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.',
+  hero_scroll_label: '',
+};
 
 // Modal Responsivo (Restaurado)
 const Modal = ({ title, onClose, children }) => (
@@ -284,6 +294,7 @@ export const JobsManagerView = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            <PageHeaderForm pageKey="jobs" defaults={JOBS_HERO_DEFAULTS} title="Cabeçalho da página /trabalhe-conosco" />
             <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gerenciar Vagas</h2><Button size="sm" variant="primary" icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova Vaga</Button></div>
             <div className="grid gap-4">
                 {jobs.map(job => (

@@ -3,7 +3,17 @@ import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1557426272-fc759fbb7a8d?q=80&w=2070',
+  hero_badge: 'Conecte-se Conosco',
+  hero_title_line1: 'Fale com',
+  hero_title_highlight: 'Nossa Equipe',
+  hero_subtitle: 'Transparência e proximidade são nossos pilares. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas.',
+  hero_scroll_label: '',
+};
 import { Input, Select, TextArea } from '../components/ui/FormElements';
 import Button from '../components/ui/Button';
 import SectionHeader from '../components/ui/SectionHeader';
@@ -100,39 +110,7 @@ export default function Contact() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      {/* HERO PADRÃO SIF COM IMAGEM */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557426272-fc759fbb7a8d?q=80&w=2070')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Conecte-se Conosco</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Fale com <br/>
-              <span className="text-[#007a3d]">Nossa Equipe</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Transparência e proximidade são nossos pilares. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas.
-          </p>
-
-          <button 
-              onClick={scrollToContent} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
-          >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
-                  <ChevronDown className="animate-bounce" size={20} />
-              </div>
-          </button>
-        </div>
-      </div>
+      <EditablePageHero pageKey="contato" defaults={HERO_DEFAULTS} bgColor="white" scrollTargetId="contact-form" />
 
       <main className="flex-grow py-24 px-6">
         <div id="contact-form" className="container mx-auto max-w-7xl scroll-mt-32">

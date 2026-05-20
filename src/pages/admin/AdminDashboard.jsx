@@ -17,6 +17,9 @@ import ProjetosAdmin from './ProjetosAdmin';
 import AssociadasAdmin from './AssociadasAdmin';
 import InstitucionalAdmin from './InstitucionalAdmin';
 import AdminHome from '../../components/admin/AdminHome';
+import ProdutosAdmin from './ProdutosAdmin';
+import TreinamentosInCompanyAdmin from './TreinamentosInCompanyAdmin';
+import ContatoAdmin from './ContatoAdmin';
 
 export default function AdminDashboard({ currentTab }) {
   const [activeTab, setActiveTab] = useState(currentTab || 'leads');
@@ -73,6 +76,9 @@ export default function AdminDashboard({ currentTab }) {
                 {activeTab === 'associadas' && <AssociadasAdmin />}
                 {activeTab === 'institucional' && <InstitucionalAdmin />}
                 {activeTab === 'home' && <AdminHome />}
+                {activeTab === 'produtos' && <ProdutosAdmin />}
+                {activeTab === 'in_company' && <TreinamentosInCompanyAdmin />}
+                {activeTab === 'contato' && <ContatoAdmin />}
             </div>
         </div>
       </main>

@@ -2,8 +2,18 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 import { Sprout, Briefcase, FileText, Microscope, ArrowRight, CheckCircle2, ChevronDown, Plus, Minus } from 'lucide-react';
 import Button from '../components/ui/Button';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070',
+  hero_badge: 'Inovação & Mercado',
+  hero_title_line1: 'Produtos',
+  hero_title_highlight: '& Serviços',
+  hero_subtitle: 'Soluções tecnológicas integradas para o desenvolvimento sustentável da indústria florestal.',
+  hero_scroll_label: '',
+};
 
 export default function ProdutosServicos() {
   const [activeTab, setActiveTab] = useState('comercial');
@@ -21,30 +31,7 @@ export default function ProdutosServicos() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      {/* HERO PADRÃO SIF */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Inovação & Mercado</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Produtos <br/>
-              <span className="text-[#007a3d]">& Serviços</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Soluções tecnológicas integradas para o desenvolvimento sustentável da indústria florestal.
-          </p>
-        </div>
-      </div>
+      <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} />
 
       <main className="flex-grow py-24">
         <div className="container mx-auto px-6 max-w-7xl">

@@ -5,11 +5,21 @@ import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import { Input } from '../components/ui/FormElements';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
+import EditablePageHero from '../components/EditablePageHero';
 
 // Importando o icone para uso em componentes
-import iconLogo from '../assets/icone.svg'; 
+import iconLogo from '../assets/icone.svg';
 
 import { API_BASE_URL } from '../apiConfig';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071',
+  hero_badge: 'Carreiras & Talentos SIF',
+  hero_title_line1: 'Trabalhe',
+  hero_title_highlight: 'Conosco',
+  hero_subtitle: 'Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.',
+  hero_scroll_label: '',
+};
 
 export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState(null);
@@ -80,39 +90,7 @@ export default function Jobs() {
       </svg>
 
       <div className="flex flex-col w-full">
-          {/* HERO PADRÃO SIF COM IMAGEM */}
-          <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-            <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071')] bg-cover bg-center"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-              <NoiseOverlay opacity={0.4} />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
-            <div className="container mx-auto px-6 md:px-12 relative z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-                  <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-                  <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Carreiras & Talentos SIF</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-                  Trabalhe <br/>
-                  <span className="text-[#007a3d]">Conosco</span>
-              </h1>
-              
-              <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-                  Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.
-              </p>
-
-              <button 
-                  onClick={scrollToContent} 
-                  className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
-              >
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
-                      <ChevronDown className="animate-bounce" size={20} />
-                  </div>
-              </button>
-            </div>
-          </div>
+          <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} bgColor="white" />
 
           {/* --- MISSÃO, VISÃO E VALORES --- */}
           <div className="py-24 bg-white">

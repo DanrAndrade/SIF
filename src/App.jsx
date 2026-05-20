@@ -111,6 +111,9 @@ export default function App() {
           <Route path="/admin/institucional"   element={<AdminTab tab="institucional" />} />
           <Route path="/admin/associadas"      element={<AdminTab tab="associadas" />} />
           <Route path="/admin/home"            element={<AdminTab tab="home" />} />
+          <Route path="/admin/produtos"        element={<AdminTab tab="produtos" />} />
+          <Route path="/admin/in-company"      element={<AdminTab tab="in_company" />} />
+          <Route path="/admin/contato"         element={<AdminTab tab="contato" />} />
 
           {/* Fallback: rota admin desconhecida → login */}
           <Route path="/admin/*"              element={<Navigate to="/admin" replace />} />

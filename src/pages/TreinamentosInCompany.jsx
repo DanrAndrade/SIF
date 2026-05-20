@@ -4,7 +4,17 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Target, Users, MapPin, CheckCircle2, ArrowRight, Mail, Phone, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
+import EditablePageHero from '../components/EditablePageHero';
 import { API_BASE_URL } from '../apiConfig';
+
+const HERO_DEFAULTS = {
+  hero_image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070',
+  hero_badge: 'Bespoke Solutions',
+  hero_title_line1: 'Treinamentos',
+  hero_title_highlight: 'In-Company',
+  hero_subtitle: 'Soluções personalizadas em educação corporativa, levadas diretamente ao coração da sua empresa.',
+  hero_scroll_label: '',
+};
 
 export default function TreinamentosInCompany() {
   const [loading, setLoading] = React.useState(false);
@@ -73,30 +83,7 @@ export default function TreinamentosInCompany() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      {/* HERO PADRÃO SIF */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">Bespoke Solutions</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
-              Treinamentos <br/>
-              <span className="text-[#007a3d]">In-Company</span>
-          </h1>
-          
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              Soluções personalizadas em educação corporativa, levadas diretamente ao coração da sua empresa.
-          </p>
-        </div>
-      </div>
+      <EditablePageHero pageKey="treinamentos_in_company" defaults={HERO_DEFAULTS} />
 
       <main className="flex-grow">
         {/* SEÇÃO INTRODUTÓRIA */}
