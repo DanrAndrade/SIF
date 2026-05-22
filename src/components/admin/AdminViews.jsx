@@ -351,4 +351,3 @@ export const JobsManagerView = () => {
     );
 };
 
-export const NotificationsManagerView = () => (<div className="text-center py-20 text-gray-400">Em desenvolvimento...</div>);

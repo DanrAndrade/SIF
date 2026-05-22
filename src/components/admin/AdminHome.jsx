@@ -325,11 +325,10 @@ function AboutForm({ config, update }) {
 }
 
 // ─── PROCESS (Explore nossos recursos) ─────────────────────────
+// Quantidade de cards é fixa — sem adicionar, remover ou alterar ícone.
 function ProcessForm({ config, update, onFile, pendingPreviews }) {
   const steps = config.steps || [];
   const updateStep = (idx, patch) => update({ steps: steps.map((s, i) => i === idx ? { ...s, ...patch } : s) });
-  const addStep = () => update({ steps: [...steps, { id: String(steps.length + 1).padStart(2, '0'), title: 'Novo recurso', icon_type: 'Newspaper', img: '', shortDesc: '', fullDesc: '', benefits: '', link: '/', external: false }] });
-  const removeStep = (idx) => { if (window.confirm('Remover este recurso?')) update({ steps: steps.filter((_, i) => i !== idx) }); };
   const moveStep = (idx, dir) => {
     const newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= steps.length) return;
@@ -356,13 +355,11 @@ function ProcessForm({ config, update, onFile, pendingPreviews }) {
                 <div className="flex items-center gap-1">
                   <button onClick={() => moveStep(idx, -1)} disabled={idx === 0} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronUp size={16} /></button>
                   <button onClick={() => moveStep(idx, 1)} disabled={idx === steps.length - 1} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronDown size={16} /></button>
-                  <button onClick={() => removeStep(idx)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded ml-1"><Trash2 size={16} /></button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label="Número (01, 02...)" value={step.id || ''} onChange={(e) => updateStep(idx, { id: e.target.value })} />
                 <Input label="Título" value={step.title || ''} onChange={(e) => updateStep(idx, { title: e.target.value })} />
-                <Input label="Ícone (Newspaper/BookOpen/TreePine/ScrollText/Tent/Award)" value={step.icon_type || ''} onChange={(e) => updateStep(idx, { icon_type: e.target.value })} />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 <Input label="Texto curto (negrito verde)" value={step.shortDesc || ''} onChange={(e) => updateStep(idx, { shortDesc: e.target.value })} />
@@ -371,27 +368,17 @@ function ProcessForm({ config, update, onFile, pendingPreviews }) {
               <div className="mt-3">
                 <TextArea label="Descrição longa" rows={2} value={step.fullDesc || ''} onChange={(e) => updateStep(idx, { fullDesc: e.target.value })} />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+              <div className="mt-3">
                 <Input label="Link" value={step.link || ''} onChange={(e) => updateStep(idx, { link: e.target.value })} />
-                <div className="flex items-end pb-2">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={!!step.external} onChange={(e) => updateStep(idx, { external: e.target.checked })} />
-                    Link externo (abre em nova aba)
-                  </label>
-                </div>
               </div>
               <div className="mt-3">
                 <ImageField label="Imagem de fundo do card" currentUrl={step.img} previewUrl={pendingPreviews[fieldName]} fieldName={fieldName} onFile={(name, file) => {
                   onFile(name, file);
-                  // url provisória pra preview; será sobrescrita pelo backend ao salvar
                 }} hint="Imagem horizontal, 1200×800px." />
               </div>
             </div>
           );
         })}
-        <button onClick={addStep} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-          <Plus size={18} /> Adicionar recurso
-        </button>
       </div>
     </div>
   );

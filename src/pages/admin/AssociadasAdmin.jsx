@@ -59,7 +59,7 @@ const DEFAULTS = {
   ],
 
   logos_tag: 'Nossa Rede',
-  logos_title_line1: 'Gigantes que',
+  logos_title_line1: 'Empresas que',
   logos_title_highlight: 'Confiam na SIF',
 
   cta_title: 'Sua empresa quer fazer parte desta história?',
@@ -249,12 +249,10 @@ function HeroForm({ cfg, set, onFile, preview }) {
   );
 }
 
-// ─── BENEFÍCIOS (sem ícones — só texto) ────────────────────────
+// ─── BENEFÍCIOS (quantidade fixa em 4 — só edição de texto) ───
 function BeneficiosForm({ cfg, set }) {
   const benefits = Array.isArray(cfg.benefits) ? cfg.benefits : [];
   const updateBenefit = (idx, patch) => set('benefits', benefits.map((b, i) => i === idx ? { ...b, ...patch } : b));
-  const addBenefit = () => set('benefits', [...benefits, { title: 'Novo benefício', description: '' }]);
-  const removeBenefit = (idx) => { if (window.confirm('Remover este benefício?')) set('benefits', benefits.filter((_, i) => i !== idx)); };
   const move = (idx, dir) => {
     const newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= benefits.length) return;
@@ -279,7 +277,6 @@ function BeneficiosForm({ cfg, set }) {
               <div className="flex items-center gap-1">
                 <button onClick={() => move(idx, -1)} disabled={idx === 0} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronUp size={16} /></button>
                 <button onClick={() => move(idx, 1)} disabled={idx === benefits.length - 1} className="p-1.5 text-gray-400 hover:text-emerald-600 disabled:opacity-20"><ChevronDown size={16} /></button>
-                <button onClick={() => removeBenefit(idx)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded ml-1"><Trash2 size={16} /></button>
               </div>
             </div>
             <Field label="Título" value={benefit.title} onChange={v => updateBenefit(idx, { title: v })} />
@@ -288,9 +285,6 @@ function BeneficiosForm({ cfg, set }) {
             </div>
           </div>
         ))}
-        <button onClick={addBenefit} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-          <Plus size={18} /> Adicionar card
-        </button>
       </div>
     </div>
   );
@@ -308,7 +302,7 @@ function CtaForm({ cfg, set }) {
       </div>
 
       <hr className="my-6 border-gray-100" />
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cabeçalho da seção "Gigantes que Confiam na SIF"</p>
+      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cabeçalho da seção "Empresas que Confiam na SIF"</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <Field label="Tag (cima)" value={cfg.logos_tag} onChange={v => set('logos_tag', v)} />
         <Field label="Título — linha 1" value={cfg.logos_title_line1} onChange={v => set('logos_title_line1', v)} />

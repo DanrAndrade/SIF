@@ -187,7 +187,6 @@ export default function InstitucionalAdmin() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800">Página Institucional</h2>
-          <p className="text-xs text-gray-500 mt-1">Os campos vêm pré-preenchidos com o conteúdo atual do site.</p>
         </div>
         <div className="flex items-center gap-3">
           {savedAt && (

@@ -75,7 +75,7 @@ const DEFAULTS = {
   ],
 
   logos_tag: 'Nossa Rede',
-  logos_title_line1: 'Gigantes que',
+  logos_title_line1: 'Empresas que',
   logos_title_highlight: 'Confiam na SIF',
 
   cta_title: 'Sua empresa quer fazer parte desta história?',

@@ -98,8 +98,8 @@ export default function TimelineManager() {
         </div>
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">Título *</label>
-          <input className="w-full p-2 bg-white border rounded-xl text-sm outline-none focus:border-[#007a3d]" placeholder='Ex: A <span class="text-[#007a3d]">Fundação</span>' value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
-          <p className="text-[10px] text-gray-400 mt-1">Suporte a HTML. Use &lt;span class="text-[#007a3d]"&gt; para colorir parte do texto.</p>
+          <input className="w-full p-2 bg-white border rounded-xl text-sm outline-none focus:border-[#007a3d]" placeholder='Ex: Primeira Década' value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
+          <p className="text-[10px] text-gray-400 mt-1">Para destacar parte do texto em verde, envolva com: &lt;span class="text-[#007a3d]"&gt;palavra&lt;/span&gt;</p>
         </div>
         <div>
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">Texto</label>

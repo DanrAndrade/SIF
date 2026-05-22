@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
@@ -377,6 +378,7 @@ const GalleryCarousel = ({ title, data }) => {
 export default function Institucional() {
   const mainRef = useRef(null);
   const areasScrollRef = useRef(null);
+  const location = useLocation();
 
   // Equipe vinda do banco (admin de Institucional → aba Equipe).
   // Se a API responder vazio ou falhar, cai nos arrays estáticos como fallback.
@@ -442,6 +444,23 @@ export default function Institucional() {
     }
   };
   
+  // Scroll automático para a seção quando a URL tem hash (ex: /institucional#nossa-gente)
+  useEffect(() => {
+    const hash = location.hash;
+    if (!hash) return;
+    const id = hash.replace('#', '');
+    const scrollToSection = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    };
+    // Pequeno delay para garantir que a página terminou de renderizar
+    const timer = setTimeout(scrollToSection, 350);
+    return () => clearTimeout(timer);
+  }, [location.hash]);
+
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     

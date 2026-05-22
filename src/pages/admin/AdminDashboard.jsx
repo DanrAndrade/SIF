@@ -5,7 +5,7 @@ import { Menu } from 'lucide-react';
 // --- CAMINHOS DE IMPORTAÇÃO ---
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminBanners from '../../components/admin/AdminBanners';
-import { LeadsView, CandidatesView, JobsManagerView, NotificationsManagerView } from '../../components/admin/AdminViews';
+import { LeadsView, CandidatesView, JobsManagerView } from '../../components/admin/AdminViews';
 
 // 1. IMPORTAÇÃO DO GERENCIADOR DE BLOG E NOVOS MÓDULOS
 import BlogAdmin from '../BlogAdmin'; 
@@ -64,8 +64,6 @@ export default function AdminDashboard({ currentTab }) {
                 {activeTab === 'candidates' && <CandidatesView />}
                 {activeTab === 'banners' && <AdminBanners />}
                 {activeTab === 'jobs' && <JobsManagerView />}
-                {activeTab === 'notifications' && <NotificationsManagerView />}
-                
                 {/* 2. CONDIÇÃO PARA EXIBIR O BLOG E NOVOS ITENS */}
                 {activeTab === 'blog' && <BlogAdmin />}
                 {activeTab === 'eventos' && <EventosAdmin />}
