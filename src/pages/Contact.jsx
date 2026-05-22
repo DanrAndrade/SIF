@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
 
 const HERO_DEFAULTS = {
@@ -13,6 +14,19 @@ const HERO_DEFAULTS = {
   hero_title_highlight: 'Nossa Equipe',
   hero_subtitle: 'Transparência e proximidade são nossos pilares. Envie sua mensagem para iniciar uma parceria técnica ou tirar dúvidas.',
   hero_scroll_label: '',
+};
+
+const CONTENT_DEFAULTS = {
+  canais_title: 'Canais Diretos',
+  phone_label: 'Telefone Centex',
+  phone_value: '+55 (31) 3612-3950',
+  email_label: 'E-mail Corporativo',
+  email_value: 'contato@sif.org.br',
+  address_label: 'Sede Administrativa',
+  address_value: 'DEP de Engenharia Florestal\nAv. P.H. Rolfs, s/n – Campus da UFV\nViçosa - MG | CEP: 36570-900',
+  form_tag: 'Mensagem',
+  form_title_line1: 'Atendimento',
+  form_title_line2: 'Técnico',
 };
 import { Input, Select, TextArea } from '../components/ui/FormElements';
 import Button from '../components/ui/Button';
@@ -27,6 +41,8 @@ export default function Contact() {
   const { hash } = useLocation();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
+  const { config } = usePageConfig('contato');
+  const cfg = { ...CONTENT_DEFAULTS, ...config };
 
   const [formData, setFormData] = useState({
       name: '', email: '', phone: '', subject: 'institucional', message: ''
@@ -122,35 +138,31 @@ export default function Contact() {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[80px] -z-0"></div>
                         
                         <h3 className="text-xs font-black uppercase mb-12 tracking-[0.3em] text-[#007a3d] flex items-center gap-4 relative z-10">
-                            <span className="w-10 h-[2px] bg-[#007a3d]"></span> Canais Diretos
+                            <span className="w-10 h-[2px] bg-[#007a3d]"></span> {cfg.canais_title}
                         </h3>
-                        
+
                         <div className="flex flex-col gap-10 relative z-10">
                             <div className="flex items-start gap-6 group/item">
                                 <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><Phone size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Telefone Centex</span>
-                                    <p className="font-bold text-xl text-[#1f2937]">+55 (31) 3612-3950</p>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{cfg.phone_label}</span>
+                                    <p className="font-bold text-xl text-[#1f2937]">{cfg.phone_value}</p>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-6 group/item">
                                 <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><Mail size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">E-mail Corporativo</span>
-                                    <p className="font-bold text-xl text-[#1f2937] break-all">contato@sif.org.br</p>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{cfg.email_label}</span>
+                                    <p className="font-bold text-xl text-[#1f2937] break-all">{cfg.email_value}</p>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-6 group/item pt-10 border-t border-gray-50">
                                 <div className="w-14 h-14 bg-[#f8f9fa] text-[#1f2937] rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover/item:bg-[#007a3d] group-hover/item:text-white shadow-sm border border-gray-50"><MapPin size={24} /></div>
                                 <div className="flex-1 min-w-0">
-                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sede Administrativa</span>
-                                    <p className="font-medium text-sm text-[#1f2937] leading-relaxed">
-                                        DEP de Engenharia Florestal<br/>
-                                        Av. P.H. Rolfs, s/n – Campus da UFV<br/>
-                                        Viçosa - MG | CEP: 36570-900
-                                    </p>
+                                    <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{cfg.address_label}</span>
+                                    <p className="font-medium text-sm text-[#1f2937] leading-relaxed whitespace-pre-line">{cfg.address_value}</p>
                                 </div>
                             </div>
                         </div>
@@ -163,8 +175,8 @@ export default function Contact() {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-[200px] pointer-events-none opacity-50"></div>
                         
                         <div className="mb-12">
-                            <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Mensagem</span>
-                            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tight">Atendimento <br/>Técnico</h2>
+                            <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">{cfg.form_tag}</span>
+                            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tight">{cfg.form_title_line1} <br/>{cfg.form_title_line2}</h2>
                         </div>
                         
                         {status === 'success' && (

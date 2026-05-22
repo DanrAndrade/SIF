@@ -5,6 +5,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Target, Users, MapPin, CheckCircle2, ArrowRight, Mail, Phone, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import EditablePageHero from '../components/EditablePageHero';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL } from '../apiConfig';
 
 const HERO_DEFAULTS = {
@@ -16,9 +17,35 @@ const HERO_DEFAULTS = {
   hero_scroll_label: '',
 };
 
+const CONTENT_DEFAULTS = {
+  intro_title_line1: 'Sua demanda,',
+  intro_title_highlight: 'nossa expertise.',
+  intro_text: 'Os treinamentos In-Company da SIF são desenhados sob medida para atender às necessidades específicas da sua organização, utilizando o conhecimento técnico-científico da UFV.',
+  intro_bullet_1: 'Diagnóstico personalizado das necessidades',
+  intro_bullet_2: 'Ajuste de carga horária e cronograma',
+  intro_bullet_3: 'Foco em estudos de caso da própria empresa',
+  intro_bullet_4: 'Redução de custos logísticos para grandes equipes',
+  stat_value: '+10k',
+  stat_label: 'Profissionais Treinados',
+  foco_title: 'Foco Total',
+  foco_text: 'Conteúdo adaptado ao seu ecossistema.',
+  cta_tag: 'Como prosseguir',
+  cta_title_line1: 'Vamos',
+  cta_title_highlight: 'Planejar?',
+  cta_text: 'Nossa equipe está pronta para formatar o melhor programa de treinamento para seu time.',
+  contact_email_label: 'Analista de Eventos e Treinamentos',
+  contact_email_value: 'eventos@sif.org.br',
+  contact_phone_label: 'Atendimento Comercial',
+  contact_phone_value: '(31) 3899-1185',
+  form_title_line1: 'Solicitar',
+  form_title_highlight: 'Proposta',
+};
+
 export default function TreinamentosInCompany() {
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState(null);
+  const { config } = usePageConfig('treinamentos_in_company');
+  const cfg = { ...CONTENT_DEFAULTS, ...config };
   const [formData, setFormData] = React.useState({
       name: '', email: '', company: '', phone: '', message: ''
   });
@@ -91,17 +118,12 @@ export default function TreinamentosInCompany() {
           <div className="container mx-auto px-6 max-w-7xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
               <div className="space-y-8">
-                <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tighter">Sua demanda, <br/><span className="text-[#007a3d]">nossa expertise.</span></h2>
-                <p className="text-gray-500 text-xl leading-relaxed font-medium">Os treinamentos In-Company da SIF são desenhados sob medida para atender às necessidades específicas da sua organização, utilizando o conhecimento técnico-científico da UFV.</p>
-                
+                <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tighter">{cfg.intro_title_line1} <br/><span className="text-[#007a3d]">{cfg.intro_title_highlight}</span></h2>
+                <p className="text-gray-500 text-xl leading-relaxed font-medium">{cfg.intro_text}</p>
+
                 <div className="space-y-6">
-                  {[
-                    'Diagnóstico personalizado das necessidades',
-                    'Ajuste de carga horária e cronograma',
-                    'Foco em estudos de caso da própria empresa',
-                    'Redução de custos logísticos para grandes equipes'
-                  ].map((item) => (
-                    <div key={item} className="flex items-center gap-4">
+                  {[cfg.intro_bullet_1, cfg.intro_bullet_2, cfg.intro_bullet_3, cfg.intro_bullet_4].filter(Boolean).map((item, i) => (
+                    <div key={i} className="flex items-center gap-4">
                       <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 animate-pulse">
                         <CheckCircle2 size={16} className="text-[#007a3d]" />
                       </div>
@@ -116,15 +138,15 @@ export default function TreinamentosInCompany() {
                     <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070" className="w-full h-full object-cover" />
                   </div>
                   <div className="bg-[#1f2937] p-8 rounded-[40px] text-white">
-                    <span className="text-[40px] font-bold font-heading text-[#007a3d] block mb-2">+10k</span>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Profissionais Treinados</span>
+                    <span className="text-[40px] font-bold font-heading text-[#007a3d] block mb-2">{cfg.stat_value}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{cfg.stat_label}</span>
                   </div>
                 </div>
                 <div className="space-y-6">
                   <div className="bg-emerald-50 p-8 rounded-[40px]">
                     <Target size={32} className="text-[#007a3d] mb-4" />
-                    <h4 className="text-xs font-black uppercase text-[#1f2937] tracking-widest mb-2">Foco Total</h4>
-                    <p className="text-[10px] text-gray-500 font-medium">Conteúdo adaptado ao seu ecossistema.</p>
+                    <h4 className="text-xs font-black uppercase text-[#1f2937] tracking-widest mb-2">{cfg.foco_title}</h4>
+                    <p className="text-[10px] text-gray-500 font-medium">{cfg.foco_text}</p>
                   </div>
                   <div className="rounded-[40px] overflow-hidden shadow-xl aspect-[3/4]">
                     <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070" className="w-full h-full object-cover" />
@@ -144,31 +166,31 @@ export default function TreinamentosInCompany() {
                <div className="flex flex-col lg:flex-row gap-20 relative z-10">
                   <div className="lg:w-1/2 space-y-10">
                     <div>
-                      <span className="text-[#007a3d] font-black uppercase text-[10px] tracking-[.3em] mb-6 block">Como prosseguir</span>
-                      <h2 className="text-5xl md:text-7xl font-bold font-heading uppercase mb-8 leading-[0.9]">Vamos <span className="text-[#007a3d]">Planejar?</span></h2>
-                      <p className="text-gray-400 text-base font-medium leading-relaxed">Nossa equipe está pronta para formatar o melhor programa de treinamento para seu time.</p>
+                      <span className="text-[#007a3d] font-black uppercase text-[10px] tracking-[.3em] mb-6 block">{cfg.cta_tag}</span>
+                      <h2 className="text-5xl md:text-7xl font-bold font-heading uppercase mb-8 leading-[0.9]">{cfg.cta_title_line1} <span className="text-[#007a3d]">{cfg.cta_title_highlight}</span></h2>
+                      <p className="text-gray-400 text-base font-medium leading-relaxed">{cfg.cta_text}</p>
                     </div>
 
                     <div className="space-y-6">
                       <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-colors">
                         <div className="w-14 h-14 rounded-2xl bg-[#007a3d] flex items-center justify-center shadow-lg"><Mail size={24} /></div>
                         <div>
-                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">Analista de Eventos e Treinamentos</span>
-                          <span className="text-lg font-bold text-white">eventos@sif.org.br</span>
+                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">{cfg.contact_email_label}</span>
+                          <span className="text-lg font-bold text-white">{cfg.contact_email_value}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-colors">
                         <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-[#1f2937] shadow-lg"><Phone size={24} /></div>
                         <div>
-                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">Atendimento Comercial</span>
-                          <span className="text-lg font-bold text-white">(31) 3899-1185</span>
+                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">{cfg.contact_phone_label}</span>
+                          <span className="text-lg font-bold text-white">{cfg.contact_phone_value}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="lg:w-1/2 bg-white rounded-[60px] p-12 shadow-2xl relative">
-                    <h4 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-8">Solicitar <span className="text-[#007a3d]">Proposta</span></h4>
+                    <h4 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-8">{cfg.form_title_line1} <span className="text-[#007a3d]">{cfg.form_title_highlight}</span></h4>
                     
                     {status === 'success' && (
                         <div className="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-3xl flex items-center gap-4 text-[#007a3d] animate-in zoom-in-95">

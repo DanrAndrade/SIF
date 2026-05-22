@@ -3,6 +3,7 @@ import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
 import PageHeaderForm from './PageHeaderForm';
+import PageContentForm from './PageContentForm';
 
 import { API_BASE_URL } from '../../apiConfig';
 
@@ -14,6 +15,36 @@ const JOBS_HERO_DEFAULTS = {
   hero_subtitle: 'Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.',
   hero_scroll_label: '',
 };
+
+const JOBS_CONTENT_DEFAULTS = {
+  missao_title: 'Missão',
+  missao_text: 'Promover o desenvolvimento florestal gerando inovação com sinergia Universidade & Empresa.',
+  visao_title: 'Visão',
+  visao_text: 'Ser líder nacional em ciência e imprescindível no desenvolvimento tecnológico florestal.',
+  valores_title: 'Valores',
+  valores_text: 'Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo',
+  vagas_tag: 'Oportunidades',
+  vagas_title: 'Vagas Abertas',
+  banco_tag: 'Banco de Talentos',
+  banco_title: 'Cresça com a SIF',
+  banco_text: 'Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.',
+  banco_btn_label: 'Cadastrar Currículo',
+};
+
+const JOBS_CONTENT_FIELDS = [
+  { key: 'missao_title', label: 'Missão — Título', group: 'Missão' },
+  { key: 'missao_text',  label: 'Missão — Texto',  type: 'textarea', rows: 2, group: 'Missão', fullWidth: true },
+  { key: 'visao_title',  label: 'Visão — Título',  group: 'Visão' },
+  { key: 'visao_text',   label: 'Visão — Texto',   type: 'textarea', rows: 2, group: 'Visão', fullWidth: true },
+  { key: 'valores_title',label: 'Valores — Título',group: 'Valores' },
+  { key: 'valores_text', label: 'Valores — Texto', type: 'textarea', rows: 2, group: 'Valores', fullWidth: true },
+  { key: 'vagas_tag',    label: 'Tag (verde)',     group: 'Cabeçalho lista de vagas' },
+  { key: 'vagas_title',  label: 'Título',          group: 'Cabeçalho lista de vagas' },
+  { key: 'banco_tag',    label: 'Tag (verde)',     group: 'Banco de talentos' },
+  { key: 'banco_title',  label: 'Título',          group: 'Banco de talentos' },
+  { key: 'banco_text',   label: 'Texto',           type: 'textarea', rows: 2, group: 'Banco de talentos', fullWidth: true },
+  { key: 'banco_btn_label', label: 'Texto do botão', group: 'Banco de talentos' },
+];
 
 // Modal Responsivo (Restaurado)
 const Modal = ({ title, onClose, children }) => (
@@ -295,6 +326,7 @@ export const JobsManagerView = () => {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <PageHeaderForm pageKey="jobs" defaults={JOBS_HERO_DEFAULTS} title="Cabeçalho da página /trabalhe-conosco" />
+            <PageContentForm pageKey="jobs" defaults={JOBS_CONTENT_DEFAULTS} fields={JOBS_CONTENT_FIELDS} title="Textos da página /trabalhe-conosco" />
             <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gerenciar Vagas</h2><Button size="sm" variant="primary" icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova Vaga</Button></div>
             <div className="grid gap-4">
                 {jobs.map(job => (

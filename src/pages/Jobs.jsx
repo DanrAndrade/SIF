@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import { Input } from '../components/ui/FormElements';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
+import { usePageConfig } from '../hooks/usePageConfig';
 
 // Importando o icone para uso em componentes
 import iconLogo from '../assets/icone.svg';
@@ -21,8 +22,25 @@ const HERO_DEFAULTS = {
   hero_scroll_label: '',
 };
 
+const CONTENT_DEFAULTS = {
+  missao_title: 'Missão',
+  missao_text: 'Promover o desenvolvimento florestal gerando inovação com sinergia Universidade & Empresa.',
+  visao_title: 'Visão',
+  visao_text: 'Ser líder nacional em ciência e imprescindível no desenvolvimento tecnológico florestal.',
+  valores_title: 'Valores',
+  valores_text: 'Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo',
+  vagas_tag: 'Oportunidades',
+  vagas_title: 'Vagas Abertas',
+  banco_tag: 'Banco de Talentos',
+  banco_title: 'Cresça com a SIF',
+  banco_text: 'Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.',
+  banco_btn_label: 'Cadastrar Currículo',
+};
+
 export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState(null);
+  const { config: pageConfig } = usePageConfig('jobs');
+  const cfg = { ...CONTENT_DEFAULTS, ...pageConfig };
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,28 +118,22 @@ export default function Jobs() {
                             <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
                                 <Target size={56} style={{ stroke: "url(#grad-green)" }} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">Missão</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">
-                                Promover o desenvolvimento florestal gerando inovação com sinergia Universidade & Empresa.
-                            </p>
+                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.missao_title}</h3>
+                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.missao_text}</p>
                         </div>
                         <div className="flex flex-col items-center text-center group">
                             <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
                                 <Eye size={56} style={{ stroke: "url(#grad-gold)" }} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">Visão</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">
-                                Ser líder nacional em ciência e imprescindível no desenvolvimento tecnológico florestal.
-                            </p>
+                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.visao_title}</h3>
+                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.visao_text}</p>
                         </div>
                         <div className="flex flex-col items-center text-center group">
                             <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
                                 <Heart size={56} style={{ stroke: "url(#grad-green)" }} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">Valores</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">
-                                Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo
-                            </p>
+                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.valores_title}</h3>
+                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.valores_text}</p>
                         </div>
                     </div>
               </div>
@@ -132,8 +144,8 @@ export default function Jobs() {
              <div className="container mx-auto px-6 max-w-6xl">
                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-gray-100 pb-10 gap-8">
                     <div>
-                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">Oportunidades</span>
-                        <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tight">Vagas Abertas</h2>
+                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.vagas_tag}</span>
+                        <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tight">{cfg.vagas_title}</h2>
                     </div>
                     
 
@@ -195,9 +207,9 @@ export default function Jobs() {
                  <div className="bg-[#1f2937] border border-gray-800 rounded-[60px] p-10 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-125"></div>
                      <div className="relative z-10 text-center md:text-left">
-                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">Banco de Talentos</span>
-                         <h3 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white mb-6 tracking-tight leading-none">Cresça com a SIF</h3>
-                         <p className="text-gray-400 font-medium text-base leading-relaxed max-w-xl">Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.</p>
+                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">{cfg.banco_tag}</span>
+                         <h3 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white mb-6 tracking-tight leading-none">{cfg.banco_title}</h3>
+                         <p className="text-gray-400 font-medium text-base leading-relaxed max-w-xl">{cfg.banco_text}</p>
                      </div>
                      <button 
                         onClick={() => setSelectedJob({ id: 'banco', title: "Banco de Talentos", location: "Geral", type: "Cadastro Reserva", category: "SIF", description: "Seu currículo ficará em nossa base estratégica para futuras oportunidades dentro dos nossos pilares técnicos e científicos.", requirements: [] })} 
