@@ -14,18 +14,24 @@ export const projectStatusColor = (status) => {
   return 'bg-amber-50 text-amber-700';
 };
 
-// Retorna o status efetivo do projeto: se o usuário escolheu "Automático" ou deixou vazio,
-// computa "Em Andamento" ou "Concluído" baseado em data_limite. Caso contrário, retorna
-// o status manual como está.
+// Retorna o status efetivo do projeto.
+// REGRA: se tem data_limite e ela já passou, sempre "Concluído" (ignora status manual).
+// Caso contrário, respeita o status manual; se for "Automático"/vazio, devolve "Em Andamento".
 export const getEffectiveProjectStatus = (proj) => {
   if (!proj) return '';
+
+  // 1. Data limite passada → sempre Concluído (regra global automática)
+  if (proj.data_limite) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(proj.data_limite + 'T12:00:00');
+    if (!isNaN(d) && d < today) return 'Concluído';
+  }
+
+  // 2. Status manual válido → respeita
   const s = proj.status;
   if (s === 'Em Andamento' || s === 'Concluído' || s === 'Em Planejamento' || s === 'Suspenso') return s;
-  // Automático ou vazio
-  if (!proj.data_limite) return 'Em Andamento';
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const d = new Date(proj.data_limite + 'T12:00:00');
-  if (isNaN(d)) return 'Em Andamento';
-  return d >= today ? 'Em Andamento' : 'Concluído';
+
+  // 3. Automático/vazio sem data passada → Em Andamento
+  return 'Em Andamento';
 };

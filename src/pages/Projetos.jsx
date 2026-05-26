@@ -24,22 +24,8 @@ const STATUS_DOT = {
   'Concluído':        'bg-emerald-500',
 };
 
-// Determina se projeto está ativo: respeita status manual, usa data_limite como fallback
-const isProjetoAtivo = (proj) => {
-  // Se status for "Concluído" explicitamente, sempre concluído
-  if (proj.status === 'Concluído') return false;
-  // Se status for "Em Andamento" explicitamente, sempre em andamento
-  if (proj.status === 'Em Andamento') return true;
-  // Se status for "Automático" ou vazio, usa data_limite
-  if (!proj.status || proj.status === 'Automático (por data)') {
-    if (!proj.data_limite) return true;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const d = new Date(proj.data_limite + 'T12:00:00');
-    return !isNaN(d) && d >= today;
-  }
-  return true;
-};
+// Projeto está "ativo" (em andamento) se o status efetivo não for "Concluído"
+const isProjetoAtivo = (proj) => getEffectiveProjectStatus(proj) !== 'Concluído';
 
 function formatDate(dateStr) {
   if (!dateStr) return null;
