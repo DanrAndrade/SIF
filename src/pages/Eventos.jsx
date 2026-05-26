@@ -15,6 +15,28 @@ const HERO_DEFAULTS = {
   hero_scroll_label: 'Ver Agenda',
 };
 
+const STATUS_DOT = {
+  'Em Andamento':     'bg-amber-400',
+  'Concluído':        'bg-emerald-500',
+};
+
+// Determina se evento está ativo: respeita status manual, usa event_date como fallback
+const isEventoAtivo = (ev) => {
+  // Se status for "Concluído" explicitamente, sempre concluído
+  if (ev.status === 'Concluído') return false;
+  // Se status for "Em Andamento" explicitamente, sempre em andamento
+  if (ev.status === 'Em Andamento') return true;
+  // Se status for "Automático" ou vazio, usa event_date
+  if (!ev.status || ev.status === 'Automático (por data)') {
+    if (!ev.event_date) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(ev.event_date + 'T12:00:00');
+    return !isNaN(d) && d >= today;
+  }
+  return true;
+};
+
 // Formato amigável: "20 Out 2026"
 function formatEventDate(ev) {
   if (ev.event_date) {
@@ -45,6 +67,12 @@ function EventoCard({ ev, faded = false }) {
           {ev.location && (
             <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500">
               <MapPin size={10} /> {ev.location}
+            </span>
+          )}
+          {ev.status && (
+            <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500">
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[ev.status] || 'bg-gray-400'}`}></span>
+              {ev.status}
             </span>
           )}
         </div>
@@ -100,16 +128,9 @@ export default function Eventos() {
     }
   };
 
-  // Segmentação automática por data (event_date)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const isUpcoming = (ev) => {
-    if (!ev.event_date) return true;
-    const d = new Date(ev.event_date + 'T12:00:00');
-    return !isNaN(d) && d >= today;
-  };
-  const ativos = events.filter(isUpcoming);
-  const concluidos = events.filter(ev => !isUpcoming(ev));
+  // Separa por status/data (automático)
+  const ativos     = events.filter(isEventoAtivo);
+  const concluidos = events.filter(ev => !isEventoAtivo(ev));
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">

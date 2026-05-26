@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -280,7 +280,7 @@ export default function EincolAdmin() {
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
             📝 Conteúdo Principal
           </h3>
-          <div className="bg-white rounded-[24px] border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <ReactQuill
               ref={quillInstance}
               theme="snow"
@@ -464,7 +464,7 @@ function QuillTab({ tab, index, onUpdate, onRemove }) {
           <Trash2 size={16} />
         </button>
       </div>
-      <div className="bg-white rounded-[16px] border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <ReactQuill ref={ref} theme="snow" modules={modules} value={tab.content} onChange={val => onUpdate('content', val)} className="h-64" />
       </div>
     </div>
@@ -518,7 +518,7 @@ function QuillSection({ sec, index, onUpdate, onRemove }) {
           <Trash2 size={16} />
         </button>
       </div>
-      <div className="bg-white rounded-[16px] border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <ReactQuill ref={ref} theme="snow" modules={modules} value={sec.text} onChange={val => onUpdate('text', val)} className="h-64" />
       </div>
     </div>

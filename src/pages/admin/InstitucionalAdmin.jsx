@@ -243,11 +243,13 @@ export default function InstitucionalAdmin() {
       )}
       {activeTab === 'timeline' && (
         <div>
-          <TimelineHeaderForm cfg={config} set={set} />
-          <div className="flex justify-end mb-6">
-            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> Salvar título da Linha do Tempo
-            </Button>
+          <div className="space-y-4 mb-6">
+            <TimelineHeaderForm cfg={config} set={set} />
+            <div className="flex justify-end">
+              <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
+                <Save size={16} /> Salvar título da Linha do Tempo
+              </Button>
+            </div>
           </div>
           <hr className="my-6 border-gray-100" />
           <p className="text-xs text-gray-500 mb-4">Marcos históricos (CRUD):</p>

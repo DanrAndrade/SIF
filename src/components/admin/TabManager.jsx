@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
 
@@ -34,14 +34,14 @@ function TabEditorItem({ tab, index, total, itemLabel, onMoveUp, onMoveDown, onR
           <Trash2 size={16}/>
         </button>
       </div>
-      <div className="bg-white rounded-[16px] border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200">
         <ReactQuill
           ref={quillRef}
           theme="snow"
           modules={modules}
           value={tab.content}
           onChange={val => onUpdate('content', val)}
-          className="h-48"
+          className="h-64"
         />
       </div>
     </div>

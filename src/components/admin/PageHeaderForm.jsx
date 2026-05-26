@@ -104,7 +104,7 @@ export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Badge (etiqueta verde acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
-          <Field label="Texto do botão de scroll (ex: 'Ver Agenda')" value={cfg.hero_scroll_label} onChange={v => set('hero_scroll_label', v)} />
+          <Field label="Texto do botão de scroll" value={cfg.hero_scroll_label} onChange={v => set('hero_scroll_label', v)} />
           <Field label="Título — linha 1" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
           <Field label="Título — destaque em verde" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
         </div>

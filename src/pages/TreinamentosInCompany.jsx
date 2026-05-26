@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { Target, Users, MapPin, CheckCircle2, ArrowRight, Mail, Phone, CheckCircle, AlertCircle } from 'lucide-react';
-import Button from '../components/ui/Button';
 import EditablePageHero from '../components/EditablePageHero';
-import { usePageConfig } from '../hooks/usePageConfig';
-import { API_BASE_URL } from '../apiConfig';
+import { ArrowRight, BookOpen, Clock, Play } from 'lucide-react';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 const HERO_DEFAULTS = {
   hero_image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070',
@@ -14,228 +12,125 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Treinamentos',
   hero_title_highlight: 'In-Company',
   hero_subtitle: 'Soluções personalizadas em educação corporativa, levadas diretamente ao coração da sua empresa.',
-  hero_scroll_label: '',
-};
-
-const CONTENT_DEFAULTS = {
-  intro_title_line1: 'Sua demanda,',
-  intro_title_highlight: 'nossa expertise.',
-  intro_text: 'Os treinamentos In-Company da SIF são desenhados sob medida para atender às necessidades específicas da sua organização, utilizando o conhecimento técnico-científico da UFV.',
-  intro_bullet_1: 'Diagnóstico personalizado das necessidades',
-  intro_bullet_2: 'Ajuste de carga horária e cronograma',
-  intro_bullet_3: 'Foco em estudos de caso da própria empresa',
-  intro_bullet_4: 'Redução de custos logísticos para grandes equipes',
-  stat_value: '+10k',
-  stat_label: 'Profissionais Treinados',
-  foco_title: 'Foco Total',
-  foco_text: 'Conteúdo adaptado ao seu ecossistema.',
-  cta_tag: 'Como prosseguir',
-  cta_title_line1: 'Vamos',
-  cta_title_highlight: 'Planejar?',
-  cta_text: 'Nossa equipe está pronta para formatar o melhor programa de treinamento para seu time.',
-  contact_email_label: 'Analista de Eventos e Treinamentos',
-  contact_email_value: 'eventos@sif.org.br',
-  contact_phone_label: 'Atendimento Comercial',
-  contact_phone_value: '(31) 3899-1185',
-  form_title_line1: 'Solicitar',
-  form_title_highlight: 'Proposta',
+  hero_scroll_label: 'Explorar Soluções',
 };
 
 export default function TreinamentosInCompany() {
-  const [loading, setLoading] = React.useState(false);
-  const [status, setStatus] = React.useState(null);
-  const { config } = usePageConfig('treinamentos_in_company');
-  const cfg = { ...CONTENT_DEFAULTS, ...config };
-  const [formData, setFormData] = React.useState({
-      name: '', email: '', company: '', phone: '', message: ''
-  });
+  const [trainings, setTrainings] = useState([]);
+  const [segments, setSegments] = useState(['Todos']);
+  const [selectedSegment, setSelectedSegment] = useState('Todos');
+  const [loading, setLoading] = useState(true);
 
-  const maskPhone = (value) => {
-      if (!value) return "";
-      let v = value.replace(/\D/g, "");
-      if (v.length > 11) v = v.slice(0, 11);
-      
-      if (v.length > 10) {
-          // Mobile: (73) 98192-8547
-          return v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-      } else if (v.length > 6) {
-          // Fixed: (73) 3211-1234
-          return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-      } else if (v.length > 2) {
-          return v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
-      } else if (v.length > 0) {
-          return v.replace(/(\d*)/, "($1");
-      }
-      return v;
+  useEffect(() => { fetchTrainings(); }, []);
+
+  const fetchTrainings = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/treinamentos_in_company.php`);
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setTrainings(list);
+      const uniqueSegments = ['Todos', ...new Set(list.map(t => t.segment).filter(Boolean))];
+      setSegments(uniqueSegments);
+    } catch (err) {
+      console.error('Erro ao carregar treinamentos in-company:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleChange = (e) => {
-      let { name, value } = e.target;
-      if (name === 'phone') value = maskPhone(value);
-      setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-      e.preventDefault();
-      setLoading(true);
-      setStatus(null);
-
-      const payload = {
-          ...formData,
-          subject: 'treinamento-in-company',
-          message: `Empresa: ${formData.company}\n\nInteresse em treinamento In-Company.`
-      };
-
-      try {
-          const response = await fetch(`${API_BASE_URL}/leads.php`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-          });
-          const result = await response.json();
-          if (result.success) {
-              setStatus('success');
-              setFormData({ name: '', email: '', company: '', phone: '', message: '' });
-          } else {
-              setStatus('error');
-          }
-      } catch (error) {
-          setStatus('error');
-      } finally {
-          setLoading(false);
-      }
-  };
+  const filteredTrainings = selectedSegment === 'Todos'
+    ? trainings
+    : trainings.filter(t => t.segment === selectedSegment);
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
-      
-      <EditablePageHero pageKey="treinamentos_in_company" defaults={HERO_DEFAULTS} />
 
-      <main className="flex-grow">
-        {/* SEÇÃO INTRODUTÓRIA */}
-        <section className="py-24 bg-white">
-          <div className="container mx-auto px-6 max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-              <div className="space-y-8">
-                <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tighter">{cfg.intro_title_line1} <br/><span className="text-[#007a3d]">{cfg.intro_title_highlight}</span></h2>
-                <p className="text-gray-500 text-xl leading-relaxed font-medium">{cfg.intro_text}</p>
+      <EditablePageHero pageKey="treinamentos_in_company" defaults={HERO_DEFAULTS} scrollTargetId="tic-content" />
 
-                <div className="space-y-6">
-                  {[cfg.intro_bullet_1, cfg.intro_bullet_2, cfg.intro_bullet_3, cfg.intro_bullet_4].filter(Boolean).map((item, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 animate-pulse">
-                        <CheckCircle2 size={16} className="text-[#007a3d]" />
-                      </div>
-                      <span className="text-xs font-black uppercase text-gray-400 tracking-widest">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-6 pt-12">
-                  <div className="rounded-[40px] overflow-hidden shadow-xl aspect-square">
-                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="bg-[#1f2937] p-8 rounded-[40px] text-white">
-                    <span className="text-[40px] font-bold font-heading text-[#007a3d] block mb-2">{cfg.stat_value}</span>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{cfg.stat_label}</span>
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <div className="bg-emerald-50 p-8 rounded-[40px]">
-                    <Target size={32} className="text-[#007a3d] mb-4" />
-                    <h4 className="text-xs font-black uppercase text-[#1f2937] tracking-widest mb-2">{cfg.foco_title}</h4>
-                    <p className="text-[10px] text-gray-500 font-medium">{cfg.foco_text}</p>
-                  </div>
-                  <div className="rounded-[40px] overflow-hidden shadow-xl aspect-[3/4]">
-                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              </div>
+      <main id="tic-content" className="flex-grow py-24">
+        <div className="container mx-auto px-6 max-w-7xl">
+
+          <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+              {segments.map(segment => (
+                <button
+                  key={segment}
+                  onClick={() => setSelectedSegment(segment)}
+                  className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+                    selectedSegment === segment
+                      ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-xl'
+                      : 'bg-white text-gray-400 border-gray-100 hover:border-[#007a3d] hover:text-[#007a3d]'
+                  }`}
+                >
+                  {segment}
+                </button>
+              ))}
+            </div>
+            <div className="hidden lg:flex items-center gap-4 text-gray-400">
+              <span className="text-[10px] font-bold uppercase tracking-widest italic">{filteredTrainings.length} Cursos disponíveis</span>
             </div>
           </div>
-        </section>
 
-        {/* EXEMPLOS E CONTATO */}
-        <section className="py-24 bg-[#f8f9fa]">
-          <div className="container mx-auto px-6 max-w-7xl">
-            <div className="bg-[#1f2937] rounded-[80px] p-12 md:p-24 text-white relative overflow-hidden">
-               <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#007a3d] rounded-full blur-[180px] opacity-20 pointer-events-none"></div>
-               
-               <div className="flex flex-col lg:flex-row gap-20 relative z-10">
-                  <div className="lg:w-1/2 space-y-10">
-                    <div>
-                      <span className="text-[#007a3d] font-black uppercase text-[10px] tracking-[.3em] mb-6 block">{cfg.cta_tag}</span>
-                      <h2 className="text-5xl md:text-7xl font-bold font-heading uppercase mb-8 leading-[0.9]">{cfg.cta_title_line1} <span className="text-[#007a3d]">{cfg.cta_title_highlight}</span></h2>
-                      <p className="text-gray-400 text-base font-medium leading-relaxed">{cfg.cta_text}</p>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-colors">
-                        <div className="w-14 h-14 rounded-2xl bg-[#007a3d] flex items-center justify-center shadow-lg"><Mail size={24} /></div>
-                        <div>
-                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">{cfg.contact_email_label}</span>
-                          <span className="text-lg font-bold text-white">{cfg.contact_email_value}</span>
-                        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="bg-white h-96 rounded-[40px] animate-pulse"></div>
+              ))
+            ) : filteredTrainings.length > 0 ? (
+              filteredTrainings.map((training) => (
+                <Link
+                  key={training.id}
+                  to={`/treinamentos-in-company/${training.slug}`}
+                  className="group bg-white rounded-[48px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
+                >
+                  <div className="h-64 relative overflow-hidden bg-gray-100">
+                    <img
+                      src={getImageUrl(training.image_url)}
+                      alt={training.title}
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                      loading="lazy"
+                      onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070'}
+                    />
+                    {training.segment && (
+                      <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest text-[#007a3d] shadow-md">{training.segment}</div>
+                    )}
+                    {training.video_url && (
+                      <div className="absolute bottom-6 right-6 w-10 h-10 bg-[#007a3d] rounded-full flex items-center justify-center text-white shadow-lg animate-pulse">
+                        <Play size={16} fill="white" />
                       </div>
-                      <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 group hover:bg-white/10 transition-colors">
-                        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-[#1f2937] shadow-lg"><Phone size={24} /></div>
-                        <div>
-                          <span className="block text-[9px] font-black uppercase text-gray-500 tracking-widest">{cfg.contact_phone_label}</span>
-                          <span className="text-lg font-bold text-white">{cfg.contact_phone_value}</span>
+                    )}
+                  </div>
+                  <div className="p-10 flex flex-col flex-grow">
+                    <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
+                    <div className="mt-auto">
+                      <div className="flex items-center justify-between pt-6 border-t border-gray-50">
+                        <div className="flex items-center gap-3">
+                          {training.hours && (
+                            <>
+                              <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-[#007a3d]">
+                                <Clock size={16} />
+                              </div>
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{training.hours}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-inner">
+                          <ArrowRight size={20} />
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  <div className="lg:w-1/2 bg-white rounded-[60px] p-12 shadow-2xl relative">
-                    <h4 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-8">{cfg.form_title_line1} <span className="text-[#007a3d]">{cfg.form_title_highlight}</span></h4>
-                    
-                    {status === 'success' && (
-                        <div className="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-3xl flex items-center gap-4 text-[#007a3d] animate-in zoom-in-95">
-                            <CheckCircle size={28} />
-                            <div className="flex flex-col">
-                                <span className="font-black text-[10px] uppercase tracking-widest leading-none mb-1">Sucesso</span>
-                                <span className="text-xs font-medium">Sua proposta foi solicitada com sucesso!</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {status === 'error' && (
-                        <div className="mb-8 p-6 bg-red-50 border border-red-100 rounded-3xl flex items-center gap-4 text-red-600 animate-in zoom-in-95">
-                            <AlertCircle size={28} />
-                            <div className="flex flex-col">
-                                <span className="font-black text-[10px] uppercase tracking-widest leading-none mb-1">Erro</span>
-                                <span className="text-xs font-medium">Ocorreu um erro. Tente novamente mais tarde.</span>
-                            </div>
-                        </div>
-                    )}
-
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nome Completo</label>
-                        <input name="name" value={formData.name} onChange={handleChange} required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-gray-900 font-medium focus:ring-2 focus:ring-[#007a3d] outline-none transition-all" placeholder="Seu nome..." />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">E-mail Corporativo</label>
-                        <input name="email" value={formData.email} onChange={handleChange} required type="email" className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-gray-900 font-medium focus:ring-2 focus:ring-[#007a3d] outline-none transition-all" placeholder="email@empresa.com.br" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Fone para contato</label>
-                        <input name="phone" value={formData.phone} onChange={handleChange} required type="tel" inputMode="numeric" className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-gray-900 font-medium focus:ring-2 focus:ring-[#007a3d] outline-none transition-all" placeholder="(00) 00000-0000" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Sua Empresa</label>
-                        <input name="company" value={formData.company} onChange={handleChange} required type="text" className="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-gray-900 font-medium focus:ring-2 focus:ring-[#007a3d] outline-none transition-all" placeholder="Nome da empresa..." />
-                      </div>
-                      <Button className="w-full" isLoading={loading}>Enviar Solicitação</Button>
-                    </form>
-                  </div>
-               </div>
-            </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full py-40 text-center">
+                <BookOpen size={48} className="mx-auto text-gray-200 mb-6" />
+                <p className="text-gray-400 font-bold uppercase tracking-widest">Nenhum treinamento encontrado nesta categoria.</p>
+              </div>
+            )}
           </div>
-        </section>
+        </div>
       </main>
 
       <Footer />

@@ -7,6 +7,7 @@ import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, Chevro
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
+import { getEffectiveProjectStatus } from '../utils/helpers';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
@@ -91,12 +92,15 @@ export default function ProjetoDetalhe() {
                 {projeto.tag}
               </span>
             )}
-            {projeto.status && (
-              <span className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
-                <span className={`w-2 h-2 rounded-full ${STATUS_DOT[projeto.status] || 'bg-gray-400'}`}></span>
-                {projeto.status}
-              </span>
-            )}
+            {(() => {
+              const es = getEffectiveProjectStatus(projeto);
+              return es ? (
+                <span className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
+                  <span className={`w-2 h-2 rounded-full ${STATUS_DOT[es] || 'bg-gray-400'}`}></span>
+                  {es}
+                </span>
+              ) : null;
+            })()}
             {projeto.lab && (
               <span className="flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
                 <MapPin size={12} />

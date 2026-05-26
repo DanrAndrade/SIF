@@ -6,7 +6,7 @@ import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
-import { generateSlug, projectStatusColor } from '../../utils/helpers';
+import { generateSlug, projectStatusColor, getEffectiveProjectStatus } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
@@ -19,11 +19,11 @@ const HERO_DEFAULTS = {
   hero_subtitle: 'Transformando desafios em soluções aplicadas através de pesquisas de vanguarda e inovação florestal.',
   hero_scroll_label: 'Ver Projetos',
 };
-const STATUS_OPTIONS = ['Em Andamento', 'Concluído'];
+const STATUS_OPTIONS = ['Automático (por data)', 'Em Andamento', 'Concluído'];
 
 const emptyForm = {
   title: '', description: '', tag: '', lab: '',
-  status: 'Em Andamento', data_limite: '', link_url: '',
+  status: '', data_limite: '', link_url: '',
   image_url: '', imageFile: null, sections: [],
 };
 
@@ -61,7 +61,7 @@ export default function ProjetosAdmin() {
     setEditingId(p.id);
     setForm({
       title: p.title, description: p.description || '', tag: p.tag || '',
-      lab: p.lab || '', status: p.status || 'Em Andamento',
+      lab: p.lab || '', status: p.status || '',
       data_limite: p.data_limite || '', link_url: p.link_url || '',
       image_url: p.image_url || '', imageFile: null, sections,
     });
@@ -100,10 +100,10 @@ export default function ProjetosAdmin() {
     fd.append('status', form.status);
     fd.append('data_limite', form.data_limite || '');
     fd.append('link_url', form.link_url);
-    fd.append('image_url', form.image_url);
     fd.append('extra_data', JSON.stringify({ sections: form.sections }));
     if (editingId) fd.append('id', editingId);
     if (form.imageFile) fd.append('image', form.imageFile);
+    else if (form.image_url) fd.append('image_url', form.image_url);
 
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
@@ -148,7 +148,7 @@ export default function ProjetosAdmin() {
                     <h4 className="font-bold text-gray-900 group-hover:text-[#007a3d] transition-colors text-base uppercase tracking-tight">{p.title}</h4>
                     <div className="flex items-center gap-3 mt-1">
                       {p.tag && <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{p.tag}</span>}
-                      {p.status && <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${projectStatusColor(p.status)}`}>{p.status}</span>}
+                      {(() => { const es = getEffectiveProjectStatus(p); return es && <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${projectStatusColor(es)}`}>{es}</span>; })()}
                       {p.data_limite && <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Prazo: {new Date(p.data_limite + 'T12:00:00').toLocaleDateString('pt-BR')}</span>}
                     </div>
                   </div>

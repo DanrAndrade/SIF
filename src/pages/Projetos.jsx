@@ -6,6 +6,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, ChevronDown, Clock } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { getEffectiveProjectStatus } from '../utils/helpers';
 
 const HERO_DEFAULTS = {
   hero_image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070',
@@ -23,7 +24,22 @@ const STATUS_DOT = {
   'Concluído':        'bg-emerald-500',
 };
 
-const isAtivo = (status) => status !== 'Concluído';
+// Determina se projeto está ativo: respeita status manual, usa data_limite como fallback
+const isProjetoAtivo = (proj) => {
+  // Se status for "Concluído" explicitamente, sempre concluído
+  if (proj.status === 'Concluído') return false;
+  // Se status for "Em Andamento" explicitamente, sempre em andamento
+  if (proj.status === 'Em Andamento') return true;
+  // Se status for "Automático" ou vazio, usa data_limite
+  if (!proj.status || proj.status === 'Automático (por data)') {
+    if (!proj.data_limite) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(proj.data_limite + 'T12:00:00');
+    return !isNaN(d) && d >= today;
+  }
+  return true;
+};
 
 function formatDate(dateStr) {
   if (!dateStr) return null;
@@ -49,12 +65,15 @@ function ProjetoCard({ proj }) {
           {proj.tag && (
             <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{proj.tag}</span>
           )}
-          {proj.status && (
-            <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500">
-              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[proj.status] || 'bg-gray-400'}`}></span>
-              {proj.status}
-            </span>
-          )}
+          {(() => {
+            const es = getEffectiveProjectStatus(proj);
+            return es ? (
+              <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500">
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[es] || 'bg-gray-400'}`}></span>
+                {es}
+              </span>
+            ) : null;
+          })()}
         </div>
 
         <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-4 leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">
@@ -102,8 +121,9 @@ export default function Projetos() {
       .catch(() => setLoading(false));
   }, []);
 
-  const ativos     = projetos.filter(p => isAtivo(p.status));
-  const concluidos = projetos.filter(p => !isAtivo(p.status));
+  // Separa por data_limite (automático)
+  const ativos     = projetos.filter(isProjetoAtivo);
+  const concluidos = projetos.filter(p => !isProjetoAtivo(p));
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">

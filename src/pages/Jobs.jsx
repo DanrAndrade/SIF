@@ -19,7 +19,7 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Trabalhe',
   hero_title_highlight: 'Conosco',
   hero_subtitle: 'Faça parte de uma instituição que é referência nacional em ciência e tecnologia para o setor florestal.',
-  hero_scroll_label: '',
+  hero_scroll_label: 'Ver Oportunidades',
 };
 
 const CONTENT_DEFAULTS = {
@@ -108,7 +108,7 @@ export default function Jobs() {
       </svg>
 
       <div className="flex flex-col w-full">
-          <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} bgColor="white" />
+          <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" bgColor="white" />
 
           {/* --- MISSÃO, VISÃO E VALORES --- */}
           <div className="py-24 bg-white">

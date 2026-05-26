@@ -14,7 +14,7 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Grupos',
   hero_title_highlight: 'Temáticos',
   hero_subtitle: 'Cooperação técnica especializada em áreas chave para a excelência do setor florestal.',
-  hero_scroll_label: '',
+  hero_scroll_label: 'Ver Grupos',
 };
 
 const iconMap = {
@@ -51,9 +51,9 @@ export default function GruposTematicos() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
-      <EditablePageHero pageKey="gt" defaults={HERO_DEFAULTS} />
+      <EditablePageHero pageKey="gt" defaults={HERO_DEFAULTS} scrollTargetId="gt-content" />
 
-      <main className="flex-grow py-24">
+      <main className="flex-grow py-24" id="gt-content">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="max-w-3xl mb-24">

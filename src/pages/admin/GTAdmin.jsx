@@ -17,7 +17,7 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Grupos',
   hero_title_highlight: 'Temáticos',
   hero_subtitle: 'Cooperação técnica especializada em áreas chave para a excelência do setor florestal.',
-  hero_scroll_label: '',
+  hero_scroll_label: 'Ver Grupos',
 };
 
 const emptyForm = {
@@ -164,7 +164,7 @@ export default function GTAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12">
           <div className="flex justify-between items-center mb-8 pb-6 border-b">
             <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">
               {editingId ? 'Editar Grupo' : 'Novo Grupo Temático'}

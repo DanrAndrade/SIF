@@ -53,6 +53,9 @@ export function useQuillImageHandler(toolbar = DEFAULT_TOOLBAR) {
       container: toolbar,
       handlers: { image: imageHandler },
     },
+    clipboard: {
+      matchVisual: false,
+    },
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [imageHandler]);
 

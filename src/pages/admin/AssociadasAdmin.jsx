@@ -48,6 +48,7 @@ const DEFAULTS = {
   hero_title_line1: 'Empresas',
   hero_title_highlight: 'Associadas',
   hero_subtitle: 'O elo que une a ciência acadêmica às maiores potências da indústria florestal global.',
+  hero_scroll_label: 'Ver Benefícios',
 
   beneficios_title_line1: 'Por que ser uma',
   beneficios_title_highlight: 'Associada SIF?',
@@ -240,7 +241,7 @@ function HeroForm({ cfg, set, onFile, preview }) {
       <ImageField label="Imagem de fundo do Hero" currentUrl={cfg.hero_image} previewUrl={preview} fieldName="hero_image" onFile={onFile} hint="Atualmente: a imagem mostrada acima. Clique para trocar." />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Badge (etiqueta verde acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
-        <div />
+        <Field label="Texto do botão de scroll" value={cfg.hero_scroll_label} onChange={v => set('hero_scroll_label', v)} />
         <Field label="Título — linha 1" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
         <Field label="Título — destaque em verde" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
       </div>

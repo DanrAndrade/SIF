@@ -12,7 +12,7 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Produtos',
   hero_title_highlight: '& Serviços',
   hero_subtitle: 'Soluções tecnológicas integradas para o desenvolvimento sustentável da indústria florestal.',
-  hero_scroll_label: '',
+  hero_scroll_label: 'Explorar Soluções',
 };
 
 // Conteúdo Germinar já é o texto final — pré-semeado aqui para aparecer
@@ -102,9 +102,9 @@ export default function ProdutosServicos() {
     <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
-      <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} />
+      <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} scrollTargetId="produtos-content" />
 
-      <main className="flex-grow py-24">
+      <main className="flex-grow py-24" id="produtos-content">
         <div className="container mx-auto px-6 max-w-7xl">
 
           {/* NAVEGAÇÃO DE ABAS */}

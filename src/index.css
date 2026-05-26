@@ -33,6 +33,8 @@ h2.section-heading { font-family: 'Oswald', sans-serif; }
 
 a { text-decoration: none; color: inherit; transition: 0.2s ease; }
 ul { list-style: none; }
+.prose ul { list-style-type: disc; }
+.prose ol { list-style-type: decimal; }
 img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; border: none; }
 
@@ -158,9 +160,18 @@ html { scrollbar-color: #92b735 #f1f1f1; }
   min-height: 120px;
 }
 
-/* Remove o overflow hidden do container para o padding aparecer */
+/* Container do editor */
 .ql-container {
   overflow-y: auto;
+}
+
+/* Tooltip de link/vídeo — posição fixa para não ser cortado pelo overflow */
+.ql-tooltip {
+  z-index: 9999 !important;
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
 
 /* Garante que os vídeos fiquem centralizados e bonitos */
@@ -174,7 +185,8 @@ iframe.ql-video {
 }
 
 /* Limita tamanho de imagens inseridas dentro do editor Quill */
-.ql-editor img {
+.ql-editor img,
+.ql-snow .ql-editor img {
   max-width: 60% !important;
   max-height: 400px !important;
   height: auto;
@@ -184,66 +196,42 @@ iframe.ql-video {
   object-fit: contain;
 }
 
-/* Limita imagens no conteúdo renderizado do Blog/Treinamentos */
-.prose img,
-.ql-snow .ql-editor img {
-  max-width: 60% !important;
-  max-height: 400px !important;
+/* Imagens no conteúdo renderizado (público) */
+.prose img {
+  max-width: 100% !important;
   height: auto;
   display: block;
   margin: 16px auto;
   border-radius: 8px;
 }
 
-/* --- Restaura estilos de lista para conteúdos ricos (Prose/Quill) --- */
-.prose ul, .ql-editor ul {
+/* Conteúdo público — evita vazamento do card */
+.prose {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.prose iframe {
+  max-width: 100%;
+}
+
+/* --- Estilos do editor Quill (admin) --- */
+.ql-editor ul {
   list-style-type: disc !important;
   padding-left: 1.5rem !important;
-  margin-top: 1em;
-  margin-bottom: 1em;
 }
 
-.prose ol, .ql-editor ol {
+.ql-editor ol {
   list-style-type: decimal !important;
   padding-left: 1.5rem !important;
-  margin-top: 1em;
-  margin-bottom: 1em;
 }
 
-.prose li, .ql-editor li {
+.ql-editor li {
   margin-bottom: 0.5em;
-  list-style-position: outside;
 }
 
-/* --- Restaura tamanhos de títulos (Headings) para conteúdos ricos --- */
-.prose h1, .ql-editor h1 {
-  font-size: 2.25rem !important;
-  font-weight: 800 !important;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.2;
-}
-
-.prose h2, .ql-editor h2 {
-  font-size: 1.875rem !important;
-  font-weight: 700 !important;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.3;
-}
-
-.prose h3, .ql-editor h3 {
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.4;
-}
-
-.prose h4, .ql-editor h4 {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.5;
-}
+.ql-editor h1 { font-size: 2.25rem !important; font-weight: 800 !important; }
+.ql-editor h2 { font-size: 1.875rem !important; font-weight: 700 !important; }
+.ql-editor h3 { font-size: 1.5rem !important; font-weight: 700 !important; }
+.ql-editor h4 { font-size: 1.25rem !important; font-weight: 600 !important; }

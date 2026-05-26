@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ChevronUp, ChevronDown, Trash2, Upload, X, Type, Layers, FileText, Loader2 } from 'lucide-react';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
@@ -92,7 +92,7 @@ function SectionBlock({ section, index, total, onMoveUp, onMoveDown, onRemove, o
   const typeLabel = section.type === 'editor' ? '✏️ Texto' : section.type === 'tabs' ? '📑 Abas' : '📎 PDFs';
 
   return (
-    <div className="border border-gray-200 rounded-3xl overflow-hidden bg-white shadow-sm">
+    <div className="border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="flex flex-col gap-0.5 flex-shrink-0">
@@ -156,12 +156,12 @@ export default function ContentSections({ sections = [], onChange, onUploading }
   const [uploadCount, setUploadCount] = useState(0);
 
   const handleUploadingChange = useCallback((isUploading) => {
-    setUploadCount(c => {
-      const next = isUploading ? c + 1 : Math.max(0, c - 1);
-      onUploading?.(next > 0);
-      return next;
-    });
-  }, [onUploading]);
+    setUploadCount(c => isUploading ? c + 1 : Math.max(0, c - 1));
+  }, []);
+
+  useEffect(() => {
+    onUploading?.(uploadCount > 0);
+  }, [uploadCount, onUploading]);
 
   const addSection = (type) => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

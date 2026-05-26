@@ -315,7 +315,7 @@ function AboutForm({ config, update }) {
         <Input label="Texto botão" value={config.cta_label} onChange={(e) => update({ cta_label: e.target.value })} />
         <Input label="Link botão" value={config.cta_link} onChange={(e) => update({ cta_link: e.target.value })} />
       </div>
-      <Input label="URL do vídeo (embed do YouTube)" value={config.video_url} onChange={(e) => update({ video_url: e.target.value })} hint="Exemplo: https://www.youtube.com/embed/VIDEO_ID" />
+      <Input label="URL do vídeo (YouTube)" value={config.video_url} onChange={(e) => update({ video_url: e.target.value })} hint="Cole qualquer link do YouTube: normal (watch?v=...), curto (youtu.be/...) ou embed" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Input label="Badge — valor (canto)" value={config.badge_value} onChange={(e) => update({ badge_value: e.target.value })} />
         <Input label="Badge — legenda" value={config.badge_label} onChange={(e) => update({ badge_label: e.target.value })} />

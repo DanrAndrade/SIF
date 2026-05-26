@@ -14,7 +14,7 @@ const HERO_DEFAULTS = {
   hero_title_line1: 'Produtos',
   hero_title_highlight: '& Serviços',
   hero_subtitle: 'Soluções tecnológicas integradas para o desenvolvimento sustentável da indústria florestal.',
-  hero_scroll_label: '',
+  hero_scroll_label: 'Explorar Soluções',
 };
 
 const GERMINAR_SECTIONS_DEFAULT = [

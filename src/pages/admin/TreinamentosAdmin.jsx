@@ -136,9 +136,21 @@ export default function TreinamentosAdmin() {
   };
 
   const addSegment = () => {
-    if (newSegment && !segments.includes(newSegment)) {
-      setSegments([...segments, newSegment]);
+    const trimmed = newSegment.trim();
+    if (trimmed && !segments.includes(trimmed)) {
+      setSegments([...segments, trimmed]);
       setNewSegment('');
+    }
+  };
+
+  const removeSegment = (seg) => {
+    const inUse = trainings.some(t => t.segment === seg);
+    if (inUse && !window.confirm(`O segmento "${seg}" está sendo usado em treinamentos existentes. Remover da lista não altera os treinamentos já salvos. Continuar?`)) return;
+    setSegments(prev => prev.filter(s => s !== seg));
+    // Se o segmento removido estiver selecionado no form, troca para o primeiro disponível
+    if (formData.segment === seg) {
+      const remaining = segments.filter(s => s !== seg);
+      setFormData(f => ({ ...f, segment: remaining[0] || '' }));
     }
   };
 
@@ -197,7 +209,7 @@ export default function TreinamentosAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12">
           <div className="flex justify-between items-center mb-8 pb-6 border-b">
             <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">
               {editingId ? 'Editar Treinamento' : 'Novo Treinamento Técnico'}
@@ -231,9 +243,32 @@ export default function TreinamentosAdmin() {
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-xs outline-none border focus:border-[#007a3d]" placeholder="YouTube URL..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
                 </div>
                 <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100/50">
-                  <label className="text-[10px] font-black uppercase text-[#007a3d] tracking-widest block mb-4">Gerenciar Segmentos</label>
+                  <label className="text-[10px] font-black uppercase text-[#007a3d] tracking-widest block mb-3">Gerenciar Segmentos</label>
+                  {/* Chips dos segmentos existentes */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {segments.map(seg => (
+                      <span key={seg} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-emerald-200 text-[10px] font-black uppercase tracking-widest text-[#007a3d] rounded-full">
+                        {seg}
+                        <button
+                          type="button"
+                          onClick={() => removeSegment(seg)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          title={`Remover segmento "${seg}"`}
+                        >
+                          <X size={10} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {/* Adicionar novo segmento */}
                   <div className="flex gap-2">
-                    <input className="flex-1 p-3 bg-white rounded-xl text-xs font-bold outline-none border focus:border-[#007a3d]" placeholder="Novo segmento..." value={newSegment} onChange={e => setNewSegment(e.target.value)} />
+                    <input
+                      className="flex-1 p-3 bg-white rounded-xl text-xs font-bold outline-none border focus:border-[#007a3d]"
+                      placeholder="Novo segmento..."
+                      value={newSegment}
+                      onChange={e => setNewSegment(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSegment())}
+                    />
                     <button type="button" onClick={addSegment} className="p-3 bg-[#007a3d] text-white rounded-xl hover:bg-[#047857] transition-all"><Plus size={20}/></button>
                   </div>
                 </div>

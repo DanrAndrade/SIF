@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Play, MapPin, Calendar, Clock, Eye, EyeOff } from 'lucide-react';
+import { projectStatusColor } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
@@ -19,10 +20,11 @@ import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/eventos.php`;
+const STATUS_OPTIONS = ['Automático (por data)', 'Em Andamento', 'Concluído'];
 
 const emptyForm = {
   title: '', description: '', date: '', event_date: '', time: '', location: '', video_url: '',
-  image_url: '', imageFile: null, sections: [],
+  status: '', image_url: '', imageFile: null, sections: [],
 };
 
 export default function EventosAdmin() {
@@ -73,6 +75,7 @@ export default function EventosAdmin() {
       date: event.date || '', event_date: event.event_date || '',
       time: extra.time || event.time || '',
       location: event.location || '', video_url: event.video_url || '',
+      status: event.status || '',
       image_url: event.image_url || '', imageFile: null, sections,
     });
     setPreview(event.image_url || null);
@@ -114,6 +117,7 @@ export default function EventosAdmin() {
     fd.append('time', formData.time);
     fd.append('location', formData.location);
     fd.append('video_url', formData.video_url);
+    fd.append('status', formData.status);
     fd.append('extra_data', JSON.stringify({ sections: formData.sections, time: formData.time }));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
@@ -182,6 +186,7 @@ export default function EventosAdmin() {
                       <Calendar size={12} className="text-[#007a3d]"/> {event.date || 'Sem data'}
                       {event.time && <><Clock size={12} className="text-[#007a3d]"/> {event.time}</>}
                       <MapPin size={12} className="text-[#007a3d]"/> {event.location || 'Sem local'}
+                      {event.status && <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${projectStatusColor(event.status)}`}>{event.status}</span>}
                     </div>
                   </div>
                 </div>
@@ -204,7 +209,7 @@ export default function EventosAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12">
           <div className="flex justify-between items-center mb-8 pb-6 border-b">
             <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">
               {editingId ? 'Editar Evento' : 'Novo Evento'}
@@ -232,9 +237,17 @@ export default function EventosAdmin() {
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 08h00 – 18h00" value={formData.time} onChange={e => setFormData(f => ({...f, time: e.target.value}))} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><MapPin size={10}/> Localização</label>
-                  <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Viçosa - MG" value={formData.location} onChange={e => setFormData(f => ({...f, location: e.target.value}))} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Status</label>
+                    <select className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.status} onChange={e => setFormData(f => ({...f, status: e.target.value}))}>
+                      {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><MapPin size={10}/> Localização</label>
+                    <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Viçosa - MG" value={formData.location} onChange={e => setFormData(f => ({...f, location: e.target.value}))} />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Play size={10}/> Link do Vídeo (YouTube)</label>

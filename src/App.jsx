@@ -19,6 +19,7 @@ const EventoDetalhe       = lazy(() => import('./pages/EventoDetalhe'));
 const Treinamentos        = lazy(() => import('./pages/Treinamentos'));
 const TreinamentoDetalhe  = lazy(() => import('./pages/TreinamentoDetalhe'));
 const TreinamentosInCompany = lazy(() => import('./pages/TreinamentosInCompany'));
+const TreinamentoInCompanyDetalhe = lazy(() => import('./pages/TreinamentoInCompanyDetalhe'));
 const GruposTematicos     = lazy(() => import('./pages/GruposTematicos'));
 const GrupoTematicoDetalhe = lazy(() => import('./pages/GrupoTematicoDetalhe'));
 const Eincol              = lazy(() => import('./pages/Eincol'));
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="/treinamentos"          element={<Treinamentos />} />
           <Route path="/treinamentos/:slug"    element={<TreinamentoDetalhe />} />
           <Route path="/treinamentos-in-company" element={<TreinamentosInCompany />} />
+          <Route path="/treinamentos-in-company/:slug" element={<TreinamentoInCompanyDetalhe />} />
 
           {/* Grupos Temáticos */}
           <Route path="/grupos-tematicos"      element={<GruposTematicos />} />

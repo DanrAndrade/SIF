@@ -64,6 +64,7 @@ const DEFAULTS = {
   hero_title_line1: 'Empresas',
   hero_title_highlight: 'Associadas',
   hero_subtitle: 'O elo que une a ciência acadêmica às maiores potências da indústria florestal global.',
+  hero_scroll_label: 'Ver Benefícios',
 
   beneficios_title_line1: 'Por que ser uma',
   beneficios_title_highlight: 'Associada SIF?',
@@ -152,11 +153,12 @@ export default function Associadas() {
                       window.scrollTo({top: y, behavior: 'smooth'});
                   }
               }}
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
+              className="group flex items-center gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
           >
               <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
                   <ChevronDown className="animate-bounce" size={20} />
               </div>
+              {cfg.hero_scroll_label || ''}
           </button>
         </div>
       </div>

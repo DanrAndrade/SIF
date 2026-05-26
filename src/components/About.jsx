@@ -3,6 +3,20 @@ import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SectionHeader from './ui/SectionHeader';
 
+// Converte qualquer link do YouTube para embed:
+// watch?v=ID  →  embed/ID
+// youtu.be/ID →  embed/ID
+// já embed/ID →  usa direto
+function toEmbedUrl(url) {
+  if (!url) return '';
+  if (url.includes('/embed/')) return url;
+  const watchMatch = url.match(/[?&]v=([^&]+)/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+  return url;
+}
+
 const DEFAULTS = {
   tag: 'Quem Somos',
   title: 'Referência em <span class="text-[#007a3d]">Pesquisa Florestal</span>',
@@ -50,7 +64,7 @@ export default function About({ config = {} }) {
                     <div className="relative w-full aspect-video rounded-[40px] overflow-hidden border border-gray-100 group shadow-2xl bg-black">
                         <iframe
                             className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
-                            src={c.video_url}
+                            src={toEmbedUrl(c.video_url)}
                             title="Vídeo Institucional SIF"
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

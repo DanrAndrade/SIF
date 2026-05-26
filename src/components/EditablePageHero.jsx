@@ -27,7 +27,7 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
   const heroBgUrl = c.hero_image && !c.hero_image.startsWith('http') ? getImageUrl(c.hero_image) : c.hero_image;
 
   return (
-    <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
+    <div className="relative h-[80vh] flex items-center pt-20 pb-32 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroBgUrl && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
