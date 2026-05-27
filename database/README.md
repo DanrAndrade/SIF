@@ -1,51 +1,95 @@
-# Banco de dados SIF
+# Como rodar o projeto SIF localmente
 
-Dump completo do banco MySQL `sif_db` usado pelo backend PHP em
-`C:\xampp\htdocs\sif-api`.
+Guia para clonar o repositório e rodar o site idêntico ao ambiente
+de desenvolvimento, com todos os conteúdos já cadastrados.
 
-## Restaurar do zero (ambiente novo)
+## 1. Pré-requisitos
 
-1. Instalar XAMPP (ou MySQL/MariaDB standalone).
-2. Subir o serviço MySQL.
-3. Criar o banco vazio:
+- **XAMPP** (Apache + MySQL/MariaDB + PHP 8+) — https://www.apachefriends.org
+- **Node.js 18+** — https://nodejs.org
+- **Git** — https://git-scm.com
 
-   ```sql
-   CREATE DATABASE sif_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
+## 2. Clonar o repositório
 
-   Ou via phpMyAdmin: `http://localhost/phpmyadmin` → Novo banco → `sif_db`.
+```bash
+git clone https://github.com/DanrAndrade/SIF.git
+cd SIF
+```
 
-4. Importar o dump:
+## 3. Configurar o backend PHP
 
-   ```bash
-   # Pelo terminal (Windows, XAMPP padrão)
-   "C:\xampp\mysql\bin\mysql.exe" -u root sif_db < database/sif_db.sql
-   ```
+A pasta `sif-api/` deste repositório deve ficar dentro de `htdocs/` do
+XAMPP:
 
-   Ou via phpMyAdmin: selecione o banco `sif_db` → aba **Importar** →
-   escolha o arquivo `sif_db.sql` → Executar.
+```bash
+# Windows (XAMPP padrão)
+xcopy /E /I sif-api C:\xampp\htdocs\sif-api
+```
 
-## Backend PHP
+Ou simplesmente copie a pasta `sif-api/` para `C:\xampp\htdocs\` pelo
+Explorer.
 
-A pasta `api/` deste repositório (ou os arquivos `.php` que vivem em
-`C:\xampp\htdocs\sif-api`) precisa ser copiada para o `htdocs` do XAMPP do
-seu sócio. As credenciais padrão (root sem senha) já estão configuradas
-em `db.php` — ajustar se necessário.
+Depois suba o **Apache** e o **MySQL** pelo painel do XAMPP.
 
-## Frontend
+## 4. Restaurar o banco de dados
+
+1. Abra http://localhost/phpmyadmin
+2. Clique em **Novo** na lateral → crie o banco `sif_db` com collation
+   `utf8mb4_unicode_ci`
+3. Selecione o banco recém-criado → aba **Importar** → escolha
+   `database/sif_db.sql` → **Executar**
+
+Ou via terminal:
+
+```bash
+"C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE sif_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+"C:\xampp\mysql\bin\mysql.exe" -u root sif_db < database/sif_db.sql
+```
+
+Credenciais padrão (XAMPP): usuário `root`, sem senha. Se for diferente,
+editar `sif-api/db.php`.
+
+## 5. Restaurar os uploads (imagens, PDFs)
+
+Os arquivos cadastrados (imagens de eventos, PDFs do boletim, capas etc.)
+**não estão no Git** porque pesam ~420 MB. Eles são compartilhados em
+separado num arquivo `sif-uploads.zip`.
+
+1. Baixe `sif-uploads.zip` (link enviado pelo dono do projeto)
+2. Extraia o arquivo
+3. Coloque a pasta `uploads/` resultante dentro de
+   `C:\xampp\htdocs\sif-api\` — o caminho final deve ser
+   `C:\xampp\htdocs\sif-api\uploads\` com as subpastas `eincol/`,
+   `eventos/`, `pdfs/`, `images/`, etc.
+
+Sem esses arquivos o site abre, mas as imagens/PDFs vão aparecer
+quebrados.
+
+## 6. Rodar o frontend
 
 ```bash
 npm install
 npm run dev
 ```
 
-A URL da API está em `src/apiConfig.js` (`http://localhost/sif-api`).
+Acesso:
+- Site: http://localhost:5173
+- Admin: http://localhost:5173/admin
+- Backend (Apache): http://localhost/sif-api
 
-## Atualizar o dump
+## Atualizar o dump do banco (manutenção)
 
 Sempre que houver mudanças no schema ou em dados importantes:
 
 ```bash
 "C:\xampp\mysql\bin\mysqldump.exe" -u root --routines --triggers --events \
   --add-drop-table --skip-comments sif_db > database/sif_db.sql
+```
+
+E para atualizar o zip de uploads:
+
+```powershell
+Compress-Archive -Path C:\xampp\htdocs\sif-api\uploads `
+  -DestinationPath C:\Users\<usuario>\Desktop\sif-uploads.zip `
+  -CompressionLevel Optimal -Force
 ```

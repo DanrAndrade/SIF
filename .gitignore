@@ -2,9 +2,8 @@
 sif/node_modules/
 sif/dist/
 
-# Uploads do PHP (Não suba imagens/pdfs de teste)
-sif-api/uploads/images/*
-sif-api/uploads/docs/*
+# Uploads do PHP (compartilhados separadamente via sif-uploads.zip)
+sif-api/uploads/
 
 # Logs e arquivos de sistema
 .DS_Store
