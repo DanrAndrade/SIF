@@ -1,0 +1,9 @@
+# ARQUIVO: chocosul-api/banners/.htaccess
+
+# Libera o acesso para todos (Público)
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+
+# Segurança: Impede que listem os arquivos se acessarem a pasta direto
+Options -Indexes
