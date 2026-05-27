@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
-import { Calendar, MapPin, ArrowRight, Clock } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, Sparkles } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { useEincolActive } from '../hooks/useEincolActive';
 
 const HERO_DEFAULTS = {
   hero_image: 'https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?q=80&w=2070',
@@ -113,6 +114,7 @@ function SectionTitle({ title, accent }) {
 export default function Eventos() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const eincolActive = useEincolActive();
 
   useEffect(() => { fetchEvents(); }, []);
 
@@ -139,8 +141,43 @@ export default function Eventos() {
       <EditablePageHero pageKey="eventos" defaults={HERO_DEFAULTS} scrollTargetId="eventos-content" />
 
       <main id="eventos-content" className="flex-grow">
+
+        {/* ── CARD DESTAQUE EINCOL (some quando desativado no admin) ── */}
+        {eincolActive && (
+          <section className="pt-24 pb-12 bg-[#f8f9fa] scroll-mt-24">
+            <div className="container mx-auto px-6 max-w-4xl">
+              <Link
+                to="/eincol"
+                className="group block relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#0f1f11] via-[#1a3d20] to-[#007a3d] p-10 md:p-14 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+              >
+                <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-56 h-56 bg-[#007a3d]/40 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+                <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
+                  <div className="flex-1 text-center md:text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4">
+                      <Sparkles size={12} className="text-[#7FBA00]" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Evento Especial</span>
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-white tracking-tighter leading-[0.95] mb-3">
+                      EINCOL
+                    </h2>
+                    <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-xl font-medium">
+                      Encontro Internacional de Ciência Florestal — conheça a programação completa, palestrantes e como participar.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white text-[#0f1f11] font-black uppercase tracking-widest text-[10px] shadow-lg group-hover:bg-[#7FBA00] group-hover:text-[#0f1f11] transition-colors flex-shrink-0">
+                    Acessar Página
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </section>
+        )}
+
         {/* ── EVENTOS EM ANDAMENTO / PRÓXIMOS ── */}
-        <section className="py-24 bg-[#f8f9fa] scroll-mt-24">
+        <section className={`${eincolActive ? 'pt-12 pb-24' : 'py-24'} bg-[#f8f9fa] scroll-mt-24`}>
           <div className="container mx-auto px-6 max-w-7xl">
             <SectionTitle title="Eventos em" accent="Andamento" />
 

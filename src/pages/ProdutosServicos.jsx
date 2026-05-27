@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
-import { Sprout, Briefcase, FileText, Microscope } from 'lucide-react';
+import { Sprout, Briefcase, FileText, Microscope, ArrowRight, Download } from 'lucide-react';
 import { usePageConfig } from '../hooks/usePageConfig';
+import { getImageUrl } from '../apiConfig';
 
 const HERO_DEFAULTS = {
   hero_image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070',
@@ -82,6 +84,60 @@ const TABS = [
   { id: 'pd',        name: 'Serviços de P&D',   icon: Microscope },
 ];
 
+function BoletimGrid({ pdfs, legacySections }) {
+  // Se ainda não houver PDFs novos publicados mas existir conteúdo legado
+  // (boletim_sections antigo), mostra o legado pra não perder publicação.
+  if (!pdfs || pdfs.length === 0) {
+    if (Array.isArray(legacySections) && legacySections.length > 0) {
+      return <ContentSectionsRenderer sections={legacySections} />;
+    }
+    return (
+      <p className="text-gray-400 text-sm italic text-center py-12">
+        Nenhum boletim publicado ainda.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {pdfs.map((p, i) => (
+        <a
+          key={p.id || i}
+          href={getImageUrl(p.pdf_url)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
+        >
+          {p.cover_url ? (
+            <div className="h-48 bg-gray-100 overflow-hidden">
+              <img
+                src={getImageUrl(p.cover_url)}
+                alt={p.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="h-48 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+              <FileText size={48} className="text-[#007a3d]/40" />
+            </div>
+          )}
+          <div className="p-6 flex flex-col flex-grow">
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#007a3d] mb-2">Boletim Técnico</span>
+            <h3 className="text-base font-bold font-heading uppercase text-[#1f2937] leading-tight mb-4 group-hover:text-[#007a3d] transition-colors flex-grow">
+              {p.title || 'Boletim sem título'}
+            </h3>
+            <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Abrir PDF</span>
+              <Download size={16} className="text-[#007a3d] group-hover:translate-y-0.5 transition-transform" />
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default function ProdutosServicos() {
   const [activeTab, setActiveTab] = useState('comercial');
   const { config } = usePageConfig('produtos');
@@ -95,6 +151,7 @@ export default function ProdutosServicos() {
       : CONTENT_DEFAULTS.germinar_sections,
     comercial_sections: config.comercial_sections || [],
     boletim_sections:   config.boletim_sections   || [],
+    boletim_pdfs:       Array.isArray(config.boletim_pdfs) ? config.boletim_pdfs : [],
     pd_sections:        config.pd_sections         || [],
   };
 
@@ -104,7 +161,7 @@ export default function ProdutosServicos() {
 
       <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} scrollTargetId="produtos-content" />
 
-      <main className="flex-grow py-24" id="produtos-content">
+      <main className="flex-grow pt-24 pb-12" id="produtos-content">
         <div className="container mx-auto px-6 max-w-7xl">
 
           {/* NAVEGAÇÃO DE ABAS */}
@@ -148,13 +205,49 @@ export default function ProdutosServicos() {
                     </div>
                   )}
 
-                  <ContentSectionsRenderer sections={sections} />
+                  {tab.id === 'boletim' ? (
+                    <BoletimGrid pdfs={cfg.boletim_pdfs} legacySections={cfg.boletim_sections} />
+                  ) : (
+                    <ContentSectionsRenderer sections={sections} />
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
       </main>
+
+      {/* ── CARD GERMINAR: sempre visível no final, leva para Trabalhe Conosco ── */}
+      <section className="pb-24 bg-[#f8f9fa]">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] via-[#1a3d20] to-[#0f1f11] p-10 md:p-16 shadow-xl">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-56 h-56 bg-[#007a3d]/40 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-5">
+                  <Briefcase size={12} className="text-[#7FBA00]" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Oportunidades</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-white tracking-tighter leading-[0.95] mb-4">
+                  Conheça as vagas do <span className="text-[#7FBA00]">Programa Germinar</span>
+                </h2>
+                <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">
+                  Estamos sempre buscando novos talentos. Veja todas as vagas abertas e como se candidatar.
+                </p>
+              </div>
+              <Link
+                to="/trabalhe-conosco"
+                className="flex items-center gap-3 px-7 py-5 rounded-2xl bg-white text-[#0f1f11] font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#7FBA00] hover:text-[#0f1f11] transition-colors flex-shrink-0 group"
+              >
+                Ver Vagas Abertas
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

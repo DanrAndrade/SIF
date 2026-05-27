@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, ChevronRight, User, ChevronDown } from 'lucide-react';
 import logoSif from '../assets/sif.svg';
+import { useEincolActive } from '../hooks/useEincolActive';
 
 export default function Navbar({ scrolled: forceScrolled }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(null);
+  const eincolActive = useEincolActive();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,14 +49,14 @@ export default function Navbar({ scrolled: forceScrolled }) {
       name: 'Produtos e Serviços', 
       href: '/produtos-servicos', 
     },
-    { 
-      name: 'Eventos & Treinamentos', 
-      href: '#', 
+    {
+      name: 'Eventos & Treinamentos',
+      href: '#',
       submenu: [
         { name: 'Eventos', href: '/eventos' },
         { name: 'Treinamentos', href: '/treinamentos' },
         { name: 'Treinamentos In-Company', href: '/treinamentos-in-company' },
-        { name: 'EINCOL', href: '/eincol' },
+        ...(eincolActive ? [{ name: 'EINCOL', href: '/eincol' }] : []),
       ]
     },
     { name: 'Grupos Temáticos', href: '/grupos-tematicos' },

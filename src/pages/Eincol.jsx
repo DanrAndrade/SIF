@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
@@ -26,6 +27,11 @@ export default function Eincol() {
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  // Se EINCOL foi desativado no admin, redireciona para /eventos
+  if (config && Number(config.active) === 0) {
+    return <Navigate to="/eventos" replace />;
   }
 
   const title    = config?.hero_title    || 'EINCOL';

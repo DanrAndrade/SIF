@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -85,6 +85,7 @@ export default function EincolAdmin() {
   const [saved, setSaved] = useState(false);
   const [files, setFiles] = useState({});
   const [form, setForm] = useState({
+    active: 1,
     hero_title: 'EINCOL',
     hero_subtitle: '',
     main_content: '',
@@ -106,6 +107,7 @@ export default function EincolAdmin() {
       const data = await res.json();
       setForm(prev => ({
         ...prev,
+        active: data.active == 0 ? 0 : 1,
         hero_title: data.hero_title || 'EINCOL',
         hero_subtitle: data.hero_subtitle || '',
         main_content: data.main_content || '',
@@ -162,6 +164,26 @@ export default function EincolAdmin() {
     setFiles(prev => ({ ...prev, [key]: file }));
   };
 
+  // Toggle ativar/desativar a página EINCOL inteira.
+  // Salva imediatamente no backend (sem precisar clicar "Salvar Configuração").
+  const handleToggleActive = async () => {
+    const novo = form.active ? 0 : 1;
+    if (form.active && !window.confirm('Desativar a página EINCOL? Ela vai sumir do menu e do card na página de Eventos. Você poderá reativar a qualquer momento.')) return;
+    try {
+      const fd = new FormData();
+      fd.append('active', String(novo));
+      const res = await fetch(API_URL, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        setForm(f => ({ ...f, active: novo }));
+      } else {
+        alert('Erro ao alterar visibilidade.');
+      }
+    } catch {
+      alert('Erro de conexão ao alterar visibilidade.');
+    }
+  };
+
   // Tabs
   const addTab = () => setForm(f => ({ ...f, tabs: [...f.tabs, { _uid: `tab-${Date.now()}-${Math.random()}`, title: 'Nova Aba', content: '' }] }));
   const removeTab = (i) => setForm(f => ({ ...f, tabs: f.tabs.filter((_, idx) => idx !== i) }));
@@ -186,6 +208,7 @@ export default function EincolAdmin() {
     const fd = new FormData();
 
     // Campos de texto
+    fd.append('active', form.active ? '1' : '0');
     fd.append('hero_title', form.hero_title);
     fd.append('hero_subtitle', form.hero_subtitle);
     fd.append('main_content', form.main_content);
@@ -231,11 +254,26 @@ export default function EincolAdmin() {
           <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">Página EINCOL</h2>
           <p className="text-gray-500 text-sm mt-1">Configure todas as seções do evento especial EINCOL</p>
         </div>
-        {saved && (
-          <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-widest">
-            ✓ Salvo com sucesso!
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {saved && (
+            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-widest">
+              ✓ Salvo com sucesso!
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleToggleActive}
+            title={form.active ? 'Página publicada — clique para desativar' : 'Página desativada — clique para reativar'}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-sm border ${
+              form.active
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
+                : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-500 hover:text-white hover:border-gray-500'
+            }`}
+          >
+            {form.active ? <Eye size={14}/> : <EyeOff size={14}/>}
+            {form.active ? 'Publicada' : 'Desativada'}
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2 } from 'lucide-react';
+import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
-import { API_BASE_URL } from '../../apiConfig';
+import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const PAGE_KEY = 'produtos';
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -68,6 +68,7 @@ const CONTENT_DEFAULTS = {
   boletim_title_highlight: 'Técnico SIF',
   boletim_intro: 'Transmissão de conhecimento técnico e atualizações sobre o estado da arte na ciência florestal aplicada.',
   boletim_sections: [],
+  boletim_pdfs: [],
 
   pd_title_line1: 'Pesquisa &',
   pd_title_highlight: 'Desenvolvimento',
@@ -94,6 +95,7 @@ function mergeCfg(defaults, data) {
     germinar_sections: (data.germinar_sections?.length > 0) ? data.germinar_sections : defaults.germinar_sections,
     comercial_sections: data.comercial_sections || [],
     boletim_sections:   data.boletim_sections   || [],
+    boletim_pdfs:       Array.isArray(data.boletim_pdfs) ? data.boletim_pdfs : [],
     pd_sections:        data.pd_sections         || [],
   };
 }
@@ -197,7 +199,7 @@ export default function ProdutosAdmin() {
         />
       )}
 
-      {CONTENT_IDS.includes(activeTab) && (
+      {CONTENT_IDS.includes(activeTab) && activeTab !== 'boletim' && (
         <SectionEditor
           prefix={activeTab}
           config={config}
@@ -205,6 +207,232 @@ export default function ProdutosAdmin() {
           onUploading={setUploading}
         />
       )}
+
+      {activeTab === 'boletim' && (
+        <BoletimEditor
+          config={config}
+          set={set}
+          onUploading={setUploading}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Editor exclusivo da aba Boletim: título/intro + lista de PDFs com capa ──
+function BoletimEditor({ config, set, onUploading }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field
+          label="Título — parte 1"
+          value={config.boletim_title_line1 || ''}
+          onChange={v => set('boletim_title_line1', v)}
+        />
+        <Field
+          label="Título — destaque em verde"
+          value={config.boletim_title_highlight || ''}
+          onChange={v => set('boletim_title_highlight', v)}
+        />
+      </div>
+      <Field
+        label="Parágrafo de introdução (caixa verde)"
+        type="textarea"
+        rows={3}
+        value={config.boletim_intro || ''}
+        onChange={v => set('boletim_intro', v)}
+      />
+      <BoletimPdfManager
+        pdfs={config.boletim_pdfs || []}
+        onChange={list => set('boletim_pdfs', list)}
+        onUploading={onUploading}
+      />
+    </div>
+  );
+}
+
+// ─── Gerenciador de PDFs do Boletim: título + arquivo PDF + capa opcional ──
+function BoletimPdfManager({ pdfs, onChange, onUploading }) {
+  const [uploadCount, setUploadCount] = useState(0);
+  useEffect(() => { onUploading?.(uploadCount > 0); }, [uploadCount, onUploading]);
+
+  const setUploadState = (delta) => setUploadCount(c => Math.max(0, c + delta));
+
+  const addEntry = () => {
+    onChange([...(pdfs || []), { id: `bol-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, title: '', pdf_url: '', cover_url: '' }]);
+  };
+  const removeEntry = (i) => onChange(pdfs.filter((_, idx) => idx !== i));
+  const updateEntry = (i, patch) => {
+    const next = [...pdfs]; next[i] = { ...next[i], ...patch }; onChange(next);
+  };
+  const move = (i, dir) => {
+    const j = i + dir; if (j < 0 || j >= pdfs.length) return;
+    const next = [...pdfs]; [next[i], next[j]] = [next[j], next[i]]; onChange(next);
+  };
+
+  const uploadPdf = async (file) => {
+    setUploadState(+1);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await fetch(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Erro no upload do PDF.');
+      return data.url;
+    } finally { setUploadState(-1); }
+  };
+
+  const uploadImage = async (file) => {
+    setUploadState(+1);
+    try {
+      const fd = new FormData(); fd.append('image', file);
+      const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Erro no upload da imagem.');
+      return data.url;
+    } finally { setUploadState(-1); }
+  };
+
+  return (
+    <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm space-y-4">
+      <div className="flex justify-between items-center border-b pb-4">
+        <div>
+          <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">Boletins Publicados (PDFs)</h3>
+          <p className="text-xs text-gray-400 mt-1">Cada boletim precisa de título e arquivo PDF. A imagem de capa é opcional.</p>
+        </div>
+        <button type="button" onClick={addEntry}
+          className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
+          <Plus size={14}/> Novo Boletim
+        </button>
+      </div>
+
+      {pdfs.length === 0 && (
+        <p className="text-gray-400 text-sm italic text-center py-8">
+          Nenhum boletim adicionado. Clique em "Novo Boletim" para publicar o primeiro.
+        </p>
+      )}
+
+      <div className="space-y-4">
+        {pdfs.map((item, i) => (
+          <BoletimEntryRow
+            key={item.id || i}
+            item={item}
+            index={i}
+            total={pdfs.length}
+            onMoveUp={() => move(i, -1)}
+            onMoveDown={() => move(i, +1)}
+            onRemove={() => removeEntry(i)}
+            onUpdate={patch => updateEntry(i, patch)}
+            uploadPdf={uploadPdf}
+            uploadImage={uploadImage}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, onUpdate, uploadPdf, uploadImage }) {
+  const [busy, setBusy] = useState(false);
+
+  const handlePdfFile = async (file) => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const url = await uploadPdf(file);
+      onUpdate({ pdf_url: url, ...(item.title ? {} : { title: file.name.replace(/\.pdf$/i, '') }) });
+    } catch (e) { alert(e.message); }
+    finally { setBusy(false); }
+  };
+
+  const handleCoverFile = async (file) => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const url = await uploadImage(file);
+      onUpdate({ cover_url: url });
+    } catch (e) { alert(e.message); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-0.5">
+            <button type="button" onClick={onMoveUp} disabled={index === 0}
+              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
+              <ChevronUp size={14}/>
+            </button>
+            <button type="button" onClick={onMoveDown} disabled={index === total - 1}
+              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
+              <ChevronDown size={14}/>
+            </button>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Boletim {index + 1}</span>
+        </div>
+        <button type="button" onClick={onRemove}
+          className="p-2 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+          <Trash2 size={14}/>
+        </button>
+      </div>
+
+      <div className="p-5 grid grid-cols-1 md:grid-cols-[200px_1fr] gap-5">
+        {/* CAPA OPCIONAL */}
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Capa (opcional)</label>
+          <label className="relative h-44 bg-gray-50 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:border-[#007a3d] hover:bg-gray-100 transition-all block">
+            {item.cover_url ? (
+              <>
+                <img src={getImageUrl(item.cover_url)} alt="capa" className="w-full h-full object-cover"/>
+                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onUpdate({ cover_url: '' }); }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md">
+                  <X size={12}/>
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-gray-300">
+                <ImageIcon size={28}/>
+                <span className="text-[9px] font-black uppercase tracking-widest">Adicionar capa</span>
+              </div>
+            )}
+            <input type="file" accept="image/*" className="hidden" disabled={busy}
+              onChange={e => { if (e.target.files[0]) { handleCoverFile(e.target.files[0]); e.target.value = ''; } }}/>
+          </label>
+        </div>
+
+        {/* TÍTULO + ARQUIVO PDF */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Título *</label>
+            <input
+              className="w-full p-3 bg-gray-50 rounded-xl text-sm font-medium outline-none border focus:border-[#007a3d]"
+              placeholder="Ex: Boletim Técnico nº 12 - Manejo Florestal"
+              value={item.title || ''}
+              onChange={e => onUpdate({ title: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Arquivo PDF *</label>
+            {item.pdf_url ? (
+              <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                <FileText size={18} className="text-[#007a3d]"/>
+                <span className="text-xs font-bold text-emerald-700 truncate flex-1">{item.pdf_url.split('/').pop()}</span>
+                <button type="button" onClick={() => onUpdate({ pdf_url: '' })}
+                  className="text-red-400 hover:text-red-600"><X size={14}/></button>
+              </div>
+            ) : (
+              <label className={`flex items-center gap-2 p-3 rounded-xl border-2 border-dashed transition-colors ${busy ? 'border-gray-200 cursor-not-allowed opacity-50' : 'border-gray-200 cursor-pointer hover:border-[#007a3d]'}`}>
+                <Upload size={16} className="text-gray-400"/>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  {busy ? 'Enviando...' : 'Selecionar PDF'}
+                </span>
+                <input type="file" accept=".pdf,application/pdf" className="hidden" disabled={busy}
+                  onChange={e => { if (e.target.files[0]) { handlePdfFile(e.target.files[0]); e.target.value = ''; } }}/>
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
