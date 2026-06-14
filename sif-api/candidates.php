@@ -31,8 +31,18 @@ elseif ($method === 'POST') {
 
         $cvFilename = null;
         if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'uploads/';
+            // Currículos ficam em uploads/cvs/ — pasta protegida por .htaccess
+            // (acesso direto via web é bloqueado; só o download.php autenticado lê).
+            $uploadDir = 'uploads/cvs/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+            // Garante a proteção da pasta (bloqueia acesso direto via navegador)
+            $htaccessPath = $uploadDir . '.htaccess';
+            if (!file_exists($htaccessPath)) {
+                @file_put_contents($htaccessPath,
+                    "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n" .
+                    "<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n"
+                );
+            }
             $ext = pathinfo($_FILES['cv']['name'], PATHINFO_EXTENSION);
             $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
             $newFilename = time() . "_" . $cleanName . "." . $ext;

@@ -9,8 +9,14 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 // 2. SEGURANÇA: Limpa o nome do arquivo para evitar invasão (Path Traversal)
 // O basename impede que alguém tente baixar "../db.php"
-$file = basename($_GET['file']); 
-$filepath = 'uploads/' . $file;
+$file = basename($_GET['file']);
+
+// Currículos novos ficam em uploads/cvs/ (protegida). Fallback para uploads/
+// raiz cobre currículos antigos cadastrados antes da mudança.
+$filepath = 'uploads/cvs/' . $file;
+if (!file_exists($filepath)) {
+    $filepath = 'uploads/' . $file;
+}
 
 // 3. Verifica se o arquivo existe e entrega
 if (file_exists($filepath)) {

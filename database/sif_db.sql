@@ -23,7 +23,7 @@ CREATE TABLE `admins` (
 
 LOCK TABLES `admins` WRITE;
 /*!40000 ALTER TABLE `admins` DISABLE KEYS */;
-INSERT INTO `admins` VALUES (1,'admin@sif.com','$2y$10$Loyao9.tDUlYMSuqOY9qu.Px4o2AepKOhX0AqdxkpbzhHndgf6z6a');
+INSERT INTO `admins` VALUES (1,'admin@sif.org.br','$2y$10$GvxOFwRgYQQNxHOHxu1aZ.v/XhksJ48DRFivdQY6xzdDtAX8i/SB2');
 /*!40000 ALTER TABLE `admins` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `associadas`;

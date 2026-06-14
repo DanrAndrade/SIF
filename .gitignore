@@ -16,3 +16,6 @@ node_modules
 
 # Pastas locais nao versionadas
 fruto/
+
+# Pacote de deploy (gerado localmente, contem dump e guia com senha em texto)
+deploy-hostgator/

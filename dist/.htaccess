@@ -1,0 +1,39 @@
+# =====================================================================
+#  Roteamento SPA (React Router) — site SIF em subpasta de homologação
+#  Local no servidor: public_html/sif-novo-h7k2x9/
+# ---------------------------------------------------------------------
+#  Quando o site for movido para a RAIZ do domínio, troque o RewriteBase
+#  abaixo para:  RewriteBase /
+# =====================================================================
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /sif-novo-h7k2x9/
+
+  # Não reescreve arquivos ou pastas que existem de verdade
+  # (assets JS/CSS, imagens, a pasta sif-api, etc.)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Nunca reescreve chamadas para a API PHP
+  RewriteRule ^sif-api/ - [L]
+
+  # Qualquer outra rota cai no index.html (o React Router resolve)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Compressão (melhora performance / SEO)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# Cache de assets estáticos (hashes no nome garantem atualização)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+</IfModule>
