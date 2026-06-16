@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
 import { getImageUrl } from '../apiConfig';
@@ -54,7 +55,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
   const sectionTitle = config.section_title || 'Nossos Serviços';
 
   return (
-    <section ref={sectionRef} className="relative w-full py-16 md:py-20 overflow-hidden bg-[#f8f9fa] z-20">
+    <section ref={sectionRef} className="relative w-full py-16 md:py-0 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-[#f8f9fa] z-20">
         <div className="absolute inset-0 z-0 opacity-40 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
         
         <div className="container mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
@@ -78,10 +79,15 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
                             <h3 className="text-3xl md:text-3xl font-bold section-heading uppercase leading-none mb-3 md:mb-4">{item.title}</h3>
                             <p className="text-xs md:text-[11px] text-gray-600 leading-relaxed font-medium line-clamp-4 md:line-clamp-none">{item.desc}</p>
                         </div>
-                        {/* Como é um link interno agora, o ideal seria usar o componente Link do react-router, mas o <a> funciona se a rota estiver configurada */}
-                        <a href={item.link} className="w-12 h-12 rounded-full flex items-center justify-center self-end border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">
-                            <ArrowUpRight size={20} />
-                        </a>
+                        {item.link && item.link.startsWith('http') ? (
+                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full flex items-center justify-center self-end border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">
+                                <ArrowUpRight size={20} />
+                            </a>
+                        ) : (
+                            <Link to={item.link || '#'} className="w-12 h-12 rounded-full flex items-center justify-center self-end border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">
+                                <ArrowUpRight size={20} />
+                            </Link>
+                        )}
                     </div>
                 </div>
             ))}

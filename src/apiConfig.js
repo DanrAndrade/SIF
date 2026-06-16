@@ -1,9 +1,12 @@
 // URL do backend PHP.
 //   - Desenvolvimento (vite dev): aponta para o XAMPP local.
-//   - Produção (vite build): aponta para a subpasta no HostGator.
-// O Vite troca automaticamente via import.meta.env.PROD.
+//   - Produção (vite build): caminho RELATIVO derivado do base do Vite
+//     (ex.: '/sif-novo-h7k2x9/sif-api'). Como o site e a API ficam no
+//     mesmo domínio (same-origin), o caminho relativo funciona — e ao
+//     mover o site para a raiz basta trocar o `base` do Vite: navegação,
+//     assets E API se ajustam sozinhos, sem mexer aqui.
 export const API_BASE_URL = import.meta.env.PROD
-  ? 'https://sif.org.br/sif-novo-h7k2x9/sif-api'
+  ? `${import.meta.env.BASE_URL}sif-api`
   : 'http://localhost/sif-api';
 
 // Pastas servidas estaticamente pelo Vite (/public/...) — NÃO concatenar com API_BASE_URL.
