@@ -23,7 +23,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('chocosul_user');
     localStorage.removeItem('admin_user');
     localStorage.removeItem('admin_mode');
-    window.location.href = '/admin';
+    // BASE_URL respeita a subpasta em produção ('/sif-novo-h7k2x9/') e '/' em dev
+    window.location.href = import.meta.env.BASE_URL + 'admin';
   };
 
   return (

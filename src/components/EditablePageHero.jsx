@@ -27,7 +27,7 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
   const heroBgUrl = c.hero_image && !c.hero_image.startsWith('http') ? getImageUrl(c.hero_image) : c.hero_image;
 
   return (
-    <div className="relative h-[80vh] flex items-center pt-20 pb-32 overflow-hidden">
+    <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroBgUrl && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
@@ -41,12 +41,12 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{c.hero_badge}</span>
           </div>
         )}
-        <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
+        <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.95] md:leading-[0.9] tracking-tighter mb-6 md:mb-8">
           {c.hero_title_line1} <br/>
           <span className="text-[#007a3d]">{c.hero_title_highlight}</span>
         </h1>
         {c.hero_subtitle && (
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">{c.hero_subtitle}</p>
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-8 md:mb-12">{c.hero_subtitle}</p>
         )}
         {scrollTargetId && (
           <button

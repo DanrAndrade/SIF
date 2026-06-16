@@ -118,10 +118,12 @@ export default function TreinamentoDetalhe() {
                   <Layers className="text-[#007a3d]" size={20} />
                   <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.segment || 'Capacitação Técnica'}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="text-[#007a3d]" size={20} />
-                  <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.hours || '8h'} - Carga Horária</span>
-                </div>
+                {training.hours && (
+                  <div className="flex items-center gap-3">
+                    <Clock className="text-[#007a3d]" size={20} />
+                    <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.hours} - Carga Horária</span>
+                  </div>
+                )}
               </div>
               
               {sections ? (

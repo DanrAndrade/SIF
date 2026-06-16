@@ -37,7 +37,8 @@ export default function AdminLogin() {
         if (data.success) {
             localStorage.setItem('admin_user', JSON.stringify(data.user));
             localStorage.setItem('admin_mode', 'true');
-            window.location.href = '/admin/dashboard';
+            // BASE_URL respeita a subpasta ('/sif-novo-h7k2x9/') em produção e '/' em dev
+            window.location.href = import.meta.env.BASE_URL + 'admin/dashboard';
         } else {
             setError(data.message || "Acesso não autorizado.");
         }
@@ -74,10 +75,10 @@ export default function AdminLogin() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Input 
-                        label="Usuário Corporativo" 
-                        icon={User} 
-                        placeholder="admin@sif.com" 
+                    <Input
+                        label="Usuário Corporativo"
+                        icon={User}
+                        placeholder="Usuário"
                         name="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}

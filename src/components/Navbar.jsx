@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, Phone, ChevronRight, User, ChevronDown } from 'lucide-react';
 import logoSif from '../assets/sif.svg';
 import { useEincolActive } from '../hooks/useEincolActive';
@@ -103,38 +104,56 @@ export default function Navbar({ scrolled: forceScrolled }) {
       <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${headerBg}`}>
         <div className="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center gap-16">
             
-            <a href="/" className="flex items-center gap-2 cursor-pointer z-20">
+            <Link to="/" className="flex items-center gap-2 cursor-pointer z-20">
                 <img src={logoSif} alt="SIF" className="h-10 w-auto object-contain" />
-            </a>
+            </Link>
 
             <nav className="hidden lg:flex items-center gap-10">
-                {navLinks.map((link) => (
+                {navLinks.map((link) => {
+                    const parentClasses = `flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${commonTextColor} ${hoverColor}`;
+                    const hasRoute = link.href && link.href !== '#';
+                    return (
                     <div key={link.name} className="relative group py-2">
-                        <a 
-                            href={link.href} 
-                            className={`flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${commonTextColor} ${hoverColor}`}
-                        >
-                            {link.name}
-                            {link.submenu && <ChevronDown size={12} className="opacity-50 group-hover:rotate-180 transition-transform" />}
-                        </a>
-                        
+                        {hasRoute ? (
+                            <Link to={link.href} className={parentClasses}>
+                                {link.name}
+                                {link.submenu && <ChevronDown size={12} className="opacity-50 group-hover:rotate-180 transition-transform" />}
+                            </Link>
+                        ) : (
+                            <span className={`${parentClasses} cursor-default`}>
+                                {link.name}
+                                {link.submenu && <ChevronDown size={12} className="opacity-50 group-hover:rotate-180 transition-transform" />}
+                            </span>
+                        )}
+
                         {link.submenu && (
                             <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 border border-gray-100 overflow-hidden">
                                 {link.submenu.map((sub) => (
-                                    <a 
-                                        key={sub.name} 
-                                        href={sub.href}
-                                        target={sub.external ? "_blank" : "_self"}
-                                        rel={sub.external ? "noopener noreferrer" : ""}
-                                        className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
-                                    >
-                                        {sub.name}
-                                    </a>
+                                    sub.external ? (
+                                        <a
+                                            key={sub.name}
+                                            href={sub.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
+                                        >
+                                            {sub.name}
+                                        </a>
+                                    ) : (
+                                        <Link
+                                            key={sub.name}
+                                            to={sub.href}
+                                            className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
+                                        >
+                                            {sub.name}
+                                        </Link>
+                                    )
                                 ))}
                             </div>
                         )}
                     </div>
-                ))}
+                    );
+                })}
             </nav>
 
             <div className="hidden lg:block z-20 relative group py-2">
@@ -193,24 +212,35 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                 </button>
                                 <div className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-lg ${mobileExpanded === link.name ? 'max-h-80 opacity-100 my-2' : 'max-h-0 opacity-0'}`}>
                                     {link.submenu.map((sub) => (
-                                        <a 
-                                            key={sub.name} 
-                                            href={sub.href} 
-                                            target={sub.external ? "_blank" : "_self"}
-                                            rel={sub.external ? "noopener noreferrer" : ""}
-                                            onClick={closeMenu} 
-                                            className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
-                                        >
-                                            {sub.name}
-                                        </a>
+                                        sub.external ? (
+                                            <a
+                                                key={sub.name}
+                                                href={sub.href}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={closeMenu}
+                                                className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
+                                            >
+                                                {sub.name}
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                key={sub.name}
+                                                to={sub.href}
+                                                onClick={closeMenu}
+                                                className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
+                                            >
+                                                {sub.name}
+                                            </Link>
+                                        )
                                     ))}
                                 </div>
                             </>
                         ) : (
-                            <a href={link.href} onClick={closeMenu} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm group transition-colors">
+                            <Link to={link.href} onClick={closeMenu} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm group transition-colors">
                                 {link.name}
                                 <ChevronRight size={16} className="text-gray-300 group-hover:text-[#007a3d]" />
-                            </a>
+                            </Link>
                         )}
                     </div>
                 ))}

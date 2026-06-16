@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Instagram, Linkedin, Facebook, Youtube } from 'lucide-react';
 // Importando o logo
 import logoSif from '../assets/sif.svg';
@@ -25,13 +26,13 @@ export default function Footer() {
             <div className="md:col-span-5 space-y-6">
               <div className="flex items-center gap-2">
                 {/* LOGO NO FOOTER */}
-                <a href="/">
-                    <img 
-                        src={logoSif} 
-                        alt="SIF - Sociedade de Investigações Florestais" 
-                        className="h-12 w-auto object-contain" 
+                <Link to="/">
+                    <img
+                        src={logoSif}
+                        alt="SIF - Sociedade de Investigações Florestais"
+                        className="h-12 w-auto object-contain"
                     />
-                </a>
+                </Link>
               </div>
               <p className="text-gray-400 leading-relaxed max-w-sm">
                 Há 50 anos promovendo o desenvolvimento científico e tecnológico do setor florestal brasileiro, a SIF atua como um elo estratégico entre a universidade e as principais empresas do setor.
@@ -120,13 +121,13 @@ function SocialLink({ href, icon }) {
 function FooterLink({ to, text }) {
   return (
     <li>
-      <a 
-        href={to} 
+      <Link
+        to={to}
         // Hover Vermelho -> Verde SIF
         className="text-gray-400 hover:text-[#007a3d] transition-colors inline-block hover:translate-x-1 duration-200"
       >
         {text}
-      </a>
+      </Link>
     </li>
   );
 }
