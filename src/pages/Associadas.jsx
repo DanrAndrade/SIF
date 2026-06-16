@@ -88,6 +88,8 @@ const DEFAULTS = {
 export default function Associadas() {
   const [partners, setPartners] = useState(fallbackPartners);
   const [cfg, setCfg] = useState(DEFAULTS);
+  // Hero só renderiza conteúdo/imagem após o banco responder (evita flash de exemplo)
+  const [heroReady, setHeroReady] = useState(false);
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
@@ -113,7 +115,8 @@ export default function Associadas() {
           }));
         }
       })
-      .catch(() => { /* mantém DEFAULTS */ });
+      .catch(() => { /* mantém DEFAULTS */ })
+      .finally(() => setHeroReady(true));
   }, []);
 
   const heroBgUrl = cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image) : cfg.hero_image;
@@ -123,14 +126,14 @@ export default function Associadas() {
       <Navbar />
 
       {/* HERO */}
-      <div className="relative h-[80vh] flex items-center pt-20 overflow-hidden">
+      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>
+          <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
           <NoiseOverlay opacity={0.4} />
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
-        <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{cfg.hero_badge}</span>
@@ -206,6 +209,8 @@ export default function Associadas() {
                     <img
                       src={partner.src}
                       alt={partner.name}
+                      loading="lazy"
+                      decoding="async"
                       className="max-h-full max-w-[80%] object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (

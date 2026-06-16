@@ -9,21 +9,30 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 // defaults -> { hero_image, hero_badge, hero_title_line1, hero_title_highlight, hero_subtitle, hero_scroll_label }
 // scrollTargetId -> id do elemento abaixo para o botão de scroll
 export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bgColor = '#f8f9fa' }) {
-  const [cfg, setCfg] = useState(defaults || {});
+  const [cfg, setCfg] = useState(null);   // null = ainda buscando no banco
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!pageKey) return;
+    if (!pageKey) { setReady(true); return; }
+    let alive = true;
     axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`)
       .then(res => {
+        if (!alive) return;
         const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
-        if (Object.keys(data).length > 0) {
-          setCfg(prev => ({ ...prev, ...data }));
-        }
+        setCfg(data);
       })
-      .catch(() => {});
+      .catch(() => { if (alive) setCfg({}); })
+      .finally(() => { if (alive) setReady(true); });
+    return () => { alive = false; };
   }, [pageKey]);
 
-  const c = { ...defaults, ...cfg };
+  // Enquanto o conteúdo real não chega, mostra um placeholder neutro —
+  // nunca o conteúdo de exemplo (evita o "flash" de texto/imagem provisória).
+  if (!ready) {
+    return <div className="relative min-h-[85vh] bg-[#0f1f11] overflow-hidden" />;
+  }
+
+  const c = { ...defaults, ...(cfg || {}) };
   const heroBgUrl = c.hero_image && !c.hero_image.startsWith('http') ? getImageUrl(c.hero_image) : c.hero_image;
 
   return (

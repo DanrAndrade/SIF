@@ -70,7 +70,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
             {categories.map((item) => (
                 <div key={item.id} className="min-w-[85vw] sm:min-w-[60vw] md:min-w-[550px] h-[450px] md:h-[400px] shrink-0 snap-center relative flex items-center group">
                     <div className="w-full md:w-[75%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-[32px] overflow-hidden shadow-lg">
-                        <img src={item.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />
+                        <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
                     </div>
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 md:translate-x-0 md:static w-[92%] md:w-[50%] h-[220px] md:h-[280px] bg-white p-6 md:p-8 rounded-[24px] shadow-2xl z-10 md:ml-8 border border-gray-100 flex flex-col justify-between">

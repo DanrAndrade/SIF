@@ -95,6 +95,8 @@ export default function Partners() {
                           <img
                               src={partner.src}
                               alt={partner.name}
+                              loading="lazy"
+                              decoding="async"
                               className="max-h-16 max-w-full object-contain mix-blend-multiply"
                           />
                         ) : (
