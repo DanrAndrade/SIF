@@ -8,7 +8,7 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { useEincolActive } from '../hooks/useEincolActive';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Networking & Negócios',
   hero_title_line1: 'Nossos',
   hero_title_highlight: 'Eventos',

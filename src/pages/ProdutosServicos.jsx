@@ -9,7 +9,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 import { getImageUrl } from '../apiConfig';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Inovação & Mercado',
   hero_title_line1: 'Produtos',
   hero_title_highlight: '& Serviços',

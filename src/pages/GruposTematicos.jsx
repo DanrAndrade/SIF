@@ -9,7 +9,7 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import Button from '../components/ui/Button';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Clusters de Pesquisa',
   hero_title_line1: 'Grupos',
   hero_title_highlight: 'Temáticos',

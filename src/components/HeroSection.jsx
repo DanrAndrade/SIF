@@ -5,8 +5,6 @@ import NoiseOverlay from './ui/NoiseOverlay';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
 
-const DEFAULT_BG = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop";
-
 export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}, bgImage }) {
   const scrollToExplore = () => window.scrollTo({top: 800, behavior: 'smooth'});
 
@@ -19,7 +17,8 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const cta2Label   = config.cta2_label  || 'Nossos Projetos';
   const cta2Link    = config.cta2_link   || '/projetos';
   const scrollLabel = config.scroll_label|| 'Conheça';
-  const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : DEFAULT_BG;
+  // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
+  const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : '';
 
   return (
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
@@ -32,7 +31,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
         <div ref={bgRef} className="absolute top-16 left-0 right-0 h-full bg-transparent rounded-bl-[40px] md:rounded-bl-[80px] z-0 will-change-transform"></div>
 
         <section className="relative z-10 min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
-            style={{ backgroundImage: `url('${resolvedBg}')` }}>
+            style={resolvedBg ? { backgroundImage: `url('${resolvedBg}')` } : undefined}>
             
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
             {/* Gradiente lateral escuro (preto/cinza escuro) */}

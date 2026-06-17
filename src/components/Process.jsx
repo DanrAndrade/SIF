@@ -8,10 +8,10 @@ import { getImageUrl } from '../apiConfig';
 const ICON_MAP = { Newspaper, BookOpen, TreePine, ScrollText, Tent, Award, FlaskConical, FileText, Calendar, Users };
 
 const DEFAULT_STEPS = [
-  { id: "01", title: "Blog e Notícias", icon_type: "Newspaper", img: "https://images.unsplash.com/photo-1624269305548-1527ef905ff6", shortDesc: "Fique por dentro das novidades.", fullDesc: "Acompanhe as últimas notícias, eventos e inovações do setor florestal brasileiro.", benefits: "Novidades, Artigos, Eventos", link: "/blog", external: false },
-  { id: "02", title: "Treinamentos", icon_type: "BookOpen", img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2015", shortDesc: "Qualificação profissional.", fullDesc: "Consulte nossa agenda completa de treinamentos e cursos especializados para o setor.", benefits: "Cursos, Certificados, Expertise", link: "/treinamentos", external: false },
-  { id: "03", title: "Nossos Projetos", icon_type: "TreePine", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=2070", shortDesc: "Inovação em P&D+I.", fullDesc: "Conheça os projetos de pesquisa e desenvolvimento que estamos realizando no campo.", benefits: "P&D+I, Tecnologia, Campo", link: "/projetos", external: false },
-  { id: "04", title: "Transparência", icon_type: "ScrollText", img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071", shortDesc: "Ética e Integridade.", fullDesc: "Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.", benefits: "Ética, Compliance, Governança", link: "https://sif.conveniar.com.br/portaltransparencia/", external: true },
+  { id: "01", title: "Blog e Notícias", icon_type: "Newspaper", img: "", shortDesc: "Fique por dentro das novidades.", fullDesc: "Acompanhe as últimas notícias, eventos e inovações do setor florestal brasileiro.", benefits: "Novidades, Artigos, Eventos", link: "/blog", external: false },
+  { id: "02", title: "Treinamentos", icon_type: "BookOpen", img: "", shortDesc: "Qualificação profissional.", fullDesc: "Consulte nossa agenda completa de treinamentos e cursos especializados para o setor.", benefits: "Cursos, Certificados, Expertise", link: "/treinamentos", external: false },
+  { id: "03", title: "Nossos Projetos", icon_type: "TreePine", img: "", shortDesc: "Inovação em P&D+I.", fullDesc: "Conheça os projetos de pesquisa e desenvolvimento que estamos realizando no campo.", benefits: "P&D+I, Tecnologia, Campo", link: "/projetos", external: false },
+  { id: "04", title: "Transparência", icon_type: "ScrollText", img: "", shortDesc: "Ética e Integridade.", fullDesc: "Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.", benefits: "Ética, Compliance, Governança", link: "https://sif.conveniar.com.br/portaltransparencia/", external: true },
 ];
 
 export default function Process({ config = {} }) {
@@ -92,7 +92,7 @@ export default function Process({ config = {} }) {
                         >
                             <div className="relative w-full h-full bg-[#0a0f16] rounded-[30px] overflow-hidden">
                                 <div className="absolute inset-0 z-0">
-                                    <img src={step.img} alt={step.title} className="w-full h-full object-cover brightness-[0.45]" />
+                                    {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.45]" />}
                                     <NoiseOverlay opacity={0.3} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                                 </div>
@@ -146,9 +146,9 @@ export default function Process({ config = {} }) {
 
                             return (
                             <LinkComponent key={index} {...linkProps} className="min-w-[85vw] snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d] rounded-[32px]">
-                                <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px]">
+                                <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px] bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
-                                        <img src={step.img} alt={step.title} className="w-full h-full object-cover brightness-[0.4]" />
+                                        {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}
                                         <NoiseOverlay opacity={0.3} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
                                     </div>

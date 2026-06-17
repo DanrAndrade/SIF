@@ -9,7 +9,7 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 const API_URL = `${API_BASE_URL}/blog.php`;
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2071',
+  hero_image: '',
   hero_badge: 'SIF Media Center',
   hero_title_line1: 'Blog e',
   hero_title_highlight: 'Notícias',

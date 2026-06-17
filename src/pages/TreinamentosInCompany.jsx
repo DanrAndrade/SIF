@@ -7,7 +7,7 @@ import { ArrowRight, BookOpen, Clock, Play } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Bespoke Solutions',
   hero_title_line1: 'Treinamentos',
   hero_title_highlight: 'In-Company',
@@ -90,7 +90,7 @@ export default function TreinamentosInCompany() {
                       alt={training.title}
                       className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                       loading="lazy"
-                      onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070'}
+                      decoding="async"
                     />
                     {training.segment && (
                       <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest text-[#007a3d] shadow-md">{training.segment}</div>

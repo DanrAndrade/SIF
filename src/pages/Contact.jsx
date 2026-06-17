@@ -8,7 +8,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1557426272-fc759fbb7a8d?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Conecte-se Conosco',
   hero_title_line1: 'Fale com',
   hero_title_highlight: 'Nossa Equipe',

@@ -59,7 +59,7 @@ const fallbackPartners = [
 
 // Conteúdo padrão (espelho do que está hoje na página) — fallback se admin não editou.
 const DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069',
+  hero_image: '',
   hero_badge: 'Parceria Estratégica',
   hero_title_line1: 'Empresas',
   hero_title_highlight: 'Associadas',
@@ -126,7 +126,7 @@ export default function Associadas() {
       <Navbar />
 
       {/* HERO */}
-      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden">
+      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>

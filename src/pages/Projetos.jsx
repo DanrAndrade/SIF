@@ -9,7 +9,7 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { getEffectiveProjectStatus } from '../utils/helpers';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'P&D+I Estratégico',
   hero_title_line1: 'Nossos',
   hero_title_highlight: 'Projetos',

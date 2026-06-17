@@ -15,13 +15,13 @@ import { API_BASE_URL, getImageUrl } from '../apiConfig';
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
 const DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2071',
+  hero_image: '',
   hero_badge: 'A SIF & Sua História',
   hero_title_line1: 'Nossa',
   hero_title_highlight: 'História',
   hero_subtitle: 'Mais do que uma entidade, somos o catalisador da inovação florestal no Brasil e no mundo.',
 
-  quem_somos_image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2013&auto=format&fit=crop',
+  quem_somos_image: '',
   quem_somos_title_line1: 'Nossa',
   quem_somos_title_highlight: 'História',
   quem_somos_text1: 'A Sociedade de Investigações Florestais (SIF) nasceu em 1974 da percepção estratégica de que o futuro do setor florestal brasileiro dependia de uma conexão indissociável entre a academia e a indústria. Naquele período, o crescimento da silvicultura exigia respostas que apenas a pesquisa científica aplicada poderia fornecer. Através de uma parceria pioneira com a Universidade Federal de Viçosa (UFV), a SIF foi estabelecida para ser o braço executor dessa transformação, convertendo o capital intelectual universitário em produtividade e sustentabilidade para as empresas.',
@@ -478,7 +478,7 @@ export default function Institucional() {
     <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
-      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden">
+      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image)}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>

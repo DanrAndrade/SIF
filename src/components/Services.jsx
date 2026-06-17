@@ -5,10 +5,10 @@ import SectionHeader from './ui/SectionHeader';
 import { getImageUrl } from '../apiConfig';
 
 const DEFAULT_CARDS = [
-  { id: "01", tag: "Comercial", title: "Comercial", desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", link: "/comercial", image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop" },
-  { id: "02", tag: "Germinar", title: "Programa Germinar", desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", link: "/trabalhe-conosco", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" },
-  { id: "03", tag: "Informativo", title: "Boletim Técnico", desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", link: "/blog", image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop" },
-  { id: "04", tag: "Pesquisa", title: "Serviços de P&D", desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", link: "/projetos", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2670&auto=format&fit=crop" }
+  { id: "01", tag: "Comercial", title: "Comercial", desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", link: "/comercial", image: "" },
+  { id: "02", tag: "Germinar", title: "Programa Germinar", desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", link: "/trabalhe-conosco", image: "" },
+  { id: "03", tag: "Informativo", title: "Boletim Técnico", desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", link: "/blog", image: "" },
+  { id: "04", tag: "Pesquisa", title: "Serviços de P&D", desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", link: "/projetos", image: "" }
 ];
 
 export default function Services({ sectionRef, trackRef, config = {} }) {
@@ -69,8 +69,8 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
         <div ref={trackRef} className="flex gap-4 md:gap-8 pb-4 relative z-10 pl-6 md:pl-12 lg:pl-[max(48px,calc((100vw-1280px)/2+48px))] pr-6 md:pr-24 w-full md:w-max overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar">
             {categories.map((item) => (
                 <div key={item.id} className="min-w-[85vw] sm:min-w-[60vw] md:min-w-[550px] h-[450px] md:h-[400px] shrink-0 snap-center relative flex items-center group">
-                    <div className="w-full md:w-[75%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-[32px] overflow-hidden shadow-lg">
-                        <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />
+                    <div className="w-full md:w-[75%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-[32px] overflow-hidden shadow-lg bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
+                        {item.image && <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />}
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
                     </div>
                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 md:translate-x-0 md:static w-[92%] md:w-[50%] h-[220px] md:h-[280px] bg-white p-6 md:p-8 rounded-[24px] shadow-2xl z-10 md:ml-8 border border-gray-100 flex flex-col justify-between">

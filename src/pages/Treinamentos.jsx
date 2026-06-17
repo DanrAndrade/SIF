@@ -9,7 +9,7 @@ import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070',
+  hero_image: '',
   hero_badge: 'Educação Executiva & Técnica',
   hero_title_line1: 'Nossos',
   hero_title_highlight: 'Treinamentos',
@@ -100,7 +100,7 @@ export default function Treinamentos() {
                         alt={training.title}
                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         loading="lazy"
-                        onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1599403816733-149d682054ea?q=80&w=2670'}
+                        decoding="async"
                       />
                       <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest text-[#007a3d] shadow-md">{training.segment}</div>
                       {training.video_url && (

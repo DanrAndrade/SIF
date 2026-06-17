@@ -14,7 +14,7 @@ import iconLogo from '../assets/icone.svg';
 import { API_BASE_URL } from '../apiConfig';
 
 const HERO_DEFAULTS = {
-  hero_image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071',
+  hero_image: '',
   hero_badge: 'Carreiras & Talentos SIF',
   hero_title_line1: 'Trabalhe',
   hero_title_highlight: 'Conosco',

@@ -33,10 +33,13 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
   }
 
   const c = { ...defaults, ...(cfg || {}) };
-  const heroBgUrl = c.hero_image && !c.hero_image.startsWith('http') ? getImageUrl(c.hero_image) : c.hero_image;
+  // A imagem vem SOMENTE do banco (imagem enviada pelo admin). Nunca usa
+  // imagem de exemplo dos defaults — se o banco não tiver, fica o fundo escuro.
+  const bancoImg = cfg && cfg.hero_image ? cfg.hero_image : '';
+  const heroBgUrl = bancoImg ? (bancoImg.startsWith('http') ? bancoImg : getImageUrl(bancoImg)) : '';
 
   return (
-    <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden">
+    <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
       <div className="absolute inset-0 z-0">
         {heroBgUrl && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>

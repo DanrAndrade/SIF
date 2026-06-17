@@ -60,12 +60,13 @@ export default function TreinamentoInCompanyDetalhe() {
       {/* HERO */}
       <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
-          <img
+          {training.image_url && <img
             src={getImageUrl(training.image_url)}
             className="w-full h-full object-cover opacity-50"
             alt={training.title}
-            onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070'}
-          />
+            loading="lazy"
+            decoding="async"
+          />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/20 to-transparent"></div>
           <NoiseOverlay opacity={0.3} />
         </div>
