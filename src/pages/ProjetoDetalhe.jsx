@@ -126,7 +126,7 @@ export default function ProjetoDetalhe() {
 
       {/* CONTENT SECTION */}
       <main className="flex-grow container mx-auto px-6 py-16 max-w-4xl relative z-20 -mt-10">
-        <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 p-8 md:p-16">
+        <div className="bg-white rounded-[28px] md:rounded-[40px] shadow-sm border border-gray-100 p-5 md:p-16">
           {projeto.image_url && (
             <div className="w-full h-[300px] md:h-[400px] rounded-3xl overflow-hidden mb-12 shadow-sm">
               <img src={getImageUrl(projeto.image_url)} alt={projeto.title} className="w-full h-full object-cover" />

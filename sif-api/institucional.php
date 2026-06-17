@@ -19,6 +19,10 @@ function uploadInstitucionalFile($file, string $subdir, bool $compress = true): 
 
     if (!move_uploaded_file($file['tmp_name'], $target)) return null;
 
+    // Converte para WebP; se não der, mantém o original comprimido.
+    $webp = $compress ? convertToWebp($target) : null;
+    if ($webp) return $webp;
+
     if ($compress && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
         compressImage($target);
     }

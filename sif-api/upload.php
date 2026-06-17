@@ -74,11 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $target = $dir . $safeName;
 
         if (move_uploaded_file($file['tmp_name'], $target)) {
-            compressImage($target);
-            // FIX: Return the path that will work with getImageUrl
-            $webPath = str_replace('\\', '/', $target);
-            
-            // IMPORTANTE: Retorna apenas o caminho relativo (uploads/editor/arquivo.jpg)
+            // Converte para WebP (mais leve). Se não der, mantém o original comprimido.
+            $webp = convertToWebp($target);
+            if ($webp) {
+                $webPath = $webp;
+            } else {
+                compressImage($target);
+                $webPath = str_replace('\\', '/', $target);
+            }
+
+            // IMPORTANTE: Retorna apenas o caminho relativo (uploads/editor/arquivo.webp)
             // O frontend vai adicionar a URL base usando getImageUrl()
             echo json_encode(["success" => true, "url" => $webPath]);
         } else {

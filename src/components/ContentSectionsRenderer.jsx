@@ -40,7 +40,7 @@ function TabsSection({ section, activeTabs, setActiveTab }) {
         ))}
       </div>
       {tabs[activeIdx] && (
-        <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100">
+        <div className="bg-gray-50 rounded-[24px] p-5 md:p-8 border border-gray-100">
           <h4 className="text-base font-bold uppercase tracking-tight text-[#007a3d] mb-6">
             {tabs[activeIdx].title}
           </h4>

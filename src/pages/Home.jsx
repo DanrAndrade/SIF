@@ -148,7 +148,7 @@ export default function Home() {
           <Partners />
 
           {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
-      <div className="py-24 px-6 bg-white">
+      <div className="py-14 px-3 md:py-24 md:px-6 bg-white">
         <div className="container mx-auto">
             <Process config={config.process} />
         </div>

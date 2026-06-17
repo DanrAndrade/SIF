@@ -1,5 +1,6 @@
 <?php
 require 'db.php';
+require_once 'image_utils.php';
 
 // Garante que o PHP devolva JSON limpo e UTF-8
 header('Content-Type: application/json; charset=utf-8');
@@ -49,8 +50,9 @@ elseif ($method === 'POST') {
         $destination = $uploadDir . $newFilename;
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $destination)) {
-            // Salva no banco o caminho relativo: "banners/banner_xyz.jpg"
-            $imagePath = $destination; 
+            // Converte para WebP (mais leve); se não der, mantém o original.
+            $webp = convertToWebp($destination);
+            $imagePath = $webp ?: $destination;
         } else {
             http_response_code(500);
             echo json_encode(['error' => 'Erro ao salvar arquivo na pasta banners.']);

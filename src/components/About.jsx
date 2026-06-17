@@ -35,7 +35,7 @@ export default function About({ config = {} }) {
 
   return (
       <div className="container mx-auto mt-12">
-        <section className="w-full py-24 px-6 md:px-16 lg:px-24 mt-4 relative bg-white rounded-[60px] shadow-sm border border-gray-50 overflow-hidden">
+        <section className="w-full py-14 px-5 md:py-24 md:px-16 lg:px-24 mt-4 relative bg-white rounded-[32px] md:rounded-[60px] shadow-sm border border-gray-50 overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full blur-[120px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
 
             <SectionHeader

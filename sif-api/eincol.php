@@ -1,5 +1,6 @@
 <?php
 require_once 'db.php';
+require_once 'image_utils.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 function uploadEincolFile($file, $subdir) {
@@ -10,7 +11,8 @@ function uploadEincolFile($file, $subdir) {
     $name = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
     $target = $dir . $name;
     if (move_uploaded_file($file['tmp_name'], $target)) {
-        return str_replace('\\', '/', $target);
+        $webp = convertToWebp($target);
+        return $webp ?: str_replace('\\', '/', $target);
     }
     return null;
 }

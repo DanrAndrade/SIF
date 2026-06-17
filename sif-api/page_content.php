@@ -27,9 +27,11 @@ function uploadFile($file, string $module, string $subdir, bool $compress = true
 
     if (!move_uploaded_file($file['tmp_name'], $target)) return null;
 
-    // Comprime apenas imagens
-    if ($compress && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
-        compressImage($target);
+    // Converte imagens para WebP; PDFs e o que não converter, mantém.
+    if ($compress) {
+        $webp = convertToWebp($target);
+        if ($webp) return $webp;
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) compressImage($target);
     }
 
     return str_replace('\\', '/', $target);

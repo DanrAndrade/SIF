@@ -90,7 +90,7 @@ export default function TreinamentoInCompanyDetalhe() {
       <section className="py-24 relative -mt-32 z-20">
         <div className="container mx-auto px-6">
           <div className="flex flex-col gap-12">
-            <div className="w-full bg-white rounded-[40px] p-8 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
+            <div className="w-full bg-white rounded-[28px] md:rounded-[40px] p-5 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
               <h3 className="text-3xl font-bold text-gray-900 mb-12 uppercase tracking-tighter flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]">
                   <Award size={20} />

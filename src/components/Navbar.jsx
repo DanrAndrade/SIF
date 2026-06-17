@@ -34,8 +34,9 @@ export default function Navbar({ scrolled: forceScrolled }) {
   const navLinks = [
     { 
       name: 'Institucional', 
-      href: '/institucional', 
+      href: '/institucional',
       submenu: [
+        { name: 'Visão Geral', href: '/institucional' },
         { name: 'Quem Somos / História', href: '/institucional#quem-somos' },
         { name: 'Nossa Gente', href: '/institucional#nossa-gente' },
         { name: 'Estatuto e Normas', href: '/institucional#estatutos-normas' },

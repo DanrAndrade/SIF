@@ -19,7 +19,9 @@ function uploadAssociadaLogo($file): ?string {
 
     if (!move_uploaded_file($file['tmp_name'], $target)) return null;
 
-    // Comprime se for imagem raster
+    // Converte logo para WebP; se não der, comprime o original.
+    $webp = convertToWebp($target, 400, 85);
+    if ($webp) return $webp;
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
         compressImage($target, 400, 90); // logos pequenos, alta qualidade
     }

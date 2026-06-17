@@ -1,5 +1,6 @@
 <?php
 require_once 'db.php';
+require_once 'image_utils.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -41,7 +42,8 @@ if ($method == 'POST') {
         $name = time() . '_' . basename($file['name']);
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
-            return str_replace('\\', '/', $target);
+            $webp = convertToWebp($target);
+            return $webp ?: str_replace('\\', '/', $target);
         }
         return null;
     }

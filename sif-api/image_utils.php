@@ -53,3 +53,67 @@ function compressImage(string $filePath, int $maxWidth = 1920, int $quality = 82
     imagedestroy($dst);
     return $result;
 }
+
+/**
+ * Converte uma imagem para WebP (qualidade ~80, largura máx. 1920px),
+ * salvando como .webp e apagando o original. Retorna o NOVO caminho (.webp)
+ * em caso de sucesso, ou NULL se não puder converter (mantém o original).
+ *
+ * Tolerante a falha: se GD/imagewebp não existir, ou o formato não for
+ * convertível (SVG/AVIF/HEIC), retorna NULL e o chamador mantém o original.
+ */
+function convertToWebp(string $filePath, int $maxWidth = 1920, int $quality = 80): ?string {
+    if (!extension_loaded('gd') || !function_exists('imagewebp')) return null;
+
+    $info = @getimagesize($filePath);
+    if (!$info) return null;
+
+    $mime  = $info['mime'];
+    $origW = $info[0];
+    $origH = $info[1];
+
+    switch ($mime) {
+        case 'image/jpeg': $src = @imagecreatefromjpeg($filePath); break;
+        case 'image/png':  $src = @imagecreatefrompng($filePath);  break;
+        case 'image/gif':  $src = @imagecreatefromgif($filePath);  break;
+        case 'image/webp': return str_replace('\\', '/', $filePath); // já é webp
+        case 'image/bmp':
+        case 'image/x-ms-bmp':
+            if (!function_exists('imagecreatefrombmp')) return null;
+            $src = @imagecreatefrombmp($filePath);
+            break;
+        default: return null; // svg/avif/heic/tiff: não converte
+    }
+    if (!$src) return null;
+
+    if ($origW > $maxWidth) {
+        $newW = $maxWidth;
+        $newH = (int) round($origH * ($maxWidth / $origW));
+    } else {
+        $newW = $origW;
+        $newH = $origH;
+    }
+
+    $dst = imagecreatetruecolor($newW, $newH);
+    if (!$dst) { imagedestroy($src); return null; }
+
+    // Preserva transparência (PNG/GIF)
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+    imagedestroy($src);
+
+    $webpPath = preg_replace('/\.[^.\/\\\\]+$/', '', $filePath) . '.webp';
+    $ok = @imagewebp($dst, $webpPath, $quality);
+    imagedestroy($dst);
+
+    if (!$ok) return null;
+
+    // Remove o original se o nome mudou (ex.: .jpg -> .webp)
+    $webpPath = str_replace('\\', '/', $webpPath);
+    $origNorm = str_replace('\\', '/', $filePath);
+    if ($webpPath !== $origNorm && is_file($filePath)) @unlink($filePath);
+
+    return $webpPath;
+}

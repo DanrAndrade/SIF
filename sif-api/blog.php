@@ -1,5 +1,6 @@
 <?php
 require_once 'db.php';
+require_once 'image_utils.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 // --- BUSCAR POSTS ---
@@ -79,10 +80,10 @@ if ($method === 'POST') {
         $target = $dir . $safeName;
         
         if (move_uploaded_file($file['tmp_name'], $target)) {
-            // FIX: Return path in consistent format
-            return str_replace('\\', '/', $target);
+            $webp = convertToWebp($target);
+            return $webp ?: str_replace('\\', '/', $target);
         }
-        
+
         return ["error" => "Erro ao fazer upload do arquivo."];
     }
 
