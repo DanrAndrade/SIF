@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ChevronDown } from 'lucide-react';
 import NoiseOverlay from './ui/NoiseOverlay';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { getImageUrl } from '../apiConfig';
+import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
 // Hero reutilizável editável via /admin/<page>.
 // pageKey -> chave em page_content.php (eventos, treinamentos, gt, projetos, blog)
 // defaults -> { hero_image, hero_badge, hero_title_line1, hero_title_highlight, hero_subtitle, hero_scroll_label }
 // scrollTargetId -> id do elemento abaixo para o botão de scroll
 export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bgColor = '#f8f9fa' }) {
-  const [cfg, setCfg] = useState(null);   // null = ainda buscando no banco
-  const [ready, setReady] = useState(false);
+  // Boot (HTML) ou cache local -> renderiza na hora, com a imagem real (já pré-carregada).
+  const initial = readBootOrCache(pageKey);
+  const [cfg, setCfg] = useState(initial);
+  const [ready, setReady] = useState(!!initial || !pageKey);
 
   useEffect(() => {
     if (!pageKey) { setReady(true); return; }
     let alive = true;
-    axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`)
-      .then(res => {
-        if (!alive) return;
-        const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
-        setCfg(data);
-      })
-      .catch(() => { if (alive) setCfg({}); })
+    fetchPageContent(pageKey)
+      .then(data => { if (!alive) return; setCfg(data); writeCache(pageKey, data); })
+      .catch(() => { if (alive && !cfg) setCfg({}); })
       .finally(() => { if (alive) setReady(true); });
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageKey]);
 
   // Enquanto o conteúdo real não chega, mostra um placeholder neutro —

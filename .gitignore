@@ -19,3 +19,6 @@ fruto/
 
 # Pacote de deploy (gerado localmente, contem dump e guia com senha em texto)
 deploy-hostgator/
+
+# Cache de boot gerado em runtime pelo page_content.php
+sif-api/cache/

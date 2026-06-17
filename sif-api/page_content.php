@@ -35,6 +35,21 @@ function uploadFile($file, string $module, string $subdir, bool $compress = true
     return str_replace('\\', '/', $target);
 }
 
+/**
+ * Grava o conteúdo da página num arquivo de cache que o index.php lê para
+ * injetar window.__BOOT__ no HTML inicial (1ª visita rápida, sem tocar o banco).
+ * Best-effort: qualquer erro é ignorado (o site funciona sem o cache).
+ */
+function writeBootCache(string $page, array $data): void {
+    try {
+        $dir = __DIR__ . '/cache';
+        if (!is_dir($dir)) @mkdir($dir, 0755, true);
+        $safe = preg_replace('/[^a-z0-9_]/i', '', $page);
+        if ($safe === '') return;
+        @file_put_contents($dir . '/boot_' . $safe . '.json', json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    } catch (\Throwable $e) { /* cache é opcional */ }
+}
+
 // ─────────────────────────────────────────────────────────
 // GET: Retorna config de uma página
 // GET /page_content.php?page=home
@@ -57,7 +72,21 @@ if ($method === 'GET') {
         $data = [];
     }
 
-    echo json_encode($data);
+    // Mantém o cache de boot atualizado (usado pelo index.php na 1ª visita)
+    writeBootCache($page, $data);
+
+    // ETag: permite que o navegador receba 304 (sem corpo) quando nada mudou,
+    // e o conteúdo novo assim que o admin editar. Conteúdo público — sem login.
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE);
+    $etag = '"' . md5($json) . '"';
+    header('Cache-Control: no-cache, must-revalidate'); // sobrescreve o no-store do db.php
+    header('ETag: ' . $etag);
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) === $etag) {
+        http_response_code(304);
+        exit;
+    }
+
+    echo $json;
     exit;
 }
 
@@ -136,6 +165,9 @@ if ($method === 'POST') {
         ON DUPLICATE KEY UPDATE config_json = VALUES(config_json)
     ");
     $stmt->execute([$page, $json]);
+
+    // Regenera o cache de boot com o conteúdo recém-salvo
+    writeBootCache($page, $current);
 
     echo json_encode(['success' => true, 'data' => $current]);
     exit;

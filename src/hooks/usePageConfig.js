@@ -1,25 +1,26 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../apiConfig';
+import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
-// Lê config JSON de uma página via page_content.php.
-// Retorna sempre um objeto (nunca null) para o consumidor não precisar checar.
-// Se backend offline, retorna {} silenciosamente — componentes caem nos fallbacks.
+// Lê config JSON de uma página com estratégia stale-while-revalidate:
+//   - Mostra imediatamente o que veio do boot (HTML) ou do cache local.
+//   - Revalida em segundo plano via API e atualiza o cache.
+// Se backend offline e sem cache, retorna {} — componentes caem nos fallbacks.
 export function usePageConfig(pageKey) {
-  const [config, setConfig] = useState({});
-  const [loading, setLoading] = useState(true);
+  const initial = readBootOrCache(pageKey);
+  const [config, setConfig] = useState(initial || {});
+  const [loading, setLoading] = useState(!initial);
   const [error, setError] = useState(null);
 
   const fetchConfig = useCallback(async () => {
     if (!pageKey) return;
-    setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`);
-      setConfig(res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {});
+      const data = await fetchPageContent(pageKey);
+      setConfig(data);
+      writeCache(pageKey, data);
       setError(null);
     } catch (err) {
       setError(err);
-      setConfig({});
+      // mantém o que já tinha (boot/cache) — não zera
     } finally {
       setLoading(false);
     }

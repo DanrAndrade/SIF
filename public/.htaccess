@@ -5,6 +5,11 @@
 #  Quando o site for movido para a RAIZ do domínio, troque o RewriteBase
 #  abaixo para:  RewriteBase /
 # =====================================================================
+
+# index.php tem prioridade: ele injeta os dados da página (window.__BOOT__)
+# e cai para o index.html automaticamente se algo falhar.
+DirectoryIndex index.php index.html
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /sif-novo-h7k2x9/
@@ -18,8 +23,9 @@
   # Nunca reescreve chamadas para a API PHP
   RewriteRule ^sif-api/ - [L]
 
-  # Qualquer outra rota cai no index.html (o React Router resolve)
-  RewriteRule ^ index.html [L]
+  # Qualquer outra rota cai no index.php (que injeta o boot e serve o SPA).
+  # Se o PHP estiver indisponível, troque "index.php" por "index.html".
+  RewriteRule ^ index.php [L]
 </IfModule>
 
 # Compressão (melhora performance / SEO)
