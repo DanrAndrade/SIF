@@ -35,9 +35,38 @@ export function showToast(message, type) {
   }, 3000);
 }
 
+// Limite padrão de upload de imagem (MB) — usado pela validação manual e
+// pelo guard global.
+export const MAX_IMAGE_MB = 20;
+
+// Instala um interceptador global: QUALQUER <input type="file" accept="image*">
+// do site passa por aqui. Se a imagem exceder o limite, bloqueia o envio,
+// limpa o campo e avisa por toast — sem precisar alterar cada formulário.
+export function installImageSizeGuard(maxMB = MAX_IMAGE_MB) {
+  if (typeof document === 'undefined' || window.__imgGuard) return;
+  window.__imgGuard = true;
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el || el.tagName !== 'INPUT' || el.type !== 'file') return;
+    const accept = (el.accept || '').toLowerCase();
+    if (!accept.includes('image')) return; // só imagens (PDF etc. passam)
+    const f = el.files && el.files[0];
+    if (f && f.size > maxMB * 1024 * 1024) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      el.value = '';
+      showToast(
+        `Imagem muito grande (${(f.size / 1048576).toFixed(1)} MB). Máximo ${maxMB} MB — `
+        + `comprima ou reduza a imagem antes de enviar.`,
+        'error'
+      );
+    }
+  }, true); // fase de captura: roda antes dos handlers do React
+}
+
 // Valida o tamanho de uma imagem antes do upload. Avisa via toast e retorna
 // false se exceder o limite (evita o upload falhar "calado" no servidor).
-export function validateImageSize(file, maxMB = 12) {
+export function validateImageSize(file, maxMB = MAX_IMAGE_MB) {
   if (!file) return false;
   if (file.size > maxMB * 1024 * 1024) {
     showToast(
@@ -53,4 +82,5 @@ export function validateImageSize(file, maxMB = 12) {
 if (typeof window !== 'undefined') {
   window.showToast = showToast;
   window.validateImageSize = validateImageSize;
+  installImageSizeGuard();
 }

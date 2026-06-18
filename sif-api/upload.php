@@ -46,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit;
         }
         
-        // Validate file size (5MB max for editor images)
-        if ($file['size'] > 5 * 1024 * 1024) {
+        // Validate file size (20MB max for editor images)
+        if ($file['size'] > 20 * 1024 * 1024) {
             http_response_code(400);
             echo json_encode([
-                "success" => false, 
-                "message" => "Arquivo muito grande. Tamanho máximo: 5MB."
+                "success" => false,
+                "message" => "Arquivo muito grande. Tamanho máximo: 20MB."
             ]);
             exit;
         }
