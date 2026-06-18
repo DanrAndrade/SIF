@@ -141,7 +141,7 @@ export default function AdminHome() {
 
   const handleFile = (fieldName, file) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setError('Imagem muito pesada (máx 5MB).'); return; }
+    if (file.size > 10 * 1024 * 1024) { setError('Imagem muito pesada (máx 10MB).'); return; }
     setPendingFiles((p) => ({ ...p, [fieldName]: file }));
     setPendingPreviews((p) => ({ ...p, [fieldName]: URL.createObjectURL(file) }));
     setError('');

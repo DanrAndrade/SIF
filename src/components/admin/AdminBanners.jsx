@@ -46,8 +46,8 @@ export default function AdminBanners() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) { 
-        setError('Imagem muito pesada! Máximo 2MB.');
+    if (file.size > 10 * 1024 * 1024) { 
+        setError('Imagem muito pesada! Máximo 10MB.');
         return;
     }
     

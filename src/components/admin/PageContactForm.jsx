@@ -47,7 +47,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
   const handlePhoto = (e) => {
     const f = e.target.files[0];
     if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { setError('Imagem muito pesada (máx 5MB).'); return; }
+    if (f.size > 10 * 1024 * 1024) { setError('Imagem muito pesada (máx 10MB).'); return; }
     setPhotoFile(f);
     setPhotoPreview(URL.createObjectURL(f));
     setError('');
