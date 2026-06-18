@@ -25,10 +25,10 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
       if (data.success) {
         onChange([...pdfs, { url: data.url, title: file.name.replace(/\.pdf$/i, '') }]);
       } else {
-        alert('Erro ao enviar PDF: ' + (data.message || 'Erro desconhecido'));
+        window.showToast('Erro ao enviar PDF: ' + (data.message || 'Erro desconhecido'));
       }
     } catch (err) {
-      alert('Erro ao enviar PDF: ' + err.message);
+      window.showToast('Erro ao enviar PDF: ' + err.message);
     } finally {
       setUploadState(false);
     }

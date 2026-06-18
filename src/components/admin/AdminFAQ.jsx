@@ -112,7 +112,7 @@ export default function AdminFAQ({ pageKey = 'home' }) {
       if (editingId === toDelete.id) resetForm();
       setToDelete(null);
     } catch {
-      alert('Erro ao excluir.');
+      window.showToast('Erro ao excluir.');
     }
   };
 

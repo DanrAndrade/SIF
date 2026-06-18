@@ -90,7 +90,7 @@ export default function TreinamentosAdmin() {
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchTrainings();
-    } catch { alert('Erro ao excluir treinamento.'); }
+    } catch { window.showToast('Erro ao excluir treinamento.'); }
   };
 
   const handleToggleActive = async (training) => {
@@ -101,7 +101,7 @@ export default function TreinamentosAdmin() {
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
       fetchTrainings();
-    } catch { alert('Erro ao alterar visibilidade.'); }
+    } catch { window.showToast('Erro ao alterar visibilidade.'); }
   };
 
   const handleSubmit = async (e) => {
@@ -124,8 +124,8 @@ export default function TreinamentosAdmin() {
       const res = await fetch(API_URL, { method: 'POST', body: fd });
       const result = await res.json();
       if (result.status === 'success') { resetForm(); fetchTrainings(); }
-      else alert('Erro: ' + result.message);
-    } catch { alert('Erro ao salvar treinamento.'); }
+      else window.showToast('Erro: ' + result.message);
+    } catch { window.showToast('Erro ao salvar treinamento.'); }
     finally { setLoading(false); }
   };
 

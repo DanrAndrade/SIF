@@ -70,7 +70,7 @@ export default function GTAdmin() {
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchGts();
-    } catch { alert('Erro ao excluir GT.'); }
+    } catch { window.showToast('Erro ao excluir GT.'); }
   };
 
   const handleToggleActive = async (gt) => {
@@ -81,7 +81,7 @@ export default function GTAdmin() {
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
       fetchGts();
-    } catch { alert('Erro ao alterar visibilidade.'); }
+    } catch { window.showToast('Erro ao alterar visibilidade.'); }
   };
 
   const handleSubmit = async (e) => {
@@ -103,7 +103,7 @@ export default function GTAdmin() {
     try {
       const res = await fetch(API_URL, { method: 'POST', body: fd });
       if (res.ok) { resetForm(); fetchGts(); }
-    } catch { alert('Erro ao salvar Grupo Temático.'); }
+    } catch { window.showToast('Erro ao salvar Grupo Temático.'); }
     finally { setLoading(false); }
   };
 

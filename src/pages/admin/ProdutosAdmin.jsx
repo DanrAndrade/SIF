@@ -120,7 +120,7 @@ export default function ProdutosAdmin() {
   const set = (k, v) => setConfig(p => ({ ...p, [k]: v }));
 
   const handleSave = async () => {
-    if (uploading) { alert('Aguarde o upload de arquivo terminar antes de salvar.'); return; }
+    if (uploading) { window.showToast('Aguarde o upload de arquivo terminar antes de salvar.'); return; }
     setSaving(true);
     setError('');
     try {
@@ -340,7 +340,7 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     try {
       const url = await uploadPdf(file);
       onUpdate({ pdf_url: url, ...(item.title ? {} : { title: file.name.replace(/\.pdf$/i, '') }) });
-    } catch (e) { alert(e.message); }
+    } catch (e) { window.showToast(e.message); }
     finally { setBusy(false); }
   };
 
@@ -350,7 +350,7 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     try {
       const url = await uploadImage(file);
       onUpdate({ cover_url: url });
-    } catch (e) { alert(e.message); }
+    } catch (e) { window.showToast(e.message); }
     finally { setBusy(false); }
   };
 

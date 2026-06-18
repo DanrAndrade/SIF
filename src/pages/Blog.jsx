@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
@@ -83,9 +84,9 @@ export default function Blog() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {posts.map(post => (
-              <a 
-                key={post.id} 
-                href={`/blog/${post.slug}`} 
+              <Link
+                key={post.id}
+                to={`/blog/${post.slug}`}
                 className="group bg-white rounded-[32px] overflow-hidden shadow-xl border border-gray-100 transition-all hover:-translate-y-2"
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
@@ -116,7 +117,7 @@ export default function Blog() {
                     <ArrowRight size={18} className="text-[#007a3d] group-hover:translate-x-2 transition-transform" />
                   </div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         )}

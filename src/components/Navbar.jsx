@@ -36,7 +36,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
       name: 'Institucional', 
       href: '/institucional',
       submenu: [
-        { name: 'Visão Geral', href: '/institucional' },
+        { name: 'Visão Geral', href: '/institucional', mobileOnly: true },
         { name: 'Quem Somos / História', href: '/institucional#quem-somos' },
         { name: 'Nossa Gente', href: '/institucional#nossa-gente' },
         { name: 'Estatuto e Normas', href: '/institucional#estatutos-normas' },
@@ -129,7 +129,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
 
                         {link.submenu && (
                             <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 border border-gray-100 overflow-hidden">
-                                {link.submenu.map((sub) => (
+                                {link.submenu.filter(s => !s.mobileOnly).map((sub) => (
                                     sub.external ? (
                                         <a
                                             key={sub.name}
@@ -281,8 +281,8 @@ export default function Navbar({ scrolled: forceScrolled }) {
                             <Phone size={18} />
                         </div>
                         <div>
-                            <span className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold">Suporte</span>
-                            <span className="text-sm font-bold text-[#1f2937]">(31) 3899-0000</span>
+                            <span className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold">Contato</span>
+                            <span className="text-sm font-bold text-[#1f2937]">(31) 3612-3950</span>
                         </div>
                     </div>
                 </div>

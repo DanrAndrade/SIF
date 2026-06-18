@@ -315,7 +315,7 @@ const GalleryCarousel = ({ title, data }) => {
                 ref={scrollRef}
                 className={`flex gap-5 sm:gap-6 md:gap-8 snap-x snap-mandatory ${
                     needsScroll
-                        ? 'overflow-x-hidden'
+                        ? 'overflow-x-auto no-scrollbar'
                         : 'flex-wrap justify-start overflow-x-visible'
                 }`}
             >
@@ -572,7 +572,7 @@ export default function Institucional() {
         {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
         <div id="areas-atuacao" className="bg-[#f8f9fa] py-32 border-t border-gray-50 overflow-hidden">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-                <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                     <div className="max-w-2xl">
                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.areas_tag}</span>
                         <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>

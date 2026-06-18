@@ -177,10 +177,10 @@ export default function EincolAdmin() {
       if (data.success) {
         setForm(f => ({ ...f, active: novo }));
       } else {
-        alert('Erro ao alterar visibilidade.');
+        window.showToast('Erro ao alterar visibilidade.');
       }
     } catch {
-      alert('Erro de conexão ao alterar visibilidade.');
+      window.showToast('Erro de conexão ao alterar visibilidade.');
     }
   };
 
@@ -239,9 +239,9 @@ export default function EincolAdmin() {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
         fetchConfig();
-      } else { alert('Erro ao salvar.'); }
+      } else { window.showToast('Erro ao salvar.'); }
     } catch (err) {
-      alert('Erro de conexão.');
+      window.showToast('Erro de conexão.');
     } finally {
       setLoading(false);
     }

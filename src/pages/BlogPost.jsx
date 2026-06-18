@@ -229,9 +229,9 @@ export default function BlogPost() {
                 <h3 className="text-2xl font-bold uppercase text-[#007a3d] tracking-tighter mb-8">Leia Também</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {relatedPosts.map(relPost => (
-                        <a 
-                          key={relPost.id} 
-                          href={`/blog/${relPost.slug}`} 
+                        <Link
+                          key={relPost.id}
+                          to={`/blog/${relPost.slug}`}
                           className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-gray-100 transition-all hover:-translate-y-2 flex flex-col"
                         >
                             <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
@@ -262,7 +262,7 @@ export default function BlogPost() {
                                     <ArrowRight size={14} className="text-[#007a3d] group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
-                        </a>
+                        </Link>
                     ))}
                 </div>
             </div>

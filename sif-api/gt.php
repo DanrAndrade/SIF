@@ -12,9 +12,9 @@ if ($method === 'GET') {
     } else {
         $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
         if ($adminMode) {
-            $stmt = $pdo->query("SELECT * FROM gt ORDER BY title ASC");
+            $stmt = $pdo->query("SELECT * FROM gt ORDER BY id DESC");
         } else {
-            $stmt = $pdo->query("SELECT * FROM gt WHERE active = 1 ORDER BY title ASC");
+            $stmt = $pdo->query("SELECT * FROM gt WHERE active = 1 ORDER BY id DESC");
         }
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     }

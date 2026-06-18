@@ -273,7 +273,7 @@ export const JobsManagerView = () => {
                 body: JSON.stringify(currentJob)
             });
             fetchJobs(); setIsEditing(false);
-        } catch (e) { alert("Erro ao salvar"); }
+        } catch (e) { window.showToast("Erro ao salvar"); }
     };
 
     const handleDelete = async (id) => {

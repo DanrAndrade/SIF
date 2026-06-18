@@ -71,6 +71,25 @@ function convertToWebp(string $filePath, int $maxWidth = 1920, int $quality = 80
     $mime  = $info['mime'];
     $origW = $info[0];
     $origH = $info[1];
+    if ($origW < 1 || $origH < 1) return null;
+
+    // Proteção de memória: GD usa ~4 bytes/pixel (origem + destino + folga).
+    // Se a imagem for grande demais para a memória disponível, NÃO converte
+    // (retorna null e o chamador mantém o original) — evita erro fatal.
+    $limitBytes = (function () {
+        $v = trim(ini_get('memory_limit'));
+        if ($v === '' || $v === '-1') return 0;
+        $unit = strtolower(substr($v, -1));
+        $num = (int) $v;
+        if ($unit === 'g') return $num * 1024 * 1024 * 1024;
+        if ($unit === 'm') return $num * 1024 * 1024;
+        if ($unit === 'k') return $num * 1024;
+        return $num;
+    })();
+    if ($limitBytes > 0) {
+        $estimado = $origW * $origH * 4 * 2.3;
+        if ($estimado > $limitBytes * 0.7) return null;
+    }
 
     switch ($mime) {
         case 'image/jpeg': $src = @imagecreatefromjpeg($filePath); break;

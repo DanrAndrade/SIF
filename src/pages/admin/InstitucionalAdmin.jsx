@@ -432,10 +432,10 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp
       if (data.success && data.url) {
         updatePdf(pdfIdx, { url: '/' + data.url.replace(/^\/+/, '') });
       } else {
-        alert('Erro ao enviar PDF: ' + (data.message || ''));
+        window.showToast('Erro ao enviar PDF: ' + (data.message || ''));
       }
     } catch (err) {
-      alert('Erro ao enviar PDF.');
+      window.showToast('Erro ao enviar PDF.');
     }
   };
 

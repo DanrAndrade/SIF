@@ -130,4 +130,29 @@ foreach ($tabelas as $tabela) {
 }
 
 echo "\nLinhas atualizadas no banco: {$totalUpdates}\n";
+
+// ===================================================================
+//  GERA OS CACHES DE BOOT (para o hero de TODAS as paginas carregar
+//  rapido ja na 1a visita, sem esperar a consulta ao banco).
+// ===================================================================
+echo "\n== GERANDO CACHES DE BOOT ==\n";
+$cacheDir = $apiDir . '/cache';
+if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
+$gerados = 0;
+try {
+    $pcs = $pdo->query("SELECT page_key, config_json FROM page_configs")->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($pcs as $pc) {
+        $safe = preg_replace('/[^a-z0-9_]/i', '', $pc['page_key']);
+        if ($safe === '') continue;
+        $json = $pc['config_json'] ?: '{}';
+        if (@file_put_contents($cacheDir . '/boot_' . $safe . '.json', $json, LOCK_EX) !== false) {
+            $gerados++;
+            echo "cache: boot_{$safe}.json\n";
+        }
+    }
+} catch (\Throwable $e) {
+    echo "(page_configs indisponivel: " . $e->getMessage() . ")\n";
+}
+echo "Caches de boot gerados: {$gerados}\n";
+
 echo "\n== CONCLUIDO ==  Agora APAGUE este arquivo do servidor.\n";

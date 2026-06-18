@@ -122,7 +122,7 @@ export default function AdminBanners() {
         if (editingId === bannerToDelete.id) resetForm();
         setBannerToDelete(null); // Fecha o modal
     } catch (err) {
-        alert('Erro ao excluir banner.');
+        window.showToast('Erro ao excluir banner.');
     }
   };
 
@@ -138,7 +138,7 @@ export default function AdminBanners() {
         );
     } catch (err) {
         setBanners(previousBanners); 
-        alert("Erro ao atualizar status.");
+        window.showToast("Erro ao atualizar status.");
     }
   };
 

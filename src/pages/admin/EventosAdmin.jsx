@@ -88,7 +88,7 @@ export default function EventosAdmin() {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchEvents();
     } catch {
-      alert('Erro ao excluir evento.');
+      window.showToast('Erro ao excluir evento.');
     }
   };
 
@@ -102,7 +102,7 @@ export default function EventosAdmin() {
       await fetch(API_URL, { method: 'POST', body: fd });
       fetchEvents();
     } catch {
-      alert('Erro ao alterar visibilidade.');
+      window.showToast('Erro ao alterar visibilidade.');
     }
   };
 
@@ -130,10 +130,10 @@ export default function EventosAdmin() {
         resetForm();
         fetchEvents();
       } else {
-        alert('Erro ao salvar evento: ' + (result.message || `HTTP ${res.status}`));
+        window.showToast('Erro ao salvar evento: ' + (result.message || `HTTP ${res.status}`));
       }
     } catch (err) {
-      alert('Erro ao salvar evento: ' + err.message);
+      window.showToast('Erro ao salvar evento: ' + err.message);
     } finally {
       setLoading(false);
     }

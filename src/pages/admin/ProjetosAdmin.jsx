@@ -74,7 +74,7 @@ export default function ProjetosAdmin() {
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchProjetos();
-    } catch { alert('Erro ao excluir projeto.'); }
+    } catch { window.showToast('Erro ao excluir projeto.'); }
   };
 
   const handleToggleActive = async (p) => {
@@ -85,7 +85,7 @@ export default function ProjetosAdmin() {
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
       fetchProjetos();
-    } catch { alert('Erro ao alterar visibilidade.'); }
+    } catch { window.showToast('Erro ao alterar visibilidade.'); }
   };
 
   const handleSubmit = async (e) => {
@@ -108,7 +108,7 @@ export default function ProjetosAdmin() {
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
       reset(); fetchProjetos();
-    } catch { alert('Erro ao salvar projeto.'); }
+    } catch { window.showToast('Erro ao salvar projeto.'); }
     finally { setLoading(false); }
   };
 
