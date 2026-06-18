@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image as ImageIcon, X } from 'lucide-react';
 import { getImageUrl } from '../../apiConfig';
+import { validateImageSize } from '../../utils/toast';
 
 export default function ImageUploadArea({
   preview,
@@ -51,7 +52,9 @@ export default function ImageUploadArea({
           className="absolute inset-0 opacity-0 cursor-pointer"
           onChange={e => {
             const file = e.target.files[0];
-            if (file) onFileChange(file);
+            if (!file) return;
+            if (!validateImageSize(file)) { e.target.value = ''; return; }
+            onFileChange(file);
           }}
         />
       </div>

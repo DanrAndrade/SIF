@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
+import { validateImageSize } from '../../../utils/toast';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -66,7 +67,17 @@ function MemberCard({ member, onDelete, onUpdate }) {
     fd.append('link_email', form.link_email || '');
     fd.append('link_whatsapp', form.link_whatsapp || '');
     if (form._newPhoto) fd.append('photo', form._newPhoto);
-    await fetch(API + '?resource=team', { method: 'POST', body: fd });
+    try {
+      const res = await fetch(API + '?resource=team', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success !== false) {
+        window.showToast?.('Membro atualizado com sucesso.');
+      } else {
+        window.showToast?.('Erro ao salvar o membro.', 'error');
+      }
+    } catch {
+      window.showToast?.('Erro de conexão ao salvar o membro.', 'error');
+    }
     setEditing(false);
     onUpdate();
   };
@@ -112,7 +123,9 @@ function MemberCard({ member, onDelete, onUpdate }) {
                 <ImageIcon size={16} /> Trocar foto
                 <input type="file" accept="image/*" className="hidden" onChange={e => {
                   const f = e.target.files[0];
-                  if (f) setForm(p => ({ ...p, _newPhoto: f, _preview: URL.createObjectURL(f) }));
+                  if (!f) return;
+                  if (!validateImageSize(f)) { e.target.value = ''; return; }
+                  setForm(p => ({ ...p, _newPhoto: f, _preview: URL.createObjectURL(f) }));
                 }} />
               </label>
             </div>
@@ -239,7 +252,9 @@ export default function TeamManager() {
             {newForm.preview ? <img src={newForm.preview} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-gray-300" />}
             <input id="new-member-photo" type="file" accept="image/*" className="hidden" onChange={e => {
               const f = e.target.files[0];
-              if (f) setNewForm(p => ({ ...p, photo: f, preview: URL.createObjectURL(f) }));
+              if (!f) return;
+              if (!validateImageSize(f)) { e.target.value = ''; return; }
+              setNewForm(p => ({ ...p, photo: f, preview: URL.createObjectURL(f) }));
             }} />
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">

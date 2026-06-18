@@ -35,6 +35,22 @@ export function showToast(message, type) {
   }, 3000);
 }
 
+// Valida o tamanho de uma imagem antes do upload. Avisa via toast e retorna
+// false se exceder o limite (evita o upload falhar "calado" no servidor).
+export function validateImageSize(file, maxMB = 12) {
+  if (!file) return false;
+  if (file.size > maxMB * 1024 * 1024) {
+    showToast(
+      `Imagem muito grande (${(file.size / 1048576).toFixed(1)} MB). Máximo ${maxMB} MB — `
+      + `comprima ou reduza a imagem antes de enviar.`,
+      'error'
+    );
+    return false;
+  }
+  return true;
+}
+
 if (typeof window !== 'undefined') {
   window.showToast = showToast;
+  window.validateImageSize = validateImageSize;
 }
