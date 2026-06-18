@@ -237,8 +237,8 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                 {/* Imagem */}
                 <div className={`relative ${isRight ? 'order-1 md:order-2' : 'order-1 md:order-1'}`}>
                     <div className="absolute inset-0 bg-emerald-50 rounded-[40px] translate-x-4 translate-y-4 -z-10 group-hover/item:translate-x-6 group-hover/item:translate-y-6 transition-transform"></div>
-                    <div className="rounded-[40px] overflow-hidden shadow-2xl aspect-[4/3] relative">
-                        <img src={imgSrc} alt={year} className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" />
+                    <div className="rounded-[40px] overflow-hidden shadow-2xl aspect-[4/3] relative bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
+                        {imgSrc && <img src={imgSrc} alt={year} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" />}
                         <div className="absolute inset-0 bg-[#1f2937]/20"></div>
                         <div className="absolute top-8 left-8 bg-white/90 backdrop-blur-sm px-6 py-2 rounded-2xl font-black text-2xl text-[#1f2937] shadow-xl">{year}</div>
                     </div>
@@ -433,9 +433,11 @@ export default function Institucional() {
   // Função utilitária: usa dados da API se houver para aquele grupo, senão fallback estático.
   const pickTeam = (groupName, fallback) => {
     if (teamFromApi && teamFromApi[groupName] && teamFromApi[groupName].length > 0) {
-      return teamFromApi[groupName];
+      return teamFromApi[groupName]; // já passou por getImageUrl no fetch
     }
-    return fallback;
+    // Fallback estático: os caminhos /nossa-gente/... precisam do helper para
+    // ganhar o prefixo da subpasta (BASE_URL) — senão dão 404 na raiz.
+    return fallback.map(m => ({ ...m, image: getImageUrl(m.image) }));
   };
 
   const scrollAreas = (direction) => {
@@ -706,11 +708,11 @@ export default function Institucional() {
 
                 <div className="relative space-y-10">
                     {(timeline || [
-                        { year: 1974, title: "A <span class='text-[#007a3d]'>Fundação</span>", content: "Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.", image_url: "https://images.unsplash.com/photo-1581093806997-124204d9ad9d?q=80&w=2670&auto=format&fit=crop", layout: "image-left" },
-                        { year: 1975, title: "Revista <span class='text-[#007a3d]'>Árvore</span>", content: "Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.", image_url: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?q=80&w=2670&auto=format&fit=crop", layout: "image-right" },
-                        { year: 2020, title: "Unidade <span class='text-[#007a3d]'>EMBRAPII</span>", content: "O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.", image_url: "https://images.unsplash.com/photo-1532187875605-1838d7370324?q=80&w=2670&auto=format&fit=crop", layout: "image-left" },
-                        { year: 2021, title: "Expansão e <span class='text-[#007a3d]'>Startups</span>", content: "Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.", image_url: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2670&auto=format&fit=crop", layout: "image-right" },
-                        { year: 2024, title: "O <span class='text-[#007a3d]'>Cinquentenário</span>", content: "Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.", image_url: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2674&auto=format&fit=crop", layout: "image-left" },
+                        { year: 1974, title: "A <span class='text-[#007a3d]'>Fundação</span>", content: "Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.", image_url: "", layout: "image-left" },
+                        { year: 1975, title: "Revista <span class='text-[#007a3d]'>Árvore</span>", content: "Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.", image_url: "", layout: "image-right" },
+                        { year: 2020, title: "Unidade <span class='text-[#007a3d]'>EMBRAPII</span>", content: "O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.", image_url: "", layout: "image-left" },
+                        { year: 2021, title: "Expansão e <span class='text-[#007a3d]'>Startups</span>", content: "Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.", image_url: "", layout: "image-right" },
+                        { year: 2024, title: "O <span class='text-[#007a3d]'>Cinquentenário</span>", content: "Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.", image_url: "", layout: "image-left" },
                     ]).map((item, i) => (
                         <HistoryItem
                             key={item.id ?? i}
