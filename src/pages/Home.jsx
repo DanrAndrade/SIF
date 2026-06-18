@@ -148,8 +148,8 @@ export default function Home() {
           <Partners />
 
           {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
-      <div className="py-14 px-2 md:py-24 md:px-6 bg-white">
-        <div className="w-full max-w-[1280px] mx-auto px-1 md:px-0">
+      <div className="py-14 px-0 md:py-24 md:px-6 bg-white">
+        <div className="w-full max-w-[1280px] mx-auto px-0">
             <Process config={config.process} />
         </div>
       </div>

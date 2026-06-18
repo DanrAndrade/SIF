@@ -73,7 +73,7 @@ function MemberCard({ member, onDelete, onUpdate }) {
       if (res.ok && data.success !== false) {
         window.showToast?.('Membro atualizado com sucesso.');
       } else {
-        window.showToast?.('Erro ao salvar o membro.', 'error');
+        window.showToast?.(data.error || 'Erro ao salvar o membro.', 'error');
       }
     } catch {
       window.showToast?.('Erro de conexão ao salvar o membro.', 'error');
@@ -217,8 +217,18 @@ export default function TeamManager() {
     fd.append('link_email', newForm.link_email);
     fd.append('link_whatsapp', newForm.link_whatsapp);
     if (newForm.photo) fd.append('photo', newForm.photo);
-    await fetch(API + '?resource=team', { method: 'POST', body: fd });
-    setNewForm({ name: '', role: '', link_email: '', link_whatsapp: '', photo: null, preview: null });
+    try {
+      const res = await fetch(API + '?resource=team', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success !== false) {
+        window.showToast?.('Membro adicionado com sucesso.');
+        setNewForm({ name: '', role: '', link_email: '', link_whatsapp: '', photo: null, preview: null });
+      } else {
+        window.showToast?.(data.error || 'Erro ao adicionar o membro.', 'error');
+      }
+    } catch {
+      window.showToast?.('Erro de conexão ao adicionar o membro.', 'error');
+    }
     setAdding(false);
     fetch_();
   };

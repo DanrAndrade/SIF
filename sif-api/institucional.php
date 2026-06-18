@@ -11,7 +11,9 @@ function uploadInstitucionalFile($file, string $subdir, bool $compress = true): 
     if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
 
     $dir = "uploads/pages/institucional/{$subdir}/";
-    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    // 0777 para garantir gravacao em hospedagem compartilhada
+    if (!is_dir($dir)) @mkdir($dir, 0777, true);
+    if (!is_dir($dir) || !is_writable($dir)) return null; // pasta nao gravavel
 
     $ext    = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $name   = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
@@ -19,11 +21,10 @@ function uploadInstitucionalFile($file, string $subdir, bool $compress = true): 
 
     if (!move_uploaded_file($file['tmp_name'], $target)) return null;
 
-    // Converte para WebP; se não der, mantém o original comprimido.
-    $webp = $compress ? convertToWebp($target) : null;
-    if ($webp) return $webp;
-
-    if ($compress && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+    // Foto da equipe (subdir 'team'): mantém o arquivo como está (sem WebP),
+    // para máxima compatibilidade — são as imagens reais e não podem falhar.
+    // Demais imagens da página: comprime se o GD estiver disponível.
+    if ($compress && $subdir !== 'team' && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
         compressImage($target);
     }
 
@@ -126,6 +127,11 @@ if ($resource === 'team') {
         $photoUrl = null;
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $photoUrl = uploadInstitucionalFile($_FILES['photo'], 'team');
+            if (!$photoUrl) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Não foi possível salvar a foto. A pasta uploads/pages/institucional/team precisa ter permissão de gravação (chmod 755 ou 777).']);
+                exit;
+            }
         } elseif (!empty($_POST['photo_url'])) {
             // Aceita URL/path direto (ex: /nossa-gente/...) para seed inicial
             $photoUrl = trim($_POST['photo_url']);
@@ -187,16 +193,25 @@ if ($resource === 'team') {
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $url = uploadInstitucionalFile($_FILES['photo'], 'team');
             if ($url) {
-                // Remove foto antiga
+                // Remove foto antiga (só se for arquivo enviado, não /nossa-gente)
                 $old = $pdo->prepare("SELECT photo_url FROM team_members WHERE id = ?");
                 $old->execute([$id]);
                 $oldRow = $old->fetch(PDO::FETCH_ASSOC);
-                if ($oldRow && $oldRow['photo_url'] && file_exists($oldRow['photo_url'])) {
+                if ($oldRow && $oldRow['photo_url'] && strpos($oldRow['photo_url'], 'uploads/') === 0 && file_exists($oldRow['photo_url'])) {
                     @unlink($oldRow['photo_url']);
                 }
                 $fields[] = 'photo_url = ?';
                 $values[] = $url;
+            } else {
+                // A foto foi enviada mas não pôde ser salva — avisa em vez de "sucesso" falso
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Não foi possível salvar a foto. A pasta uploads/pages/institucional/team precisa ter permissão de gravação (chmod 755 ou 777).']);
+                exit;
             }
+        } elseif (isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Falha no envio da foto (arquivo muito grande ou upload interrompido).']);
+            exit;
         }
 
         if (!empty($fields)) {

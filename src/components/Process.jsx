@@ -137,15 +137,15 @@ export default function Process({ config = {} }) {
 
                 {/* --- MOBILE VIEW --- */}
                 <div className="w-full lg:hidden relative">
-                    <div ref={scrollContainerRef} onScroll={handleMobileScroll} className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-4 px-6 pb-8 pt-2">
+                    <div ref={scrollContainerRef} onScroll={handleMobileScroll} className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-0 px-0 pb-8 pt-2">
                         {steps.map((step, index) => {
                             const LinkComponent = step.external ? 'a' : Link;
-                            const linkProps = step.external 
-                                ? { href: step.link, target: "_blank", rel: "noopener noreferrer" } 
+                            const linkProps = step.external
+                                ? { href: step.link, target: "_blank", rel: "noopener noreferrer" }
                                 : { to: step.link };
 
                             return (
-                            <LinkComponent key={index} {...linkProps} className="min-w-[85vw] snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d] rounded-[32px]">
+                            <LinkComponent key={index} {...linkProps} className="min-w-[100vw] box-border snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
                                 <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px] bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
                                         {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}

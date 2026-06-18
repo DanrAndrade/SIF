@@ -573,12 +573,12 @@ export default function Institucional() {
         <div id="areas-atuacao" className="bg-[#f8f9fa] py-32 border-t border-gray-50 overflow-hidden">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
-                    <div className="max-w-2xl">
+                    <div className="w-full max-w-2xl text-left">
                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.areas_tag}</span>
                         <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-8 items-center">
+                    <div className="flex flex-col md:flex-row gap-8 items-start lg:items-center w-full lg:w-auto">
                         <p className="text-gray-400 font-medium text-base max-w-sm">{cfg.areas_subtitle}</p>
                         <div className="flex gap-4">
                             <button 
