@@ -23,8 +23,8 @@ export function useQuillImageHandler(toolbar = DEFAULT_TOOLBAR) {
       const file = input.files[0];
       if (!file) return;
 
-      if (file.size > 20 * 1024 * 1024) {
-        window.showToast?.('Imagem muito grande. Máximo 20 MB — comprima a imagem antes de enviar.', 'error');
+      if (file.size > 10 * 1024 * 1024) {
+        window.showToast?.('Imagem muito grande. Máximo 10 MB — comprima a imagem antes de enviar.', 'error');
         return;
       }
 

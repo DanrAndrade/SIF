@@ -37,7 +37,7 @@ export function showToast(message, type) {
 
 // Limite padrão de upload de imagem (MB) — usado pela validação manual e
 // pelo guard global.
-export const MAX_IMAGE_MB = 20;
+export const MAX_IMAGE_MB = 10;
 
 // Instala um interceptador global: QUALQUER <input type="file" accept="image*">
 // do site passa por aqui. Se a imagem exceder o limite, bloqueia o envio,
