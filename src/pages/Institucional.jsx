@@ -101,118 +101,19 @@ const DEFAULT_AREAS = [
 
 const AREA_ICON_MAP = { Sprout, Map, Leaf, Shield, Settings, Microscope, Globe, Users, Scale, FileBadge, FileText };
 
-// --- DADOS DA EQUIPE (fotos reais de /public/nossa-gente) ---
-
-// Utilitário para extrair nome e cargo do nome do arquivo
-const parseFileName = (filename) => {
-    const withoutExt = filename.replace(/\.(jpg|jpeg|png|webp|gif)$/i, '');
-    const dashIdx = withoutExt.indexOf(' - ');
-    if (dashIdx !== -1) {
-        return {
-            name: withoutExt.substring(0, dashIdx).trim(),
-            role: withoutExt.substring(dashIdx + 3).trim(),
-        };
-    }
-    return { name: withoutExt.trim(), role: '' };
-};
-
-const diretoria = [
-    { id: 0, file: 'Gilciano - Diretor Geral Fundação SIF.jpg' },
-    { id: 1, file: 'Gleison - Diretor Geral EMBRAPII  e Diretor Cientifico SIF.jpg' },
-    { id: 2, file: 'Gumercindo - Diretor Geral da SIF.png' },
-    { id: 3, file: 'Michele Brandão  - Gerente Executiva.jpg' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Diretoria/${encodeURIComponent(file)}`,
-}));
-
-const coordenadoras = [
-    { id: 0, file: 'Camila - Coord. Produtos e Serviços.png' },
-    { id: 1, file: 'Cintia - Coord da Fudação SIF e EMBRAPII.png' },
-    { id: 2, file: 'Helen  - Coord de Inovação e Projetos.png' },
-    { id: 3, file: 'Larissa  - Coord. de CSC.png' },
-    { id: 4, file: 'Ângela Silva - Coord. de Rh e Faciliities.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenadoras/${encodeURIComponent(file)}`,
-}));
-
-const coordFundacao = [
-    { id: 0, file: 'Flávia - Estagiária.png' },
-    { id: 1, file: 'Gabriela Camilo - Gestora de Convênios.png' },
-    { id: 2, file: 'Otávio Silveira - Estagiário.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenações/Coord. Fundação SIF e EMBRAPII/${encodeURIComponent(file)}`,
-}));
-
-const coordInovacao = [
-    { id: 0, file: 'Tamara Braga - Analista de Inovação.png' },
-    { id: 1, file: 'Thamires Carvalho - Analista de Proejtos.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenações/Coordenação Inovação e Projetos/${encodeURIComponent(file)}`,
-}));
-
-const coordCSC = [
-    { id: 0, file: 'Adilson Abranches - Informática.png' },
-    { id: 1, file: 'Joyce Aquino - Contratos Internos.png' },
-    { id: 2, file: 'Kellen Souza - Compras.png' },
-    { id: 3, file: 'Lidiane Heleno - Contas a Pagar.png' },
-    { id: 4, file: 'Mauricio Seiffer - Estagiário.png' },
-    { id: 5, file: 'Rafaela Vilar - Contas a Receber.png' },
-    { id: 6, file: 'Silmara Pena  - Controle Financeiro.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenações/Coordenação de CSC/${encodeURIComponent(file)}`,
-}));
-
-const coordProdutos = [
-    { id: 0, file: 'Angelina Melo - GT Sociedade.png' },
-    { id: 1, file: 'Giovanna Oliveira - GT Colheita e Logística.png' },
-    { id: 2, file: 'Juliana Melo - GT Carvão Vegetal.png' },
-    { id: 3, file: 'Laís Luz - Analista de Eventos.png' },
-    { id: 4, file: 'Lucas Sousa - Assistente de Comunicação e Marketing.png' },
-    { id: 5, file: 'Mateus Costa - Analista de Comunicação e Marketing.png' },
-    { id: 6, file: 'Mirian Valente - GT Restauração.png' },
-    { id: 7, file: 'Nathália Ramos - GT Bambu.png' },
-    { id: 8, file: 'Otávio Fernandes - GT Segurança.png' },
-    { id: 9, file: 'Pedro Almada - Analista Comercial.png' },
-    { id: 10, file: 'Samuel Souza - GT Ferroligas.png' },
-    { id: 11, file: 'Silas Sardinha - GT Manejo.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenações/Coordenação de Produtos e Serviços/${encodeURIComponent(file)}`,
-}));
-
-const coordRH = [
-    { id: 0, file: 'Adão Vitorio - Recepção.png' },
-    { id: 1, file: 'Ana Clarisse - Estagiária.png' },
-    { id: 2, file: 'Maria Auxiliadora - Serviços Gerais.png' },
-    { id: 3, file: 'Monalisa Meireles - Estagiária.png' },
-    { id: 4, file: 'Roberta Finamore - Formação de RH.jpg' },
-    { id: 5, file: 'Samara Soares - Analista de RH.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Coordenações/Coordenação de RH/${encodeURIComponent(file)}`,
-}));
-
-const consultores = [
-    { id: 0, file: 'Andreia - Organizacional.jpg' },
-    { id: 1, file: 'Marinês - Juridico.jpg' },
-    { id: 2, file: 'Rômulo - Contábil.png' },
-].map(({ id, file }) => ({
-    id,
-    ...parseFileName(file),
-    image: `/nossa-gente/Consultores/${encodeURIComponent(file)}`,
-}));
+// --- EQUIPE ---
+// As fotos da equipe vêm 100% do banco (admin de Institucional → aba Equipe),
+// passando pelo helper getImageUrl no fetch. Ordem de exibição dos grupos:
+const TEAM_GROUP_ORDER = [
+  'Diretoria',
+  'Coordenadoras',
+  'Coord. Fundação SIF & EMBRAPII',
+  'Coord. Inovação e Projetos',
+  'Coord. de CSC',
+  'Coord. de Produtos e Serviços',
+  'Coord. de RH & Facilities',
+  'Consultores',
+];
 
 // --- COMPONENTE TIMELINE ITEM ---
 const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) => {
@@ -430,15 +331,17 @@ export default function Institucional() {
       .catch(() => setTeamFromApi(null));
   }, []);
 
-  // Função utilitária: usa dados da API se houver para aquele grupo, senão fallback estático.
-  const pickTeam = (groupName, fallback) => {
-    if (teamFromApi && teamFromApi[groupName] && teamFromApi[groupName].length > 0) {
-      return teamFromApi[groupName]; // já passou por getImageUrl no fetch
-    }
-    // Fallback estático: os caminhos /nossa-gente/... precisam do helper para
-    // ganhar o prefixo da subpasta (BASE_URL) — senão dão 404 na raiz.
-    return fallback.map(m => ({ ...m, image: getImageUrl(m.image) }));
-  };
+  // Grupos da equipe a renderizar: somente o que veio do banco (já com getImageUrl),
+  // ordenados por TEAM_GROUP_ORDER; grupos fora da lista vão para o fim.
+  const teamGroups = teamFromApi
+    ? Object.keys(teamFromApi)
+        .filter((g) => teamFromApi[g] && teamFromApi[g].length > 0)
+        .sort((a, b) => {
+          const ia = TEAM_GROUP_ORDER.indexOf(a);
+          const ib = TEAM_GROUP_ORDER.indexOf(b);
+          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+        })
+    : [];
 
   const scrollAreas = (direction) => {
     if (areasScrollRef.current) {
@@ -448,10 +351,18 @@ export default function Institucional() {
     }
   };
   
-  // Scroll automático para a seção quando a URL tem hash (ex: /institucional#nossa-gente)
+  // Scroll automático para a seção SOMENTE quando há hash explícito na URL
+  // (ex: /institucional#nossa-gente). Sem hash (reload normal), vai para o topo
+  // e desliga a restauração de scroll do navegador.
   useEffect(() => {
     const hash = location.hash;
-    if (!hash) return;
+    if (!hash) {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+      return;
+    }
     const id = hash.replace('#', '');
     const scrollToSection = () => {
       const el = document.getElementById(id);
@@ -559,15 +470,10 @@ export default function Institucional() {
                     <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
-                {/* CARROSSEIS — dados reais das pastas de /public/nossa-gente */}
-                <GalleryCarousel title="Diretoria" data={pickTeam('Diretoria', diretoria)} />
-                <GalleryCarousel title="Coordenadoras" data={pickTeam('Coordenadoras', coordenadoras)} />
-                <GalleryCarousel title="Coord. Fundação SIF & EMBRAPII" data={pickTeam('Coord. Fundação SIF & EMBRAPII', coordFundacao)} />
-                <GalleryCarousel title="Coord. Inovação e Projetos" data={pickTeam('Coord. Inovação e Projetos', coordInovacao)} />
-                <GalleryCarousel title="Coord. de CSC" data={pickTeam('Coord. de CSC', coordCSC)} />
-                <GalleryCarousel title="Coord. de Produtos e Serviços" data={pickTeam('Coord. de Produtos e Serviços', coordProdutos)} />
-                <GalleryCarousel title="Coord. de RH & Facilities" data={pickTeam('Coord. de RH & Facilities', coordRH)} />
-                <GalleryCarousel title="Consultores" data={pickTeam('Consultores', consultores)} />
+                {/* CARROSSEIS — dados 100% do banco (admin → Equipe), via getImageUrl */}
+                {teamGroups.map((g) => (
+                    <GalleryCarousel key={g} title={g} data={teamFromApi[g]} />
+                ))}
             </div>
         </div>
         
