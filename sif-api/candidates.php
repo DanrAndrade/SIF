@@ -31,6 +31,12 @@ elseif ($method === 'POST') {
 
         $cvFilename = null;
         if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
+            // Limite de 10MB para o currículo (rede de segurança — o front já valida)
+            if ($_FILES['cv']['size'] > 10 * 1024 * 1024) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Currículo muito grande. Máximo 10MB.']);
+                exit;
+            }
             // Currículos ficam em uploads/cvs/ — pasta protegida por .htaccess
             // (acesso direto via web é bloqueado; só o download.php autenticado lê).
             $uploadDir = 'uploads/cvs/';

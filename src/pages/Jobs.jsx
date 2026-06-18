@@ -391,7 +391,16 @@ function ApplicationModal({ job, onClose }) {
                             <div className="space-y-4 pt-4">
                                 <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1 block">Anexar Currículo (PDF/DOC)</label>
                                 <div className="relative group">
-                                    <input type="file" accept=".pdf,.doc,.docx" onChange={e => setFile(e.target.files[0])} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
+                                    <input type="file" accept=".pdf,.doc,.docx" onChange={e => {
+                                      const f = e.target.files[0];
+                                      if (!f) return;
+                                      if (f.size > 10 * 1024 * 1024) {
+                                        window.showToast?.('Arquivo muito grande (máx. 10 MB). Reduza o currículo antes de enviar.', 'error');
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                      setFile(f);
+                                    }} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
                                     <div className={`w-full border-2 border-dashed rounded-[2.5rem] px-8 py-16 flex flex-col items-center justify-center text-center transition-all duration-500 ${
                                       file ? 'border-[#007a3d] bg-emerald-50' : 'border-gray-100 bg-[#f8f9fa] group-hover:border-[#007a3d]'
                                     }`}>
@@ -408,7 +417,7 @@ function ApplicationModal({ job, onClose }) {
                                         ) : (
                                           <>
                                             <p className="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Clique ou arraste seu arquivo</p>
-                                            <p className="text-xs text-gray-300 mt-3 font-medium">Formatos PDF, DOC ou DOCX (Máximo 5MB)</p>
+                                            <p className="text-xs text-gray-300 mt-3 font-medium">Formatos PDF, DOC ou DOCX (Máximo 10MB)</p>
                                           </>
                                         )}
                                     </div>
