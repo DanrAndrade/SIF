@@ -21,17 +21,14 @@ export default function BlogPost() {
         setLoading(true);
         setError(null);
         
-        // Fetch the main post
         const postRes = await fetch(`${API_URL}?slug=${slug}`);
-        
-        // FIX: Check response status
+
         if (!postRes.ok) {
           throw new Error(`Erro HTTP: ${postRes.status}`);
         }
-        
+
         const postData = await postRes.json();
-        
-        // FIX: Handle case where post is not found
+
         if (!postData || !postData.id) {
           throw new Error('Artigo não encontrado');
         }
@@ -44,8 +41,7 @@ export default function BlogPost() {
           if (allPostsRes.ok) {
             const allPosts = await allPostsRes.json();
             if (Array.isArray(allPosts)) {
-              // FIX: Improved tag matching logic
-              const currentTags = postData.tags 
+              const currentTags = postData.tags
                 ? postData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
                 : [];
               
@@ -65,9 +61,8 @@ export default function BlogPost() {
                 
                 return false;
               });
-              
-              // FIX: Sort by date and limit to 3
-              const sortedFiltered = filtered.sort((a, b) => 
+
+              const sortedFiltered = filtered.sort((a, b) =>
                 new Date(b.created_at) - new Date(a.created_at)
               );
               
@@ -75,7 +70,6 @@ export default function BlogPost() {
             }
           }
         } catch (relatedErr) {
-          // FIX: Don't fail the whole page if related posts fail
           console.error('Erro ao carregar posts relacionados:', relatedErr);
           setRelatedPosts([]);
         }
@@ -129,11 +123,10 @@ export default function BlogPost() {
       <Navbar scrolled={true} />
       
       <article className="flex-grow pt-40 container mx-auto px-6 max-w-4xl">
-        {/* BOTÃO DE VOLTAR CLARO E VISÍVEL */}
         <div className="mb-10">
-          <Link 
-            to="/blog" 
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-[#007a3d] transition-colors group bg-white px-5 py-2.5 rounded-full border border-gray-200 shadow-sm hover:border-[#007a3d] hover:shadow-md"
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-2 text-white bg-[#007a3d] hover:bg-[#047857] px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all group"
           >
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-0.5">Voltar para o Blog</span>
@@ -155,8 +148,7 @@ export default function BlogPost() {
             <h1 className="text-4xl md:text-7xl font-black text-gray-900 leading-tight mb-6 tracking-tighter uppercase">{post.title}</h1>
             <div className="flex items-center gap-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
                 <span className="flex items-center gap-1.5">
-                  <Calendar size={14} className="text-[#007a3d]"/> 
-                  {/* FIX: Safe date formatting */}
+                  <Calendar size={14} className="text-[#007a3d]"/>
                   {(() => {
                     try {
                       return new Date(post.created_at).toLocaleDateString('pt-BR', {
@@ -206,7 +198,6 @@ export default function BlogPost() {
             }
         ` }} />
 
-        {/* FIX: Only show tags if they exist */}
         {post.tags && post.tags.trim() && (
           <div className="flex flex-wrap gap-2 mt-12 mb-8 pt-8 border-t border-gray-100">
               {post.tags.split(',').map((tag, index) => {
@@ -246,8 +237,7 @@ export default function BlogPost() {
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">
-                                    <Calendar size={12} className="text-[#007a3d]" /> 
-                                    {/* FIX: Safe date formatting */}
+                                    <Calendar size={12} className="text-[#007a3d]" />
                                     {(() => {
                                       try {
                                         return new Date(relPost.created_at).toLocaleDateString('pt-BR');

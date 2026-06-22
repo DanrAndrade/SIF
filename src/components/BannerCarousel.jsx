@@ -88,7 +88,7 @@ export default function BannerCarousel() {
       </div>
 
       {/* LARGURA E CONTAINER */}
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6">
         
         {/* CARROSSEL */}
         <div 
@@ -109,7 +109,7 @@ export default function BannerCarousel() {
                                 <img 
                                     src={getImageUrl(banner.image_url)} 
                                     alt="Banner" 
-                                    className="w-full h-full object-cover pointer-events-none" 
+                                    className="w-full h-full object-contain md:object-cover pointer-events-none" 
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </a>
@@ -118,7 +118,7 @@ export default function BannerCarousel() {
                                 <img 
                                     src={getImageUrl(banner.image_url)} 
                                     alt="Banner" 
-                                    className="w-full h-full object-cover pointer-events-none"
+                                    className="w-full h-full object-contain md:object-cover pointer-events-none"
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </div>

@@ -378,10 +378,7 @@ export default function Institucional() {
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    
-    // Removida a lógica de animação do ícone flutuante conforme pedido do usuário.
-    // Preservando apenas ScrollTriggers futuros se necessários.
-    
+
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };

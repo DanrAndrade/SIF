@@ -30,8 +30,7 @@ export default function Blog() {
         setError(null);
         
         const res = await fetch(API_URL);
-        
-        // FIX: Check response status
+
         if (!res.ok) {
           throw new Error(`Erro HTTP: ${res.status}`);
         }
@@ -56,8 +55,7 @@ export default function Blog() {
 
       <EditablePageHero pageKey="blog" defaults={HERO_DEFAULTS} scrollTargetId="blog-posts" />
 
-      <main id="blog-posts" className="container mx-auto px-6 pt-16 pb-32 flex-grow scroll-mt-32">
-        {/* FIX: Add error state */}
+      <main id="blog-posts" className="container mx-auto px-6 pt-16 pb-40 flex-grow scroll-mt-32">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-3xl p-8 mb-12 flex items-start gap-4">
             <AlertCircle className="text-red-600 flex-shrink-0 mt-1" size={24} />
@@ -99,8 +97,7 @@ export default function Blog() {
                 </div>
                 <div className="p-8">
                   <div className="flex items-center gap-2 text-[#007a3d] text-xs font-bold uppercase tracking-widest mb-4">
-                    <Calendar size={14} /> 
-                    {/* FIX: Add try-catch for date formatting */}
+                    <Calendar size={14} />
                     {(() => {
                       try {
                         return new Date(post.created_at).toLocaleDateString('pt-BR');

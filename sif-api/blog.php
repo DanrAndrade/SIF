@@ -162,9 +162,8 @@ if ($method === 'POST') {
                 exit;
             }
             
-            // FIX: If updating with new image, delete old image
+            // Ao atualizar com nova imagem, remove a imagem antiga
             if ($image_url) {
-                // Get old image path
                 $oldStmt = $pdo->prepare("SELECT image_url FROM blog_posts WHERE id = ?");
                 $oldStmt->execute([$id]);
                 $oldPost = $oldStmt->fetch(PDO::FETCH_ASSOC);
@@ -217,14 +216,13 @@ if ($method === 'DELETE') {
                 exit;
             }
             
-            // FIX: Delete cover image
+            // Remove a imagem de capa
             if (!empty($post['image_url']) && file_exists($post['image_url'])) {
                 @unlink($post['image_url']);
             }
-            
-            // FIX: Delete images from content (editor images)
+
+            // Remove as imagens do conteúdo (imagens do editor)
             if (!empty($post['content'])) {
-                // Extract image URLs from content
                 preg_match_all('/<img[^>]+src="([^"]+)"/', $post['content'], $matches);
                 if (!empty($matches[1])) {
                     foreach ($matches[1] as $imgUrl) {

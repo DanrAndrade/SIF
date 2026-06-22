@@ -145,8 +145,9 @@ export default function Process({ config = {} }) {
                                 : { to: step.link };
 
                             return (
-                            <LinkComponent key={index} {...linkProps} className="min-w-[100vw] box-border snap-center p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
-                                <div className="relative rounded-[30px] overflow-hidden flex flex-col h-[400px] bg-[#0a0f16]">
+                            <LinkComponent key={index} {...linkProps} className="min-w-[100vw] box-border snap-center px-3 pb-2">
+                                <div className="relative rounded-[30px] overflow-hidden flex flex-col min-h-[440px] bg-[#0a0f16] p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
+                                    <div className="relative rounded-[28px] overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
                                         {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}
                                         <NoiseOverlay opacity={0.3} />
@@ -169,6 +170,7 @@ export default function Process({ config = {} }) {
                                                 </div>
                                             ))}
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
                             </LinkComponent>

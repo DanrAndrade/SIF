@@ -205,10 +205,11 @@ iframe.ql-video {
   border-radius: 8px;
 }
 
-/* Conteúdo público — evita vazamento do card */
+/* Conteúdo público — evita vazamento do card.
+   Usa só overflow-wrap (quebra apenas palavras maiores que a linha, ex: URLs);
+   word-break: break-word quebrava palavras normais no meio, deixando o texto feio. */
 .prose {
   overflow-wrap: break-word;
-  word-break: break-word;
   overflow: hidden;
 }
 
