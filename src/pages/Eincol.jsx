@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
@@ -108,7 +108,7 @@ export default function Eincol() {
             <div className="container mx-auto px-6 max-w-4xl">
               <div
                 className="prose prose-lg max-w-none text-gray-700 prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-[#1f2937] prose-strong:text-[#007a3d] prose-a:text-[#007a3d]"
-                dangerouslySetInnerHTML={{ __html: config.main_content }}
+                dangerouslySetInnerHTML={{ __html: cleanRichHtml(config.main_content) }}
               />
             </div>
           </section>
@@ -225,7 +225,7 @@ export default function Eincol() {
                   <h3 className="text-xl font-bold uppercase tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h3>
                   <div
                     className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
-                    dangerouslySetInnerHTML={{ __html: tabs[activeTab].content }}
+                    dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab].content) }}
                   />
                 </div>
               )}
@@ -245,7 +245,7 @@ export default function Eincol() {
               {sec.text && (
                 <div
                   className="prose prose-base max-w-none text-gray-600 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
-                  dangerouslySetInnerHTML={{ __html: sec.text }}
+                  dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.text) }}
                 />
               )}
             </div>

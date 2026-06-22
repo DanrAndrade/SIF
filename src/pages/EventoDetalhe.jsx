@@ -6,7 +6,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 export default function EventoDetalhe() {
@@ -136,7 +136,7 @@ export default function EventoDetalhe() {
 
               <div 
                 className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]"
-                dangerouslySetInnerHTML={{ __html: event.description || 'Descrição não disponível.' }}
+                dangerouslySetInnerHTML={{ __html: cleanRichHtml(event.description) || 'Descrição não disponível.' }}
               />
 
               {sections ? (
@@ -163,7 +163,7 @@ export default function EventoDetalhe() {
                         <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100">
                           <h4 className="text-base font-bold uppercase tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h4>
                           <div className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
-                            dangerouslySetInnerHTML={{ __html: tabs[activeTab].content }} />
+                            dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab].content) }} />
                         </div>
                       )}
                     </div>

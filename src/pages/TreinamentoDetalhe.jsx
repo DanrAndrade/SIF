@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, MessageSquare, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 
@@ -132,19 +132,19 @@ export default function TreinamentoDetalhe() {
               {sections ? (
                 <ContentSectionsRenderer sections={sections} />
               ) : !parsed ? (
-                <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: training.description || 'Descrição não disponível.' }} />
+                <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: cleanRichHtml(training.description) || 'Descrição não disponível.' }} />
               ) : (
                 <div className="space-y-16">
                   {parsed.presentation && (
                     <div>
                       <h4 className="text-xl font-bold uppercase tracking-widest text-[#007a3d] mb-8 flex items-center gap-3"><Award size={24}/> Apresentação / Sobre o Curso</h4>
-                      <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: parsed.presentation }} />
+                      <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: cleanRichHtml(parsed.presentation) }} />
                     </div>
                   )}
                   {parsed.audience && (
                     <div className="pt-12 mt-12 border-t border-gray-100">
                       <h4 className="text-xl font-bold uppercase tracking-widest text-[#007a3d] mb-8 flex items-center gap-3"><CheckCircle2 size={24}/> Público-Alvo</h4>
-                      <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: parsed.audience }} />
+                      <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: cleanRichHtml(parsed.audience) }} />
                     </div>
                   )}
                   {(tabs.length > 0 || parsed.modules_content) && (
@@ -164,12 +164,12 @@ export default function TreinamentoDetalhe() {
                             <div className="bg-gray-50 rounded-[24px] p-8 border border-gray-100">
                               <h4 className="text-base font-bold uppercase tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h4>
                               <div className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
-                                dangerouslySetInnerHTML={{ __html: tabs[activeTab].content }} />
+                                dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab].content) }} />
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: parsed.modules_content }} />
+                        <div className="prose prose-lg max-w-none text-gray-600" dangerouslySetInnerHTML={{ __html: cleanRichHtml(parsed.modules_content) }} />
                       )}
                     </div>
                   )}

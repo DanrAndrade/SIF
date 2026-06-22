@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
@@ -182,7 +182,7 @@ export default function BlogPost() {
 
               <div
                 className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#1B5E20] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: cleanRichHtml(post.content) }}
               />
 
               {extraSections && (

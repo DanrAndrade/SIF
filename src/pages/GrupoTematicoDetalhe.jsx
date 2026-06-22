@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { ChevronLeft, Target, Users, BookOpen, ShieldCheck, ArrowRight, Microscope, Zap, Globe, Activity, FileText } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 
@@ -135,7 +135,7 @@ export default function GrupoTematicoDetalhe() {
 
               <div
                 className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#1B5E20] prose-li:marker:text-[#007a3d]"
-                dangerouslySetInnerHTML={{ __html: gt.description }}
+                dangerouslySetInnerHTML={{ __html: cleanRichHtml(gt.description) }}
               />
 
               {(() => {

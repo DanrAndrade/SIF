@@ -15,6 +15,23 @@ const STATIC_PREFIXES = ['/nossa-gente/', '/logos/', '/docs/', '/img/'];
 // Prefixo base do site (ex.: '/sif-novo-h7k2x9/' em produção, '/' em dev).
 const BASE_URL = import.meta.env.BASE_URL || '/';
 
+// Espaço não-quebrável (U+00A0) como literal, para troca por espaço normal.
+const NBSP_CHAR = String.fromCharCode(160);
+
+// Limpa HTML vindo do editor de texto rico antes de exibir.
+// Conteúdo colado de Word/Google Docs/Quill costuma vir com &nbsp; (espaço
+// não-quebrável) entre TODAS as palavras. Isso impede a quebra de linha normal:
+// o navegador trata a frase como uma "palavra" gigante e acaba cortando no meio
+// quando não cabe na coluna. Troca por espaço normal (entidade e caractere já
+// decodificado), preservando o resto do HTML.
+export const cleanRichHtml = (html) => {
+  if (!html || typeof html !== 'string') return html;
+  return html
+    .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
+    .split(NBSP_CHAR)
+    .join(' ');
+};
+
 export const getImageUrl = (path) => {
   if (!path) return null;
 

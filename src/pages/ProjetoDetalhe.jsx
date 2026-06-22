@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import { getEffectiveProjectStatus } from '../utils/helpers';
@@ -136,7 +136,7 @@ export default function ProjetoDetalhe() {
           {/* Renderização do Rich Text */}
           <div 
             className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-            dangerouslySetInnerHTML={{ __html: projeto.description || '<p class="text-gray-400 italic text-center">Nenhuma descrição disponível para este projeto.</p>' }}
+            dangerouslySetInnerHTML={{ __html: cleanRichHtml(projeto.description) || '<p class="text-gray-400 italic text-center">Nenhuma descrição disponível para este projeto.</p>' }}
           />
 
           {projSections ? (
@@ -169,7 +169,7 @@ export default function ProjetoDetalhe() {
                     </div>
                     <div className="bg-gray-50 p-8 md:p-12 rounded-[32px] border border-gray-100">
                       <div className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-                        dangerouslySetInnerHTML={{ __html: tabs[activeTab]?.content }} />
+                        dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab]?.content) }} />
                     </div>
                   </div>
                 );

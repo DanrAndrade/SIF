@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
-import { getImageUrl } from '../apiConfig';
+import { getImageUrl, cleanRichHtml } from '../apiConfig';
 
 function EditorSection({ section }) {
   if (!section.content || section.content === '<p><br></p>') return null;
@@ -11,7 +11,7 @@ function EditorSection({ section }) {
       )}
       <div
         className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-        dangerouslySetInnerHTML={{ __html: section.content }}
+        dangerouslySetInnerHTML={{ __html: cleanRichHtml(section.content) }}
       />
     </div>
   );
@@ -46,7 +46,7 @@ function TabsSection({ section, activeTabs, setActiveTab }) {
           </h4>
           <div
             className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
-            dangerouslySetInnerHTML={{ __html: tabs[activeIdx].content }}
+            dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeIdx].content) }}
           />
         </div>
       )}

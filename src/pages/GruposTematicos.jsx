@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, Layers, Target, Activity, ShieldCheck, Zap, Globe, Microscope } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import Button from '../components/ui/Button';
 
 const HERO_DEFAULTS = {
@@ -106,7 +106,7 @@ export default function GruposTematicos() {
                       <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-3 group-hover:text-[#007a3d] transition-colors">{gt.title}</h3>
                       <div 
                         className="text-gray-400 font-medium leading-relaxed mb-6 line-clamp-3 text-sm flex-grow"
-                        dangerouslySetInnerHTML={{ __html: gt.description?.substring(0, 150) + '...' }}
+                        dangerouslySetInnerHTML={{ __html: cleanRichHtml(gt.description || '').substring(0, 150) + '...' }}
                       />
                       <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#1f2937] group-hover:gap-5 transition-all pt-4 border-t border-gray-50">
                         Saiba Mais <ArrowRight size={16} className="text-[#007a3d]" />

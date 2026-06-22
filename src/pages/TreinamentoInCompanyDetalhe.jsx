@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Clock, ChevronLeft, Play, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 
@@ -116,7 +116,7 @@ export default function TreinamentoInCompanyDetalhe() {
               {sections ? (
                 <ContentSectionsRenderer sections={sections} />
               ) : training.description ? (
-                <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: training.description }} />
+                <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d]" dangerouslySetInnerHTML={{ __html: cleanRichHtml(training.description) }} />
               ) : (
                 <p className="text-gray-400 italic text-center">Descrição não disponível.</p>
               )}
