@@ -11,10 +11,33 @@ export default function BannerCarousel() {
   // Estados para controle de toque (Swipe no Mobile)
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
-  const minSwipeDistance = 50; 
+  const minSwipeDistance = 50;
+
+  // Proporção natural (largura/altura) de cada banner, descoberta no onLoad.
+  // No mobile o carrossel assume a proporção do banner visível — assim a
+  // imagem aparece inteira, ocupando 100% da largura, sem corte e sem faixa
+  // vazia embaixo (cada banner pode ter proporção diferente).
+  const [ratios, setRatios] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Registra a proporção real da imagem quando ela carrega.
+  const handleRatio = (idx, e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    if (!naturalWidth || !naturalHeight) return;
+    const r = naturalWidth / naturalHeight;
+    setRatios(prev => (prev[idx] === r ? prev : { ...prev, [idx]: r }));
+  };
 
   // URL da API
-  const API_URL = `${API_BASE_URL}/banners.php`; 
+  const API_URL = `${API_BASE_URL}/banners.php`;
 
   useEffect(() => {
     fetchBanners();
@@ -87,31 +110,34 @@ export default function BannerCarousel() {
           </h3>
       </div>
 
-      {/* LARGURA E CONTAINER */}
-      <div className="container mx-auto px-2 sm:px-4 md:px-6">
-        
+      {/* LARGURA E CONTAINER — full-bleed no mobile, centralizado no desktop */}
+      <div className="w-full px-0 md:px-6 md:max-w-[1280px] md:mx-auto">
+
         {/* CARROSSEL
-            Mobile: altura automática — a imagem aparece inteira na proporção
-            original (sem corte e sem faixas). Desktop: altura fixa + cover. */}
+            Mobile: a altura segue a proporção do banner visível (aspectRatio)
+            — imagem inteira, 100% da largura, sem corte e sem faixa vazia.
+            Desktop: altura fixa + cover. */}
         <div
-            className="relative w-full h-auto md:h-[550px] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] group border border-gray-100 bg-white"
+            className="relative w-full md:h-[550px] rounded-none md:rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] group border-0 md:border md:border-gray-100 bg-white"
+            style={isMobile ? { aspectRatio: String(ratios[currentIndex] || (16 / 7)) } : undefined}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
 
             <div
-                className="w-full md:h-full flex items-stretch transition-transform duration-700 ease-out"
+                className="w-full h-full flex items-stretch transition-transform duration-700 ease-out"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-                {banners.map((banner) => (
-                    <div key={banner.id} className="min-w-full md:h-full relative bg-gray-100 select-none">
+                {banners.map((banner, idx) => (
+                    <div key={banner.id} className="min-w-full h-full relative bg-gray-100 select-none">
                         {banner.link_url ? (
                             <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer">
                                 <img
                                     src={getImageUrl(banner.image_url)}
                                     alt="Banner"
-                                    className="w-full h-auto md:h-full md:object-cover pointer-events-none align-top"
+                                    className="w-full h-full object-cover pointer-events-none align-top"
+                                    onLoad={(e) => handleRatio(idx, e)}
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </a>
@@ -120,7 +146,8 @@ export default function BannerCarousel() {
                                 <img
                                     src={getImageUrl(banner.image_url)}
                                     alt="Banner"
-                                    className="w-full h-auto md:h-full md:object-cover pointer-events-none align-top"
+                                    className="w-full h-full object-cover pointer-events-none align-top"
+                                    onLoad={(e) => handleRatio(idx, e)}
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </div>
