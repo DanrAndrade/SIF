@@ -205,12 +205,24 @@ iframe.ql-video {
   border-radius: 8px;
 }
 
-/* Conteúdo público — evita vazamento do card.
-   Usa só overflow-wrap (quebra apenas palavras maiores que a linha, ex: URLs);
-   word-break: break-word quebrava palavras normais no meio, deixando o texto feio. */
+/* Conteúdo público — quebra de linha natural.
+   word-break: normal + hyphens: manual garantem que palavras normais (e palavras
+   com hífen) NÃO sejam cortadas no meio. overflow-wrap só quebra tokens longos
+   sem espaço (ex: URLs gigantes) para não estourar o card. */
 .prose {
   overflow-wrap: break-word;
-  overflow: hidden;
+  word-break: normal;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* Em telas estreitas, texto justificado fica feio (rios de espaço e
+   quebras forçadas) — alinha à esquerda no mobile. */
+@media (max-width: 640px) {
+  .prose .ql-align-justify,
+  .prose [style*="justify"] {
+    text-align: left !important;
+  }
 }
 
 .prose iframe {

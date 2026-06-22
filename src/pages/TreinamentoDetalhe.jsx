@@ -82,12 +82,14 @@ export default function TreinamentoDetalhe() {
         </div>
         
         <div className="container mx-auto px-6 relative z-10">
-          <Link 
-            to="/treinamentos" 
-            className="inline-flex items-center gap-2 text-white/70 hover:text-[#7FBA00] mb-8 transition-colors group bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
+          <Link
+            to="/treinamentos"
+            className="inline-flex items-center gap-2 text-white/50 hover:text-white mb-10 transition-colors group"
           >
-            <ChevronLeft size={16} />
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-1">Voltar aos Treinamentos</span>
+            <div className="p-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md group-hover:bg-[#007a3d] transition-all">
+              <ChevronLeft size={16} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mt-1">Voltar aos Treinamentos</span>
           </Link>
           
           <div className="max-w-4xl">
@@ -101,12 +103,12 @@ export default function TreinamentoDetalhe() {
       </div>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <section className="py-24 relative -mt-32 z-20">
+      <section className="py-24 relative -mt-20 z-20">
         <div className="container mx-auto px-6">
           <div className="flex flex-col gap-12">
-            
+
             {/* CONTEÚDO PRINCIPAL */}
-            <div className="w-full bg-white rounded-[28px] md:rounded-[40px] p-5 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
+            <div className="w-full bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
               <h3 className="text-3xl font-bold text-gray-900 mb-12 uppercase tracking-tighter flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]">
                    <Award size={20} />

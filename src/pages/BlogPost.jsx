@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, ArrowLeft, Tag as TagIcon, ArrowRight, AlertCircle } from 'lucide-react';
+import { Calendar, ChevronLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import NoiseOverlay from '../components/ui/NoiseOverlay';
+import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
+
+const formatDate = (value) => {
+  try {
+    return new Date(value).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return 'Data indisponível';
+  }
+};
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -20,22 +34,19 @@ export default function BlogPost() {
       try {
         setLoading(true);
         setError(null);
-        
-        const postRes = await fetch(`${API_URL}?slug=${slug}`);
 
+        const postRes = await fetch(`${API_URL}?slug=${slug}`);
         if (!postRes.ok) {
           throw new Error(`Erro HTTP: ${postRes.status}`);
         }
 
         const postData = await postRes.json();
-
         if (!postData || !postData.id) {
           throw new Error('Artigo não encontrado');
         }
-        
+
         setPost(postData);
-        
-        // Fetch all posts for related posts
+
         try {
           const allPostsRes = await fetch(API_URL);
           if (allPostsRes.ok) {
@@ -44,28 +55,24 @@ export default function BlogPost() {
               const currentTags = postData.tags
                 ? postData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
                 : [];
-              
+
               const filtered = allPosts.filter(p => {
-                // Exclude the current post
                 if (p.slug === postData.slug || String(p.id) === String(postData.id)) {
-                  return false; 
+                  return false;
                 }
-                
-                // Match by tags
                 if (currentTags.length > 0) {
-                  const pTags = p.tags 
+                  const pTags = p.tags
                     ? p.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
                     : [];
-                  return pTags.some(tag => currentTags.includes(tag)); 
+                  return pTags.some(tag => currentTags.includes(tag));
                 }
-                
                 return false;
               });
 
               const sortedFiltered = filtered.sort((a, b) =>
                 new Date(b.created_at) - new Date(a.created_at)
               );
-              
+
               setRelatedPosts(sortedFiltered.slice(0, 3));
             }
           }
@@ -82,184 +89,170 @@ export default function BlogPost() {
       }
     };
 
-    fetchPostData();
     window.scrollTo(0, 0);
+    fetchPostData();
   }, [slug]);
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center font-bold text-[#007a3d]">
-        Carregando Artigo...
+      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="bg-white min-h-screen flex flex-col font-sans overflow-x-hidden">
-        <Navbar scrolled={true} />
-        <div className="flex-grow pt-32 container mx-auto px-6 max-w-4xl">
-          <div className="bg-red-50 border border-red-200 rounded-3xl p-8 flex items-start gap-4">
-            <AlertCircle className="text-red-600 flex-shrink-0 mt-1" size={24} />
-            <div className="flex-1">
-              <p className="text-red-800 font-bold text-lg mb-2">Erro ao Carregar Artigo</p>
-              <p className="text-red-600 mb-4">{error || 'Artigo não encontrado'}</p>
-              <Link 
-                to="/blog" 
-                className="inline-flex items-center gap-2 text-white bg-[#007a3d] px-6 py-3 rounded-full hover:bg-[#047857] font-bold uppercase text-[10px] tracking-widest transition-all"
-              >
-                <ArrowLeft size={16}/> Voltar ao Blog
-              </Link>
-            </div>
-          </div>
-        </div>
-        <Footer />
+      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Artigo não encontrado</h2>
+        <p className="text-gray-500 mb-6 max-w-md">{error || 'Este artigo não está mais disponível.'}</p>
+        <Link to="/blog">
+          <Button variant="primary" className="rounded-xl">Voltar ao Blog</Button>
+        </Link>
       </div>
     );
   }
 
+  let extraSections = null;
+  try {
+    const extra = post.extra_data ? JSON.parse(post.extra_data) : {};
+    if (extra.sections?.length) extraSections = extra.sections;
+  } catch { /* extra_data inválido — ignora */ }
+
   return (
-    <div className="bg-white min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
-      <Navbar scrolled={true} />
-      
-      <article className="flex-grow pt-40 container mx-auto px-6 max-w-4xl">
-        <div className="mb-10">
+    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+      <Navbar />
+
+      {/* HERO — foto da matéria se houver, senão degradê escuro */}
+      <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-[#1f2937]">
+        <div className="absolute inset-0 z-0">
+          {post.image_url
+            ? <>
+                <img
+                  src={getImageUrl(post.image_url)}
+                  alt={post.title}
+                  className="w-full h-full object-cover opacity-60"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
+              </>
+            : <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-[#1B5E20]/30" />
+          }
+          <NoiseOverlay opacity={0.2} />
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-white bg-[#007a3d] hover:bg-[#047857] px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all group"
+            className="inline-flex items-center gap-2 text-white/50 hover:text-white mb-10 transition-colors group"
           >
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-0.5">Voltar para o Blog</span>
+            <div className="p-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md group-hover:bg-[#007a3d] transition-all">
+              <ChevronLeft size={16} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mt-1">Voltar para o Blog</span>
           </Link>
-        </div>
-        
-            {post.image_url && (
-                <div className="mb-16">
-                    <img 
-                        src={getImageUrl(post.image_url)}
-                        className="w-full h-[500px] object-cover rounded-[56px] shadow-2xl border border-gray-100" 
-                        alt={post.title}
-                        loading="eager"
-                    />
-                </div>
-            )}
 
-        <header className="mb-16">
-            <h1 className="text-4xl md:text-7xl font-black text-gray-900 leading-tight mb-6 tracking-tighter uppercase">{post.title}</h1>
-            <div className="flex items-center gap-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest">
-                <span className="flex items-center gap-1.5">
-                  <Calendar size={14} className="text-[#007a3d]"/>
-                  {(() => {
-                    try {
-                      return new Date(post.created_at).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                      });
-                    } catch {
-                      return 'Data indisponível';
-                    }
-                  })()}
-                </span>
-            </div>
-        </header>
-
-        <div
-          className="prose prose-lg max-w-none text-gray-700 leading-relaxed sif-content-rich"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-
-        {(() => {
-          try {
-            const extra = post.extra_data ? JSON.parse(post.extra_data) : {};
-            if (extra.sections?.length) return <div className="mt-12 pt-8 border-t border-gray-100"><ContentSectionsRenderer sections={extra.sections} /></div>;
-          } catch {}
-          return null;
-        })()}
-
-        <style dangerouslySetInnerHTML={{ __html: `
-            .sif-content-rich img { 
-                max-width: 100%; height: auto; border-radius: 24px; 
-                margin: 40px auto; display: block; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            }
-            .sif-content-rich p { margin-bottom: 1.5rem; }
-            .sif-content-rich h1, .sif-content-rich h2, .sif-content-rich h3 {
-                margin-top: 2rem; margin-bottom: 1rem; font-weight: bold;
-            }
-            .sif-content-rich ul, .sif-content-rich ol {
-                margin: 1.5rem 0; padding-left: 2rem;
-            }
-            .sif-content-rich a {
-                color: #007a3d; text-decoration: underline;
-            }
-            .sif-content-rich blockquote {
-                border-left: 4px solid #007a3d; padding-left: 1.5rem; 
-                margin: 2rem 0; font-style: italic; color: #374151;
-            }
-        ` }} />
-
-        {post.tags && post.tags.trim() && (
-          <div className="flex flex-wrap gap-2 mt-12 mb-8 pt-8 border-t border-gray-100">
-              {post.tags.split(',').map((tag, index) => {
-                  const trimmedTag = tag.trim();
-                  if(!trimmedTag) return null;
-                  return (
-                      <span 
-                        key={`${trimmedTag}-${index}`} 
-                        className="px-5 py-2.5 bg-gray-50 border rounded-full text-[10px] font-black text-gray-400 uppercase flex items-center gap-2 hover:text-[#007a3d] hover:border-[#007a3d] transition-colors"
-                      >
-                          <TagIcon size={12}/> {trimmedTag}
-                      </span>
-                  )
-              })}
+          <div className="max-w-4xl flex flex-col gap-6">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest border border-white/10 w-fit">Blog &amp; Notícias</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter leading-[0.95]">
+              {post.title}
+            </h1>
+            <p className="text-white/60 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+              <Calendar size={16} className="text-[#7FBA00]" /> {formatDate(post.created_at)}
+            </p>
           </div>
-        )}
+        </div>
+      </div>
 
-        {relatedPosts.length > 0 && (
-            <div className="pt-8 border-t border-gray-100">
-                <h3 className="text-2xl font-bold uppercase text-[#007a3d] tracking-tighter mb-8">Leia Também</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {relatedPosts.map(relPost => (
-                        <Link
-                          key={relPost.id}
-                          to={`/blog/${relPost.slug}`}
-                          className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-gray-100 transition-all hover:-translate-y-2 flex flex-col"
-                        >
-                            <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
-                                    {relPost.image_url && (
-                                        <img 
-                                            src={getImageUrl(relPost.image_url)}
-                                            alt={relPost.title} 
-                                            className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                                            loading="lazy"
-                                        />
-                                    )}
-                            </div>
-                            <div className="p-6 flex flex-col flex-grow">
-                                <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">
-                                    <Calendar size={12} className="text-[#007a3d]" />
-                                    {(() => {
-                                      try {
-                                        return new Date(relPost.created_at).toLocaleDateString('pt-BR');
-                                      } catch {
-                                        return 'Data indisponível';
-                                      }
-                                    })()}
-                                </div>
-                                <h4 className="text-sm font-bold text-gray-900 mb-4 line-clamp-2 uppercase leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">{relPost.title}</h4>
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-                                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Ler</span>
-                                    <ArrowRight size={14} className="text-[#007a3d] group-hover:translate-x-1 transition-transform" />
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
+      {/* CONTEÚDO */}
+      <section className="py-24 relative -mt-20 z-20">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 gap-12">
+
+            <div className="bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[400px]">
+              <div className="flex items-center gap-6 mb-16">
+                <div className="p-4 rounded-3xl bg-gray-50 text-[#007a3d]">
+                  <Newspaper size={32} />
                 </div>
-            </div>
-        )}
-      </article>
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 uppercase tracking-tighter">Artigo</h3>
+                  <p className="text-xs font-black text-gray-300 uppercase tracking-widest mt-1">SIF Media Center</p>
+                </div>
+              </div>
 
-      <div className="w-full h-24 md:h-32 flex-shrink-0"></div>
+              <div
+                className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#1B5E20] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+
+              {extraSections && (
+                <div className="mt-12 pt-8 border-t border-gray-100">
+                  <ContentSectionsRenderer sections={extraSections} />
+                </div>
+              )}
+
+              {post.tags && post.tags.trim() && (
+                <div className="flex flex-wrap gap-2 mt-16 pt-8 border-t border-gray-100">
+                  {post.tags.split(',').map((tag, index) => {
+                    const trimmedTag = tag.trim();
+                    if (!trimmedTag) return null;
+                    return (
+                      <span
+                        key={`${trimmedTag}-${index}`}
+                        className="px-5 py-2.5 bg-gray-50 border border-gray-100 rounded-full text-[10px] font-black text-gray-400 uppercase flex items-center gap-2 hover:text-[#007a3d] hover:border-[#007a3d] transition-colors"
+                      >
+                        <TagIcon size={12} /> {trimmedTag}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* LEIA TAMBÉM */}
+      {relatedPosts.length > 0 && (
+        <section className="pb-24">
+          <div className="container mx-auto px-6">
+            <h3 className="text-2xl font-bold uppercase text-[#007a3d] tracking-tighter mb-8">Leia Também</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedPosts.map(relPost => (
+                <Link
+                  key={relPost.id}
+                  to={`/blog/${relPost.slug}`}
+                  className="group bg-white rounded-[24px] overflow-hidden shadow-lg border border-gray-100 transition-all hover:-translate-y-2 flex flex-col"
+                >
+                  <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
+                    {relPost.image_url && (
+                      <img
+                        src={getImageUrl(relPost.image_url)}
+                        alt={relPost.title}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">
+                      <Calendar size={12} className="text-[#007a3d]" />
+                      {formatDate(relPost.created_at)}
+                    </div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-4 line-clamp-2 uppercase leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">{relPost.title}</h4>
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Ler</span>
+                      <ArrowRight size={14} className="text-[#007a3d] group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <Footer />
     </div>
   );

@@ -90,35 +90,37 @@ export default function BannerCarousel() {
       {/* LARGURA E CONTAINER */}
       <div className="container mx-auto px-2 sm:px-4 md:px-6">
         
-        {/* CARROSSEL */}
-        <div 
-            className="relative w-full h-[220px] sm:h-[350px] md:h-[550px] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] group border border-gray-100 bg-white"
+        {/* CARROSSEL
+            Mobile: altura automática — a imagem aparece inteira na proporção
+            original (sem corte e sem faixas). Desktop: altura fixa + cover. */}
+        <div
+            className="relative w-full h-auto md:h-[550px] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] group border border-gray-100 bg-white"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
-            
-            <div 
-                className="w-full h-full flex transition-transform duration-700 ease-out"
+
+            <div
+                className="w-full md:h-full flex items-stretch transition-transform duration-700 ease-out"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
                 {banners.map((banner) => (
-                    <div key={banner.id} className="min-w-full h-full relative bg-gray-100 select-none">
+                    <div key={banner.id} className="min-w-full md:h-full relative bg-gray-100 select-none">
                         {banner.link_url ? (
                             <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer">
-                                <img 
-                                    src={getImageUrl(banner.image_url)} 
-                                    alt="Banner" 
-                                    className="w-full h-full object-contain md:object-cover pointer-events-none" 
+                                <img
+                                    src={getImageUrl(banner.image_url)}
+                                    alt="Banner"
+                                    className="w-full h-auto md:h-full md:object-cover pointer-events-none align-top"
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </a>
                         ) : (
                             <div className="w-full h-full">
-                                <img 
-                                    src={getImageUrl(banner.image_url)} 
-                                    alt="Banner" 
-                                    className="w-full h-full object-contain md:object-cover pointer-events-none"
+                                <img
+                                    src={getImageUrl(banner.image_url)}
+                                    alt="Banner"
+                                    className="w-full h-auto md:h-full md:object-cover pointer-events-none align-top"
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
                             </div>
