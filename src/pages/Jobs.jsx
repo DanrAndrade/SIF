@@ -11,7 +11,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 // Importando o icone para uso em componentes
 import iconLogo from '../assets/icone.svg';
 
-import { API_BASE_URL, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, stripNbsp } from '../apiConfig';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -338,7 +338,7 @@ function ApplicationModal({ job, onClose }) {
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#007a3d]">
                                     <span className="w-10 h-[2px] bg-[#007a3d]"></span> Descrição da Vaga
                                 </h4>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-base font-medium">{cleanRichHtml(job.description)}</p>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-base font-medium">{stripNbsp(job.description)}</p>
                             </div>
 
                             {job.salary && <span className="flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-2 rounded-xl border border-gray-100"><DollarSign size={16} className="text-[#007a3d]"/> {job.salary}</span>}
