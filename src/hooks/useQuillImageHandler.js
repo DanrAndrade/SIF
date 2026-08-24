@@ -13,7 +13,7 @@ const DEFAULT_TOOLBAR = [
   ['bold', 'italic', 'underline', 'strike', 'blockquote'],
   [{ align: [] }],
   [{ list: 'ordered' }, { list: 'bullet' }],
-  ['link', 'image'],
+  ['link', 'image', 'video'],
   ['clean'],
 ];
 
