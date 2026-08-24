@@ -123,7 +123,7 @@ function SectionBlock({ section, index, total, onMoveUp, onMoveDown, onRemove, o
           <QuillEditor
             value={section.content || ''}
             onChange={val => onUpdate({ content: val })}
-            height="h-64"
+            height="h-[420px]"
           />
         )}
         {section.type === 'tabs' && (

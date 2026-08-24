@@ -344,11 +344,17 @@ export default function Institucional() {
     : [];
 
   const scrollAreas = (direction) => {
-    if (areasScrollRef.current) {
-        const { scrollLeft, clientWidth } = areasScrollRef.current;
-        const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth;
-        areasScrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
-    }
+    const el = areasScrollRef.current;
+    if (!el) return;
+    // Rola por CARD (largura do card + gap), garantindo que cada card sempre
+    // pare inteiro na visualização — nunca cortado. Avança quantos cards
+    // couberem na área visível (no mínimo 1).
+    const first = el.children[0];
+    const second = el.children[1];
+    const step = second ? (second.offsetLeft - first.offsetLeft) : (first?.offsetWidth || 300);
+    const perView = Math.max(1, Math.floor(el.clientWidth / step));
+    const delta = step * perView;
+    el.scrollTo({ left: direction === 'left' ? el.scrollLeft - delta : el.scrollLeft + delta, behavior: 'smooth' });
   };
   
   // Scroll automático para a seção SOMENTE quando há hash explícito na URL
@@ -503,15 +509,15 @@ export default function Institucional() {
                 </div>
 
                 <div 
-                    ref={areasScrollRef} 
-                    className="flex overflow-x-auto gap-10 no-scrollbar pb-16 snap-x snap-mandatory px-4"
+                    ref={areasScrollRef}
+                    className="flex overflow-x-auto gap-10 no-scrollbar pb-16 snap-x snap-mandatory scroll-pl-4 px-4"
                 >
                     {areas.map((area, i) => {
                         const Icon = AREA_ICON_MAP[area.icon] || Sprout;
                         return (
                           <div
                             key={i}
-                            className="group flex-shrink-0 w-[350px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-center border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
+                            className="group flex-shrink-0 w-[350px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
                           >
                             <div className="text-[#007a3d] mb-10 group-hover:scale-110 transition-transform origin-left duration-500">
                                 <Icon size={42} strokeWidth={1.5} />

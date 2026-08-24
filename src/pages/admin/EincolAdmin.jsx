@@ -1,11 +1,30 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
+
+// Faz upload de uma imagem avulsa (patrocinadores) e devolve a URL salva.
+async function uploadEincolImage(file) {
+  if (!file) return null;
+  if (file.size > 10 * 1024 * 1024) {
+    window.showToast?.('Imagem muito grande. Máximo 10 MB.', 'error');
+    return null;
+  }
+  const fd = new FormData();
+  fd.append('image', file);
+  try {
+    const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) return data.url;
+    window.showToast?.(data.message || 'Erro ao enviar imagem.', 'error');
+  } catch {
+    window.showToast?.('Falha ao conectar ao servidor de upload.', 'error');
+  }
+  return null;
+}
 
 // Componente para upload de uma imagem com preview
 const ImageUploadField = ({ label, value, fileKey, onFileChange, hint, onRemove }) => {
@@ -124,42 +143,6 @@ export default function EincolAdmin() {
     } catch (err) { console.error('Erro ao carregar EINCOL:', err); }
   };
 
-  const quillInstance = React.useRef(null);
-
-  const imageHandler = useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*'; input.click();
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-      const fd = new FormData(); fd.append('image', file);
-      try {
-        const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
-        const data = await res.json();
-        if (data.success && quillInstance.current) {
-          const quill = quillInstance.current.getEditor();
-          const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
-          quill.setSelection(range.index + 1);
-        }
-      } catch (err) { console.error('Upload erro:', err); }
-    };
-  }, []);
-
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ align: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image'],
-        ['clean']
-      ],
-      handlers: { image: imageHandler }
-    }
-  }), [imageHandler]);
-
   const handleFileChange = (key, file) => {
     setFiles(prev => ({ ...prev, [key]: file }));
   };
@@ -193,8 +176,9 @@ export default function EincolAdmin() {
     return { ...f, tabs };
   });
 
-  // Sections
+  // Sections (texto e grupos de patrocinadores compartilham o mesmo array)
   const addSection = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `sec-${Date.now()}-${Math.random()}`, title: '', text: '' }] }));
+  const addSponsorGroup = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `spon-${Date.now()}-${Math.random()}`, type: 'sponsors', title: 'Patrocinadores', images: [] }] }));
   const removeSection = (i) => setForm(f => ({ ...f, sections: f.sections.filter((_, idx) => idx !== i) }));
   const updateSection = (i, field, val) => setForm(f => {
     const sections = [...f.sections];
@@ -318,16 +302,11 @@ export default function EincolAdmin() {
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
             📝 Conteúdo Principal
           </h3>
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <ReactQuill
-              ref={quillInstance}
-              theme="snow"
-              modules={modules}
-              value={form.main_content}
-              onChange={val => setForm(prev => ({ ...prev, main_content: val }))}
-              className="h-96"
-            />
-          </div>
+          <QuillEditor
+            value={form.main_content}
+            onChange={val => setForm(prev => ({ ...prev, main_content: val }))}
+            height="h-[600px]"
+          />
         </div>
 
         {/* SEÇÃO 3: RENDER DO EVENTO */}
@@ -421,27 +400,41 @@ export default function EincolAdmin() {
           ))}
         </div>
 
-        {/* SEÇÃO 7: SEÇÕES CONFIGURÁVEIS */}
+        {/* SEÇÃO 7: SEÇÕES CONFIGURÁVEIS + PATROCINADORES */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
-          <div className="flex justify-between items-center border-b pb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-4 gap-3">
             <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">✏️ Seções Adicionais</h3>
-            <button type="button" onClick={addSection}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1f2937] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
-              <Plus size={14} /> Adicionar Seção
-            </button>
+            <div className="flex gap-2">
+              <button type="button" onClick={addSection}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1f2937] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                <Plus size={14} /> Seção de Texto
+              </button>
+              <button type="button" onClick={addSponsorGroup}
+                className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
+                <Users size={14} /> Grupo de Patrocinadores
+              </button>
+            </div>
           </div>
-          <p className="text-xs text-gray-400">Use para adicionar informações extras como patrocinadores, localização, hospedagem, etc.</p>
+          <p className="text-xs text-gray-400">Seções de texto para informações extras (localização, hospedagem...) ou grupos de patrocinadores (título + logos que giram num carrossel).</p>
           {form.sections.length === 0 && (
-            <p className="text-gray-400 text-sm italic text-center py-6">Nenhuma seção adicional. Clique em "Adicionar Seção" para criar.</p>
+            <p className="text-gray-400 text-sm italic text-center py-6">Nenhuma seção adicional. Use os botões acima para criar.</p>
           )}
           {form.sections.map((sec, i) => (
-            <QuillSection
-              key={sec._uid || i}
-              index={i}
-              sec={sec}
-              onUpdate={(field, val) => updateSection(i, field, val)}
-              onRemove={() => removeSection(i)}
-            />
+            sec.type === 'sponsors'
+              ? <SponsorGroupEditor
+                  key={sec._uid || i}
+                  index={i}
+                  group={sec}
+                  onUpdate={(field, val) => updateSection(i, field, val)}
+                  onRemove={() => removeSection(i)}
+                />
+              : <QuillSection
+                  key={sec._uid || i}
+                  index={i}
+                  sec={sec}
+                  onUpdate={(field, val) => updateSection(i, field, val)}
+                  onRemove={() => removeSection(i)}
+                />
           ))}
         </div>
 
@@ -453,41 +446,9 @@ export default function EincolAdmin() {
   );
 }
 
-// --- SUB-COMPONENTES ISOLADOS PARA QUILL (cada um tem seu próprio ref) ---
+// --- SUB-COMPONENTES ---
 
 function QuillTab({ tab, index, onUpdate, onRemove }) {
-  const ref = React.useRef(null);
-  const imageHandler = React.useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*'; input.click();
-    input.onchange = async () => {
-      const file = input.files[0]; if (!file) return;
-      const fd = new FormData(); fd.append('image', file);
-      try {
-        const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
-        const data = await res.json();
-        if (data.success && ref.current) {
-          const quill = ref.current.getEditor();
-          const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
-          quill.setSelection(range.index + 1);
-        }
-      } catch (err) { console.error('Upload erro tab:', err); }
-    };
-  }, []);
-  const modules = React.useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ align: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image'],
-        ['clean']
-      ],
-      handlers: { image: imageHandler }
-    }
-  }), [imageHandler]);
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
@@ -502,46 +463,12 @@ function QuillTab({ tab, index, onUpdate, onRemove }) {
           <Trash2 size={16} />
         </button>
       </div>
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <ReactQuill ref={ref} theme="snow" modules={modules} value={tab.content} onChange={val => onUpdate('content', val)} className="h-64" />
-      </div>
+      <QuillEditor value={tab.content} onChange={val => onUpdate('content', val)} height="h-[420px]" />
     </div>
   );
 }
 
 function QuillSection({ sec, index, onUpdate, onRemove }) {
-  const ref = React.useRef(null);
-  const imageHandler = React.useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*'; input.click();
-    input.onchange = async () => {
-      const file = input.files[0]; if (!file) return;
-      const fd = new FormData(); fd.append('image', file);
-      try {
-        const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
-        const data = await res.json();
-        if (data.success && ref.current) {
-          const quill = ref.current.getEditor();
-          const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
-          quill.setSelection(range.index + 1);
-        }
-      } catch (err) { console.error('Upload erro section:', err); }
-    };
-  }, []);
-  const modules = React.useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline'],
-        [{ align: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['link', 'image'],
-        ['clean']
-      ],
-      handlers: { image: imageHandler }
-    }
-  }), [imageHandler]);
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
@@ -556,9 +483,86 @@ function QuillSection({ sec, index, onUpdate, onRemove }) {
           <Trash2 size={16} />
         </button>
       </div>
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <ReactQuill ref={ref} theme="snow" modules={modules} value={sec.text} onChange={val => onUpdate('text', val)} className="h-64" />
+      <QuillEditor value={sec.text} onChange={val => onUpdate('text', val)} height="h-[420px]" />
+    </div>
+  );
+}
+
+// Grupo de patrocinadores: título + lista de logos (viram carrossel no site).
+function SponsorGroupEditor({ group, index, onUpdate, onRemove }) {
+  const [uploading, setUploading] = useState(false);
+  const images = Array.isArray(group.images) ? group.images : [];
+
+  const handleAddImages = async (fileList) => {
+    const arr = Array.from(fileList || []);
+    if (arr.length === 0) return;
+    setUploading(true);
+    const urls = [];
+    for (const file of arr) {
+      const url = await uploadEincolImage(file);
+      if (url) urls.push(url);
+    }
+    if (urls.length) onUpdate('images', [...images, ...urls]);
+    setUploading(false);
+  };
+
+  const removeImage = (i) => onUpdate('images', images.filter((_, idx) => idx !== i));
+  const moveImage = (i, dir) => {
+    const j = i + dir;
+    if (j < 0 || j >= images.length) return;
+    const next = [...images];
+    [next[i], next[j]] = [next[j], next[i]];
+    onUpdate('images', next);
+  };
+
+  return (
+    <div className="bg-emerald-50/40 rounded-2xl p-5 border border-emerald-100 space-y-4">
+      <div className="flex items-center gap-3">
+        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-700 tracking-widest shrink-0">
+          <Users size={13} /> Patrocinadores {index + 1}
+        </span>
+        <input
+          className="flex-1 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
+          placeholder="Título do grupo (ex: Patrocinadores Premium)"
+          value={group.title}
+          onChange={e => onUpdate('title', e.target.value)}
+        />
+        <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
+          <Trash2 size={16} />
+        </button>
       </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {images.map((img, i) => (
+          <div key={i} className="relative group bg-white rounded-xl border border-gray-200 h-24 flex items-center justify-center overflow-hidden">
+            <img src={getImageUrl(img)} alt={`Patrocinador ${i + 1}`} className="max-w-[85%] max-h-[85%] object-contain" />
+            <button type="button" onClick={() => removeImage(i)}
+              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <X size={12} />
+            </button>
+            <div className="absolute bottom-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
+                className="px-1.5 bg-white/90 rounded text-gray-600 text-xs font-bold disabled:opacity-30">‹</button>
+              <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
+                className="px-1.5 bg-white/90 rounded text-gray-600 text-xs font-bold disabled:opacity-30">›</button>
+            </div>
+          </div>
+        ))}
+
+        <label className="h-24 bg-white rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#007a3d] transition-colors text-gray-400">
+          {uploading ? (
+            <span className="text-[10px] font-bold uppercase tracking-widest">Enviando...</span>
+          ) : (
+            <>
+              <Plus size={20} />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Add logos</span>
+            </>
+          )}
+          <input type="file" accept="image/*" multiple className="hidden" disabled={uploading}
+            onChange={e => { handleAddImages(e.target.files); e.target.value = ''; }} />
+        </label>
+      </div>
+      <p className="text-[11px] text-gray-400">As imagens são enviadas na hora. Lembre de clicar em "Salvar Configuração EINCOL" no final para persistir o grupo.</p>
     </div>
   );
 }

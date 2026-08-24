@@ -233,27 +233,81 @@ export default function Eincol() {
           </section>
         )}
 
-        {/* SEÇÕES CONFIGURÁVEIS ADICIONAIS */}
-        {sections.map((sec, i) => (
-          <section key={i} className={`py-20 ${i % 2 === 0 ? 'bg-[#f8f9fa]' : 'bg-white'}`}>
-            <div className="container mx-auto px-6 max-w-4xl">
-              {sec.title && (
-                <h2 className="text-3xl font-black uppercase tracking-tighter text-[#1f2937] mb-8">
-                  {sec.title}
-                </h2>
-              )}
-              {sec.text && (
-                <div
-                  className="prose prose-base max-w-none text-gray-600 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
-                  dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.text) }}
-                />
-              )}
-            </div>
-          </section>
-        ))}
+        {/* SEÇÕES CONFIGURÁVEIS ADICIONAIS (texto e grupos de patrocinadores) */}
+        {sections.map((sec, i) => {
+          const bg = i % 2 === 0 ? 'bg-[#f8f9fa]' : 'bg-white';
+
+          // Grupo de patrocinadores → carrossel de logos
+          if (sec.type === 'sponsors') {
+            const imgs = Array.isArray(sec.images) ? sec.images.filter(Boolean) : [];
+            if (imgs.length === 0) return null;
+            return (
+              <section key={i} className={`py-20 ${bg}`}>
+                <SponsorCarousel title={sec.title} images={imgs} />
+              </section>
+            );
+          }
+
+          // Seção de texto padrão
+          return (
+            <section key={i} className={`py-20 ${bg}`}>
+              <div className="container mx-auto px-6 max-w-4xl">
+                {sec.title && (
+                  <h2 className="text-3xl font-black uppercase tracking-tighter text-[#1f2937] mb-8">
+                    {sec.title}
+                  </h2>
+                )}
+                {sec.text && (
+                  <div
+                    className="prose prose-base max-w-none text-gray-600 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
+                    dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.text) }}
+                  />
+                )}
+              </div>
+            </section>
+          );
+        })}
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+// Carrossel de logos de patrocinadores.
+// Com muitos logos, roda em marquee infinito (reaproveita a animação
+// `.animate-scroll` do index.css, que já duplica o conteúdo). Com poucos,
+// centraliza estático para não ficar com buracos girando.
+function SponsorCarousel({ title, images }) {
+  const many = images.length > 5;
+  return (
+    <div className="container mx-auto px-6 max-w-6xl">
+      {title && (
+        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-[#1f2937] mb-10 text-center">
+          {title}
+        </h2>
+      )}
+      {many ? (
+        <div className="relative overflow-hidden">
+          <div className="flex items-center gap-12 w-max animate-scroll hover:[animation-play-state:paused]">
+            {[...images, ...images].map((img, i) => (
+              <div key={i} className="h-20 md:h-24 flex items-center justify-center shrink-0">
+                <img src={getImageUrl(img)} alt="Patrocinador" loading="lazy" decoding="async"
+                  className="max-h-full max-w-[180px] object-contain" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+          {images.map((img, i) => (
+            <div key={i} className="h-20 md:h-24 flex items-center justify-center">
+              <img src={getImageUrl(img)} alt="Patrocinador" loading="lazy" decoding="async"
+                className="max-h-full max-w-[180px] object-contain" />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

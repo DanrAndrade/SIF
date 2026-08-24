@@ -41,7 +41,7 @@ function TabEditorItem({ tab, index, total, itemLabel, onMoveUp, onMoveDown, onR
           modules={modules}
           value={tab.content}
           onChange={val => onUpdate('content', val)}
-          className="h-64"
+          className="h-[420px]"
         />
       </div>
     </div>

@@ -68,8 +68,8 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
         
         <div ref={trackRef} className="flex gap-4 md:gap-8 pb-4 relative z-10 pl-6 md:pl-12 lg:pl-[max(48px,calc((100vw-1280px)/2+48px))] pr-6 md:pr-24 w-full md:w-max overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar">
             {categories.map((item) => (
-                <div key={item.id} className="min-w-[85vw] sm:min-w-[60vw] md:min-w-[550px] h-[450px] md:h-[400px] shrink-0 snap-center relative flex items-center group">
-                    <div className="w-full md:w-[75%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-[32px] overflow-hidden shadow-lg bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
+                <div key={item.id} className="w-[85vw] sm:w-[60vw] md:w-[680px] h-[450px] md:h-[420px] shrink-0 snap-center relative flex items-center group">
+                    <div className="w-full md:w-[82%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-[32px] overflow-hidden shadow-lg bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
                         {item.image && <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />}
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
                     </div>
@@ -77,7 +77,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
                         <div>
                             <span className="text-[10px] md:text-xs font-bold text-[#007a3d] uppercase tracking-widest mb-2 md:mb-4 block">{item.id} / {item.tag}</span>
                             <h3 className="text-3xl md:text-3xl font-bold section-heading uppercase leading-none mb-3 md:mb-4">{item.title}</h3>
-                            <p className="text-xs md:text-[11px] text-gray-600 leading-relaxed font-medium line-clamp-4 md:line-clamp-none">{item.desc}</p>
+                            <p className="text-xs md:text-[11px] text-gray-600 leading-relaxed font-medium line-clamp-4 md:line-clamp-6">{item.desc}</p>
                         </div>
                         {item.link && item.link.startsWith('http') ? (
                             <a href={item.link} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full flex items-center justify-center self-end border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">

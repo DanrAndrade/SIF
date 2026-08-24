@@ -223,7 +223,7 @@ export default function ProjetosAdmin() {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Descrição do Projeto</label>
-              <QuillEditor value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[400px]" />
+              <QuillEditor value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[550px]" />
             </div>
 
             <ContentSections

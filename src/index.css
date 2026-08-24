@@ -160,8 +160,27 @@ html { scrollbar-color: #92b735 #f1f1f1; }
   min-height: 120px;
 }
 
-/* Container do editor */
-.ql-container {
+/* --- Layout estável do editor (corrige toolbar sumindo/subindo) ---
+   O editor é uma coluna flex: a toolbar fica fixa no topo e SÓ a área de
+   texto (.ql-container) rola por dentro. Assim, ao inserir uma imagem grande
+   ou rolar o conteúdo, a barra de ferramentas nunca "sobe e some". */
+.quill {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.ql-toolbar.ql-snow {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.ql-container.ql-snow {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -203,6 +222,46 @@ iframe.ql-video {
   display: block;
   margin: 16px auto;
   border-radius: 8px;
+}
+
+/* --- Posicionamento de imagem ---
+   A opção "imagem com texto ao lado" foi REMOVIDA do toolbar. As regras
+   .ql-img-align-* abaixo ficam só por COMPATIBILIDADE, para não quebrar
+   conteúdo antigo que porventura já tenha sido salvo com elas.
+   1) Esquerda / centro / direita: usam o "align" nativo do Quill, que marca
+      o parágrafo com .ql-align-*. Aqui só ajustamos a margem da imagem
+      (que é display:block) para ela realmente ir pro lado escolhido. */
+.ql-editor .ql-align-center img, .prose .ql-align-center img { margin-left: auto !important;  margin-right: auto !important; }
+.ql-editor .ql-align-right img,  .prose .ql-align-right img  { margin-left: auto !important;  margin-right: 0 !important; }
+.ql-editor .ql-align-left img,   .prose .ql-align-left img   { margin-left: 0 !important;     margin-right: auto !important; }
+
+/* 2) Texto ao lado da imagem (wrap): classe custom gravada na própria <img>. */
+.ql-editor img.ql-img-align-wrap-left, .prose img.ql-img-align-wrap-left {
+  float: left !important;
+  max-width: 45% !important;
+  margin: 6px 24px 12px 0 !important;
+}
+.ql-editor img.ql-img-align-wrap-right, .prose img.ql-img-align-wrap-right {
+  float: right !important;
+  max-width: 45% !important;
+  margin: 6px 0 12px 24px !important;
+}
+/* Variantes centro/esq/dir também disponíveis via classe custom, por robustez. */
+.ql-editor img.ql-img-align-center, .prose img.ql-img-align-center { float: none !important; margin-left: auto !important;  margin-right: auto !important; }
+.ql-editor img.ql-img-align-left,   .prose img.ql-img-align-left   { float: none !important; margin-left: 0 !important;     margin-right: auto !important; }
+.ql-editor img.ql-img-align-right,  .prose img.ql-img-align-right  { float: none !important; margin-left: auto !important;  margin-right: 0 !important; }
+
+/* Clearfix: floats não vazam para fora do bloco de conteúdo. */
+.prose::after, .ql-editor::after { content: ''; display: block; clear: both; }
+
+/* No mobile, imagem "ao lado" vira imagem em cima (empilha) — evita layout apertado. */
+@media (max-width: 640px) {
+  .ql-editor img.ql-img-align-wrap-left,  .prose img.ql-img-align-wrap-left,
+  .ql-editor img.ql-img-align-wrap-right, .prose img.ql-img-align-wrap-right {
+    float: none !important;
+    max-width: 100% !important;
+    margin: 16px auto !important;
+  }
 }
 
 /* Conteúdo público — quebra de linha natural.

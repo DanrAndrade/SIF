@@ -269,7 +269,7 @@ export default function EventosAdmin() {
               <QuillEditor
                 value={formData.description}
                 onChange={val => setFormData(f => ({...f, description: val}))}
-                height="h-96"
+                height="h-[550px]"
               />
             </div>
 

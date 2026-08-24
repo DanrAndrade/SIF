@@ -1,5 +1,12 @@
 import { useRef, useCallback, useMemo } from 'react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { registerQuillImageAlign } from '../utils/quillImageAlign';
+
+// Mantém registrado o formato `imageAlign` (idempotente) apenas para NÃO
+// quebrar a renderização/edição de conteúdo antigo que porventura já tenha
+// sido salvo com alinhamento de imagem. A OPÇÃO no toolbar foi removida —
+// não há mais como aplicar isso a novo conteúdo.
+registerQuillImageAlign();
 
 const DEFAULT_TOOLBAR = [
   [{ header: [1, 2, 3, false] }],
@@ -51,7 +58,9 @@ export function useQuillImageHandler(toolbar = DEFAULT_TOOLBAR) {
   const modules = useMemo(() => ({
     toolbar: {
       container: toolbar,
-      handlers: { image: imageHandler },
+      handlers: {
+        image: imageHandler,
+      },
     },
     clipboard: {
       matchVisual: false,
