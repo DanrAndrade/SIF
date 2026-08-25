@@ -4,6 +4,32 @@ require_once 'image_utils.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
+// --- Auto-migração: garante as colunas de data (idempotente, MySQL/MariaDB) ---
+// Assim a produção ganha os campos automaticamente ao subir este arquivo,
+// sem precisar rodar SQL manual.
+function ensureColumn($pdo, $table, $col, $definition) {
+    try {
+        $db = $pdo->query("SELECT DATABASE()")->fetchColumn();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?");
+        $stmt->execute([$db, $table, $col]);
+        if ($stmt->fetchColumn() == 0) {
+            $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$col` $definition");
+        }
+    } catch (Exception $e) { /* segue sem a coluna se algo falhar */ }
+}
+ensureColumn($pdo, 'treinamentos', 'date', 'VARCHAR(100) NULL');
+ensureColumn($pdo, 'treinamentos', 'start_date', 'DATE NULL');
+ensureColumn($pdo, 'treinamentos', 'end_date', 'DATE NULL');
+
+// Formata uma data AAAA-MM-DD como "15 Mar 2025".
+function formatBrDate($d) {
+    if (empty($d)) return '';
+    $meses = [1=>'Jan',2=>'Fev',3=>'Mar',4=>'Abr',5=>'Mai',6=>'Jun',7=>'Jul',8=>'Ago',9=>'Set',10=>'Out',11=>'Nov',12=>'Dez'];
+    $ts = strtotime($d);
+    if (!$ts) return '';
+    return (int)date('d', $ts) . ' ' . $meses[(int)date('n', $ts)] . ' ' . date('Y', $ts);
+}
+
 if ($method == 'GET') {
     if (isset($_GET['slug'])) {
         $stmt = $pdo->prepare("SELECT * FROM treinamentos WHERE slug = ?");
@@ -55,6 +81,19 @@ if ($method == 'POST') {
     $segment     = $_POST['segment']     ?? '';
     $hours       = $_POST['hours']       ?? '';
     $location    = $_POST['location']    ?? '';
+
+    // Datas de início e fim (AAAA-MM-DD). Gera o texto exibido em 'date':
+    // "15 Mar 2025" (só início) ou "15 Mar 2025 – 18 Mar 2025" (intervalo).
+    $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
+    $end_date   = !empty($_POST['end_date'])   ? $_POST['end_date']   : null;
+    $date = $_POST['date'] ?? '';
+    if ($start_date && $end_date && $end_date !== $start_date) {
+        $date = formatBrDate($start_date) . ' – ' . formatBrDate($end_date);
+    } elseif ($start_date) {
+        $date = formatBrDate($start_date);
+    } elseif ($end_date) {
+        $date = formatBrDate($end_date);
+    }
     $video_url   = $_POST['video_url']   ?? '';
     $pdf_url     = $_POST['pdf_url']     ?? '';
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
@@ -74,15 +113,15 @@ if ($method == 'POST') {
     if ($id) {
         $stmt = $pdo->prepare(
             "UPDATE treinamentos SET slug=?, title=?, description=?, segment=?, hours=?, location=?,
-             video_url=?, pdf_url=?, active=?, extra_data=?, image_url=COALESCE(?, image_url) WHERE id=?"
+             date=?, start_date=?, end_date=?, video_url=?, pdf_url=?, active=?, extra_data=?, image_url=COALESCE(?, image_url) WHERE id=?"
         );
-        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $video_url, $pdf_url, $active, $extra_data, $image_url, $id]);
+        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $date, $start_date, $end_date, $video_url, $pdf_url, $active, $extra_data, $image_url, $id]);
     } else {
         $stmt = $pdo->prepare(
-            "INSERT INTO treinamentos (slug, title, description, segment, hours, location, video_url, pdf_url, image_url, active, extra_data)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO treinamentos (slug, title, description, segment, hours, location, date, start_date, end_date, video_url, pdf_url, image_url, active, extra_data)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
-        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $video_url, $pdf_url, $image_url, $active, $extra_data]);
+        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $date, $start_date, $end_date, $video_url, $pdf_url, $image_url, $active, $extra_data]);
     }
     echo json_encode(["status" => "success"]);
     exit;

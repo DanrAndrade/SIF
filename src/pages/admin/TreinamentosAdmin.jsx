@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, EyeOff } from 'lucide-react';
+import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, EyeOff, Calendar } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
@@ -20,7 +20,7 @@ const HERO_DEFAULTS = {
 };
 
 const emptyForm = {
-  title: '', segment: 'Silvicultura', hours: '', location: '',
+  title: '', segment: 'Silvicultura', hours: '', location: '', start_date: '', end_date: '',
   video_url: '', image_url: '', imageFile: null, sections: [],
 };
 
@@ -78,6 +78,7 @@ export default function TreinamentosAdmin() {
     setFormData({
       title: training.title, segment: training.segment,
       hours: training.hours, location: training.location || '',
+      start_date: training.start_date || '', end_date: training.end_date || '',
       video_url: training.video_url || '',
       image_url: training.image_url, imageFile: null, sections,
     });
@@ -114,6 +115,8 @@ export default function TreinamentosAdmin() {
     fd.append('segment', formData.segment);
     fd.append('hours', formData.hours);
     fd.append('location', formData.location);
+    fd.append('start_date', formData.start_date || '');
+    fd.append('end_date', formData.end_date || '');
     fd.append('video_url', formData.video_url);
     fd.append('extra_data', JSON.stringify({ sections: formData.sections }));
     if (editingId) fd.append('id', editingId);
@@ -184,9 +187,10 @@ export default function TreinamentosAdmin() {
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900 group-hover:text-[#007a3d] transition-colors text-lg uppercase tracking-tight">{t.title}</h4>
-                    <div className="flex items-center gap-3 text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-black">
-                      <Layers size={12} className="text-[#007a3d]"/> {t.segment}
-                      <Clock size={12} className="text-[#007a3d]"/> {t.hours}
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[10px] text-gray-400 mt-1 uppercase tracking-widest font-black">
+                      <span className="flex items-center gap-1"><Layers size={12} className="text-[#007a3d]"/> {t.segment}</span>
+                      {t.hours && <span className="flex items-center gap-1"><Clock size={12} className="text-[#007a3d]"/> {t.hours}</span>}
+                      {t.date && <span className="flex items-center gap-1"><Calendar size={12} className="text-[#007a3d]"/> {t.date}</span>}
                     </div>
                   </div>
                 </div>
@@ -236,6 +240,16 @@ export default function TreinamentosAdmin() {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Carga Horária</label>
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 24h" value={formData.hours} onChange={e => setFormData(f => ({...f, hours: e.target.value}))} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data de início</label>
+                    <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.start_date || ''} onChange={e => setFormData(f => ({...f, start_date: e.target.value}))} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data de fim</label>
+                    <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.end_date || ''} min={formData.start_date || undefined} onChange={e => setFormData(f => ({...f, end_date: e.target.value}))} />
                   </div>
                 </div>
                 <div className="space-y-2">

@@ -127,6 +127,12 @@ export default function TreinamentoDetalhe() {
                     <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.hours} - Carga Horária</span>
                   </div>
                 )}
+                {training.date && (
+                  <div className="flex items-center gap-3">
+                    <Calendar className="text-[#007a3d]" size={20} />
+                    <span className="text-sm font-bold uppercase tracking-widest text-gray-700">{training.date}</span>
+                  </div>
+                )}
               </div>
               
               {sections ? (

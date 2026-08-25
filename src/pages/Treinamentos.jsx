@@ -114,6 +114,11 @@ export default function Treinamentos() {
                       <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
                       
                       <div className="mt-auto space-y-4">
+                        {training.date && (
+                          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#007a3d]">
+                            <Calendar size={14} /> {training.date}
+                          </div>
+                        )}
                         <div className="flex items-center justify-between pt-6 border-t border-gray-50">
                            <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-[#007a3d]">
