@@ -9,7 +9,7 @@ import { registerQuillImageAlign } from '../utils/quillImageAlign';
 registerQuillImageAlign();
 
 const DEFAULT_TOOLBAR = [
-  [{ header: [1, 2, 3, false] }],
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
   ['bold', 'italic', 'underline', 'strike', 'blockquote'],
   [{ align: [] }],
   [{ list: 'ordered' }, { list: 'bullet' }],

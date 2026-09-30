@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users } from 'lucide-react';
+import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -176,6 +176,16 @@ export default function EincolAdmin() {
     return { ...f, tabs };
   });
 
+  // Troca o item i com o vizinho (dir = -1 sobe, +1 desce) — define a ordem no site
+  const moveItem = (list, i, dir) => {
+    const j = i + dir;
+    if (j < 0 || j >= list.length) return list;
+    const next = [...list];
+    [next[i], next[j]] = [next[j], next[i]];
+    return next;
+  };
+  const moveTab = (i, dir) => setForm(f => ({ ...f, tabs: moveItem(f.tabs, i, dir) }));
+
   // Sections (texto e grupos de patrocinadores compartilham o mesmo array)
   const addSection = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `sec-${Date.now()}-${Math.random()}`, title: '', text: '' }] }));
   const addSponsorGroup = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `spon-${Date.now()}-${Math.random()}`, type: 'sponsors', title: '', images: [] }] }));
@@ -185,6 +195,7 @@ export default function EincolAdmin() {
     sections[i] = { ...sections[i], [field]: val };
     return { ...f, sections };
   });
+  const moveSection = (i, dir) => setForm(f => ({ ...f, sections: moveItem(f.sections, i, dir) }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -410,6 +421,9 @@ export default function EincolAdmin() {
               tab={tab}
               onUpdate={(field, val) => updateTab(i, field, val)}
               onRemove={() => removeTab(i)}
+              onMove={(dir) => moveTab(i, dir)}
+              isFirst={i === 0}
+              isLast={i === form.tabs.length - 1}
             />
           ))}
         </div>
@@ -432,6 +446,9 @@ export default function EincolAdmin() {
                   group={sec}
                   onUpdate={(field, val) => updateSection(i, field, val)}
                   onRemove={() => removeSection(i)}
+                  onMove={(dir) => moveSection(i, dir)}
+                  isFirst={i === 0}
+                  isLast={i === form.sections.length - 1}
                 />
               : <QuillSection
                   key={sec._uid || i}
@@ -439,6 +456,9 @@ export default function EincolAdmin() {
                   sec={sec}
                   onUpdate={(field, val) => updateSection(i, field, val)}
                   onRemove={() => removeSection(i)}
+                  onMove={(dir) => moveSection(i, dir)}
+                  isFirst={i === 0}
+                  isLast={i === form.sections.length - 1}
                 />
           ))}
           {form.sections.length > 0 && (
@@ -458,6 +478,21 @@ export default function EincolAdmin() {
 
 // --- SUB-COMPONENTES ---
 
+// Setas para mudar a ordem (a ordem aqui é a ordem em que aparece no site)
+function MoveButtons({ onMove, isFirst, isLast }) {
+  const cls = "p-2 bg-white text-gray-500 rounded-xl border border-gray-200 hover:text-[#007a3d] hover:border-[#007a3d] disabled:opacity-30 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all";
+  return (
+    <div className="flex gap-1 shrink-0">
+      <button type="button" onClick={() => onMove(-1)} disabled={isFirst} className={cls} title="Mover para cima">
+        <ChevronUp size={16} />
+      </button>
+      <button type="button" onClick={() => onMove(1)} disabled={isLast} className={cls} title="Mover para baixo">
+        <ChevronDown size={16} />
+      </button>
+    </div>
+  );
+}
+
 function AddSectionButtons({ onAddText, onAddLogos }) {
   return (
     <div className="flex flex-wrap gap-2">
@@ -473,7 +508,7 @@ function AddSectionButtons({ onAddText, onAddLogos }) {
   );
 }
 
-function QuillTab({ tab, index, onUpdate, onRemove }) {
+function QuillTab({ tab, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
@@ -484,6 +519,7 @@ function QuillTab({ tab, index, onUpdate, onRemove }) {
           value={tab.title}
           onChange={e => onUpdate('title', e.target.value)}
         />
+        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
         <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
           <Trash2 size={16} />
         </button>
@@ -493,7 +529,7 @@ function QuillTab({ tab, index, onUpdate, onRemove }) {
   );
 }
 
-function QuillSection({ sec, index, onUpdate, onRemove }) {
+function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
@@ -504,6 +540,7 @@ function QuillSection({ sec, index, onUpdate, onRemove }) {
           value={sec.title}
           onChange={e => onUpdate('title', e.target.value)}
         />
+        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
         <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
           <Trash2 size={16} />
         </button>
@@ -514,7 +551,7 @@ function QuillSection({ sec, index, onUpdate, onRemove }) {
 }
 
 // Grupo de patrocinadores: título + lista de logos (viram carrossel no site).
-function SponsorGroupEditor({ group, index, onUpdate, onRemove }) {
+function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
   const [uploading, setUploading] = useState(false);
   const images = Array.isArray(group.images) ? group.images : [];
 
@@ -552,6 +589,7 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove }) {
           value={group.title}
           onChange={e => onUpdate('title', e.target.value)}
         />
+        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
         <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
           <Trash2 size={16} />
         </button>
