@@ -7,6 +7,7 @@
  *  DELETE /faqs.php?id=N                       → remove
  */
 require_once 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];

@@ -1,8 +1,17 @@
 <?php
 require_once 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 require_once 'image_utils.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+
+// --- Auto-migração: garante a coluna do site da empresa (idempotente) ---
+// A produção ganha o campo automaticamente ao subir este arquivo.
+try {
+    if (!$pdo->query("SHOW COLUMNS FROM associadas LIKE 'website'")->fetch()) {
+        $pdo->exec("ALTER TABLE associadas ADD COLUMN website VARCHAR(500) NULL AFTER address");
+    }
+} catch (Exception $e) { /* segue sem a coluna se algo falhar */ }
 
 // ─────────────────────────────────────────────────────────
 // HELPER — Upload organizado para a pasta de associadas
@@ -71,12 +80,13 @@ if ($method === 'POST' && empty($_POST['_method'])) {
     }
 
     $address = isset($_POST['address']) ? trim($_POST['address']) : null;
+    $website = isset($_POST['website']) ? trim($_POST['website']) : null;
 
     $stmt = $pdo->prepare("
-        INSERT INTO associadas (name, logo_url, address, sort_order, active)
-        VALUES (?, ?, ?, ?, 1)
+        INSERT INTO associadas (name, logo_url, address, website, sort_order, active)
+        VALUES (?, ?, ?, ?, ?, 1)
     ");
-    $stmt->execute([$name, $logoUrl, $address, $maxOrder + 1]);
+    $stmt->execute([$name, $logoUrl, $address, $website, $maxOrder + 1]);
 
     echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     exit;
@@ -92,7 +102,7 @@ if ($method === 'PUT' || ($method === 'POST' && ($_POST['_method'] ?? '') === 'P
     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
     if (str_contains($contentType, 'application/json')) {
-        $raw  = file_get_contents('php://input');
+        $raw  = sif_raw_input();
         $data = json_decode($raw, true) ?? [];
     } else {
         // FormData via POST tunelado (método _method=PUT) - suporte via POST com _method
@@ -117,6 +127,11 @@ if ($method === 'PUT' || ($method === 'POST' && ($_POST['_method'] ?? '') === 'P
     if (isset($data['address'])) {
         $fields[] = 'address = ?';
         $values[] = trim($data['address']);
+    }
+
+    if (isset($data['website'])) {
+        $fields[] = 'website = ?';
+        $values[] = trim($data['website']);
     }
 
     if (isset($data['active'])) {

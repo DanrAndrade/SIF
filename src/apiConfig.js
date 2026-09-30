@@ -81,6 +81,13 @@ export const cleanRichHtml = (html) => {
   return embedVideos(stripNbsp(html));
 };
 
+// Link externo digitado no painel (ex: "www.empresa.com.br") → URL completa.
+export const toExternalUrl = (url) => {
+  const u = (url || '').trim();
+  if (!u) return null;
+  return /^https?:\/\//i.test(u) ? u : `https://${u}`;
+};
+
 export const getImageUrl = (path) => {
   if (!path) return null;
 

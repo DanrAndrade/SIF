@@ -1,5 +1,6 @@
 <?php
 require_once 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 require_once 'image_utils.php';
 header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];

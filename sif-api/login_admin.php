@@ -2,11 +2,12 @@
 // 1. Importamos o db.php
 // Isto trae a conexión $pdo, os headers de CORS correctos e inicia a sesión
 require 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
-    $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(sif_raw_input(), true);
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
 

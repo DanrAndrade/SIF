@@ -1,5 +1,6 @@
 <?php
 require 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 require_once 'image_utils.php';
 
 // Garante que o PHP devolva JSON limpo e UTF-8
@@ -98,7 +99,7 @@ elseif ($method === 'POST') {
 // --- PUT: Toggle Status ---
 elseif ($method === 'PUT') {
     if (!isset($_SESSION['admin_logged_in'])) { http_response_code(401); exit; }
-    $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(sif_raw_input(), true);
     $id = $_GET['id'] ?? $data['id'] ?? null;
     $active = $data['active'] ?? null;
 

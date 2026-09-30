@@ -1,5 +1,6 @@
 <?php
 require_once 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 require_once 'image_utils.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -80,9 +81,16 @@ if ($method === 'POST') {
     }
 
     if (!empty($fields)) {
-        $sql = "UPDATE eincol_config SET " . implode(', ', $fields) . " WHERE id = 1";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($values);
+        try {
+            $sql = "UPDATE eincol_config SET " . implode(', ', $fields) . " WHERE id = 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($values);
+        } catch (Exception $e) {
+            // Sempre responde JSON, para o painel mostrar o motivo real
+            http_response_code(500);
+            echo json_encode(["success" => false, "message" => "Erro ao gravar no banco: " . $e->getMessage()]);
+            exit;
+        }
     }
 
     echo json_encode(["success" => true]);

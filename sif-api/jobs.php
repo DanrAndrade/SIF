@@ -1,5 +1,6 @@
 <?php
 require 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 
 header('Content-Type: application/json');
 
@@ -12,7 +13,7 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
-    $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(sif_raw_input(), true);
     if (!$data) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Dados inválidos.']);

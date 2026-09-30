@@ -1,5 +1,6 @@
 <?php
 require 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -70,7 +71,7 @@ elseif ($method === 'POST') {
     } 
     // Se não for upload, é o Admin atualizando o STATUS (JSON)
     else {
-        $data = json_decode(file_get_contents("php://input"), true);
+        $data = json_decode(sif_raw_input(), true);
         
         if (!isset($_SESSION['admin_logged_in'])) {
             http_response_code(401); exit;

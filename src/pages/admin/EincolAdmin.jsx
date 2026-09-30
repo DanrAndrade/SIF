@@ -178,7 +178,7 @@ export default function EincolAdmin() {
 
   // Sections (texto e grupos de patrocinadores compartilham o mesmo array)
   const addSection = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `sec-${Date.now()}-${Math.random()}`, title: '', text: '' }] }));
-  const addSponsorGroup = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `spon-${Date.now()}-${Math.random()}`, type: 'sponsors', title: 'Patrocinadores', images: [] }] }));
+  const addSponsorGroup = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `spon-${Date.now()}-${Math.random()}`, type: 'sponsors', title: '', images: [] }] }));
   const removeSection = (i) => setForm(f => ({ ...f, sections: f.sections.filter((_, idx) => idx !== i) }));
   const updateSection = (i, field, val) => setForm(f => {
     const sections = [...f.sections];
@@ -216,16 +216,30 @@ export default function EincolAdmin() {
     if (files.pdf2_file)    fd.append('pdf2_file',    files.pdf2_file);
     if (files.pdf3_file)    fd.append('pdf3_file',    files.pdf3_file);
 
+    let res;
     try {
-      const res = await fetch(API_URL, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.success) {
+      res = await fetch(API_URL, { method: 'POST', body: fd });
+    } catch (err) {
+      window.showToast('Sem conexão com o servidor. Verifique a internet e tente de novo.');
+      setLoading(false);
+      return;
+    }
+    try {
+      // Lê como texto: se o servidor devolver HTML (firewall, erro PHP), mostramos o status real
+      const text = await res.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch { /* não é JSON */ }
+      if (data?.success) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
         fetchConfig();
-      } else { window.showToast('Erro ao salvar.'); }
-    } catch (err) {
-      window.showToast('Erro de conexão.');
+      } else if (data?.message) {
+        window.showToast(data.message);
+      } else if (res.status === 406 || res.status === 403) {
+        window.showToast(`O servidor bloqueou o envio (erro ${res.status} – firewall da hospedagem).`);
+      } else {
+        window.showToast(`Erro ao salvar (resposta ${res.status} do servidor).`);
+      }
     } finally {
       setLoading(false);
     }
@@ -404,18 +418,9 @@ export default function EincolAdmin() {
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-4 gap-3">
             <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">✏️ Seções Adicionais</h3>
-            <div className="flex gap-2">
-              <button type="button" onClick={addSection}
-                className="flex items-center gap-2 px-4 py-2 bg-[#1f2937] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
-                <Plus size={14} /> Seção de Texto
-              </button>
-              <button type="button" onClick={addSponsorGroup}
-                className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
-                <Users size={14} /> Grupo de Patrocinadores
-              </button>
-            </div>
+            <AddSectionButtons onAddText={addSection} onAddLogos={addSponsorGroup} />
           </div>
-          <p className="text-xs text-gray-400">Seções de texto para informações extras (localização, hospedagem...) ou grupos de patrocinadores (título + logos que giram num carrossel).</p>
+          <p className="text-xs text-gray-400">Seções de texto para informações extras (localização, hospedagem...) ou <strong>carrossel de logos</strong> com título (ex: Patrocinadores, Organização e apoio). Para logos, use o carrossel em vez de colar uma imagem no texto.</p>
           {form.sections.length === 0 && (
             <p className="text-gray-400 text-sm italic text-center py-6">Nenhuma seção adicional. Use os botões acima para criar.</p>
           )}
@@ -436,6 +441,11 @@ export default function EincolAdmin() {
                   onRemove={() => removeSection(i)}
                 />
           ))}
+          {form.sections.length > 0 && (
+            <div className="flex justify-center pt-2">
+              <AddSectionButtons onAddText={addSection} onAddLogos={addSponsorGroup} />
+            </div>
+          )}
         </div>
 
         <Button type="submit" variant="primary" icon={Save} className="w-full rounded-2xl font-black uppercase tracking-widest" isLoading={loading}>
@@ -447,6 +457,21 @@ export default function EincolAdmin() {
 }
 
 // --- SUB-COMPONENTES ---
+
+function AddSectionButtons({ onAddText, onAddLogos }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <button type="button" onClick={onAddText}
+        className="flex items-center gap-2 px-4 py-2 bg-[#1f2937] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
+        <Plus size={14} /> Seção de Texto
+      </button>
+      <button type="button" onClick={onAddLogos}
+        className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
+        <Users size={14} /> Carrossel de Logos
+      </button>
+    </div>
+  );
+}
 
 function QuillTab({ tab, index, onUpdate, onRemove }) {
   return (
@@ -519,11 +544,11 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove }) {
     <div className="bg-emerald-50/40 rounded-2xl p-5 border border-emerald-100 space-y-4">
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-700 tracking-widest shrink-0">
-          <Users size={13} /> Patrocinadores {index + 1}
+          <Users size={13} /> Carrossel de logos
         </span>
         <input
           className="flex-1 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
-          placeholder="Título do grupo (ex: Patrocinadores Premium)"
+          placeholder="Título (ex: Organização e apoio, Patrocinadores...)"
           value={group.title}
           onChange={e => onUpdate('title', e.target.value)}
         />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
 
 // --- LOGOS (fallback se a API estiver offline) ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.webp';
@@ -60,6 +60,7 @@ export default function Partners() {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPartners(res.data.map(a => ({
             name: a.name,
+            website: toExternalUrl(a.website),
             src: a.logo_url ? getImageUrl(a.logo_url) : null,
           })));
         }
@@ -85,9 +86,16 @@ export default function Partners() {
             <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-[#f8f9fa] to-transparent z-10 pointer-events-none"></div>
 
             <div className="flex w-max animate-scroll" style={{ animationDuration: '80s' }}>
-                {duplicatedPartners.map((partner, index) => (
-                    <div
+                {duplicatedPartners.map((partner, index) => {
+                    // Logo com site cadastrado abre o site da empresa em nova aba
+                    const Item = partner.website ? 'a' : 'div';
+                    const linkProps = partner.website
+                        ? { href: partner.website, target: '_blank', rel: 'noopener noreferrer' }
+                        : {};
+                    return (
+                    <Item
                         key={index}
+                        {...linkProps}
                         className="flex items-center justify-center mx-8 w-[180px] h-[100px] opacity-100 grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer"
                         title={partner.name}
                     >
@@ -102,8 +110,9 @@ export default function Partners() {
                         ) : (
                           <span className="text-xs font-bold uppercase text-gray-400 text-center px-2">{partner.name}</span>
                         )}
-                    </div>
-                ))}
+                    </Item>
+                    );
+                })}
             </div>
         </div>
       </div>

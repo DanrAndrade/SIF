@@ -74,46 +74,39 @@
   vídeo salvo como `<iframe>` (`useSemanticHTML=false`), embed de
   YouTube/Vimeo, campo de data (início/fim) em Treinamentos.
 
-## 4. 🔴 BUG ABERTO AGORA — EINCOL: "Erro de conexão" ao salvar
+## 4. ✅ RESOLVIDO (30/09/2026) — EINCOL: "Erro de conexão" ao salvar
 
-**Sintoma:** no admin da EINCOL, ao salvar ("Salvar Configuração EINCOL"),
-aparece toast vermelho **"Erro de conexão."**
+**Causa confirmada:** o ModSecurity (firewall da HostGator) responde **406 Not
+Acceptable** para qualquer campo com **link completo para outro domínio**
+(ex.: `https://www.instagram.com/...`, regra RFI) ou com `<p><br></p>`
+(o Quill gera isso em toda linha em branco). Vale para TODOS os endpoints,
+não só a EINCOL. As regras endureceram entre 08/09 e 28/09 (antes salvava).
 
-**O que essa mensagem significa de verdade:** ela sai do `catch` do
-`handleSubmit` em `src/pages/admin/EincolAdmin.jsx`. Dispara em DOIS casos:
-1. o `fetch` falhou de fato (rede), **ou**
-2. o servidor respondeu algo que **não é JSON** e o `res.json()` quebrou
-   (erro PHP/MySQL em HTML, 403 do firewall, 413, 500...).
+**Correção (vale para o projeto todo — não remover):**
+- `src/utils/apiInterceptor.js` (importado no `main.jsx`): intercepta
+  `fetch` e `axios` para URLs da API. Os campos de texto do FormData viram
+  `__sifb64:<base64url>`; o corpo JSON vira `{"__sif_b64":"<base64url>"}`.
+  Também envia o cookie de sessão (`credentials: include`).
+- `sif-api/api_guard.php` (incluído em TODO endpoint logo após o `db.php`):
+  decodifica `$_POST` e oferece `sif_raw_input()` no lugar de
+  `file_get_contents('php://input')`. **Endpoint novo precisa incluir esse
+  arquivo e usar `sif_raw_input()` para JSON.**
+- O mesmo `api_guard.php` **exige login do painel para POST/PUT/DELETE**
+  (antes qualquer pessoa conseguia gravar sem login). Exceções públicas:
+  `login_admin.php`, `leads.php`, `candidates.php`, `session.php`.
+  O `session.php` informa se está logado; o `AdminRoute` (`App.jsx`) confere
+  ao abrir o painel e mantém a sessão viva a cada 5 min.
+- Imagem colada no editor (base64) agora é enviada como arquivo
+  (`QuillEditor.jsx`). A EINCOL tinha uma de ~730 KB na seção 3.
+- A EINCOL mostra o motivo real do erro no toast (status + mensagem).
 
-O caso 2 é o mais provável. **Primeiro passo obrigatório:** reproduzir em
-produção com DevTools → aba Network → requisição `POST eincol.php` → ver
-**status code e o corpo da resposta**. Isso diz qual das hipóteses é.
+Também nesta entrega: botão "Carrossel de Logos" na EINCOL (antes se chamava
+"Grupo de Patrocinadores" — já existia, mas o cliente não achava) e campo
+"Site da empresa" em Associadas (coluna `website`, criada sozinha pelo
+`associadas.php`; o card em /associadas e a logo na home viram link).
 
-### Hipóteses (da mais provável pra menos)
-1. **ModSecurity (firewall da HostGator) bloqueando o POST** por conter
-   `<iframe>` / HTML "suspeito" no `main_content`/`tabs_json`/`sections_json`.
-   Suspeita forte porque recentemente o editor passou a gravar vídeo como
-   `<iframe>`. Sinal: status **403** com página HTML da HostGator.
-   Teste: salvar sem vídeo nenhum → se funcionar, é isso. Soluções possíveis:
-   pedir liberação da regra ao suporte HostGator, ou enviar o conteúdo
-   codificado (ex.: base64 no front + `base64_decode` no PHP) para não casar
-   com as regras do WAF.
-2. **Imagem colada direto no editor virando base64** gigante dentro do HTML
-   (colar print/Word no Quill embute `data:image/...;base64`). Estoura
-   `post_max_size` (→ corpo vazio / 413) ou o tamanho da coluna no MySQL
-   (`TEXT` = 64 KB; erro "Data too long" → exceção PDO → HTML → não-JSON).
-   Checar o tipo das colunas `main_content`, `tabs_json`, `sections_json` de
-   `eincol_config` (se forem `TEXT`, migrar pra `LONGTEXT` de forma
-   idempotente no próprio `eincol.php`) e procurar `data:image` no conteúdo.
-3. **Exceção PDO não tratada** em `sif-api/eincol.php` (qualquer erro de SQL
-   vira HTML). Vale envolver o `UPDATE` em `try/catch` e sempre responder
-   JSON com a mensagem (`{"success":false,"message":...}`), e no front mostrar
-   `data.message` em vez do genérico "Erro de conexão".
-4. Sessão/CORS/URL errada — menos provável, já que as outras páginas salvam.
-
-Depois de achar a causa: corrigir, e **melhorar a mensagem** do front pra
-mostrar o motivo real (status + mensagem do servidor), pra não ficar
-genérico de novo.
+**Pendência de segurança:** o `testeconexao.php` existia só no servidor, com
+a senha do banco em texto — deve ser apagado do servidor.
 
 ## 5. Sincronizar com o que está NO AR (HostGator)
 

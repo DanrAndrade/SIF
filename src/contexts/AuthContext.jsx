@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { API_BASE_URL } from '../apiConfig';
 
 const AuthContext = createContext({});
 
@@ -18,7 +19,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('chocosul_user', JSON.stringify(mockUser));
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Encerra também a sessão no servidor (o PHP exige login para gravar)
+    try {
+      const fd = new FormData();
+      fd.append('_action', 'logout');
+      await fetch(`${API_BASE_URL}/session.php`, { method: 'POST', body: fd });
+    } catch { /* segue com o logout local */ }
     setUser(null);
     localStorage.removeItem('chocosul_user');
     localStorage.removeItem('admin_user');

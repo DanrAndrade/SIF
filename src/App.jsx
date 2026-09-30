@@ -1,6 +1,7 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { API_BASE_URL } from './apiConfig';
 
 // --- CARREGAMENTO IMEDIATO (páginas leves/críticas) ---
 import Home from './pages/Home';
@@ -37,10 +38,32 @@ const LoadingScreen = () => (
 );
 
 // --- PROTEÇÃO DE ROTA ADMIN ---
+// Além do localStorage, confere a sessão real no servidor (o PHP só deixa
+// gravar com login). Enquanto o painel está aberto, "cutuca" o servidor a
+// cada 5 min para a sessão não expirar no meio de uma edição longa.
 const AdminRoute = ({ children }) => {
   const adminUser  = localStorage.getItem('admin_user');
   const isAdminMode = localStorage.getItem('admin_mode') === 'true';
-  if (!adminUser || !isAdminMode) {
+  const [sessionOk, setSessionOk] = useState(true);
+
+  useEffect(() => {
+    if (!adminUser || !isAdminMode) return;
+    const check = () => fetch(`${API_BASE_URL}/session.php`)
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.logged === false) {
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('admin_mode');
+          setSessionOk(false);
+        }
+      })
+      .catch(() => { /* sem conexão: não desloga */ });
+    check();
+    const timer = setInterval(check, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, [adminUser, isAdminMode]);
+
+  if (!adminUser || !isAdminMode || !sessionOk) {
     return <Navigate to="/admin" replace />;
   }
   return children;

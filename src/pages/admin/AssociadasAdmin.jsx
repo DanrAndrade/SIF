@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit,
+  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
-import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
 
 const ASSOC_URL = `${API_BASE_URL}/associadas.php`;
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -316,6 +316,7 @@ function CtaForm({ cfg, set }) {
 // ─── EMPRESAS (CRUD) ──────────────────────────────────────────
 function EmpresasManager({ partners, loading, reload }) {
   const [newName, setNewName] = useState('');
+  const [newWebsite, setNewWebsite] = useState('');
   const [newLogo, setNewLogo] = useState(null);
   const [newLogoPreview, setNewLogoPreview] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -328,9 +329,11 @@ function EmpresasManager({ partners, loading, reload }) {
     try {
       const fd = new FormData();
       fd.append('name', newName.trim());
+      if (newWebsite.trim()) fd.append('website', newWebsite.trim());
       if (newLogo) fd.append('logo', newLogo);
       await fetch(ASSOC_URL, { method: 'POST', body: fd });
       setNewName('');
+      setNewWebsite('');
       setNewLogo(null);
       setNewLogoPreview(null);
       reload();
@@ -362,6 +365,7 @@ function EmpresasManager({ partners, loading, reload }) {
   };
   const handleEditName    = (id, name)    => handleEditField(id, 'name', name);
   const handleEditAddress = (id, address) => handleEditField(id, 'address', address);
+  const handleEditWebsite = (id, website) => handleEditField(id, 'website', website);
 
   const handleUploadLogo = async (id, file) => {
     const fd = new FormData();
@@ -423,6 +427,13 @@ function EmpresasManager({ partners, loading, reload }) {
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
             />
+            <input
+              className="w-full p-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600"
+              placeholder="Site da empresa (opcional) — ex: www.empresa.com.br"
+              value={newWebsite}
+              onChange={e => setNewWebsite(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
+            />
             <button onClick={handleAdd} disabled={adding || !newName.trim()} className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2">
               {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Adicionar empresa
             </button>
@@ -457,6 +468,7 @@ function EmpresasManager({ partners, loading, reload }) {
                 onDelete={() => setToDelete(p)}
                 onEditName={handleEditName}
                 onEditAddress={handleEditAddress}
+                onEditWebsite={handleEditWebsite}
                 onUploadLogo={handleUploadLogo}
               />
             ))}
@@ -467,20 +479,26 @@ function EmpresasManager({ partners, loading, reload }) {
   );
 }
 
-function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, onUploadLogo }) {
+function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, onEditWebsite, onUploadLogo }) {
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState(partner.name);
   const [address, setAddress] = useState(partner.address || '');
+  const [website, setWebsite] = useState(partner.website || '');
   const fileRef = useRef();
 
   // Mantém local sincronizado quando o pai recarregar
-  useEffect(() => { setName(partner.name); setAddress(partner.address || ''); }, [partner.name, partner.address]);
+  useEffect(() => {
+    setName(partner.name); setAddress(partner.address || ''); setWebsite(partner.website || '');
+  }, [partner.name, partner.address, partner.website]);
 
   const saveName = () => {
     if (name.trim() && name.trim() !== partner.name) onEditName(partner.id, name.trim());
   };
   const saveAddress = () => {
     if ((address || '') !== (partner.address || '')) onEditAddress(partner.id, address.trim());
+  };
+  const saveWebsite = () => {
+    if ((website || '') !== (partner.website || '')) onEditWebsite(partner.id, website.trim());
   };
 
   return (
@@ -505,6 +523,12 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
           <p className="font-bold text-sm text-gray-800 truncate" title={partner.name}>{partner.name}</p>
           {partner.address && (
             <p className="text-[11px] text-gray-500 truncate" title={partner.address}>{partner.address}</p>
+          )}
+          {partner.website && (
+            <a href={toExternalUrl(partner.website)} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[11px] text-emerald-700 hover:underline truncate" title={partner.website}>
+              <Globe size={11} className="shrink-0" /> <span className="truncate">{partner.website}</span>
+            </a>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -539,6 +563,17 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
               onChange={e => setAddress(e.target.value)}
               onBlur={saveAddress}
               onKeyDown={e => { if (e.key === 'Enter') { saveAddress(); setExpanded(false); } }}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Site da empresa</label>
+            <input
+              className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
+              placeholder="www.empresa.com.br"
+              value={website}
+              onChange={e => setWebsite(e.target.value)}
+              onBlur={saveWebsite}
+              onKeyDown={e => { if (e.key === 'Enter') { saveWebsite(); setExpanded(false); } }}
             />
           </div>
           <p className="text-[10px] text-gray-400">As alterações são salvas ao sair do campo (ou Enter).</p>

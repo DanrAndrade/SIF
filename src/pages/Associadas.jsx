@@ -3,9 +3,9 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
 
 // --- LOGOS DE FALLBACK (caso a API esteja offline) ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.webp';
@@ -98,6 +98,7 @@ export default function Associadas() {
           setPartners(res.data.map(a => ({
             name: a.name,
             address: a.address || '',
+            website: toExternalUrl(a.website),
             src: a.logo_url ? getImageUrl(a.logo_url) : null,
           })));
         }
@@ -199,9 +200,16 @@ export default function Associadas() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {partners.map((partner, index) => (
-              <div
+            {partners.map((partner, index) => {
+              // Com site cadastrado, o card inteiro vira link (abre em nova aba)
+              const Card = partner.website ? 'a' : 'div';
+              const linkProps = partner.website
+                ? { href: partner.website, target: '_blank', rel: 'noopener noreferrer', title: `Visitar o site de ${partner.name}` }
+                : {};
+              return (
+              <Card
                 key={index}
+                {...linkProps}
                 className="bg-[#f8f9fa] rounded-3xl p-6 flex flex-col border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
               >
                 <div className="flex-1 flex items-center justify-center h-32 mb-4">
@@ -222,9 +230,15 @@ export default function Associadas() {
                   {partner.address && (
                     <p className="text-xs text-gray-500 mt-1 leading-snug">{partner.address}</p>
                   )}
+                  {partner.website && (
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#007a3d] mt-2 group-hover:underline">
+                      Visitar site <ExternalLink size={12} />
+                    </span>
+                  )}
                 </div>
-              </div>
-            ))}
+              </Card>
+              );
+            })}
           </div>
 
           <div className="mt-24 bg-[#f8f9fa] rounded-[50px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border border-gray-100 italic">

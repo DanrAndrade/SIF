@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
 import './utils/toast' // registra window.showToast (feedback no admin)
+import './utils/apiInterceptor' // envios à API: codifica p/ o firewall da hospedagem + envia o login
 import ScrollToTop from './components/ScrollToTop' // 1. Importe aqui
 
 // Desativa a restauração automática de scroll do navegador já no carregamento,

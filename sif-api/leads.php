@@ -1,5 +1,6 @@
 <?php
 require 'db.php';
+require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -13,7 +14,7 @@ if ($method === 'GET') {
 }
 
 elseif ($method === 'POST') {
-    $data = json_decode(file_get_contents("php://input"), true);
+    $data = json_decode(sif_raw_input(), true);
     
     // RESTRITO: Atualizar status (só admin pode)
     if (isset($data['id']) && isset($data['status'])) {
