@@ -243,7 +243,7 @@ export default function Eincol() {
             if (imgs.length === 0) return null;
             return (
               <section key={i} className={`py-20 ${bg}`}>
-                <SponsorCarousel title={sec.title} images={imgs} />
+                <SponsorCarousel sec={sec} images={imgs} />
               </section>
             );
           }
@@ -252,11 +252,7 @@ export default function Eincol() {
           return (
             <section key={i} className={`py-20 ${bg}`}>
               <div className="container mx-auto px-6 max-w-4xl">
-                {sec.title && (
-                  <h2 className="text-3xl font-black uppercase tracking-tighter text-[#1f2937] mb-8">
-                    {sec.title}
-                  </h2>
-                )}
+                <SectionTitle sec={sec} defaultSize="lg" defaultAlign="left" className="mb-8" />
                 {sec.text && (
                   <div
                     className="prose prose-base max-w-none text-gray-600 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
@@ -274,19 +270,39 @@ export default function Eincol() {
   );
 }
 
+// Título de seção com o estilo escolhido no painel (tamanho, negrito,
+// maiúsculas, alinhamento). Sem escolha, mantém o visual padrão de cada tipo.
+const TITLE_SIZES = {
+  lg: 'text-2xl md:text-3xl',
+  md: 'text-xl md:text-2xl',
+  sm: 'text-lg md:text-xl',
+};
+function SectionTitle({ sec, defaultSize, defaultAlign, className = '' }) {
+  if (!sec.title) return null;
+  const size  = TITLE_SIZES[sec.title_size] ? sec.title_size : defaultSize;
+  const bold  = sec.title_bold !== false;
+  const upper = sec.title_upper !== false;
+  const align = sec.title_align || defaultAlign;
+  const cls = [
+    TITLE_SIZES[size],
+    bold ? (size === 'lg' ? 'font-black' : 'font-bold') : 'font-normal',
+    upper ? 'uppercase tracking-tighter' : 'tracking-tight',
+    align === 'center' ? 'text-center' : 'text-left',
+    'text-[#1f2937]',
+    className,
+  ].join(' ');
+  return <h2 className={cls}>{sec.title}</h2>;
+}
+
 // Carrossel de logos de patrocinadores.
 // Com muitos logos, roda em marquee infinito (reaproveita a animação
 // `.animate-scroll` do index.css, que já duplica o conteúdo). Com poucos,
 // centraliza estático para não ficar com buracos girando.
-function SponsorCarousel({ title, images }) {
+function SponsorCarousel({ sec, images }) {
   const many = images.length > 5;
   return (
     <div className="container mx-auto px-6 max-w-6xl">
-      {title && (
-        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-[#1f2937] mb-10 text-center">
-          {title}
-        </h2>
-      )}
+      <SectionTitle sec={sec} defaultSize="md" defaultAlign="center" className="mb-10" />
       {many ? (
         <div className="relative overflow-hidden">
           <div className="flex items-center gap-12 w-max animate-scroll hover:[animation-play-state:paused]">

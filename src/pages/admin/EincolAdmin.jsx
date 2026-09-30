@@ -478,6 +478,35 @@ export default function EincolAdmin() {
 
 // --- SUB-COMPONENTES ---
 
+// Estilo do título da seção no site. Sem escolha = visual padrão do tipo
+// (texto: grande; carrossel: médio e centralizado), negrito e maiúsculas.
+function TitleStyleControls({ sec, onUpdate, defaultSize, defaultAlign }) {
+  const size  = sec.title_size || defaultSize;
+  const align = sec.title_align || defaultAlign;
+  const bold  = sec.title_bold !== false;
+  const upper = sec.title_upper !== false;
+  const chip = (active) => `px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${active ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#007a3d]'}`;
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-1">
+      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Estilo do título:</span>
+      <div className="flex gap-1">
+        {[['lg', 'Grande'], ['md', 'Médio'], ['sm', 'Pequeno']].map(([v, label]) => (
+          <button key={v} type="button" className={chip(size === v)} onClick={() => onUpdate('title_size', v)}>{label}</button>
+        ))}
+      </div>
+      <div className="flex gap-1">
+        <button type="button" className={chip(bold)} onClick={() => onUpdate('title_bold', !bold)} title="Negrito"><b>N</b> Negrito</button>
+        <button type="button" className={chip(upper)} onClick={() => onUpdate('title_upper', !upper)} title="Tudo em maiúsculas">AA Maiúsculas</button>
+      </div>
+      <div className="flex gap-1">
+        {[['left', 'Esquerda'], ['center', 'Centro']].map(([v, label]) => (
+          <button key={v} type="button" className={chip(align === v)} onClick={() => onUpdate('title_align', v)}>{label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Setas para mudar a ordem (a ordem aqui é a ordem em que aparece no site)
 function MoveButtons({ onMove, isFirst, isLast }) {
   const cls = "p-2 bg-white text-gray-500 rounded-xl border border-gray-200 hover:text-[#007a3d] hover:border-[#007a3d] disabled:opacity-30 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all";
@@ -545,6 +574,7 @@ function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast 
           <Trash2 size={16} />
         </button>
       </div>
+      <TitleStyleControls sec={sec} onUpdate={onUpdate} defaultSize="lg" defaultAlign="left" />
       <QuillEditor value={sec.text} onChange={val => onUpdate('text', val)} height="h-[420px]" />
     </div>
   );
@@ -594,6 +624,8 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst,
           <Trash2 size={16} />
         </button>
       </div>
+
+      <TitleStyleControls sec={group} onUpdate={onUpdate} defaultSize="md" defaultAlign="center" />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {images.map((img, i) => (
