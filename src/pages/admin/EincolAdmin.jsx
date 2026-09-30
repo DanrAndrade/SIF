@@ -3,6 +3,7 @@ import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOf
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { TITLE_SIZES, TITLE_WEIGHTS, resolveTitleStyle } from '../../utils/sectionTitle';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
@@ -478,31 +479,41 @@ export default function EincolAdmin() {
 
 // --- SUB-COMPONENTES ---
 
-// Estilo do título da seção no site. Sem escolha = visual padrão do tipo
-// (texto: grande; carrossel: médio e centralizado), negrito e maiúsculas.
-function TitleStyleControls({ sec, onUpdate, defaultSize, defaultAlign }) {
-  const size  = sec.title_size || defaultSize;
-  const align = sec.title_align || defaultAlign;
-  const bold  = sec.title_bold !== false;
-  const upper = sec.title_upper !== false;
+// Estilo do título da seção no site (ver src/utils/sectionTitle.js).
+// Tamanho e peso ficam na mesma linha do título; o campo já mostra o estilo.
+const selCls = "p-2 bg-white rounded-xl border border-gray-200 text-xs font-bold text-gray-600 outline-none focus:border-[#007a3d] shrink-0";
+
+function TitleField({ sec, onUpdate, placeholder, defaultSize, defaultAlign }) {
+  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
+  return (
+    <>
+      <input
+        className={`flex-1 min-w-0 p-3 bg-white rounded-xl outline-none border focus:border-[#007a3d] ${TITLE_SIZES[st.size].admin} ${TITLE_WEIGHTS[st.weight].cls} ${st.upper ? 'uppercase' : ''} ${st.align === 'center' ? 'text-center' : ''}`}
+        placeholder={placeholder}
+        value={sec.title}
+        onChange={e => onUpdate('title', e.target.value)}
+      />
+      <select className={selCls} value={st.size} onChange={e => onUpdate('title_size', e.target.value)} title="Tamanho do título">
+        {Object.entries(TITLE_SIZES).map(([v, o]) => <option key={v} value={v}>Tamanho: {o.label}</option>)}
+      </select>
+      <select className={selCls} value={st.weight} onChange={e => onUpdate('title_weight', e.target.value)} title="Peso (grossura) do título">
+        {Object.entries(TITLE_WEIGHTS).map(([v, o]) => <option key={v} value={v}>Peso: {o.label}</option>)}
+      </select>
+    </>
+  );
+}
+
+// Opções extras do título: maiúsculas e alinhamento.
+function TitleExtraControls({ sec, onUpdate, defaultSize, defaultAlign }) {
+  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
   const chip = (active) => `px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${active ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#007a3d]'}`;
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-1">
-      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Estilo do título:</span>
-      <div className="flex gap-1">
-        {[['lg', 'Grande'], ['md', 'Médio'], ['sm', 'Pequeno']].map(([v, label]) => (
-          <button key={v} type="button" className={chip(size === v)} onClick={() => onUpdate('title_size', v)}>{label}</button>
-        ))}
-      </div>
-      <div className="flex gap-1">
-        <button type="button" className={chip(bold)} onClick={() => onUpdate('title_bold', !bold)} title="Negrito"><b>N</b> Negrito</button>
-        <button type="button" className={chip(upper)} onClick={() => onUpdate('title_upper', !upper)} title="Tudo em maiúsculas">AA Maiúsculas</button>
-      </div>
-      <div className="flex gap-1">
-        {[['left', 'Esquerda'], ['center', 'Centro']].map(([v, label]) => (
-          <button key={v} type="button" className={chip(align === v)} onClick={() => onUpdate('title_align', v)}>{label}</button>
-        ))}
-      </div>
+    <div className="flex flex-wrap items-center gap-2 pl-1">
+      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest mr-1">Título:</span>
+      <button type="button" className={chip(st.upper)} onClick={() => onUpdate('title_upper', !st.upper)} title="Tudo em maiúsculas">AA Maiúsculas</button>
+      {[['left', 'Esquerda'], ['center', 'Centro']].map(([v, label]) => (
+        <button key={v} type="button" className={chip(st.align === v)} onClick={() => onUpdate('title_align', v)}>{label}</button>
+      ))}
     </div>
   );
 }
@@ -563,18 +574,13 @@ function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast 
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
         <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest shrink-0">Seção {index + 1}</span>
-        <input
-          className="flex-1 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
-          placeholder="Título da seção..."
-          value={sec.title}
-          onChange={e => onUpdate('title', e.target.value)}
-        />
+        <TitleField sec={sec} onUpdate={onUpdate} placeholder="Título da seção..." defaultSize="lg" defaultAlign="left" />
         <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
         <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
           <Trash2 size={16} />
         </button>
       </div>
-      <TitleStyleControls sec={sec} onUpdate={onUpdate} defaultSize="lg" defaultAlign="left" />
+      <TitleExtraControls sec={sec} onUpdate={onUpdate} defaultSize="lg" defaultAlign="left" />
       <QuillEditor value={sec.text} onChange={val => onUpdate('text', val)} height="h-[420px]" />
     </div>
   );
@@ -613,19 +619,14 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst,
         <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-700 tracking-widest shrink-0">
           <Users size={13} /> Carrossel de logos
         </span>
-        <input
-          className="flex-1 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
-          placeholder="Título (ex: Organização e apoio, Patrocinadores...)"
-          value={group.title}
-          onChange={e => onUpdate('title', e.target.value)}
-        />
+        <TitleField sec={group} onUpdate={onUpdate} placeholder="Título (ex: Organização e apoio, Patrocinadores...)" defaultSize="md" defaultAlign="center" />
         <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
         <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
           <Trash2 size={16} />
         </button>
       </div>
 
-      <TitleStyleControls sec={group} onUpdate={onUpdate} defaultSize="md" defaultAlign="center" />
+      <TitleExtraControls sec={group} onUpdate={onUpdate} defaultSize="md" defaultAlign="center" />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {images.map((img, i) => (

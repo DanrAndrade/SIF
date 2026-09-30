@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { TITLE_SIZES, TITLE_WEIGHTS, resolveTitleStyle } from '../utils/sectionTitle';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
@@ -270,24 +271,16 @@ export default function Eincol() {
   );
 }
 
-// Título de seção com o estilo escolhido no painel (tamanho, negrito,
+// Título de seção com o estilo escolhido no painel (tamanho, peso,
 // maiúsculas, alinhamento). Sem escolha, mantém o visual padrão de cada tipo.
-const TITLE_SIZES = {
-  lg: 'text-2xl md:text-3xl',
-  md: 'text-xl md:text-2xl',
-  sm: 'text-lg md:text-xl',
-};
 function SectionTitle({ sec, defaultSize, defaultAlign, className = '' }) {
   if (!sec.title) return null;
-  const size  = TITLE_SIZES[sec.title_size] ? sec.title_size : defaultSize;
-  const bold  = sec.title_bold !== false;
-  const upper = sec.title_upper !== false;
-  const align = sec.title_align || defaultAlign;
+  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
   const cls = [
-    TITLE_SIZES[size],
-    bold ? (size === 'lg' ? 'font-black' : 'font-bold') : 'font-normal',
-    upper ? 'uppercase tracking-tighter' : 'tracking-tight',
-    align === 'center' ? 'text-center' : 'text-left',
+    TITLE_SIZES[st.size].site,
+    TITLE_WEIGHTS[st.weight].cls,
+    st.upper ? 'uppercase tracking-tighter' : 'tracking-tight',
+    st.align === 'center' ? 'text-center' : 'text-left',
     'text-[#1f2937]',
     className,
   ].join(' ');
