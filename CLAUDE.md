@@ -1,5 +1,10 @@
 # Manual de setup automatizado — SIF
 
+> **⚠️ IA: ANTES DE QUALQUER COISA, leia `HANDOFF-IA.md` na raiz.** Ele tem o
+> contexto da conversa anterior, as regras de deploy da HostGator e o bug
+> aberto no momento. Se o ambiente local já estiver rodando, pule o setup
+> abaixo.
+
 > **Para a IA que está lendo isto:** este documento descreve como deixar
 > o projeto SIF rodando localmente do zero. Execute cada etapa em ordem,
 > validando o resultado antes de prosseguir. Pergunte ao usuário **apenas**
