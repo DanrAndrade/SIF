@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm, AdminPage, AdminCard, useDirty } from './kit';
+import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, moveItem, ImageField as KitImageField } from './kit';
+import { GRADIENT_PRESETS, TEXTURES, resolveGradient } from '../../utils/homeVisual';
 import axios from 'axios';
 import {
   Save, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check,
+  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3,
 } from 'lucide-react';
 import { Input, TextArea } from '../ui/FormElements';
 import Button from '../ui/Button';
@@ -26,6 +27,8 @@ const DEFAULTS = {
     cta1_link: '/contato',
     cta2_label: 'Nossos Projetos',
     cta2_link: '/projetos',
+    cta3_label: 'Trabalhe Conosco',
+    cta3_link: '/trabalhe-conosco',
     scroll_label: 'Conheça',
   },
   performance: {
@@ -68,6 +71,21 @@ const DEFAULTS = {
       { id: '04', title: 'Transparência', icon_type: 'ScrollText', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=2071', shortDesc: 'Ética e Integridade.', fullDesc: 'Acesse nosso Código de Conduta e diretrizes de conformidade aplicadas a todos os processos.', benefits: 'Ética, Compliance, Governança', link: 'https://sif.conveniar.com.br/portaltransparencia/', external: true },
     ],
   },
+  // Fundo do topo (degradê + textura) — ver src/utils/homeVisual.js
+  visual: { gradient: 'atual', from: '#007a3d', to: '#1B5E20', texture: 'ruido' },
+  // Bloco de números (bento). Começa DESLIGADO: só aparece no site depois de
+  // preenchido e ativado aqui no painel.
+  numbers: {
+    enabled: false,
+    tag: 'A SIF em números',
+    title: 'Ciência florestal que gera resultado',
+    cards: [
+      { prefix: '+', number: '50', unit: 'anos', label: 'de pesquisa florestal aplicada, desde 1974', image: '', link: '/institucional' },
+      { prefix: '+', number: '28', unit: 'empresas', label: 'associadas', image: '', link: '/associadas' },
+      { prefix: '', number: '', unit: '', label: '', image: '', link: '' },
+      { prefix: '', number: '', unit: '', label: '', image: '', link: '' },
+    ],
+  },
   faq_side: {
     title: 'Ainda tem<br/>Dúvidas?',
     subtitle: 'Nossa equipe técnica e comercial está pronta para atender você.',
@@ -104,7 +122,8 @@ const mergeConfig = (base, incoming) => {
 };
 
 const TABS = [
-  { id: 'hero',        label: 'Hero',         icon: HomeIcon },
+  { id: 'hero',        label: 'Topo',         icon: HomeIcon },
+  { id: 'numbers',     label: 'Números',      icon: BarChart3 },
   { id: 'performance', label: 'Missão/Visão', icon: Award },
   { id: 'about',       label: 'Sobre Nós',    icon: FileText },
   { id: 'services',    label: 'Serviços',     icon: LayoutGrid },
@@ -198,7 +217,13 @@ export default function AdminHome() {
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
-        <HeroForm config={config.hero} update={(p) => updateSection('hero', p)} onFile={handleFile} preview={pendingPreviews.hero_bg} currentImage={config.hero_bg} />
+        <div className="space-y-8">
+          <HeroForm config={config.hero} update={(p) => updateSection('hero', p)} onFile={handleFile} preview={pendingPreviews.hero_bg} currentImage={config.hero_bg} />
+          <VisualForm config={config.visual} update={(p) => updateSection('visual', p)} />
+        </div>
+      )}
+      {activeTab === 'numbers' && (
+        <NumbersForm config={config.numbers} update={(p) => updateSection('numbers', p)} />
       )}
       {activeTab === 'performance' && (
         <PerformanceForm config={config.performance} update={(p) => updateSection('performance', p)} />
@@ -242,6 +267,8 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
         <Input label="Link Botão 1" value={config.cta1_link} onChange={(e) => update({ cta1_link: e.target.value })} />
         <Input label="Texto Botão 2" value={config.cta2_label} onChange={(e) => update({ cta2_label: e.target.value })} />
         <Input label="Link Botão 2" value={config.cta2_link} onChange={(e) => update({ cta2_link: e.target.value })} />
+        <Input label="Texto Botão 3 (vazio = sem botão)" value={config.cta3_label} onChange={(e) => update({ cta3_label: e.target.value })} />
+        <Input label="Link Botão 3" value={config.cta3_link} onChange={(e) => update({ cta3_link: e.target.value })} />
       </div>
 
       <ImageField
@@ -252,6 +279,122 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
         onFile={onFile}
         hint="A imagem mostrada acima é a que está sendo exibida na Home. Clique para trocar."
       />
+    </div>
+  );
+}
+
+// ─── FUNDO DO TOPO (degradê + textura) ─────────────────────────
+function VisualForm({ config = {}, update }) {
+  const sel = config.gradient || 'atual';
+  const g = resolveGradient(config);
+  return (
+    <div className="space-y-4 pt-6 border-t border-gray-100">
+      <div>
+        <h4 className="text-sm font-bold text-gray-800">Fundo do topo da Home</h4>
+        <p className="text-xs text-gray-500 mt-1">Cor do degradê e textura atrás do título. Só tons de verde, seguindo a identidade da SIF.</p>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {Object.entries(GRADIENT_PRESETS).map(([id, p]) => (
+          <button key={id} type="button" onClick={() => update({ gradient: id })}
+            className={`rounded-xl overflow-hidden border-2 text-left transition-all ${sel === id ? 'border-[#007a3d] ring-2 ring-emerald-200' : 'border-gray-200 hover:border-gray-300'}`}>
+            <div className="h-14" style={{ background: `radial-gradient(circle at 50% 0%, ${p.from}, ${p.to})` }} />
+            <div className="px-2 py-1.5 text-[11px] font-semibold text-gray-700">{p.label}</div>
+          </button>
+        ))}
+        <button type="button" onClick={() => update({ gradient: 'custom', from: config.from || g.from, to: config.to || g.to })}
+          className={`rounded-xl overflow-hidden border-2 text-left transition-all ${sel === 'custom' ? 'border-[#007a3d] ring-2 ring-emerald-200' : 'border-gray-200 hover:border-gray-300'}`}>
+          <div className="h-14" style={{ background: `radial-gradient(circle at 50% 0%, ${config.from || g.from}, ${config.to || g.to})` }} />
+          <div className="px-2 py-1.5 text-[11px] font-semibold text-gray-700">Personalizado</div>
+        </button>
+      </div>
+      {sel === 'custom' && (
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2 text-xs">Cor de cima
+            <input type="color" value={config.from || g.from} onChange={(e) => update({ from: e.target.value })} className="w-10 h-8 rounded border border-gray-200" />
+          </label>
+          <label className="flex items-center gap-2 text-xs">Cor de baixo
+            <input type="color" value={config.to || g.to} onChange={(e) => update({ to: e.target.value })} className="w-10 h-8 rounded border border-gray-200" />
+          </label>
+        </div>
+      )}
+      <div>
+        <p className="text-xs font-semibold text-gray-600 mb-2">Textura</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(TEXTURES).map(([id, t]) => (
+            <button key={id} type="button" onClick={() => update({ texture: id })}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${(config.texture || 'ruido') === id ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#007a3d]'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── NÚMEROS (bento grid com contagem animada) ─────────────────
+function NumbersForm({ config = {}, update }) {
+  const confirm = useConfirm();
+  const cards = config.cards || [];
+  const setCard = (i, patch) => update({ cards: cards.map((c, j) => j === i ? { ...c, ...patch } : c) });
+  const addCard = () => update({ cards: [...cards, { prefix: '', number: '', unit: '', label: '', image: '', link: '' }] });
+  const removeCard = async (i) => {
+    if (!(await confirm({ title: 'Remover este card?', confirmLabel: 'Remover' }))) return;
+    update({ cards: cards.filter((_, j) => j !== i) });
+  };
+  const POS_LABEL = ['Card 1 — grande (esquerda)', 'Card 2 — meio, em cima', 'Card 3 — meio, embaixo', 'Card 4 — alto (direita)'];
+
+  return (
+    <div className="space-y-6">
+      <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer ${config.enabled ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`}>
+        <input type="checkbox" checked={!!config.enabled} onChange={(e) => update({ enabled: e.target.checked })} className="w-5 h-5 accent-[#007a3d]" />
+        <span>
+          <span className="block text-sm font-bold text-gray-800">{config.enabled ? 'Bloco de números visível na Home' : 'Bloco de números desligado'}</span>
+          <span className="block text-xs text-gray-500">Aparece logo abaixo dos banners. Ligue só depois de conferir os números.</span>
+        </span>
+      </label>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Input label="Etiqueta (acima do título)" value={config.tag || ''} onChange={(e) => update({ tag: e.target.value })} />
+        <Input label="Título do bloco" value={config.title || ''} onChange={(e) => update({ title: e.target.value })} />
+      </div>
+      <p className="text-xs text-gray-500">
+        Os 4 primeiros cards formam o mosaico (grande, dois empilhados e um alto). O número conta do zero até o valor quando o visitante chega na seção —
+        use vírgula para decimais (ex.: <strong>10,73</strong>). Card sem número não aparece.
+      </p>
+
+      <div className="space-y-4">
+        {cards.map((c, i) => (
+          <div key={i} className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">{POS_LABEL[i] || `Card ${i + 1} — linha extra`}</h4>
+              <ItemActions size={14} onMove={(dir) => update({ cards: moveItem(cards, i, dir) })} isFirst={i === 0} isLast={i === cards.length - 1} onDelete={() => removeCard(i)} />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-5">
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <Input label="Antes (ex.: +)" value={c.prefix || ''} onChange={(e) => setCard(i, { prefix: e.target.value })} />
+                  <Input label="Número (ex.: 10,73)" value={c.number || ''} onChange={(e) => setCard(i, { number: e.target.value })} />
+                  <Input label="Unidade (ex.: milhões)" value={c.unit || ''} onChange={(e) => setCard(i, { unit: e.target.value })} />
+                </div>
+                <Input label="Legenda" value={c.label || ''} onChange={(e) => setCard(i, { label: e.target.value })} />
+                <Input label="Link ao clicar (opcional)" value={c.link || ''} onChange={(e) => setCard(i, { link: e.target.value })} placeholder="/institucional ou https://..." />
+              </div>
+              <KitImageField
+                label="Foto de fundo"
+                value={c.image}
+                onFile={(file) => uploadImageNow(file).then(url => url && setCard(i, { image: url })).catch(toastError)}
+                onRemove={() => setCard(i, { image: '' })}
+                aspect="h-40"
+                hint="Envia na hora; Salvar publica."
+              />
+            </div>
+          </div>
+        ))}
+        <button type="button" onClick={addCard} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+          <Plus size={18} /> Adicionar card
+        </button>
+      </div>
     </div>
   );
 }

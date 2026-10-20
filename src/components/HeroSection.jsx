@@ -5,7 +5,7 @@ import NoiseOverlay from './ui/NoiseOverlay';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
 
-export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}, bgImage }) {
+export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}, bgImage, gradient }) {
   const scrollToExplore = () => window.scrollTo({top: 800, behavior: 'smooth'});
 
   const tag         = config.tag         || 'Sustentabilidade & Inovação';
@@ -17,6 +17,11 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const cta2Label   = config.cta2_label  || 'Nossos Projetos';
   const cta2Link    = config.cta2_link   || '/projetos';
   const scrollLabel = config.scroll_label|| 'Conheça';
+  // 3º botão (2ª etapa): "Trabalhe Conosco". Texto vazio no painel = sem botão.
+  const cta3Label   = config.cta3_label ?? 'Trabalhe Conosco';
+  const cta3Link    = config.cta3_link  || '/trabalhe-conosco';
+  const gFrom = gradient?.from || '#007a3d';
+  const gTo   = gradient?.to   || '#1B5E20';
   // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
   const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : '';
 
@@ -24,7 +29,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
         <div className="absolute bottom-0 left-0 right-0 h-[200px] -z-20 overflow-hidden pointer-events-none">
             {/* Mantido o gradiente de base verde suave, pode ser útil para transição, mas o NoiseOverlay ajuda */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,_#007a3d_0%,_#1B5E20_100%)] opacity-50"></div>
+            <div className="absolute inset-0 opacity-50" style={{ background: `radial-gradient(circle at 50% 100%, ${gFrom} 0%, ${gTo} 100%)` }}></div>
             <NoiseOverlay opacity={0.4} />
         </div>
 
@@ -61,6 +66,11 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                         <Button href={cta2Link} variant="glass" className="w-full sm:w-auto">
                             {cta2Label}
                         </Button>
+                        {cta3Label && (
+                          <Button href={cta3Link} variant="glass" className="w-full sm:w-auto">
+                              {cta3Label}
+                          </Button>
+                        )}
                     </div>
                 </div>
 

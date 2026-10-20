@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { resolveGradient, TEXTURES } from '../utils/homeVisual';
+import NumbersBento from '../components/NumbersBento';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
@@ -26,6 +28,8 @@ export default function Home() {
 
   // Config editável via /admin/home. Tudo tem fallback nos componentes filhos.
   const { config } = usePageConfig('home');
+  const grad = resolveGradient(config.visual);
+  const texture = config.visual?.texture || 'ruido';
 
   const heroRef = useRef(null);
   const heroBgRef = useRef(null);
@@ -117,13 +121,19 @@ export default function Home() {
           />
 
           {/* --- HERO & PERFORMANCE --- */}
-          <div className="relative w-full bg-[#1B5E20] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden z-0 shadow-2xl pb-16">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#007a3d_0%,_#1B5E20_100%)] z-0"></div>
-              
-              <div 
-                  className="absolute inset-0 opacity-20 mix-blend-overlay z-0 pointer-events-none bg-noise"
-                  style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
-              ></div>
+          <div className="relative w-full rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden z-0 shadow-2xl pb-16" style={{ backgroundColor: grad.to }}>
+              {/* Degradê e textura editáveis em Painel › Home › Topo */}
+              <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 0%, ${grad.from} 0%, ${grad.to} 100%)` }}></div>
+
+              {texture === 'ruido' && (
+                <div
+                    className="absolute inset-0 opacity-20 mix-blend-overlay z-0 pointer-events-none bg-noise"
+                    style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
+                ></div>
+              )}
+              {TEXTURES[texture]?.style && (
+                <div className="absolute inset-0 z-0 pointer-events-none" style={TEXTURES[texture].style}></div>
+              )}
 
               <div className="relative z-10">
                  <HeroSection
@@ -132,6 +142,7 @@ export default function Home() {
                     contentRef={heroContentRef}
                     config={config.hero}
                     bgImage={config.hero_bg}
+                    gradient={grad}
                  />
               </div>
 
@@ -141,6 +152,9 @@ export default function Home() {
           </div>
 
           <BannerCarousel />
+
+          {/* --- NÚMEROS (bento com contagem animada) --- */}
+          <NumbersBento config={config.numbers} />
 
 
           {/* --- SOBRE NÓS --- */}
