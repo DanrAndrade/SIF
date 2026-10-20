@@ -235,8 +235,9 @@ function sif_json_list($v): array {
 }
 
 // Usuário logado (lido do banco a cada pedido: desativar/alterar vale na hora).
-function sif_user(): ?array {
+function sif_user(bool $refresh = false): ?array {
     static $cache = null; // só guarda quando achou (o login cria a sessão no meio do pedido)
+    if ($refresh) $cache = null;
     if ($cache !== null) return $cache;
     if (empty($_SESSION['admin_logged_in']) || empty($_SESSION['admin_id'])) return null;
     global $pdo;

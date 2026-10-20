@@ -28,7 +28,7 @@ if ($method === 'POST') {
         sif_ensure_schema($pdo);
         try { $pdo->prepare("UPDATE admins SET last_login = NOW() WHERE id = ?")->execute([$user['id']]); } catch (Throwable $e) {}
 
-        $me = sif_user();
+        $me = sif_user(true); // relê: a sessão acabou de mudar de usuário
         echo json_encode([
             'success' => true,
             'user' => $me ?: ['id' => (int)$user['id'], 'email' => $user['email']],
