@@ -59,7 +59,7 @@ function DashboardInner({ currentTab }) {
   };
 
   return (
-    <div className="flex h-screen bg-[#f3f4f6] font-sans text-[#1f2937] overflow-hidden">
+    <div className="sif-admin flex h-screen bg-[#f3f4f6] font-sans text-[#1f2937] overflow-hidden">
       
       {/* SIDEBAR */}
       <AdminSidebar 

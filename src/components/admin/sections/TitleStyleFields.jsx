@@ -12,6 +12,7 @@ export function TitleField({ sec, onUpdate, placeholder = 'Título da seção...
   return (
     <>
       <input
+        data-keep-style="1"
         className={`flex-1 min-w-0 p-3 bg-white rounded-xl outline-none border focus:border-[#007a3d] ${TITLE_SIZES[st.size].admin} ${TITLE_WEIGHTS[st.weight].cls} ${st.upper ? 'uppercase' : ''} ${st.align === 'center' ? 'text-center' : ''}`}
         placeholder={placeholder}
         value={sec.title || ''}
