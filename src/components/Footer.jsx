@@ -1,97 +1,95 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Instagram, Linkedin, Facebook, Youtube } from 'lucide-react';
-// Importando o logo
 import logoSif from '../assets/sif.svg';
+import SmartLink from './ui/SmartLink';
+import { usePageConfig } from '../hooks/usePageConfig';
+import { FOOTER_DEFAULTS, footerBg } from '../utils/footerDefaults';
 
+// Rodapé — conteúdo e cor editáveis em Painel › Páginas › Rodapé.
+// Sem configuração salva (ou backend fora do ar), mostra os textos padrão.
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { config } = usePageConfig('footer');
+  const c = { ...FOOTER_DEFAULTS, ...config };
+  const navLinks = Array.isArray(c.nav_links) && c.nav_links.length ? c.nav_links : FOOTER_DEFAULTS.nav_links;
+  const socials = [
+    ['instagram', Instagram, 'Instagram'], ['linkedin', Linkedin, 'LinkedIn'],
+    ['facebook', Facebook, 'Facebook'], ['youtube', Youtube, 'YouTube'],
+  ].filter(([k]) => c[k]);
 
   return (
     <footer className="bg-[#f8f9fa] pt-0 pb-8 flex justify-center w-full">
-      
+
       {/* Container Principal */}
-      <div className="w-[95%] max-w-[1600px] bg-[#1f2937] rounded-[40px] relative overflow-hidden text-white shadow-2xl">
-        
-        {/* EFEITOS DE LUZ (Glows) - Ajustados para Verde SIF */}
+      <div className="w-[95%] max-w-[1600px] rounded-[40px] relative overflow-hidden text-white shadow-2xl" style={{ backgroundColor: footerBg(c) }}>
+
+        {/* Brilhos verdes */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#7FBA00] rounded-full blur-[120px] opacity-15 pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
 
-        {/* CONTEÚDO */}
         <div className="relative z-10 p-8 md:p-16">
-          
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-gray-700/50 pb-12 mb-12">
-            
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-white/10 pb-12 mb-12">
+
             {/* COLUNA 1: Logo e Sobre */}
             <div className="md:col-span-5 space-y-6">
               <div className="flex items-center gap-2">
-                {/* LOGO NO FOOTER */}
                 <Link to="/">
-                    <img
-                        src={logoSif}
-                        alt="SIF - Sociedade de Investigações Florestais"
-                        className="h-12 w-auto object-contain"
-                    />
+                    <img src={logoSif} alt="SIF - Sociedade de Investigações Florestais" className="h-12 w-auto object-contain" />
                 </Link>
               </div>
-              <p className="text-gray-400 leading-relaxed max-w-sm">
-                Há 50 anos promovendo o desenvolvimento científico e tecnológico do setor florestal brasileiro, a SIF atua como um elo estratégico entre a universidade e as principais empresas do setor.
-              </p>
-              
-              <div className="flex gap-4 pt-2">
-                <SocialLink href="https://www.instagram.com/sif.ufv" icon={<Instagram size={20} />} />
-                <SocialLink href="https://www.linkedin.com/company/sif-ufv/?originalSubdomain=br" icon={<Linkedin size={20} />} />
-                <SocialLink href="https://www.facebook.com/sif.org/" icon={<Facebook size={20} />} />
-                <SocialLink href="https://www.youtube.com/channel/UC5jaY6VxP9aw81aeECwBBBA" icon={<Youtube size={20} />} />
-              </div>
+              {c.about && <p className="text-white/70 leading-relaxed max-w-sm">{c.about}</p>}
+
+              {socials.length > 0 && (
+                <div className="flex gap-4 pt-2">
+                  {socials.map(([k, Icon, name]) => <SocialLink key={k} href={c[k]} label={name} icon={<Icon size={20} />} />)}
+                </div>
+              )}
             </div>
 
             {/* COLUNA 2: Navegação */}
             <div className="md:col-span-3 space-y-6">
-              <h4 className="text-lg font-bold font-heading uppercase tracking-wider text-gray-200">Navegação</h4>
+              <h4 className="text-lg font-semibold tracking-wide text-white/90">{c.nav_title}</h4>
               <ul className="space-y-3">
-                <FooterLink to="/" text="Início" />
-                <FooterLink to="/institucional" text="Nossa História" />
-                <FooterLink to="/trabalhe-conosco" text="Trabalhe Conosco" />
-                <FooterLink to="/contato" text="Fale Conosco" />
+                {navLinks.filter(l => l && l.label).map((l, i) => <FooterLink key={i} to={l.link} text={l.label} />)}
               </ul>
             </div>
 
             {/* COLUNA 3: Contato */}
             <div className="md:col-span-4 space-y-6">
-              <h4 className="text-lg font-bold font-heading uppercase tracking-wider text-gray-200">Contato</h4>
+              <h4 className="text-lg font-semibold tracking-wide text-white/90">{c.contact_title}</h4>
               <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-gray-400">
-                  {/* Ícone Amarelo -> Verde Claro SIF */}
-                  <MapPin className="text-[#7FBA00] shrink-0 mt-1" size={20} />
-                  <span>Departamento de Engenharia Florestal<br/>Av. P.H. Rolfs, s/n – Campus da UFV<br/>CEP: 36570-900 – Viçosa/MG</span>
-                </li>
-                <li className="flex items-center gap-3 text-gray-400">
-                  <Phone className="text-[#7FBA00] shrink-0" size={20} />
-                  <span>(31) 3612-3950</span>
-                </li>
-                <li className="flex items-center gap-3 text-gray-400">
-                  <Mail className="text-[#7FBA00] shrink-0" size={20} />
-                  <span>contato@sif.org.br</span>
-                </li>
+                {c.address && (
+                  <li className="flex items-start gap-3 text-white/70">
+                    <MapPin className="text-[#7FBA00] shrink-0 mt-1" size={20} />
+                    <span className="whitespace-pre-line">{c.address}</span>
+                  </li>
+                )}
+                {c.phone && (
+                  <li className="flex items-center gap-3 text-white/70">
+                    <Phone className="text-[#7FBA00] shrink-0" size={20} />
+                    <a href={`tel:${c.phone.replace(/\D/g, '')}`} className="hover:text-white">{c.phone}</a>
+                  </li>
+                )}
+                {c.email && (
+                  <li className="flex items-center gap-3 text-white/70">
+                    <Mail className="text-[#7FBA00] shrink-0" size={20} />
+                    <a href={`mailto:${c.email}`} className="hover:text-white">{c.email}</a>
+                  </li>
+                )}
               </ul>
             </div>
 
           </div>
 
           {/* RODAPÉ INFERIOR */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 font-medium">
-            <p>&copy; {currentYear} SIF - Sociedade de Investigações Florestais. Todos os direitos reservados.</p>
-            
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50 font-medium">
+            <p>&copy; {currentYear} {c.copyright}</p>
             <p className="flex items-center gap-1">
-              Desenvolvido por 
-              <a 
-                href="https://www.avdasoftware.com.br" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                // Hover Vermelho/Amarelo -> Verde SIF/Verde Claro
-                className="text-[#007a3d] font-bold hover:text-[#7FBA00] transition-colors ml-1"
-              >
+              Desenvolvido por
+              <a href="https://www.avdasoftware.com.br" target="_blank" rel="noopener noreferrer"
+                className="text-[#7FBA00] font-bold hover:text-white transition-colors ml-1">
                 AVDA Software
               </a>
             </p>
@@ -103,14 +101,14 @@ export default function Footer() {
   );
 }
 
-function SocialLink({ href, icon }) {
+function SocialLink({ href, icon, label }) {
   return (
-    <a 
-      href={href} 
-      target="_blank" 
+    <a
+      href={href}
+      target="_blank"
       rel="noopener noreferrer"
-      // Hover BG Amarelo/Borda Amarelo/Texto Vermelho -> BG Verde Claro/Borda Verde Claro/Texto Verde Escuro
-      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white 
+      aria-label={label}
+      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white
       hover:bg-[#7FBA00] hover:border-[#7FBA00] hover:text-[#1f2937] hover:-translate-y-1 transition-all duration-300"
     >
       {icon}
@@ -121,13 +119,12 @@ function SocialLink({ href, icon }) {
 function FooterLink({ to, text }) {
   return (
     <li>
-      <Link
-        to={to}
-        // Hover Vermelho -> Verde SIF
-        className="text-gray-400 hover:text-[#007a3d] transition-colors inline-block hover:translate-x-1 duration-200"
+      <SmartLink
+        href={to}
+        className="text-white/70 hover:text-[#7FBA00] transition-colors inline-block hover:translate-x-1 duration-200"
       >
         {text}
-      </Link>
+      </SmartLink>
     </li>
   );
 }

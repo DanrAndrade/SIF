@@ -22,6 +22,7 @@ import AdminHome from '../../components/admin/AdminHome';
 import ProdutosAdmin from './ProdutosAdmin';
 import TreinamentosInCompanyAdmin from './TreinamentosInCompanyAdmin';
 import ContatoAdmin from './ContatoAdmin';
+import RodapeAdmin from './RodapeAdmin';
 
 // Endereço de cada tela do painel (o menu muda a URL: recarregar a página
 // volta para a mesma tela, e dá para mandar o link de uma tela específica)
@@ -32,6 +33,7 @@ const TAB_PATHS = {
   eincol: '/admin/eincol', institucional: '/admin/institucional', associadas: '/admin/associadas',
   home: '/admin/home', produtos: '/admin/produtos', in_company: '/admin/in-company',
   contato: '/admin/contato',
+  rodape: '/admin/rodape',
 };
 
 export default function AdminDashboard(props) {
@@ -109,6 +111,7 @@ function DashboardInner({ currentTab }) {
                 {activeTab === 'produtos' && <ProdutosAdmin />}
                 {activeTab === 'in_company' && <TreinamentosInCompanyAdmin />}
                 {activeTab === 'contato' && <ContatoAdmin />}
+                {activeTab === 'rodape' && <RodapeAdmin />}
             </div>
         </div>
       </main>
