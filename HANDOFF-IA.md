@@ -135,3 +135,50 @@ saber exatamente o que está em produção:
 4. Investigar o bug da EINCOL (seção 4) — começar pelo status/corpo da
    resposta no Network.
 5. Ouvir os novos pedidos do usuário e seguir o fluxo de entrega (seção 2).
+
+## 7. Auditoria de outubro/2026 — como o projeto está organizado agora
+
+Auditoria completa (relatório em `AUDITORIA-2026-10.md`) seguida de 3 fases,
+todas commitadas. **Ainda não foi feito deploy dessas fases** — o usuário sobe
+quando decidir (não gerar zip a cada etapa; só quando ele pedir).
+
+### Regras novas (não quebrar)
+- **Painel — kit padrão** (`src/components/admin/kit/`): toda tela usa
+  `AdminPage` (título + barra fixa com "Alterações não salvas/Salvo" + Salvar),
+  `AdminCard`, `SaveButton`, `ItemActions` (sempre ↑ ↓ · Visível · Editar ·
+  Excluir), `ImageField`, `useConfirm()` (nunca `window.confirm`/`alert`),
+  `useDirty()` (aviso de não salvo; use `settleMs` em telas com Quill).
+- **Chamadas do painel à API**: `src/utils/adminApi.js` → `apiRequest()`
+  (confere status e `success`; lança erro com a mensagem do servidor),
+  `savePageConfig(pageKey, campos, arquivos)` (envie **só os campos do
+  formulário** — o PHP mescla; senão um form apaga o outro), `toastError()`.
+- **Links**: `src/components/ui/SmartLink.jsx` (rota interna respeita a
+  subpasta; `Button href` já usa). Nunca `<a href="/rota">` cru.
+- **Seções de página — modelo único**: `src/components/sections/sectionTypes.js`
+  (tipos, `createSection`, `normalizeSections`, `visibleSections`). Editor:
+  `components/admin/ContentSections.jsx`; site: `ContentSectionsRenderer.jsx`.
+  Tipo novo = registrar nos três. `visible === false` oculta no site.
+- **Tipografia**: fonte e estilo dos títulos só em `src/index.css`
+  (`--sif-font-*`, `--sif-title-*`, classe `.sif-title` nos h1/h2).
+  Montserrat: descomentar o link no `index.html` + trocar `--sif-font-sans`.
+  Tirar caixa-alta/negrito dos títulos: `--sif-title-transform: none` e peso.
+- **Backend**: todo endpoint inclui `api_guard.php` (decodifica envios,
+  exige login para gravar, erros sempre em JSON, `sif_safe_ext()` para
+  upload pelo tipo real, `sif_ensure_schema()` = migração versionada que roda
+  sozinha quando o admin abre o painel — para mudar o banco, crie a versão 2
+  lá, idempotente). `sif-api/.htaccess` bloqueia .sql/.zip, scripts de
+  manutenção e includes. Scripts antigos estão em `database/manutencao/`.
+- **Limpeza**: `dist/` e `*.zip` não são mais versionados (`npm run build`
+  gera o `dist/`). Pasta `sif/` (template antigo) e código morto removidos.
+
+### Ambiente local — atenção
+- Se o MySQL do XAMPP não subir na 3306 porque outro projeto ocupa a porta,
+  rode o do SIF em outra porta (`mysqld --port=3307`) e mude **só a cópia**
+  `C:\xampp\htdocs\sif-api\db.php` (`'host' => '127.0.0.1;port=3307'`).
+  Ao copiar o backend para o XAMPP, **não sobrescreva o db.php** dessa cópia.
+
+### Próximo passo (proposta aprovada — R$ 3.840, 4 semanas)
+Visual (Montserrat, títulos, degradê, textura, bento de números, rodapé
+editável), modelo de página para Produtos/GT/Eventos/Projetos usando o modelo
+de seções, página Projetos SIF/EMBRAPII (conteúdo da landing do Lucas),
+vagas por categoria, menus, usuários e permissões (blog por responsável do GT).

@@ -8,6 +8,23 @@ Legenda de gravidade: 🔴 alta · 🟠 média · ⚪ baixa
 
 ---
 
+## ✅ Situação em 20/10/2026 (depois das correções)
+
+| Fase | Situação |
+|---|---|
+| **1 — Corrigir** | Feito: itens 1–19 e S1–S5, S7 (ver lista abaixo). Testes automáticos do backend (17) passando. |
+| **2 — Padronizar** | Feito: kit do painel em todas as telas, confirmações, avisos, ações de item, ocultar/reordenar onde faltava, remover imagem, cores. |
+| **3 — Preparar** | Feito: limpeza, tipografia centralizada (`.sif-title` + variáveis), modelo único de seções (texto, abas, PDFs, carrossel de logos, ocultar). |
+
+**Ficou para depois (conscientemente):**
+- S6 — trocar a senha do painel e tirar o hash do `database/sif_db.sql` (depende de você).
+- S8 — limite de tentativas no login, cookie de sessão próprio da subpasta, proteção CSRF; anti-spam no formulário de contato/currículos.
+- Unificar as 6 telas de publicação num componente só (`PublicationAdmin`) e o "helper de CRUD" no PHP — fica junto do novo modelo de página da proposta (semanas 2–3), para não refazer duas vezes.
+- Centralizar a classe `prose` (repetida ~15×), títulos gigantes que estouram no celular nas páginas de detalhe, acessibilidade (rótulos de botões, menu pelo teclado), requisições repetidas de `page_content`, apagar arquivos antigos ao trocar imagem.
+- Itens da proposta (Montserrat ligada, sem caixa-alta, bento, rodapé editável etc.) — a estrutura está pronta, a mudança visual é a 2ª etapa.
+
+---
+
 ## Fase 1 — Corrigir agora (bugs que perdem dados + segurança)
 
 ### Perda de dados / comportamento errado

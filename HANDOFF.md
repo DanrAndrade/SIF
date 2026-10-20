@@ -1,3 +1,7 @@
+> ⚠️ **Documento antigo (antes de out/2026).** Partes estão desatualizadas
+> (pasta antiga do projeto, hospedagem Hostinger, lista de endpoints).
+> Leia primeiro o **HANDOFF-IA.md** (seção 7) e o **AUDITORIA-2026-10.md**.
+
 # Handoff — Projeto SIF
 
 > **Para nova conversa Claude:** leia este arquivo INTEIRO antes de tocar em qualquer código. Este projeto teve várias iterações e há armadilhas documentadas aqui. Quando algo der errado, é quase sempre por ignorar uma das regras desta seção.
