@@ -80,6 +80,12 @@ if ($resource === 'config') {
             if ($url) $current['quem_somos_image'] = $url;
         }
 
+        // Foto do card de chamada (fim da página)
+        if (isset($_FILES['cta_card_image']) && $_FILES['cta_card_image']['error'] === UPLOAD_ERR_OK) {
+            $url = uploadInstitucionalFile($_FILES['cta_card_image'], 'cta');
+            if ($url) $current['cta_card_image'] = $url;
+        }
+
         $json = json_encode($current, JSON_UNESCAPED_UNICODE);
         $stmt = $pdo->prepare("
             INSERT INTO page_configs (page_key, config_json)

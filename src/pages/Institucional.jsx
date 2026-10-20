@@ -11,6 +11,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
+import SmartLink from '../components/ui/SmartLink';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 
@@ -91,6 +92,13 @@ const DEFAULTS = {
   cta_btn1_link: '/contato',
   cta_btn2_label: 'Trabalhe Conosco',
   cta_btn2_link: '/trabalhe-conosco',
+  cta_card_enabled: true,
+  cta_card_tag: 'Faça parte',
+  cta_card_title: 'Sua empresa na maior rede de pesquisa florestal do Brasil',
+  cta_card_text: 'Associe-se à SIF e tenha acesso a pesquisa aplicada, grupos temáticos, treinamentos e à troca de experiências com as principais empresas do setor.',
+  cta_card_btn_label: 'Quero ser associada',
+  cta_card_btn_link: '/contato',
+  cta_card_image: '',
 };
 
 const DEFAULT_AREAS = [
@@ -635,14 +643,45 @@ export default function Institucional() {
                         {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
                     </h2>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
-                            {cfg.cta_btn1_label}
-                        </Button>
-                        <Button href={cfg.cta_btn2_link} variant="outline">
-                            {cfg.cta_btn2_label}
-                        </Button>
+                        {cfg.cta_btn1_label && (
+                          <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
+                              {cfg.cta_btn1_label}
+                          </Button>
+                        )}
+                        {cfg.cta_btn2_label && (
+                          <Button href={cfg.cta_btn2_link} variant="outline">
+                              {cfg.cta_btn2_label}
+                          </Button>
+                        )}
                     </div>
                 </div>
+
+                {/* CARD DE CHAMADA — editável em Painel › Institucional › CTA Final */}
+                {cfg.cta_card_enabled !== false && (cfg.cta_card_title || cfg.cta_card_text) && (
+                  <div className="mt-32 relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
+                    <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
+                    <div className={`relative grid grid-cols-1 ${cfg.cta_card_image ? 'md:grid-cols-2' : ''} items-stretch`}>
+                      <div className="p-10 md:p-16 flex flex-col justify-center">
+                        {cfg.cta_card_tag && <span className="text-[#b5e05c] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.cta_card_tag}</span>}
+                        {cfg.cta_card_title && <h2 className="sif-title text-3xl md:text-5xl leading-tight mb-6">{cfg.cta_card_title}</h2>}
+                        {cfg.cta_card_text && <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-2xl whitespace-pre-line">{cfg.cta_card_text}</p>}
+                        {cfg.cta_card_btn_label && (
+                          <div className="mt-8">
+                            <SmartLink href={cfg.cta_card_btn_link || '/contato'}
+                              className="inline-flex items-center gap-3 bg-white text-[#0f3d24] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#7FBA00] hover:text-white transition-colors">
+                              {cfg.cta_card_btn_label} <ArrowRight size={16} />
+                            </SmartLink>
+                          </div>
+                        )}
+                      </div>
+                      {cfg.cta_card_image && (
+                        <div className="relative min-h-[260px]">
+                          <img src={cfg.cta_card_image.startsWith('http') ? cfg.cta_card_image : getImageUrl(cfg.cta_card_image)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
         </div>
       </div>

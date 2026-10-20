@@ -96,6 +96,13 @@ const DEFAULTS = {
   cta_btn1_link: '/contato',
   cta_btn2_label: 'Trabalhe Conosco',
   cta_btn2_link: '/trabalhe-conosco',
+  cta_card_enabled: true,
+  cta_card_tag: 'Faça parte',
+  cta_card_title: 'Sua empresa na maior rede de pesquisa florestal do Brasil',
+  cta_card_text: 'Associe-se à SIF e tenha acesso a pesquisa aplicada, grupos temáticos, treinamentos e à troca de experiências com as principais empresas do setor.',
+  cta_card_btn_label: 'Quero ser associada',
+  cta_card_btn_link: '/contato',
+  cta_card_image: '',
 };
 
 const TABS = [
@@ -234,7 +241,7 @@ export default function InstitucionalAdmin() {
         </div>
       )}
       {activeTab === 'cta' && (
-        <CtaForm cfg={config} set={set} />
+        <CtaForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.cta_card_image} />
       )}
      </AdminCard>
     </AdminPage>
@@ -518,9 +525,10 @@ function TimelineHeaderForm({ cfg, set }) {
 }
 
 // ─── CTA FINAL ────────────────────────────────────────────────
-function CtaForm({ cfg, set }) {
+function CtaForm({ cfg, set, onFile, preview }) {
   return (
     <div className="space-y-5">
+      <p className="text-xs font-bold uppercase text-gray-500 tracking-widest">Título final e botões</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Título — linha 1" value={cfg.cta_title_line1} onChange={v => set('cta_title_line1', v)} />
         <Field label="Título — destaque em verde" value={cfg.cta_title_highlight} onChange={v => set('cta_title_highlight', v)} />
@@ -528,6 +536,28 @@ function CtaForm({ cfg, set }) {
         <Field label="Botão 1 — link" value={cfg.cta_btn1_link} onChange={v => set('cta_btn1_link', v)} />
         <Field label="Botão 2 — texto" value={cfg.cta_btn2_label} onChange={v => set('cta_btn2_label', v)} />
         <Field label="Botão 2 — link" value={cfg.cta_btn2_link} onChange={v => set('cta_btn2_link', v)} />
+      </div>
+      <p className="text-xs text-gray-500">Deixe o texto de um botão vazio para escondê-lo.</p>
+
+      <div className="border-t border-gray-100 pt-5 space-y-5">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs font-bold uppercase text-gray-500 tracking-widest">Card de chamada (último bloco da página)</p>
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 accent-[#007a3d]" checked={cfg.cta_card_enabled !== false} onChange={e => set('cta_card_enabled', e.target.checked)} />
+            Mostrar no site
+          </label>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Field label="Etiqueta (texto pequeno acima do título)" value={cfg.cta_card_tag} onChange={v => set('cta_card_tag', v)} />
+          <Field label="Título" value={cfg.cta_card_title} onChange={v => set('cta_card_title', v)} />
+        </div>
+        <Field label="Texto" type="textarea" rows={3} value={cfg.cta_card_text} onChange={v => set('cta_card_text', v)} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Field label="Botão — texto (vazio esconde)" value={cfg.cta_card_btn_label} onChange={v => set('cta_card_btn_label', v)} />
+          <Field label="Botão — link" value={cfg.cta_card_btn_link} onChange={v => set('cta_card_btn_link', v)} />
+        </div>
+        <ImageField label="Foto do card (opcional)" currentUrl={cfg.cta_card_image} previewUrl={preview} fieldName="cta_card_image" onFile={onFile} hint="Sem foto, o card ocupa a largura toda só com texto." />
+        {cfg.cta_card_image && <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => set('cta_card_image', '')}>Remover foto</button>}
       </div>
     </div>
   );
