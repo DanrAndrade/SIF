@@ -23,6 +23,8 @@ if ($method === 'POST') {
     $reqs      = isset($data['requirements']) ? json_encode($data['requirements']) : '[]';
     $active    = isset($data['active']) ? (int)$data['active'] : 1;
     $tipo_vaga = $data['tipo_vaga'] ?? 'Interna';
+    if ($tipo_vaga === 'Externa') $tipo_vaga = 'Associadas';
+    if (!in_array($tipo_vaga, ['Interna', 'Associadas', 'Germinar'], true)) $tipo_vaga = 'Interna';
 
     if (isset($data['id'])) {
         $sql  = "UPDATE jobs SET title=?, location=?, type=?, salary=?, description=?, requirements=?, active=?, tipo_vaga=? WHERE id=?";

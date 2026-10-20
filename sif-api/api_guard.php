@@ -121,7 +121,7 @@ function sif_safe_name(string $ext): string {
 // Ajustes de estrutura, idempotentes e versionados. Rodam uma única vez
 // (a versão aplicada fica em page_configs, chave "_schema"). Chamado pelo
 // session.php quando o admin abre o painel — não pesa nas visitas do site.
-const SIF_SCHEMA_VERSION = 1;
+const SIF_SCHEMA_VERSION = 2;
 
 function sif_ensure_schema(PDO $pdo): void {
     try {
@@ -172,6 +172,14 @@ function sif_ensure_schema(PDO $pdo): void {
             // c) Status manual dos eventos (o painel tinha o campo, mas não gravava)
             if ($tableExists('eventos') && $colType('eventos', 'status') === false) {
                 $pdo->exec("ALTER TABLE eventos ADD COLUMN status VARCHAR(40) NULL");
+            }
+        }
+
+        if ($current < 2) {
+            // Vagas por categoria: Interna / Associadas / Germinar (antes: enum Interna/Externa)
+            if ($tableExists('jobs') && $colType('jobs', 'tipo_vaga') === 'enum') {
+                $pdo->exec("ALTER TABLE jobs MODIFY tipo_vaga VARCHAR(30) NOT NULL DEFAULT 'Interna'");
+                $pdo->exec("UPDATE jobs SET tipo_vaga = 'Associadas' WHERE tipo_vaga = 'Externa'");
             }
         }
 

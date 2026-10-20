@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton } from './kit';
+import { jobCategory } from '../../utils/jobCategories';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions } from './kit';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2, RefreshCw } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
@@ -27,6 +28,9 @@ const JOBS_CONTENT_DEFAULTS = {
   valores_text: 'Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo',
   vagas_tag: 'Oportunidades',
   vagas_title: 'Vagas Abertas',
+  vagas_cat_interna: 'Vagas Internas',
+  vagas_cat_associadas: 'Vagas nas Associadas',
+  vagas_cat_germinar: 'Germinar',
   banco_tag: 'Banco de Talentos',
   banco_title: 'Cresça com a SIF',
   banco_text: 'Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.',
@@ -42,6 +46,9 @@ const JOBS_CONTENT_FIELDS = [
   { key: 'valores_text', label: 'Valores — Texto', type: 'textarea', rows: 2, group: 'Valores', fullWidth: true },
   { key: 'vagas_tag',    label: 'Tag (verde)',     group: 'Cabeçalho lista de vagas' },
   { key: 'vagas_title',  label: 'Título',          group: 'Cabeçalho lista de vagas' },
+  { key: 'vagas_cat_interna',    label: 'Nome da categoria Internas',   group: 'Categorias de vaga' },
+  { key: 'vagas_cat_associadas', label: 'Nome da categoria Associadas', group: 'Categorias de vaga' },
+  { key: 'vagas_cat_germinar',   label: 'Nome da categoria Germinar',   group: 'Categorias de vaga' },
   { key: 'banco_tag',    label: 'Tag (verde)',     group: 'Banco de talentos' },
   { key: 'banco_title',  label: 'Título',          group: 'Banco de talentos' },
   { key: 'banco_text',   label: 'Texto',           type: 'textarea', rows: 2, group: 'Banco de talentos', fullWidth: true },
@@ -302,11 +309,12 @@ export const JobsManagerView = () => {
                           <label className="text-xs font-bold uppercase text-gray-500 ml-1 block">Tipo de Vaga</label>
                           <select
                             className="w-full border border-gray-200 rounded-xl p-3 text-sm font-bold bg-gray-50 focus:border-[#007a3d] outline-none"
-                            value={currentJob.tipo_vaga || 'Interna'}
+                            value={jobCategory(currentJob)}
                             onChange={e => setCurrentJob({...currentJob, tipo_vaga: e.target.value})}
                           >
                             <option value="Interna">Interna (SIF)</option>
-                            <option value="Externa">Externa (Parceiro / Germinar)</option>
+                            <option value="Associadas">Associadas (vaga em empresa associada)</option>
+                            <option value="Germinar">Germinar</option>
                           </select>
                         </div>
                     </div>
@@ -335,14 +343,14 @@ export const JobsManagerView = () => {
                           <div className="flex items-center gap-3">
                             <h3 className="font-bold text-[#1f2937] text-lg">{job.title}</h3>
                             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                              job.tipo_vaga === 'Externa' ? 'bg-lime-50 text-lime-700' : 'bg-emerald-50 text-emerald-700'
-                            }`}>{job.tipo_vaga || 'Interna'}</span>
+                              jobCategory(job) === 'Interna' ? 'bg-emerald-50 text-emerald-700' : 'bg-lime-50 text-lime-700'
+                            }`}>{jobCategory(job)}</span>
+                            {job.active != 1 && <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Oculta</span>}
                           </div>
                           <p className="text-xs text-gray-500 font-bold uppercase mt-1">{job.location} • {job.type}</p>
                         </div>
-                        <div className="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                            <button onClick={()=>{setCurrentJob(job); setIsEditing(true);}} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><Edit size={18}/></button>
-                            <button onClick={()=>handleDelete(job.id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><Trash2 size={18}/></button>
+                        <div className="flex gap-2">
+                            <ItemActions onEdit={()=>{setCurrentJob({ ...job, tipo_vaga: jobCategory(job) }); setIsEditing(true);}} onDelete={()=>handleDelete(job.id)} />
                         </div>
                     </div>
                 ))}

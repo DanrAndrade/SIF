@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { JOB_CATEGORIES, jobCategory, jobCategoryLabel } from '../utils/jobCategories';
 import { Briefcase, MapPin, Clock, Upload, CheckCircle2, FileText, ChevronRight, Target, Eye, Heart, ChevronLeft, X, DollarSign, ChevronDown, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -31,6 +32,9 @@ const CONTENT_DEFAULTS = {
   valores_text: 'Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo',
   vagas_tag: 'Oportunidades',
   vagas_title: 'Vagas Abertas',
+  vagas_cat_interna: 'Vagas Internas',
+  vagas_cat_associadas: 'Vagas nas Associadas',
+  vagas_cat_germinar: 'Germinar',
   banco_tag: 'Banco de Talentos',
   banco_title: 'Cresça com a SIF',
   banco_text: 'Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.',
@@ -72,9 +76,13 @@ export default function Jobs() {
   }, []);
 
 
-  const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  // Filtro por categoria (só aparecem as categorias que têm vaga aberta)
+  const [catFilter, setCatFilter] = useState('todas');
+  const catCounts = JOB_CATEGORIES.map(c => ({ ...c, count: jobs.filter(j => jobCategory(j) === c.key).length })).filter(c => c.count > 0);
+  const filteredJobs = catFilter === 'todas' ? jobs : jobs.filter(j => jobCategory(j) === catFilter);
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentJobs = jobs.slice(startIndex, startIndex + itemsPerPage);
+  const currentJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -151,6 +159,17 @@ export default function Jobs() {
                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.vagas_tag}</span>
                         <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tight">{cfg.vagas_title}</h2>
                     </div>
+                    {catCounts.length > 1 && (
+                      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Categorias de vaga">
+                        {[{ key: 'todas', label: 'Todas', count: jobs.length }, ...catCounts.map(c => ({ ...c, label: jobCategoryLabel(c.key, cfg) }))].map(c => (
+                          <button key={c.key} type="button" role="tab" aria-selected={catFilter === c.key}
+                            onClick={() => { setCatFilter(c.key); setCurrentPage(1); }}
+                            className={`px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-colors ${catFilter === c.key ? 'bg-[#007a3d] border-[#007a3d] text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+                            {c.label} <span className="opacity-70">({c.count})</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     
 
                  </div>
@@ -161,23 +180,23 @@ export default function Jobs() {
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {currentJobs.map((job) => (
                             <div key={job.id} onClick={() => setSelectedJob(job)} className="w-full bg-white rounded-[40px] p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-full h-1.5 ${job.category === 'SIF' ? 'bg-[#007a3d]' : 'bg-[#4ADE80]'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
+                                <div className={`absolute top-0 left-0 w-full h-1.5 ${jobCategory(job) === 'Interna' ? 'bg-[#007a3d]' : 'bg-[#4ADE80]'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
                                 
                                 <div>
                                     <div className="flex justify-between items-start mb-10">
                                       <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-sm ${
-                                        job.category === 'SIF' 
+                                        jobCategory(job) === 'Interna'
                                         ? "bg-emerald-50 text-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white" 
                                         : "bg-emerald-50 text-emerald-700 group-hover:bg-[#007a3d] group-hover:text-white"
                                       }`}>
                                         <Briefcase size={28} />
                                       </div>
                                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                                        (job.tipo_vaga || 'Interna') === 'Interna'
+                                        jobCategory(job) === 'Interna'
                                         ? "border-emerald-100 text-emerald-600 bg-emerald-50/50"
                                         : "border-emerald-100 text-emerald-700 bg-emerald-50/50"
                                       }`}>
-                                        {job.tipo_vaga || 'Interna'}
+                                        {jobCategoryLabel(jobCategory(job), cfg)}
                                       </span>
                                     </div>
                                     <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-6 leading-tight group-hover:text-[#007a3d] transition-colors line-clamp-2">{job.title}</h3>
@@ -226,13 +245,13 @@ export default function Jobs() {
           </div>
       </div>
       <Footer />
-      {selectedJob && <ApplicationModal job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      {selectedJob && <ApplicationModal job={selectedJob} catLabel={selectedJob.id === 'banco' ? 'Banco de Talentos' : jobCategoryLabel(jobCategory(selectedJob), cfg)} onClose={() => setSelectedJob(null)} />}
     </div>
   );
 }
 
 // --- MODAL DE APLICAÇÃO ---
-function ApplicationModal({ job, onClose }) {
+function ApplicationModal({ job, catLabel, onClose }) {
     const [step, setStep] = useState(1);
     const [submitStatus, setSubmitStatus] = useState('idle'); 
     
@@ -318,8 +337,8 @@ function ApplicationModal({ job, onClose }) {
                 <div className="bg-white p-10 flex justify-between items-start shrink-0 relative">
                     <div>
                         <div className="flex items-center gap-4 mb-4">
-                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${job.category === 'SIF' ? 'bg-[#007a3d] text-white' : 'bg-[#4ADE80] text-white'}`}>
-                            {job.category}
+                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#007a3d] text-white`}>
+                            {catLabel}
                           </span>
                           <span className="text-gray-300 font-black text-[9px] uppercase tracking-[0.3em]">
                               Passo {step} de 2
