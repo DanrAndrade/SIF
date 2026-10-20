@@ -8,6 +8,7 @@ import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 
 const API_URL = `${API_BASE_URL}/gt.php`;
 
@@ -88,7 +89,8 @@ export default function GTAdmin() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData();
-    fd.append('slug', generateSlug(formData.title));
+    // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
+    fd.append('slug', (editingId && gts.find(x => x.id == editingId)?.slug) || generateSlug(formData.title));
     fd.append('title', formData.title);
     fd.append('description', formData.description);
     fd.append('icon', 'Target');
@@ -101,9 +103,9 @@ export default function GTAdmin() {
     if (formData.imageFile) fd.append('image', formData.imageFile);
 
     try {
-      const res = await fetch(API_URL, { method: 'POST', body: fd });
-      if (res.ok) { resetForm(); fetchGts(); }
-    } catch { window.showToast('Erro ao salvar Grupo Temático.'); }
+      await apiRequest(API_URL, { method: 'POST', body: fd });
+      resetForm(); fetchGts();
+    } catch (err) { toastError(err); } // em erro o formulário continua aberto
     finally { setLoading(false); }
   };
 

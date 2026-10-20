@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, UploadCloud, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { savePageConfig, pickKeys, toastError } from '../../utils/adminApi';
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 
@@ -44,19 +45,18 @@ export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho 
     setSaving(true);
     setError('');
     try {
-      const fd = new FormData();
-      fd.append('page', pageKey);
-      fd.append('content_json', JSON.stringify(cfg));
-      if (file) fd.append('hero_image', file);
-      const res = await fetch(PAGE_URL, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data && data.data) setCfg(p => ({ ...p, ...data.data }));
+      // Envia só os campos do cabeçalho (hero_*): o restante da página
+      // (contato, conteúdo) fica como está no banco.
+      const heroKeys = Object.keys(cfg).filter(k => k.startsWith('hero_') || k in (defaults || {}));
+      const saved = await savePageConfig(pageKey, pickKeys(cfg, heroKeys), { hero_image: file });
+      setCfg(p => ({ ...p, ...pickKeys(saved, Object.keys(saved).filter(k => k.startsWith('hero_'))) }));
       setFile(null);
       setPreview(null);
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
-    } catch {
-      setError('Erro ao salvar.');
+    } catch (err) {
+      setError(err.message || 'Erro ao salvar.');
+      toastError(err);
     } finally {
       setSaving(false);
     }

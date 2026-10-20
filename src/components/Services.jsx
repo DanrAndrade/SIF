@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import SmartLink from './ui/SmartLink';
 import { ArrowUpRight } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
 import { getImageUrl } from '../apiConfig';
 
 const DEFAULT_CARDS = [
-  { id: "01", tag: "Comercial", title: "Comercial", desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", link: "/comercial", image: "" },
+  { id: "01", tag: "Comercial", title: "Comercial", desc: "Nossa área comercial atua estrategicamente na venda de sementes de alta qualidade, tecnologia Ellepot e captação de patrocínios para eventos florestais.", link: "/produtos-servicos", image: "" },
   { id: "02", tag: "Germinar", title: "Programa Germinar", desc: "Uma iniciativa focada no desenvolvimento e atração de talentos. Descubra como funciona o programa e acesse nosso banco de vagas exclusivas.", link: "/trabalhe-conosco", image: "" },
   { id: "03", tag: "Informativo", title: "Boletim Técnico", desc: "Conteúdos aprofundados e atualizações das principais inovações do setor florestal. Acesse nossas edições técnicas focadas em ciência e aplicação de campo.", link: "/blog", image: "" },
   { id: "04", tag: "Pesquisa", title: "Serviços de P&D", desc: "Realizamos projetos especializados de Pesquisa e Desenvolvimento, conectando as demandas reais da indústria florestal com a excelência acadêmica.", link: "/projetos", image: "" }
@@ -79,15 +79,9 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
                             <h3 className="text-3xl md:text-3xl font-bold section-heading uppercase leading-none mb-3 md:mb-4">{item.title}</h3>
                             <p className="text-xs md:text-[11px] text-gray-600 leading-relaxed font-medium">{item.desc}</p>
                         </div>
-                        {item.link && item.link.startsWith('http') ? (
-                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center self-end mt-4 border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">
-                                <ArrowUpRight size={20} />
-                            </a>
-                        ) : (
-                            <Link to={item.link || '#'} className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center self-end mt-4 border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#FFC107] group-hover:bg-[#007a3d] group-hover:text-white">
-                                <ArrowUpRight size={20} />
-                            </Link>
-                        )}
+                        <SmartLink href={item.link || '#'} aria-label={`Saiba mais: ${item.title}`} className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center self-end mt-4 border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#7FBA00] group-hover:bg-[#007a3d] group-hover:text-white">
+                            <ArrowUpRight size={20} />
+                        </SmartLink>
                     </div>
                 </div>
             ))}

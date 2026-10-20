@@ -13,10 +13,11 @@ function uploadInstitucionalFile($file, string $subdir, bool $compress = true): 
 
     $dir = "uploads/pages/institucional/{$subdir}/";
     // 0777 para garantir gravacao em hospedagem compartilhada
-    if (!is_dir($dir)) @mkdir($dir, 0777, true);
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
     if (!is_dir($dir) || !is_writable($dir)) return null; // pasta nao gravavel
 
-    $ext    = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext    = sif_safe_ext($file['tmp_name'], $subdir === 'docs' ? 'pdf' : 'image', $file['name']); // tipo real
+    if (!$ext) return null;
     $name   = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
     $target = $dir . $name;
 

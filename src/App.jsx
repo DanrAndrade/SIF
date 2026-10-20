@@ -29,6 +29,7 @@ const ProjetoDetalhe      = lazy(() => import('./pages/ProjetoDetalhe'));
 
 // --- ADMIN ---
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const NotFound            = lazy(() => import('./pages/NotFound'));
 
 // --- TELA DE CARREGAMENTO ---
 const LoadingScreen = () => (
@@ -142,6 +143,9 @@ export default function App() {
 
           {/* Fallback: rota admin desconhecida → login */}
           <Route path="/admin/*"              element={<Navigate to="/admin" replace />} />
+
+          {/* Qualquer outro endereço → página "não encontrada" */}
+          <Route path="*"                      element={<NotFound />} />
 
         </Routes>
       </Suspense>

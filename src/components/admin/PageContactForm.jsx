@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Save, UploadCloud, Check, Loader2, User } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { savePageConfig, toastError } from '../../utils/adminApi';
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 
 // Form admin para configurar o "contato padrão" de uma página de publicações.
-// Esse contato é exibido em CADA postagem do tipo (ex: todo treinamento → Daniel).
+// Esse contato é exibido em CADA postagem do tipo (ex: todo treinamento).
 // pageKey -> eventos | treinamentos | gt | projetos
 export default function PageContactForm({ pageKey, title = 'Contato responsável (aparece em cada postagem)' }) {
   const [cfg, setCfg] = useState({
@@ -15,7 +16,6 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
     contact_email: '',
     contact_whatsapp: '',
   });
-  const [otherConfig, setOtherConfig] = useState({}); // preserva resto do config_json
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
@@ -28,7 +28,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
       .then(r => r.json())
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
-        const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo, ...rest } = incoming;
+        const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo } = incoming;
         setCfg({
           contact_name: contact_name || '',
           contact_role: contact_role || '',
@@ -36,7 +36,6 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
           contact_whatsapp: contact_whatsapp || '',
           contact_photo: contact_photo || '',
         });
-        setOtherConfig(rest);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -57,24 +56,18 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
     setSaving(true);
     setError('');
     try {
-      const fd = new FormData();
-      fd.append('page', pageKey);
-      // Mescla com o que já existia no config (não sobrescreve hero etc.)
-      fd.append('content_json', JSON.stringify({ ...otherConfig, ...cfg }));
-      if (photoFile) fd.append('contact_photo', photoFile);
-      const res = await fetch(PAGE_URL, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data && data.data) {
-        const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo, ...rest } = data.data;
-        setCfg({ contact_name: contact_name || '', contact_role: contact_role || '', contact_email: contact_email || '', contact_whatsapp: contact_whatsapp || '', contact_photo: contact_photo || '' });
-        setOtherConfig(rest);
-      }
+      // Envia só os campos do contato: o PHP mescla com o resto da página
+      // (hero etc.), sem sobrescrever com a cópia antiga desta tela.
+      const saved = await savePageConfig(pageKey, cfg, { contact_photo: photoFile });
+      const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo } = saved;
+      setCfg({ contact_name: contact_name || '', contact_role: contact_role || '', contact_email: contact_email || '', contact_whatsapp: contact_whatsapp || '', contact_photo: contact_photo || '' });
       setPhotoFile(null);
       setPhotoPreview(null);
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
-    } catch {
-      setError('Erro ao salvar contato.');
+    } catch (err) {
+      setError(err.message || 'Erro ao salvar contato.');
+      toastError(err);
     } finally {
       setSaving(false);
     }

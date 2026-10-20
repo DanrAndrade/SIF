@@ -41,7 +41,7 @@ elseif ($method === 'POST') {
             // Currículos ficam em uploads/cvs/ — pasta protegida por .htaccess
             // (acesso direto via web é bloqueado; só o download.php autenticado lê).
             $uploadDir = 'uploads/cvs/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
             // Garante a proteção da pasta (bloqueia acesso direto via navegador)
             $htaccessPath = $uploadDir . '.htaccess';
             if (!file_exists($htaccessPath)) {
@@ -50,7 +50,13 @@ elseif ($method === 'POST') {
                     "<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n"
                 );
             }
-            $ext = pathinfo($_FILES['cv']['name'], PATHINFO_EXTENSION);
+            // Só PDF ou Word, pelo tipo real do arquivo
+            $ext = sif_safe_ext($_FILES['cv']['tmp_name'], 'pdf,doc', $_FILES['cv']['name']);
+            if (!$ext) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Envie o currículo em PDF ou Word (.doc/.docx).']);
+                exit;
+            }
             $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
             $newFilename = time() . "_" . $cleanName . "." . $ext;
             if (move_uploaded_file($_FILES['cv']['tmp_name'], $uploadDir . $newFilename)) {

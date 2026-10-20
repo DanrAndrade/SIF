@@ -7,6 +7,7 @@ import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { savePageConfig, toastError } from '../../utils/adminApi';
 
 const API_URL = `${API_BASE_URL}/treinamentos_in_company.php`;
 
@@ -25,6 +26,8 @@ const emptyForm = {
   video_url: '', image_url: '', imageFile: null, sections: [],
 };
 
+const segmentsDefault = ['Corporativo', 'Gestão Florestal', 'Segurança', 'Operações'];
+
 export default function TreinamentosInCompanyAdmin() {
   const [trainings, setTrainings] = useState([]);
   const [view, setView] = useState('list');
@@ -32,11 +35,27 @@ export default function TreinamentosInCompanyAdmin() {
   const [sectionsUploading, setSectionsUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [segments, setSegments] = useState(['Corporativo', 'Gestão Florestal', 'Segurança', 'Operações']);
+  const [segments, setSegments] = useState(segmentsDefault);
   const [newSegment, setNewSegment] = useState('');
   const [formData, setFormData] = useState(emptyForm);
 
   useEffect(() => { fetchTrainings(); }, []);
+
+  // Lista de segmentos salva no banco (antes só existia na tela e sumia ao recarregar)
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/page_content.php?page=treinamentos_in_company`)
+      .then(r => r.json())
+      .then(cfg => {
+        if (Array.isArray(cfg?.segments_list) && cfg.segments_list.length) {
+          setSegments(prev => [...new Set([...cfg.segments_list, ...prev.filter(s => !segmentsDefault.includes(s))])]);
+        }
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const persistSegments = (list) =>
+    savePageConfig('treinamentos_in_company', { segments_list: list }).catch(toastError);
 
   const fetchTrainings = async () => {
     try {
@@ -90,7 +109,8 @@ export default function TreinamentosInCompanyAdmin() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData();
-    fd.append('slug', generateSlug(formData.title));
+    // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
+    fd.append('slug', (editingId && trainings.find(x => x.id == editingId)?.slug) || generateSlug(formData.title));
     fd.append('title', formData.title);
     fd.append('description', '');
     fd.append('segment', formData.segment);
@@ -120,7 +140,9 @@ export default function TreinamentosInCompanyAdmin() {
   const addSegment = () => {
     const trimmed = newSegment.trim();
     if (trimmed && !segments.includes(trimmed)) {
-      setSegments([...segments, trimmed]);
+      const next = [...segments, trimmed];
+      setSegments(next);
+      persistSegments(next);
       setNewSegment('');
     }
   };
@@ -128,7 +150,9 @@ export default function TreinamentosInCompanyAdmin() {
   const removeSegment = (seg) => {
     const inUse = trainings.some(t => t.segment === seg);
     if (inUse && !window.confirm(`O segmento "${seg}" está sendo usado. Remover da lista não altera os treinamentos já salvos. Continuar?`)) return;
-    setSegments(prev => prev.filter(s => s !== seg));
+    const next = segments.filter(s => s !== seg);
+    setSegments(next);
+    persistSegments(next);
     if (formData.segment === seg) {
       const remaining = segments.filter(s => s !== seg);
       setFormData(f => ({ ...f, segment: remaining[0] || '' }));

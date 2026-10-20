@@ -6,6 +6,7 @@ import PageHeaderForm from './PageHeaderForm';
 import PageContentForm from './PageContentForm';
 
 import { API_BASE_URL } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 
 const JOBS_HERO_DEFAULTS = {
   hero_image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071',
@@ -267,13 +268,13 @@ export const JobsManagerView = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            await fetch(`${API_BASE_URL}/jobs.php`, {
+            await apiRequest(`${API_BASE_URL}/jobs.php`, {
                 method: 'POST',
-                credentials: 'include',
                 body: JSON.stringify(currentJob)
             });
             fetchJobs(); setIsEditing(false);
-        } catch (e) { window.showToast("Erro ao salvar"); }
+            window.showToast?.('Vaga salva com sucesso.');
+        } catch (err) { toastError(err); } // em erro o formulário continua aberto
     };
 
     const handleDelete = async (id) => {

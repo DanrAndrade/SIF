@@ -81,6 +81,17 @@ export const cleanRichHtml = (html) => {
   return embedVideos(stripNbsp(html));
 };
 
+// Texto puro a partir do HTML do editor (para resumos de cards). Cortar o
+// HTML direto quebra tags no meio; aqui corta só o texto.
+export const htmlToText = (html, max = 0) => {
+  if (!html || typeof html !== 'string') return '';
+  const txt = (typeof DOMParser !== 'undefined'
+    ? new DOMParser().parseFromString(html, 'text/html').body.textContent
+    : html.replace(/<[^>]*>/g, ' ')) || '';
+  const clean = txt.replace(/s+/g, ' ').trim();
+  return max && clean.length > max ? clean.slice(0, max).replace(/s+S*$/, '') + '…' : clean;
+};
+
 // Link externo digitado no painel (ex: "www.empresa.com.br") → URL completa.
 export const toExternalUrl = (url) => {
   const u = (url || '').trim();

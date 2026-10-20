@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
+import { apiRequest, toastError } from '../../../utils/adminApi';
 import { validateImageSize } from '../../../utils/toast';
 
 const API = `${API_BASE_URL}/institucional.php`;
@@ -68,18 +69,13 @@ function MemberCard({ member, onDelete, onUpdate }) {
     fd.append('link_whatsapp', form.link_whatsapp || '');
     if (form._newPhoto) fd.append('photo', form._newPhoto);
     try {
-      const res = await fetch(API + '?resource=team', { method: 'POST', body: fd });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success !== false) {
-        window.showToast?.('Membro atualizado com sucesso.');
-      } else {
-        window.showToast?.(data.error || 'Erro ao salvar o membro.', 'error');
-      }
-    } catch {
-      window.showToast?.('Erro de conexão ao salvar o membro.', 'error');
+      await apiRequest(API + '?resource=team', { method: 'POST', body: fd });
+      window.showToast?.('Membro atualizado com sucesso.');
+      setEditing(false);
+      onUpdate();
+    } catch (err) {
+      toastError(err); // continua em edição, sem perder o que foi digitado
     }
-    setEditing(false);
-    onUpdate();
   };
 
   return (

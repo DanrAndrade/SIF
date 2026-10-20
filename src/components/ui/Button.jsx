@@ -1,4 +1,5 @@
 import React from 'react';
+import SmartLink from './SmartLink';
 
 export default function Button({ 
   children, 
@@ -26,11 +27,14 @@ export default function Button({
     solidWhite: "bg-white text-[#1f2937] shadow-lg hover:bg-gray-50 hover:scale-105"
   };
 
-  const Component = href ? 'a' : 'button';
+  // Com href: SmartLink (rota interna respeita a subpasta do site; antes
+  // '/contato' virava sif.org.br/contato e caía no site antigo).
+  const Component = href ? SmartLink : 'button';
+  const linkProps = href ? { href, newTabExternal: false } : {};
 
   return (
     <Component 
-      href={href}
+      {...linkProps}
       className={`${baseStyles} ${variants[variant] || variants.primary} ${className}`}
       {...props}
     >

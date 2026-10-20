@@ -51,7 +51,7 @@ export default function Footer() {
               <h4 className="text-lg font-bold font-heading uppercase tracking-wider text-gray-200">Navegação</h4>
               <ul className="space-y-3">
                 <FooterLink to="/" text="Início" />
-                <FooterLink to="/historia" text="Nossa História" />
+                <FooterLink to="/institucional" text="Nossa História" />
                 <FooterLink to="/trabalhe-conosco" text="Trabalhe Conosco" />
                 <FooterLink to="/contato" text="Fale Conosco" />
               </ul>

@@ -8,6 +8,7 @@ import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug, projectStatusColor, getEffectiveProjectStatus } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
@@ -92,7 +93,8 @@ export default function ProjetosAdmin() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData();
-    fd.append('slug', generateSlug(form.title));
+    // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
+    fd.append('slug', (editingId && projetos.find(x => x.id == editingId)?.slug) || generateSlug(form.title));
     fd.append('title', form.title);
     fd.append('description', form.description);
     fd.append('tag', form.tag);
@@ -106,9 +108,9 @@ export default function ProjetosAdmin() {
     else if (form.image_url) fd.append('image_url', form.image_url);
 
     try {
-      await fetch(API_URL, { method: 'POST', body: fd });
+      await apiRequest(API_URL, { method: 'POST', body: fd });
       reset(); fetchProjetos();
-    } catch { window.showToast('Erro ao salvar projeto.'); }
+    } catch (err) { toastError(err); } // em erro o formulário continua aberto, com o que foi digitado
     finally { setLoading(false); }
   };
 

@@ -30,7 +30,7 @@ if ($method === 'GET') {
             
             echo json_encode($post);
         } else {
-            $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
+            $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
             if ($adminMode) {
                 $stmt = $pdo->query("SELECT * FROM blog_posts ORDER BY created_at DESC");
             } else {
@@ -76,7 +76,8 @@ if ($method === 'POST') {
         }
         
         // Sanitize filename
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $extension = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real
+        if (!$extension) return ["error" => "Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP."];
         $safeName = time() . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
         $target = $dir . $safeName;
         
@@ -129,10 +130,28 @@ if ($method === 'POST') {
             exit;
         }
         
-        // Generate slug from title
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-        $slug = preg_replace('/-+/', '-', $slug);
-        $slug = trim($slug, '-');
+        // Slug (link do post). Na edição mantém o link já publicado — corrigir o
+        // título não quebra links divulgados. Acentos viram letras simples
+        // ("Ação" → "acao", antes virava "a-o").
+        $slug = '';
+        if ($id) {
+            $cur = $pdo->prepare("SELECT slug FROM blog_posts WHERE id = ?");
+            $cur->execute([$id]);
+            $slug = (string)$cur->fetchColumn();
+        }
+        if ($slug === '') {
+            $ascii = strtr($title, [
+                'á'=>'a','à'=>'a','â'=>'a','ã'=>'a','ä'=>'a','é'=>'e','è'=>'e','ê'=>'e','ë'=>'e',
+                'í'=>'i','ì'=>'i','î'=>'i','ï'=>'i','ó'=>'o','ò'=>'o','ô'=>'o','õ'=>'o','ö'=>'o',
+                'ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u','ç'=>'c','ñ'=>'n',
+                'Á'=>'A','À'=>'A','Â'=>'A','Ã'=>'A','Ä'=>'A','É'=>'E','È'=>'E','Ê'=>'E','Ë'=>'E',
+                'Í'=>'I','Ì'=>'I','Î'=>'I','Ï'=>'I','Ó'=>'O','Ò'=>'O','Ô'=>'O','Õ'=>'O','Ö'=>'O',
+                'Ú'=>'U','Ù'=>'U','Û'=>'U','Ü'=>'U','Ç'=>'C','Ñ'=>'N',
+            ]);
+            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ascii ?: $title)));
+            $slug = preg_replace('/-+/', '-', $slug);
+            $slug = trim($slug, '-') ?: 'post';
+        }
         
         // Ensure slug is unique (except for current post if editing)
         $slugCheckSql = $id 

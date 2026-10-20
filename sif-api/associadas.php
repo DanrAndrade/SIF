@@ -22,7 +22,8 @@ function uploadAssociadaLogo($file): ?string {
     $dir = 'uploads/pages/associadas/logos/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-    $ext    = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext    = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real
+    if (!$ext) return null;
     $name   = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
     $target = $dir . $name;
 

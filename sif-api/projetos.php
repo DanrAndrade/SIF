@@ -11,7 +11,7 @@ if ($method === 'GET') {
         $stmt->execute([$_GET['slug']]);
         echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
     } else {
-        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
+        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
             $stmt = $pdo->query("SELECT * FROM projetos ORDER BY created_at DESC");
         } else {
@@ -40,7 +40,8 @@ if ($method === 'POST') {
         if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
         $dir = "uploads/projetos/";
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $ext  = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real, não o nome
+        if (!$ext) return null;
         $name = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
@@ -54,8 +55,7 @@ if ($method === 'POST') {
         if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
         $dir = "uploads/projetos_pdf/";
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if ($ext !== 'pdf') return null;
+        if (sif_safe_ext($file['tmp_name'], 'pdf', $file['name']) !== 'pdf') return null; // tipo real
         $name = time() . '_' . bin2hex(random_bytes(6)) . '.pdf';
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
@@ -75,6 +75,8 @@ if ($method === 'POST') {
     $link_url    = $_POST['link_url']    ?? '';
     $tabs        = isset($_POST['tabs']) ? json_encode(json_decode($_POST['tabs'], true)) : '[]';
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
+    // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
+    $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
     $extra_data  = $_POST['extra_data']  ?? null;
     $image_url_fallback = $_POST['image_url'] ?? '';
     $pdf_url_fallback   = $_POST['pdf_url']   ?? '';
@@ -93,14 +95,14 @@ if ($method === 'POST') {
     if ($id) {
         $stmt = $pdo->prepare(
             "UPDATE projetos SET slug=?, title=?, description=?, tag=?, lab=?, status=?,
-             data_limite=?, link_url=?, tabs=?, active=?, extra_data=?,
+             data_limite=?, link_url=?, tabs=?, active=COALESCE(?, active), extra_data=?,
              image_url = CASE WHEN ? IS NOT NULL THEN ? ELSE image_url END,
              pdf_url   = CASE WHEN ? IS NOT NULL THEN ? ELSE pdf_url   END
              WHERE id=?"
         );
         $stmt->execute([
             $slug, $title, $description, $tag, $lab, $status,
-            $data_limite, $link_url, $tabs, $active, $extra_data,
+            $data_limite, $link_url, $tabs, $activeUpd, $extra_data,
             $image_url, $image_url, $pdf_url, $pdf_url, $id
         ]);
     } else {

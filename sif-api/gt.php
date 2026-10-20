@@ -11,7 +11,7 @@ if ($method === 'GET') {
         $stmt->execute([$_GET['slug']]);
         echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
     } else {
-        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
+        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
             $stmt = $pdo->query("SELECT * FROM gt ORDER BY id DESC");
         } else {
@@ -40,7 +40,8 @@ if ($method === 'POST') {
         if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
         $dir = "uploads/gt/";
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $ext  = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real, não o nome
+        if (!$ext) return null;
         $name = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
@@ -60,6 +61,8 @@ if ($method === 'POST') {
     $content_title    = $_POST['content_title']    ?? null;
     $content_subtitle = $_POST['content_subtitle'] ?? null;
     $active           = isset($_POST['active']) ? (int)$_POST['active'] : 1;
+    // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
+    $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
     $extra_data       = $_POST['extra_data']       ?? null;
 
     $image_url = uploadGtImage($_FILES['image'] ?? null);
@@ -68,17 +71,17 @@ if ($method === 'POST') {
         if ($image_url) {
             $stmt = $pdo->prepare(
                 "UPDATE gt SET slug=?, title=?, description=?, icon=?, color=?, bg_color=?,
-                 image_url=?, content_title=?, content_subtitle=?, active=?, extra_data=? WHERE id=?"
+                 image_url=?, content_title=?, content_subtitle=?, active=COALESCE(?, active), extra_data=? WHERE id=?"
             );
             $stmt->execute([$slug, $title, $description, $icon, $color, $bg_color,
-                $image_url, $content_title, $content_subtitle, $active, $extra_data, $id]);
+                $image_url, $content_title, $content_subtitle, $activeUpd, $extra_data, $id]);
         } else {
             $stmt = $pdo->prepare(
                 "UPDATE gt SET slug=?, title=?, description=?, icon=?, color=?, bg_color=?,
-                 content_title=?, content_subtitle=?, active=?, extra_data=? WHERE id=?"
+                 content_title=?, content_subtitle=?, active=COALESCE(?, active), extra_data=? WHERE id=?"
             );
             $stmt->execute([$slug, $title, $description, $icon, $color, $bg_color,
-                $content_title, $content_subtitle, $active, $extra_data, $id]);
+                $content_title, $content_subtitle, $activeUpd, $extra_data, $id]);
         }
     } else {
         $stmt = $pdo->prepare(

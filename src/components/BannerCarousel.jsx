@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SmartLink from './ui/SmartLink';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
@@ -132,7 +133,7 @@ export default function BannerCarousel() {
                 {banners.map((banner, idx) => (
                     <div key={banner.id} className="min-w-full h-full relative bg-gray-100 select-none">
                         {banner.link_url ? (
-                            <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer">
+                            <SmartLink href={banner.link_url} className="block w-full h-full cursor-pointer">
                                 <img
                                     src={getImageUrl(banner.image_url)}
                                     alt="Banner"
@@ -140,7 +141,7 @@ export default function BannerCarousel() {
                                     onLoad={(e) => handleRatio(idx, e)}
                                     onError={(e) => { e.target.style.display = 'none'; }}
                                 />
-                            </a>
+                            </SmartLink>
                         ) : (
                             <div className="w-full h-full">
                                 <img

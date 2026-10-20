@@ -189,6 +189,16 @@ export default function Contact() {
                             </div>
                         )}
 
+                        {status === 'error' && (
+                            <div role="alert" className="mb-12 p-6 bg-red-50 border border-red-100 rounded-[2rem] flex items-center gap-4 text-red-700">
+                                <AlertCircle size={32} className="shrink-0" />
+                                <div className="flex flex-col">
+                                    <span className="font-black text-xs uppercase tracking-widest">Não foi possível enviar</span>
+                                    <span className="text-sm font-medium">Tente novamente em instantes ou fale conosco pelo telefone ou e-mail ao lado.</span>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
                             <Input label="Nome Completo" name="name" value={formData.name} onChange={handleChange} required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />
                             <Input label="E-mail" name="email" value={formData.email} onChange={handleChange} type="email" required className="bg-[#f8f9fa] border-gray-100 focus:border-[#007a3d] rounded-2xl" />

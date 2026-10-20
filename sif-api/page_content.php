@@ -22,7 +22,8 @@ function uploadFile($file, string $module, string $subdir, bool $compress = true
     $dir = "uploads/{$module}/{$subdir}/";
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-    $ext    = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext    = sif_safe_ext($file['tmp_name'], 'image,pdf', $file['name']); // tipo real
+    if (!$ext) return null;
     $name   = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
     $target = $dir . $name;
 
@@ -59,7 +60,7 @@ function writeBootCache(string $page, array $data): void {
 // ─────────────────────────────────────────────────────────
 if ($method === 'GET') {
     $page = trim($_GET['page'] ?? '');
-    if (!$page) {
+    if (!preg_match('/^[a-z0-9_]{1,64}$/i', $page)) {
         http_response_code(400);
         echo json_encode(['error' => 'Parâmetro "page" obrigatório.']);
         exit;
@@ -75,8 +76,9 @@ if ($method === 'GET') {
         $data = [];
     }
 
-    // Mantém o cache de boot atualizado (usado pelo index.php na 1ª visita)
-    writeBootCache($page, $data);
+    // Mantém o cache de boot atualizado (usado pelo index.php na 1ª visita).
+    // Só para páginas que existem — evita criar arquivos para nomes inventados.
+    if ($row) writeBootCache($page, $data);
 
     // ETag: permite que o navegador receba 304 (sem corpo) quando nada mudou,
     // e o conteúdo novo assim que o admin editar. Conteúdo público — sem login.
@@ -100,7 +102,8 @@ if ($method === 'GET') {
 // ─────────────────────────────────────────────────────────
 if ($method === 'POST') {
     $page = trim($_POST['page'] ?? '');
-    if (!$page) {
+    // Só letras, números e "_": o nome entra no caminho da pasta de upload
+    if (!preg_match('/^[a-z0-9_]{1,64}$/i', $page)) {
         http_response_code(400);
         echo json_encode(['error' => 'Campo "page" obrigatório.']);
         exit;
@@ -132,7 +135,8 @@ if ($method === 'POST') {
     foreach ($_FILES as $fieldName => $file) {
         if ($file['error'] !== UPLOAD_ERR_OK) continue;
 
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $ext = sif_safe_ext($file['tmp_name'], 'image,pdf', $file['name']); // tipo real
+        if (!$ext) continue;
         $isPdf = ($ext === 'pdf');
         $subdir = $isPdf ? 'docs' : 'images';
 

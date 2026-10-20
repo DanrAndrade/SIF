@@ -8,7 +8,8 @@ function uploadEincolFile($file, $subdir) {
     if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
     $dir = "uploads/eincol/$subdir/";
     if (!is_dir($dir)) mkdir($dir, 0755, true);
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $ext = sif_safe_ext($file['tmp_name'], 'image,pdf', $file['name']); // tipo real
+    if (!$ext) return null;
     $name = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
     $target = $dir . $name;
     if (move_uploaded_file($file['tmp_name'], $target)) {

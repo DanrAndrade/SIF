@@ -7,6 +7,7 @@ import {
 import { Input, TextArea } from '../ui/FormElements';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { uploadImageNow, toastError } from '../../utils/adminApi';
 import AdminFAQ from './AdminFAQ';
 
 const PAGE_KEY = 'home';
@@ -372,9 +373,11 @@ function ProcessForm({ config, update, onFile, pendingPreviews }) {
                 <Input label="Link" value={step.link || ''} onChange={(e) => updateStep(idx, { link: e.target.value })} />
               </div>
               <div className="mt-3">
-                <ImageField label="Imagem de fundo do card" currentUrl={step.img} previewUrl={pendingPreviews[fieldName]} fieldName={fieldName} onFile={(name, file) => {
-                  onFile(name, file);
-                }} hint="Imagem horizontal, 1200×800px." />
+                {/* Envia na hora e grava o caminho no próprio card: reordenar ou
+                    remover antes de salvar não troca a imagem de card */}
+                <ImageField label="Imagem de fundo do card" currentUrl={step.img} fieldName={fieldName}
+                  onFile={(_, file) => uploadImageNow(file).then(url => url && updateStep(idx, { img: url })).catch(toastError)}
+                  hint="Imagem horizontal, 1200×800px. Envia na hora; clique em Salvar para publicar." />
               </div>
             </div>
           );
@@ -431,7 +434,9 @@ function CardsEditor({ section, config, update, onFile, pendingPreviews, hint })
                 <Input label="Link" value={card.link || ''} onChange={(e) => updateCard(idx, { link: e.target.value })} />
               </div>
               <div className="mt-3">
-                <ImageField label="Imagem do card" currentUrl={card.image} previewUrl={pendingPreviews[fieldName]} fieldName={fieldName} onFile={(name, file) => onFile(name, file)} hint="Após salvar, atualize a página para ver a imagem processada." />
+                <ImageField label="Imagem do card" currentUrl={card.image} fieldName={fieldName}
+                  onFile={(_, file) => uploadImageNow(file).then(url => url && updateCard(idx, { image: url })).catch(toastError)}
+                  hint="Envia na hora; clique em Salvar para publicar." />
               </div>
             </div>
           );

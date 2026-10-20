@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 
 const PAGE_KEY = 'produtos';
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -126,14 +127,17 @@ export default function ProdutosAdmin() {
     try {
       const fd = new FormData();
       fd.append('page', PAGE_KEY);
-      fd.append('content_json', JSON.stringify(config));
-      const res  = await fetch(PAGE_URL, { method: 'POST', body: fd });
-      const data = await res.json();
+      // O hero desta página é salvo pelo PageHeaderForm (aba Cabeçalho):
+      // não reenviar hero_* aqui, senão a cópia antiga desta tela o desfaz.
+      const content = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_')));
+      fd.append('content_json', JSON.stringify(content));
+      const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
       if (data?.data) setConfig(mergeCfg(CONTENT_DEFAULTS, data.data));
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
-    } catch {
-      setError('Erro ao salvar. Tente novamente.');
+    } catch (err) {
+      setError(err.message || 'Erro ao salvar. Tente novamente.');
+      toastError(err);
     } finally {
       setSaving(false);
     }

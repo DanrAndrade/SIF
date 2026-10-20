@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 import TeamManager from './inst/TeamManager';
 import TimelineManager from './inst/TimelineManager';
 
@@ -159,15 +160,15 @@ export default function InstitucionalAdmin() {
       const fd = new FormData();
       fd.append('content_json', JSON.stringify(config));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
-      const res = await fetch(API + '?resource=config', { method: 'POST', body: fd });
-      const data = await res.json();
+      const data = await apiRequest(API + '?resource=config', { method: 'POST', body: fd });
       if (data && data.data) setConfig(mergeCfg(DEFAULTS, data.data));
       setPendingFiles({});
       setPendingPreviews({});
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
     } catch (err) {
-      setError('Erro ao salvar.');
+      setError(err.message || 'Erro ao salvar.');
+      toastError(err);
     } finally {
       setSaving(false);
     }
@@ -228,6 +229,12 @@ export default function InstitucionalAdmin() {
       {activeTab === 'team' && (
         <div>
           <SectionHeader cfg={config} set={set} prefix="team" />
+          {/* O botão principal fica oculto nesta aba — sem este, o título da seção não tinha como ser salvo */}
+          <div className="flex justify-end mt-4">
+            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
+              <Save size={16} /> Salvar título da seção
+            </Button>
+          </div>
           <hr className="my-6 border-gray-100" />
           <p className="text-xs text-gray-500 mb-4">Cada membro tem seu próprio botão de salvar. Edite contato (e-mail/WhatsApp) clicando em "Editar".</p>
           <TeamManager />

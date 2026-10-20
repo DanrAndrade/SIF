@@ -20,7 +20,7 @@ if ($method == 'GET') {
         echo json_encode($event);
     } else {
         // Admin requests all; public requests only active=1
-        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
+        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
             $stmt = $pdo->query("SELECT * FROM eventos ORDER BY created_at DESC");
         } else {
@@ -50,8 +50,9 @@ if ($method == 'POST') {
     function uploadEventFile($file, $subpath) {
         if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) return null;
         $dir = "uploads/" . $subpath . "/";
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
-        $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        $ext  = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real, não o nome
+        if (!$ext) return null;
         $name = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
@@ -84,7 +85,12 @@ if ($method == 'POST') {
     $video_url   = $_POST['video_url']   ?? '';
     $extra_data  = $_POST['extra_data']  ?? null;
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
+    // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
+    $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
     $image_url_fallback = $_POST['image_url'] ?? '';
+    // Status manual: '' = automático pela data; 'Em Andamento' / 'Concluído' forçam
+    $status       = mb_substr(trim($_POST['status'] ?? ''), 0, 40);
+    $removeImage  = ($_POST['remove_image'] ?? '') === '1'; // botão "remover imagem" do painel
 
     if (empty($title)) {
         echo json_encode(["status" => "error", "message" => "Título obrigatório."]);
@@ -100,23 +106,23 @@ if ($method == 'POST') {
         $stmt = $pdo->prepare(
             "UPDATE eventos SET
                 slug=?, title=?, description=?, date=?, event_date=?, time=?,
-                location=?, video_url=?, extra_data=?, active=?,
-                image_url = CASE WHEN ? IS NOT NULL THEN ? ELSE image_url END
+                location=?, video_url=?, extra_data=?, active=COALESCE(?, active), status=?,
+                image_url = CASE WHEN ? IS NOT NULL THEN ? WHEN ? = 1 THEN '' ELSE image_url END
              WHERE id=?"
         );
         $stmt->execute([
             $slug, $title, $description, $date, $event_date, $time,
-            $location, $video_url, $extra_data, $active,
-            $image_url, $image_url, $id
+            $location, $video_url, $extra_data, $activeUpd, $status,
+            $image_url, $image_url, $removeImage ? 1 : 0, $id
         ]);
     } else {
         $stmt = $pdo->prepare(
-            "INSERT INTO eventos (slug, title, description, date, event_date, time, location, video_url, extra_data, image_url, active)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO eventos (slug, title, description, date, event_date, time, location, video_url, extra_data, image_url, active, status)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
         );
         $stmt->execute([
             $slug, $title, $description, $date, $event_date, $time,
-            $location, $video_url, $extra_data, $image_url, $active
+            $location, $video_url, $extra_data, $image_url, $active, $status
         ]);
     }
 

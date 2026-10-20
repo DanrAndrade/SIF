@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL } from '../../apiConfig';
+import { savePageConfig, toastError } from '../../utils/adminApi';
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 
@@ -13,7 +14,6 @@ const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 // title -> titulo exibido no form
 export default function PageContentForm({ pageKey, defaults, fields, title = 'Conteúdo da página' }) {
   const [cfg, setCfg] = useState(defaults);
-  const [otherKeys, setOtherKeys] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
@@ -24,13 +24,10 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...defaults };
-        const others = {};
         for (const [k, v] of Object.entries(incoming)) {
           if (k in defaults) next[k] = v;
-          else others[k] = v;
         }
         setCfg(next);
-        setOtherKeys(others);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -42,12 +39,12 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
   const handleSave = async () => {
     setSaving(true);
     try {
-      const fd = new FormData();
-      fd.append('page', pageKey);
-      fd.append('content_json', JSON.stringify({ ...otherKeys, ...cfg }));
-      await fetch(PAGE_URL, { method: 'POST', body: fd });
+      // Só os campos deste formulário — o PHP preserva o resto da página.
+      await savePageConfig(pageKey, cfg);
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
+    } catch (err) {
+      toastError(err);
     } finally {
       setSaving(false);
     }

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
+import { apiRequest, toastError } from '../../utils/adminApi';
 
 const ASSOC_URL = `${API_BASE_URL}/associadas.php`;
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -157,15 +158,15 @@ export default function AssociadasAdmin() {
       fd.append('page', 'associadas');
       fd.append('content_json', JSON.stringify(config));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
-      const res = await fetch(PAGE_URL, { method: 'POST', body: fd });
-      const data = await res.json();
+      const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
       if (data && data.data) setConfig(mergeCfg(DEFAULTS, data.data));
       setPendingFiles({});
       setPendingPreviews({});
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
     } catch (err) {
-      setError('Erro ao salvar.');
+      setError(err.message || 'Erro ao salvar.');
+      toastError(err);
     } finally {
       setSaving(false);
     }
@@ -331,12 +332,15 @@ function EmpresasManager({ partners, loading, reload }) {
       fd.append('name', newName.trim());
       if (newWebsite.trim()) fd.append('website', newWebsite.trim());
       if (newLogo) fd.append('logo', newLogo);
-      await fetch(ASSOC_URL, { method: 'POST', body: fd });
+      await apiRequest(ASSOC_URL, { method: 'POST', body: fd });
+      window.showToast?.('Empresa adicionada.');
       setNewName('');
       setNewWebsite('');
       setNewLogo(null);
       setNewLogoPreview(null);
       reload();
+    } catch (err) {
+      toastError(err); // mantém nome/logo digitados
     } finally { setAdding(false); }
   };
 

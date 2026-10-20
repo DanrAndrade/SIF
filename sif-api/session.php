@@ -15,4 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'logo
     exit;
 }
 
+// Admin abrindo o painel: aplica ajustes pendentes na estrutura do banco
+if (sif_is_admin()) sif_ensure_schema($pdo);
+
 echo json_encode(['logged' => sif_is_admin()]);

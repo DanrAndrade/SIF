@@ -38,10 +38,9 @@ elseif ($method === 'POST') {
     $imagePath = null;
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $ext = sif_safe_ext($_FILES['image']['tmp_name'], 'image', $_FILES['image']['name']); // tipo real
         
-        if (!in_array($ext, $allowed)) {
+        if (!$ext || !in_array($ext, ['jpg', 'png', 'webp', 'gif'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Formato inválido. Use JPG, PNG ou WEBP.']);
             exit;

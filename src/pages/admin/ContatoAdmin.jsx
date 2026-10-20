@@ -3,6 +3,7 @@ import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { API_BASE_URL } from '../../apiConfig';
+import { savePageConfig, toastError } from '../../utils/adminApi';
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 const PAGE_KEY = 'contato';
@@ -31,7 +32,6 @@ const CONTENT_DEFAULTS = {
 
 export default function ContatoAdmin() {
   const [cfg, setCfg] = useState(CONTENT_DEFAULTS);
-  const [otherKeys, setOtherKeys] = useState({}); // preserva o restante do config_json (hero, etc.)
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
@@ -42,13 +42,10 @@ export default function ContatoAdmin() {
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...CONTENT_DEFAULTS };
-        const others = {};
         for (const [k, v] of Object.entries(incoming)) {
           if (k in CONTENT_DEFAULTS) next[k] = v;
-          else others[k] = v;
         }
         setCfg(next);
-        setOtherKeys(others);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -59,12 +56,12 @@ export default function ContatoAdmin() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const fd = new FormData();
-      fd.append('page', PAGE_KEY);
-      fd.append('content_json', JSON.stringify({ ...otherKeys, ...cfg }));
-      await fetch(PAGE_URL, { method: 'POST', body: fd });
+      // Só os campos deste formulário — o hero é salvo pelo PageHeaderForm.
+      await savePageConfig(PAGE_KEY, cfg);
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
+    } catch (err) {
+      toastError(err);
     } finally {
       setSaving(false);
     }

@@ -568,7 +568,7 @@ export default function Institucional() {
                           <div className="flex flex-col gap-4">
                               {(block.pdfs || []).map((pdf, i) => {
                                 const PdfIcon = AREA_ICON_MAP[pdf.icon] || FileText;
-                                const url = pdf.url && !pdf.url.startsWith('http') && !pdf.url.startsWith('/docs/') ? getImageUrl(pdf.url) : pdf.url;
+                                const url = getImageUrl(pdf.url); // getImageUrl já trata /docs/ com a subpasta do site
                                 return (
                                   <a key={i} href={url} download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
                                     <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">

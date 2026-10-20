@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate file type using mime type
         $allowedTypes = [
             'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-            'image/bmp', 'image/x-ms-bmp', 'image/avif', 'image/heic', 'image/heif',
-            'image/tiff', 'image/svg+xml'
+            'image/bmp', 'image/x-ms-bmp', 'image/avif', 'image/heic', 'image/heif'
+            // SVG removido: pode conter script (risco de segurança)
         ];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             http_response_code(400);
             echo json_encode([
                 "success" => false,
-                "message" => "Tipo de arquivo não permitido: {$mimeType}. Use JPG, PNG, GIF, WebP, BMP, AVIF, HEIC ou SVG."
+                "message" => "Tipo de arquivo não permitido: {$mimeType}. Use JPG, PNG, GIF, WebP, BMP, AVIF ou HEIC."
             ]);
             exit;
         }
@@ -70,7 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Generate secure filename
-        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $extension = sif_safe_ext($file['tmp_name'], 'image', $file['name']); // tipo real, não o nome
+        if (!$extension) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "message" => "Tipo de imagem não permitido."]);
+            exit;
+        }
         $safeName = time() . '_' . bin2hex(random_bytes(8)) . '.' . $extension;
         $target = $dir . $safeName;
 

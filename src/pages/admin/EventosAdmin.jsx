@@ -110,7 +110,8 @@ export default function EventosAdmin() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData();
-    fd.append('slug', generateSlug(formData.title));
+    // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
+    fd.append('slug', (editingId && events.find(x => x.id == editingId)?.slug) || generateSlug(formData.title));
     fd.append('title', formData.title);
     fd.append('description', formData.description);
     fd.append('event_date', formData.event_date || '');
@@ -122,6 +123,7 @@ export default function EventosAdmin() {
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     else if (formData.image_url) fd.append('image_url', formData.image_url);
+    else if (editingId) fd.append('remove_image', '1'); // imagem removida no formulário
 
     try {
       const res = await fetch(API_URL, { method: 'POST', body: fd });

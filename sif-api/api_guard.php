@@ -17,6 +17,33 @@
  *    que já checam o login sozinhos nas partes restritas.
  */
 
+// ---------------------------------------------------------------- 0) respostas sempre em JSON
+// Padrão JSON (endpoints que devolvem outro tipo, ex.: download, sobrescrevem).
+if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
+
+// Qualquer erro não tratado (ex.: falha de SQL) vira JSON com mensagem —
+// antes saía página vazia/HTML e o painel só mostrava "Erro de conexão".
+set_exception_handler(function ($e) {
+    error_log('[sif-api] ' . $e->getMessage() . ' em ' . $e->getFile() . ':' . $e->getLine());
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    $msg = 'Erro no servidor ao processar o pedido.';
+    if ($e instanceof PDOException) {
+        if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+            $msg = 'Já existe um item com esse mesmo endereço (título/slug). Altere o título e tente de novo.';
+        } elseif (stripos($e->getMessage(), 'Incorrect string value') !== false) {
+            $msg = 'O texto contém um caractere que o banco não aceita (ex.: emoji). Remova e tente de novo.';
+        } elseif (stripos($e->getMessage(), 'Data too long') !== false) {
+            $msg = 'Um dos campos ficou grande demais para ser salvo.';
+        } else {
+            $msg = 'Erro ao gravar no banco de dados.';
+        }
+    }
+    echo json_encode(['success' => false, 'status' => 'error', 'message' => $msg]);
+});
+
 // ---------------------------------------------------------------- 1) decodificação
 const SIF_B64_MARK = '__sifb64:';
 
@@ -48,6 +75,114 @@ function sif_raw_input(): string {
     return $raw;
 }
 
+// ---------------------------------------------------------------- 1b) upload seguro
+// Define a extensão do arquivo enviado pelo TIPO REAL do conteúdo (não pelo
+// nome que veio do computador do usuário). Assim ninguém consegue gravar
+// um ".php" ou um SVG com script disfarçado de imagem. Retorna null se o
+// tipo não for permitido.
+//   $kinds: 'image', 'pdf', 'doc' ou combinação ('image,pdf')
+function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = ''): ?string {
+    if (!is_file($tmpPath)) return null;
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime  = finfo_file($finfo, $tmpPath);
+    finfo_close($finfo);
+
+    $map = [
+        'image' => [
+            'image/jpeg' => 'jpg', 'image/pjpeg' => 'jpg', 'image/png' => 'png',
+            'image/gif' => 'gif', 'image/webp' => 'webp', 'image/bmp' => 'bmp',
+            'image/x-ms-bmp' => 'bmp', 'image/avif' => 'avif',
+            'image/heic' => 'heic', 'image/heif' => 'heif',
+        ],
+        'pdf' => ['application/pdf' => 'pdf'],
+        'doc' => [
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        ],
+    ];
+    foreach (explode(',', $kinds) as $k) {
+        $k = trim($k);
+        if (isset($map[$k][$mime])) return $map[$k][$mime];
+    }
+    // .docx às vezes é identificado só como "zip"
+    if (strpos($kinds, 'doc') !== false && $mime === 'application/zip'
+        && strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) === 'docx') {
+        return 'docx';
+    }
+    return null;
+}
+
+// Nome de arquivo novo e seguro: <timestamp>_<aleatório>.<ext>
+function sif_safe_name(string $ext): string {
+    return time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+}
+
+// ---------------------------------------------------------------- 1c) migração do banco
+// Ajustes de estrutura, idempotentes e versionados. Rodam uma única vez
+// (a versão aplicada fica em page_configs, chave "_schema"). Chamado pelo
+// session.php quando o admin abre o painel — não pesa nas visitas do site.
+const SIF_SCHEMA_VERSION = 1;
+
+function sif_ensure_schema(PDO $pdo): void {
+    try {
+        $row = $pdo->query("SELECT config_json FROM page_configs WHERE page_key = '_schema'")->fetch(PDO::FETCH_ASSOC);
+        $current = $row ? (int)(json_decode($row['config_json'], true)['version'] ?? 0) : 0;
+        if ($current >= SIF_SCHEMA_VERSION) return;
+
+        $db = $pdo->query("SELECT DATABASE()")->fetchColumn();
+        $colType = function ($table, $col) use ($pdo, $db) {
+            $st = $pdo->prepare("SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?");
+            $st->execute([$db, $table, $col]);
+            return $st->fetchColumn(); // false se não existe
+        };
+        $tableExists = function ($table) use ($pdo, $db) {
+            $st = $pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?");
+            $st->execute([$db, $table]);
+            return (int)$st->fetchColumn() > 0;
+        };
+
+        if ($current < 1) {
+            // a) Tabelas antigas em utf8 (3 bytes) → utf8mb4 (aceita emoji)
+            foreach (['eventos', 'gt', 'treinamentos'] as $t) {
+                if (!$tableExists($t)) continue;
+                $st = $pdo->prepare("SELECT TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?");
+                $st->execute([$db, $t]);
+                if (strpos((string)$st->fetchColumn(), 'utf8mb4') !== 0) {
+                    $pdo->exec("ALTER TABLE `$t` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                }
+            }
+            // b) Conteúdo rico/JSON em TEXT (64 KB) → LONGTEXT (sem corte)
+            $toLong = [
+                'gt' => ['extra_data', 'description'],
+                'treinamentos' => ['extra_data', 'description'],
+                'projetos' => ['extra_data', 'description'],
+                'blog_posts' => ['extra_data', 'content'],
+                'eventos' => ['description'],
+                'faqs' => ['answer'],
+                'timeline_items' => ['content'],
+            ];
+            foreach ($toLong as $t => $cols) {
+                foreach ($cols as $c) {
+                    $type = $colType($t, $c);
+                    if (in_array($type, ['text', 'tinytext', 'mediumtext'], true)) {
+                        $pdo->exec("ALTER TABLE `$t` MODIFY `$c` LONGTEXT NULL");
+                    }
+                }
+            }
+            // c) Status manual dos eventos (o painel tinha o campo, mas não gravava)
+            if ($tableExists('eventos') && $colType('eventos', 'status') === false) {
+                $pdo->exec("ALTER TABLE eventos ADD COLUMN status VARCHAR(40) NULL");
+            }
+        }
+
+        $pdo->prepare("INSERT INTO page_configs (page_key, config_json) VALUES ('_schema', ?)
+                       ON DUPLICATE KEY UPDATE config_json = VALUES(config_json)")
+            ->execute([json_encode(['version' => SIF_SCHEMA_VERSION, 'applied_at' => date('c')])]);
+    } catch (Throwable $e) {
+        error_log('[sif-api] migração do banco falhou: ' . $e->getMessage());
+    }
+}
+
 // ---------------------------------------------------------------- 2) login para gravar
 function sif_is_admin(): bool {
     return !empty($_SESSION['admin_logged_in']);
@@ -68,4 +203,10 @@ if (!in_array($sif_script, $sif_public_scripts, true)
         'message' => 'Sua sessão do painel expirou. Faça login novamente para salvar.',
     ]);
     exit;
+}
+
+// Admin gravando: garante que a estrutura do banco está atualizada (1 consulta
+// rápida; os ALTERs só rodam uma vez).
+if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)) {
+    sif_ensure_schema($pdo);
 }

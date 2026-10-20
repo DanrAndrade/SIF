@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
+import { apiRequest, toastError } from '../../../utils/adminApi';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -33,10 +34,16 @@ export default function TimelineManager() {
     fd.append('image_url', form.image_url);
     fd.append('layout', form.layout);
     if (form._newImage) fd.append('image', form._newImage);
-    await fetch(API + '?resource=timeline', { method: 'POST', body: fd });
-    setForm({ year: '', title: '', content: '', image_url: '', layout: 'image-left', _newImage: null, _preview: null });
-    setSaving(false);
-    fetch_();
+    try {
+      await apiRequest(API + '?resource=timeline', { method: 'POST', body: fd });
+      setForm({ year: '', title: '', content: '', image_url: '', layout: 'image-left', _newImage: null, _preview: null });
+      window.showToast?.('Marco adicionado.');
+      fetch_();
+    } catch (err) {
+      toastError(err); // mantém o que foi digitado
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleUpdate = async (item) => {
@@ -50,10 +57,16 @@ export default function TimelineManager() {
     fd.append('image_url', item.image_url || '');
     fd.append('layout', item.layout || 'image-left');
     if (item._newImage) fd.append('image', item._newImage);
-    await fetch(API + '?resource=timeline', { method: 'POST', body: fd });
-    setSaving(false);
-    setEditingId(null);
-    fetch_();
+    try {
+      await apiRequest(API + '?resource=timeline', { method: 'POST', body: fd });
+      setEditingId(null);
+      window.showToast?.('Marco atualizado.');
+      fetch_();
+    } catch (err) {
+      toastError(err); // continua em edição
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id) => {

@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -15,9 +13,7 @@ import Process from '../components/Process';
 import Partners from '../components/Partners';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { usePageConfig } from '../hooks/usePageConfig';
 
 if (typeof window !== 'undefined') {
@@ -39,65 +35,76 @@ export default function Home() {
   const servicesSectionRef = useRef(null);
   const servicesTrackRef = useRef(null);
 
+  // Rolagem suave (Lenis) + "pin" horizontal dos Serviços.
+  // Roda UMA vez por visita à Home (antes dependia de [scrolled] e era
+  // destruída/recriada toda vez que a rolagem passava de 50px, deixando
+  // laços de animação acumulados mesmo depois de sair da página).
   useEffect(() => {
-    // 1. Configuração de SEO
     document.title = "SIF | Sociedade de Investigações Florestais";
 
-    // 2. Busca Dados Dinâmicos
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 2,
+    });
 
-    // 3. Lenis Scroll Suave
-    let lenis;
-    if (typeof window !== 'undefined') {
-        lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            smoothTouch: false,
-            touchMultiplier: 2,
-        });
+    // Mantém o ScrollTrigger sincronizado com a rolagem do Lenis
+    lenis.on('scroll', ({ scroll }) => {
+      ScrollTrigger.update();
+      setScrolled(scroll > 50); // React ignora quando o valor não muda
+    });
 
-        const raf = (time) => {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-            
-            const scrollY = lenis.scroll;
-            if (scrollY > 50 && !scrolled) setScrolled(true);
-            if (scrollY <= 50 && scrolled) setScrolled(false);
-        };
-        
-        requestAnimationFrame(raf);
-    }
+    let rafId;
+    const raf = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
 
-        let mm = gsap.matchMedia();
+    // Contexto local: no fim, desfaz SÓ as animações desta página
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      const section = servicesSectionRef.current;
+      const track = servicesTrackRef.current;
+      if (!section || !track) return;
+      // Distância calculada na hora (muda quando os cards/fonte carregam)
+      const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+      gsap.to(track, {
+        x: () => -distance(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: () => `+=${distance()}`,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      });
+    });
 
-        mm.add("(min-width: 768px)", () => {
-            if (servicesSectionRef.current && servicesTrackRef.current) {
-                const scrollWidth = servicesTrackRef.current.scrollWidth;
-                const amountToScroll = scrollWidth - window.innerWidth;
+    // Recalcula depois que fontes e imagens terminam de carregar
+    const refresh = () => ScrollTrigger.refresh();
+    document.fonts?.ready?.then(refresh);
+    window.addEventListener('load', refresh);
 
-                gsap.to(servicesTrackRef.current, {
-                    x: -amountToScroll,
-                    ease: "none",
-                    scrollTrigger: {
-                        trigger: servicesSectionRef.current,
-                        start: "top top",
-                        end: () => `+=${amountToScroll}`,
-                        pin: true,
-                        scrub: 1,
-                        invalidateOnRefresh: true,
-                    }
-                });
-            }
-        });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('load', refresh);
+      mm.revert();
+      lenis.destroy();
+    };
+  }, []);
 
-        return () => {
-          mm.revert();
-          if (lenis) lenis.destroy();
-          ScrollTrigger.getAll().forEach(t => t.kill());
-        };
-    }, [scrolled]);
+  // Conteúdo da Home chegou do banco (cards de Serviços podem mudar de
+  // quantidade/tamanho): recalcula o tamanho do pin.
+  useEffect(() => {
+    const id = setTimeout(() => ScrollTrigger.refresh(), 100);
+    return () => clearTimeout(id);
+  }, [config]);
 
     const noisePattern = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAABMTExERERmZmYzMzNmZmYAAABVvhyhAAAACHRSTlMAMwAzzP//zMzMzHJLEwAAACVJREFUOMtjYCAJcDEwMDBxMQAJUEGrcQqhqXHBGk200UYbsRoAAGOAAwD314OTAAAAAElFTkSuQmCC")`;
 

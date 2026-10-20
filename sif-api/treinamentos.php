@@ -37,7 +37,7 @@ if ($method == 'GET') {
         $stmt->execute([$_GET['slug']]);
         echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
     } else {
-        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1';
+        $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
             $stmt = $pdo->query("SELECT * FROM treinamentos ORDER BY created_at DESC");
         } else {
@@ -65,8 +65,12 @@ if ($method == 'POST') {
     function uploadFile($file, $subpath) {
         if (!isset($file) || $file['error'] !== 0) return null;
         $dir = "uploads/{$subpath}/";
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
-        $name = time() . '_' . basename($file['name']);
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        // Extensão pelo tipo real do arquivo e nome novo (antes usava o nome
+        // original inteiro — "x.php" virava "123_x.php")
+        $ext = sif_safe_ext($file['tmp_name'], 'image', $file['name']);
+        if (!$ext) return null;
+        $name = sif_safe_name($ext);
         $target = $dir . $name;
         if (move_uploaded_file($file['tmp_name'], $target)) {
             $webp = convertToWebp($target);
@@ -98,6 +102,8 @@ if ($method == 'POST') {
     $video_url   = $_POST['video_url']   ?? '';
     $pdf_url     = $_POST['pdf_url']     ?? '';
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
+    // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
+    $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
     $extra_data  = $_POST['extra_data']  ?? null;
     $image_url_fallback = $_POST['image_url'] ?? '';
 
@@ -114,9 +120,9 @@ if ($method == 'POST') {
     if ($id) {
         $stmt = $pdo->prepare(
             "UPDATE treinamentos SET slug=?, title=?, description=?, segment=?, hours=?, location=?,
-             date=?, start_date=?, end_date=?, video_url=?, pdf_url=?, active=?, extra_data=?, image_url=COALESCE(?, image_url) WHERE id=?"
+             date=?, start_date=?, end_date=?, video_url=?, pdf_url=?, active=COALESCE(?, active), extra_data=?, image_url=COALESCE(?, image_url) WHERE id=?"
         );
-        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $date, $start_date, $end_date, $video_url, $pdf_url, $active, $extra_data, $image_url, $id]);
+        $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $date, $start_date, $end_date, $video_url, $pdf_url, $activeUpd, $extra_data, $image_url, $id]);
     } else {
         $stmt = $pdo->prepare(
             "INSERT INTO treinamentos (slug, title, description, segment, hours, location, date, start_date, end_date, video_url, pdf_url, image_url, active, extra_data)

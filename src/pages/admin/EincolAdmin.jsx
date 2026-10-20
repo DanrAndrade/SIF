@@ -224,9 +224,11 @@ export default function EincolAdmin() {
 
     if (files.planta_image) fd.append('planta_image', files.planta_image);
     else if (form.planta_image === '') fd.append('planta_image', '');
-    if (files.pdf1_file)    fd.append('pdf1_file',    files.pdf1_file);
-    if (files.pdf2_file)    fd.append('pdf2_file',    files.pdf2_file);
-    if (files.pdf3_file)    fd.append('pdf3_file',    files.pdf3_file);
+    // PDFs: arquivo novo, ou URL vazia quando foi removido no painel
+    [1, 2, 3].forEach(i => {
+      if (files[`pdf${i}_file`]) fd.append(`pdf${i}_file`, files[`pdf${i}_file`]);
+      else if (!form[`pdf${i}_url`]) fd.append(`pdf${i}_url`, '');
+    });
 
     let res;
     try {
@@ -242,6 +244,7 @@ export default function EincolAdmin() {
       let data = null;
       try { data = JSON.parse(text); } catch { /* não é JSON */ }
       if (data?.success) {
+        setFiles({}); // arquivos já enviados — não reenviar no próximo salvar
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
         fetchConfig();
