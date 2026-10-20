@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AdminPage, AdminCard, useDirty, useConfirm, ItemActions, moveItem, SaveButton, SecondaryButton, useUnsavedGuard } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe,
+  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
 
@@ -52,6 +53,11 @@ const DEFAULTS = {
   hero_subtitle: 'O elo que une a ciência acadêmica às maiores potências da indústria florestal global.',
   hero_scroll_label: 'Ver Benefícios',
 
+  texto_enabled: true,
+  texto_tag: 'Sobre a rede',
+  texto_title: '',
+  texto_html: '',
+
   beneficios_title_line1: 'Por que ser uma',
   beneficios_title_highlight: 'Associada SIF?',
   benefits: [
@@ -73,6 +79,7 @@ const DEFAULTS = {
 
 const TABS = [
   { id: 'hero',       label: 'Hero',         icon: HomeIcon },
+  { id: 'texto',      label: 'Texto',        icon: AlignLeft },
   { id: 'beneficios', label: 'Benefícios',   icon: Award },
   { id: 'empresas',   label: 'Empresas',     icon: Building2 },
   { id: 'cta',        label: 'CTA Final',    icon: Sparkles },
@@ -201,6 +208,9 @@ export default function AssociadasAdmin() {
       {activeTab === 'hero' && (
         <HeroForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.hero_image} />
       )}
+      {activeTab === 'texto' && (
+        <TextoForm cfg={config} set={set} />
+      )}
       {activeTab === 'beneficios' && (
         <BeneficiosForm cfg={config} set={set} />
       )}
@@ -227,6 +237,31 @@ function HeroForm({ cfg, set, onFile, preview }) {
         <Field label="Título — destaque em verde" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
       </div>
       <Field label="Subtítulo" type="textarea" rows={2} value={cfg.hero_subtitle} onChange={v => set('hero_subtitle', v)} />
+    </div>
+  );
+}
+
+// ─── TEXTO CORRIDO (entre o topo e os benefícios) ────────────
+// O editor transforma "" em "<p><br></p>" ao abrir; isso não é alteração.
+const isBlank = (html) => !html || (!/<img|<iframe/i.test(html) && html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() === '');
+function TextoForm({ cfg, set }) {
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-gray-500">Seção de texto livre logo abaixo do topo da página. Fica escondida enquanto o texto estiver vazio.</p>
+        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer shrink-0">
+          <input type="checkbox" className="w-4 h-4 accent-[#007a3d]" checked={cfg.texto_enabled !== false} onChange={e => set('texto_enabled', e.target.checked)} />
+          Mostrar no site
+        </label>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Field label="Etiqueta (texto pequeno verde)" value={cfg.texto_tag} onChange={v => set('texto_tag', v)} />
+        <Field label="Título (opcional)" value={cfg.texto_title} onChange={v => set('texto_title', v)} />
+      </div>
+      <div>
+        <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Texto</label>
+        <QuillEditor value={cfg.texto_html || ''} onChange={v => { if (!isBlank(v) || !isBlank(cfg.texto_html)) set('texto_html', v); }} height="h-[380px]" />
+      </div>
     </div>
   );
 }

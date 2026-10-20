@@ -66,6 +66,10 @@ const DEFAULTS = {
   hero_title_highlight: 'Associadas',
   hero_subtitle: 'O elo que une a ciência acadêmica às maiores potências da indústria florestal global.',
   hero_scroll_label: 'Ver Benefícios',
+  texto_enabled: true,
+  texto_tag: 'Sobre a rede',
+  texto_title: '',
+  texto_html: '',
 
   beneficios_title_line1: 'Por que ser uma',
   beneficios_title_highlight: 'Associada SIF?',
@@ -85,6 +89,9 @@ const DEFAULTS = {
   cta_btn_label: 'Seja uma Associada',
   cta_btn_link: '/contato',
 };
+
+// Texto do editor sem conteúdo real (ex.: "<p><br></p>") conta como vazio
+const hasText = (html) => !!html && (/<img|<iframe/i.test(html) || html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() !== '');
 
 export default function Associadas() {
   usePageTitle('Empresas Associadas'); // título da aba do navegador / Google
@@ -168,6 +175,18 @@ export default function Associadas() {
           </button>
         </div>
       </div>
+
+      {/* TEXTO CORRIDO — editável em Painel › Associadas › Texto */}
+      {cfg.texto_enabled !== false && hasText(cfg.texto_html) && (
+        <section className="py-20 md:py-24 bg-white">
+          <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-5xl">
+            {cfg.texto_tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.texto_tag}</span>}
+            {cfg.texto_title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] mb-8 leading-tight">{cfg.texto_title}</h2>}
+            <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-3xl"
+              dangerouslySetInnerHTML={{ __html: cfg.texto_html }} />
+          </div>
+        </section>
+      )}
 
       {/* BENEFÍCIOS — só texto, sem ícones */}
       <div id="beneficios" className="py-24 bg-[#1f2937] text-white relative overflow-hidden scroll-mt-32">
