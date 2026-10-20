@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
+import GtBlogPosts from '../components/GtBlogPosts';
 
 const iconMap = {
   Target: Target,
@@ -158,6 +159,9 @@ export default function GrupoTematicoDetalhe() {
           </div>
         </div>
       </section>
+
+      {/* BLOG DO GRUPO — posts do blog ligados a este GT */}
+      <GtBlogPosts gtId={gt.id} />
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/gt */}
       <section className="py-16 bg-[#f8f9fa]">

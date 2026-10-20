@@ -160,6 +160,14 @@ export default function BlogPost() {
             <p className="text-white/60 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
               <Calendar size={16} className="text-[#7FBA00]" /> {formatDate(post.created_at)}
             </p>
+            {/* Responsáveis pelo post (vários) */}
+            {Array.isArray(post.responsaveis) && post.responsaveis.length > 0 && (
+              <p className="text-white/80 text-sm">
+                Por {post.responsaveis.map((r, i) => (
+                  <span key={r.id}>{i > 0 && (i === post.responsaveis.length - 1 ? ' e ' : ', ')}<strong className="text-white">{r.name}</strong>{r.cargo ? <span className="text-white/60"> ({r.cargo})</span> : null}</span>
+                ))}
+              </p>
+            )}
           </div>
         </div>
       </div>

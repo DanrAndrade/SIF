@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ConfirmProvider, UnsavedGuardProvider, useCanLeave } from '../../components/admin/kit';
-import { Menu } from 'lucide-react'; 
+import { Menu, Lock } from 'lucide-react';
+import { AdminUserProvider, useAdminUser } from '../../contexts/AdminUserContext';
+import { firstAllowedTab } from '../../utils/adminModules';
+import MyPasswordModal from '../../components/admin/MyPasswordModal';
+import UsuariosAdmin from './UsuariosAdmin';
 
 // --- CAMINHOS DE IMPORTAÇÃO ---
 import AdminSidebar from '../../components/admin/AdminSidebar';
@@ -36,13 +40,16 @@ const TAB_PATHS = {
   contato: '/admin/contato',
   rodape: '/admin/rodape',
   embrapii: '/admin/embrapii',
+  usuarios: '/admin/usuarios',
 };
 
 export default function AdminDashboard(props) {
   return (
     <ConfirmProvider>
       <UnsavedGuardProvider>
-        <DashboardInner {...props} />
+        <AdminUserProvider>
+          <DashboardInner {...props} />
+        </AdminUserProvider>
       </UnsavedGuardProvider>
     </ConfirmProvider>
   );
@@ -54,6 +61,15 @@ function DashboardInner({ currentTab }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const canLeave = useCanLeave();
+  const { user, loading: userLoading, can } = useAdminUser();
+  const [pwdOpen, setPwdOpen] = useState(false);
+
+  // Tela sem permissão (ex.: editor abrindo /admin/dashboard) → vai para a 1ª permitida
+  const allowed = !user || can(activeTab);
+  const fallbackTab = user && !allowed ? firstAllowedTab(user) : null;
+  useEffect(() => {
+    if (fallbackTab) navigate(TAB_PATHS[fallbackTab], { replace: true });
+  }, [fallbackTab, navigate]);
 
   // Troca de tela pelo menu: avisa se há alterações não salvas
   const setActiveTab = async (tab) => {
@@ -70,6 +86,7 @@ function DashboardInner({ currentTab }) {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         logout={logout}
+        onMyPassword={() => setPwdOpen(true)}
         isOpen={sidebarOpen}
         closeMobile={() => setSidebarOpen(false)}
       />
@@ -95,6 +112,12 @@ function DashboardInner({ currentTab }) {
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-12">
             <div className="max-w-6xl mx-auto">
+                {userLoading ? null : !allowed ? (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center text-gray-500">
+                    <Lock className="mx-auto mb-3 text-gray-300" size={32} />
+                    {fallbackTab ? 'Abrindo uma área liberada para você...' : 'Seu usuário ainda não tem nenhuma área liberada. Fale com um administrador.'}
+                  </div>
+                ) : (<>
                 {/* --- RENDERIZAÇÃO CONDICIONAL ATUALIZADA --- */}
                 {activeTab === 'leads' && <LeadsView />}
                 {activeTab === 'candidates' && <CandidatesView />}
@@ -115,9 +138,12 @@ function DashboardInner({ currentTab }) {
                 {activeTab === 'contato' && <ContatoAdmin />}
                 {activeTab === 'rodape' && <RodapeAdmin />}
                 {activeTab === 'embrapii' && <EmbrapiiAdmin />}
+                {activeTab === 'usuarios' && <UsuariosAdmin />}
+                </>)}
             </div>
         </div>
       </main>
+      {pwdOpen && <MyPasswordModal onClose={() => setPwdOpen(false)} />}
     </div>
   );
 }

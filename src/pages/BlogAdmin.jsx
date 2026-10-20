@@ -9,6 +9,7 @@ import ImageUploadArea from '../components/admin/ImageUploadArea';
 import ContentSections from '../components/admin/ContentSections';
 import PageHeaderForm from '../components/admin/PageHeaderForm';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { useAdminUser } from '../contexts/AdminUserContext';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
 
@@ -35,7 +36,24 @@ export default function BlogAdmin() {
   const [view, setView] = useState('list');
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [formData, setFormData] = useState({ title: '', content: '', imageFile: null, sections: [] });
+  const [formData, setFormData] = useState({ title: '', content: '', imageFile: null, sections: [], gt_id: '', responsavel_ids: [] });
+  // Permissões: quem tem o módulo Blog (ou é admin) publica em qualquer lugar;
+  // responsável por GT publica só no blog dos seus grupos.
+  const { user: me } = useAdminUser();
+  const fullBlog = me?.role === 'admin' || !!me?.modules?.includes('blog');
+  const myGtIds = (me?.gt_ids || []).map(Number);
+  const [gts, setGts] = useState([]);
+  const [people, setPeople] = useState([]);
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/gt.php?admin=1`).then(r => r.json()).then(d => setGts(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch(`${API_BASE_URL}/users.php?responsaveis=1`).then(r => r.json()).then(d => setPeople(Array.isArray(d) ? d : [])).catch(() => {});
+  }, []);
+  const gtOptions = fullBlog ? gts : gts.filter(g => myGtIds.includes(Number(g.id)));
+  const gtTitle = (id) => gts.find(g => Number(g.id) === Number(id))?.title;
+  const newPost = () => {
+    setFormData(f => ({ ...f, gt_id: fullBlog ? '' : (myGtIds[0] || ''), responsavel_ids: me?.id ? [me.id] : [] }));
+    setView('form');
+  };
   const formRef = useRef(null);
   const [selectedTags, setSelectedTags] = useState([]);
   const { dirty } = useDirty({ formData: { ...formData, imageFile: !!formData.imageFile }, selectedTags }, { ready: view === 'form', settleMs: 1200 });
@@ -102,7 +120,9 @@ export default function BlogAdmin() {
         try { sections = JSON.parse(fullPost.extra_data).sections || []; } catch {}
       }
       setEditingId(fullPost.id);
-      setFormData({ title: fullPost.title || '', content: fullPost.content || '', imageFile: null, sections });
+      let respIds = [];
+      try { respIds = JSON.parse(fullPost.responsavel_ids || '[]'); } catch {}
+      setFormData({ title: fullPost.title || '', content: fullPost.content || '', imageFile: null, sections, gt_id: fullPost.gt_id || '', responsavel_ids: Array.isArray(respIds) ? respIds.map(Number) : [] });
       setSelectedTags(fullPost.tags ? fullPost.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
       setPreview(fullPost.image_url ? getImageUrl(fullPost.image_url) : null);
       setView('form');
@@ -119,36 +139,32 @@ export default function BlogAdmin() {
     if (!formData.content.trim() || formData.content === '<p><br></p>') {
       window.showToast('O conteúdo é obrigatório.'); return;
     }
+    if (!fullBlog && !formData.gt_id && !editingId) { window.showToast('Escolha o grupo temático do post.'); return; }
     setLoading(true); setError(null);
     const data = new FormData();
     data.append('title', formData.title.trim());
     data.append('content', formData.content);
     data.append('tags', selectedTags.join(', '));
     data.append('extra_data', JSON.stringify({ sections: formData.sections }));
+    data.append('gt_id', formData.gt_id || '');
+    data.append('responsavel_ids', JSON.stringify(formData.responsavel_ids || []));
     if (editingId) data.append('id', editingId);
     if (formData.imageFile) data.append('image', formData.imageFile);
     if (editingId && formData.removeImage && !formData.imageFile) data.append('remove_image', '1'); // imagem removida no formulário
 
     try {
-      const res = await fetch(API_URL, { method: 'POST', body: data });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const result = await res.json();
-      if (result.success) {
-        resetForm(); await fetchPosts();
-        window.showToast(editingId ? 'Artigo atualizado com sucesso!' : 'Artigo publicado com sucesso!');
-      } else {
-        window.showToast('Erro: ' + (result.error || 'Falha ao salvar publicação'));
-      }
+      await apiRequest(API_URL, { method: 'POST', body: data });
+      resetForm(); await fetchPosts();
+      window.showToast(editingId ? 'Artigo atualizado com sucesso!' : 'Artigo publicado com sucesso!');
     } catch (err) {
-      console.error('Erro ao salvar:', err);
-      window.showToast('Erro ao salvar publicação. Verifique sua conexão e tente novamente.');
+      toastError(err); // mostra a mensagem do servidor (ex.: sem permissão)
     } finally { setLoading(false); }
   };
 
   const resetForm = () => {
     if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     setEditingId(null); setPreview(null);
-    setFormData({ title: '', content: '', imageFile: null, sections: [] });
+    setFormData({ title: '', content: '', imageFile: null, sections: [], gt_id: '', responsavel_ids: [] });
     setSelectedTags([]); setView('list'); setError(null);
   };
 
@@ -157,7 +173,7 @@ export default function BlogAdmin() {
       title={view === 'list' ? 'Blog' : (editingId ? 'Editar publicação' : 'Nova publicação')}
       subtitle={view === 'list' ? 'Gerencie as publicações do blog.' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Nova publicação</PrimaryButton>
+        ? <PrimaryButton icon={Plus} onClick={newPost}>Nova publicação</PrimaryButton>
         : <SecondaryButton icon={X} disabled={loading} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
       save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty } : undefined}
     >
@@ -170,8 +186,13 @@ export default function BlogAdmin() {
         </div>
       )}
 
-      {view === 'list' && <PageHeaderForm pageKey="blog" defaults={HERO_DEFAULTS} title="Cabeçalho da página /blog" />}
-      {view === 'list' && <PageContactForm pageKey="blog" title="Contato responsável pelo Blog" />}
+      {view === 'list' && fullBlog && <PageHeaderForm pageKey="blog" defaults={HERO_DEFAULTS} title="Cabeçalho da página /blog" />}
+      {view === 'list' && fullBlog && <PageContactForm pageKey="blog" title="Contato responsável pelo Blog" />}
+      {view === 'list' && !fullBlog && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">
+          Você vê aqui os posts que pode editar: os dos seus grupos temáticos{myGtIds.length ? ` (${myGtIds.map(gtTitle).filter(Boolean).join(', ')})` : ''} e os que têm você como responsável.
+        </div>
+      )}
 
       {/* LISTA */}
       {view === 'list' && (
@@ -196,7 +217,13 @@ export default function BlogAdmin() {
                       <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">📝</div>
                     )}
                   </div>
-                  <h4 className="font-bold text-gray-900 group-hover:text-[#007a3d] transition-colors text-lg line-clamp-2 flex-1">{post.title}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-gray-900 group-hover:text-[#007a3d] transition-colors text-lg line-clamp-2">{post.title}</h4>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {post.gt_id ? <span className="text-[#007a3d] font-bold">Blog do GT: {gtTitle(post.gt_id) || post.gt_id}</span> : 'Blog geral'}
+                      {post.responsaveis?.length > 0 && <> · Responsáveis: {post.responsaveis.map(r => r.name).join(', ')}</>}
+                    </p>
+                  </div>
                 </div>
                 <div className="ml-4">
                   <ItemActions
@@ -257,6 +284,37 @@ export default function BlogAdmin() {
                   ))}
                 </div>
                 <p className="text-xs text-gray-400 ml-2">{selectedTags.length} tag(s) selecionada(s)</p>
+              </div>
+            </div>
+
+            {/* GRUPO TEMÁTICO + RESPONSÁVEIS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest ml-1">Grupo temático {fullBlog ? '(opcional)' : '*'}</label>
+                <select className="w-full p-3 bg-white rounded-xl border text-sm outline-none focus:border-[#007a3d]"
+                  value={formData.gt_id || ''} onChange={e => setFormData(f => ({ ...f, gt_id: e.target.value }))} disabled={loading}>
+                  {fullBlog && <option value="">Nenhum — post do blog geral</option>}
+                  {!fullBlog && !formData.gt_id && <option value="">Escolha...</option>}
+                  {gtOptions.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
+                  {formData.gt_id && !gtOptions.some(g => String(g.id) === String(formData.gt_id)) && <option value={formData.gt_id}>{gtTitle(formData.gt_id) || `GT ${formData.gt_id}`}</option>}
+                </select>
+                <p className="text-xs text-gray-400 ml-1">Com grupo escolhido, o post aparece também na página do grupo.</p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-gray-400 tracking-widest ml-1">Responsáveis pelo post</label>
+                <div className="flex flex-wrap gap-2">
+                  {people.map(p => {
+                    const on = formData.responsavel_ids.includes(p.id);
+                    return (
+                      <button key={p.id} type="button" disabled={loading}
+                        onClick={() => setFormData(f => ({ ...f, responsavel_ids: on ? f.responsavel_ids.filter(x => x !== p.id) : [...f.responsavel_ids, p.id] }))}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${on ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+                        {p.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-gray-400 ml-1">Aparecem como autores no site e também podem editar este post.</p>
               </div>
             </div>
 
