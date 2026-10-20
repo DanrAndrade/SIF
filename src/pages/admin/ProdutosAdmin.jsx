@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm, AdminPage, AdminCard, useDirty } from '../../components/admin/kit';
+import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, SecondaryButton } from '../../components/admin/kit';
 import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
@@ -264,9 +264,8 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
     setUploadState(+1);
     try {
       const fd = new FormData(); fd.append('file', file);
-      const res = await fetch(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Erro no upload do PDF.');
+      const data = await apiRequest(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
+      if (!data?.url) throw new Error(data?.message || 'Erro no upload do PDF.');
       return data.url;
     } finally { setUploadState(-1); }
   };
@@ -275,9 +274,8 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
     setUploadState(+1);
     try {
       const fd = new FormData(); fd.append('image', file);
-      const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Erro no upload da imagem.');
+      const data = await apiRequest(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
+      if (!data?.url) throw new Error(data?.message || 'Erro no upload da imagem.');
       return data.url;
     } finally { setUploadState(-1); }
   };
@@ -289,10 +287,7 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">Boletins Publicados (PDFs)</h3>
           <p className="text-xs text-gray-400 mt-1">Cada boletim precisa de título e arquivo PDF. A imagem de capa é opcional.</p>
         </div>
-        <button type="button" onClick={addEntry}
-          className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
-          <Plus size={14}/> Novo Boletim
-        </button>
+        <SecondaryButton icon={Plus} onClick={addEntry}>Novo Boletim</SecondaryButton>
       </div>
 
       {pdfs.length === 0 && (
@@ -330,7 +325,7 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     try {
       const url = await uploadPdf(file);
       onUpdate({ pdf_url: url, ...(item.title ? {} : { title: file.name.replace(/\.pdf$/i, '') }) });
-    } catch (e) { window.showToast(e.message); }
+    } catch (e) { toastError(e); }
     finally { setBusy(false); }
   };
 
@@ -340,30 +335,15 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     try {
       const url = await uploadImage(file);
       onUpdate({ cover_url: url });
-    } catch (e) { window.showToast(e.message); }
+    } catch (e) { toastError(e); }
     finally { setBusy(false); }
   };
 
   return (
     <div className="border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col gap-0.5">
-            <button type="button" onClick={onMoveUp} disabled={index === 0}
-              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <ChevronUp size={14}/>
-            </button>
-            <button type="button" onClick={onMoveDown} disabled={index === total - 1}
-              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <ChevronDown size={14}/>
-            </button>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Boletim {index + 1}</span>
-        </div>
-        <button type="button" onClick={onRemove}
-          className="p-2 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all">
-          <Trash2 size={14}/>
-        </button>
+        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 truncate">Boletim {index + 1}{item.title ? ` — ${item.title}` : ''}</span>
+        <ItemActions onMove={dir => (dir < 0 ? onMoveUp() : onMoveDown())} isFirst={index === 0} isLast={index === total - 1} onDelete={onRemove} />
       </div>
 
       <div className="p-5 grid grid-cols-1 md:grid-cols-[200px_1fr] gap-5">
