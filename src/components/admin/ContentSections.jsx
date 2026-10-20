@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useConfirm } from './kit';
-import { ChevronUp, ChevronDown, Trash2, Upload, X, Type, Layers, FileText, Loader2 } from 'lucide-react';
+import { useConfirm, ItemActions, moveItem } from './kit';
+import { SECTION_TYPES, createSection, normalizeSections } from '../sections/sectionTypes';
+import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
+import LogosEditor from './sections/LogosEditor';
+import { Upload, X, Type, Layers, FileText, Loader2, Users } from 'lucide-react';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
 import { API_BASE_URL } from '../../apiConfig';
@@ -93,37 +96,38 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
   );
 }
 
-function SectionBlock({ section, index, total, onMoveUp, onMoveDown, onRemove, onUpdate, onUploadingChange }) {
-  const typeLabel = section.type === 'editor' ? '✏️ Texto' : section.type === 'tabs' ? '📑 Abas' : '📎 PDFs';
+const TYPE_LABEL = { editor: '✏️ Texto', tabs: '📑 Abas', pdfs: '📎 PDFs', logos: '🏷️ Carrossel de logos' };
+
+function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUploadingChange }) {
+  const hidden = section.visible === false;
+  const setField = (k, v) => onUpdate({ [k]: v });
 
   return (
-    <div className="border border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="flex flex-col gap-0.5 flex-shrink-0">
-            <button type="button" onClick={onMoveUp} disabled={index === 0}
-              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <ChevronUp size={14}/>
-            </button>
-            <button type="button" onClick={onMoveDown} disabled={index === total - 1}
-              className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <ChevronDown size={14}/>
-            </button>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex-shrink-0">{typeLabel}</span>
+    <div className={`border rounded-2xl bg-white shadow-sm overflow-hidden ${hidden ? 'border-dashed border-gray-300' : 'border-gray-200'}`}>
+      <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-200 ${hidden ? 'bg-gray-100' : 'bg-gray-50'}`}>
+        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex-shrink-0">{TYPE_LABEL[section.type] || section.type}</span>
+        {section.type === 'logos' ? (
+          <TitleField sec={section} onUpdate={setField} placeholder="Título (ex: Patrocinadores, Apoio...)" defaultSize="md" defaultAlign="center" />
+        ) : (
           <input
             className="flex-1 min-w-0 font-bold text-sm text-gray-700 bg-transparent outline-none border-b border-transparent focus:border-gray-300 placeholder-gray-300 px-1"
             placeholder="Título da seção (opcional)..."
             value={section.title || ''}
             onChange={e => onUpdate({ title: e.target.value })}
           />
-        </div>
-        <button type="button" onClick={onRemove}
-          className="ml-3 p-2 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all flex-shrink-0">
-          <Trash2 size={14}/>
-        </button>
+        )}
+        {hidden && <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0">Oculta</span>}
+        <ItemActions
+          size={14}
+          onMove={onMove}
+          isFirst={index === 0}
+          isLast={index === total - 1}
+          visible={!hidden}
+          onToggleVisible={() => onUpdate({ visible: hidden })}
+          onDelete={onRemove}
+        />
       </div>
-      <div className="p-4">
+      <div className={`p-4 ${hidden ? 'opacity-60' : ''}`}>
         {section.type === 'editor' && (
           <QuillEditor
             value={section.content || ''}
@@ -146,15 +150,23 @@ function SectionBlock({ section, index, total, onMoveUp, onMoveDown, onRemove, o
             onUploadingChange={onUploadingChange}
           />
         )}
+        {section.type === 'logos' && (
+          <div className="space-y-3">
+            <TitleExtraControls sec={section} onUpdate={setField} defaultSize="md" defaultAlign="center" />
+            <LogosEditor images={section.images || []} onChange={images => onUpdate({ images })} />
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-const SECTION_TYPES = [
-  { type: 'editor', label: 'Texto Rico', Icon: Type },
-  { type: 'tabs',   label: 'Abas',       Icon: Layers },
-  { type: 'pdfs',   label: 'PDFs',       Icon: FileText },
+// Botões "adicionar" — tipos e conteúdo inicial vêm de components/sections/sectionTypes.js
+const ADD_BUTTONS = [
+  { type: 'editor', Icon: Type },
+  { type: 'tabs',   Icon: Layers },
+  { type: 'pdfs',   Icon: FileText },
+  { type: 'logos',  Icon: Users },
 ];
 
 export default function ContentSections({ sections = [], onChange, onUploading }) {
@@ -169,22 +181,16 @@ export default function ContentSections({ sections = [], onChange, onUploading }
     onUploading?.(uploadCount > 0);
   }, [uploadCount, onUploading]);
 
-  const addSection = (type) => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const s = { id, type, title: '' };
-    if (type === 'editor') s.content = '';
-    if (type === 'tabs')   s.tabs   = [];
-    if (type === 'pdfs')   s.pdfs   = [];
-    onChange([...sections, s]);
-  };
+  // Sempre no formato atual (ids estáveis; aceita formatos antigos)
+  const list = normalizeSections(sections);
 
-  const moveUp   = (i) => { if (i === 0) return; const s = [...sections]; [s[i - 1], s[i]] = [s[i], s[i - 1]]; onChange(s); };
-  const moveDown = (i) => { if (i === sections.length - 1) return; const s = [...sections]; [s[i], s[i + 1]] = [s[i + 1], s[i]]; onChange(s); };
+  const addSection = (type) => onChange([...list, createSection(type)]);
+  const move     = (i, dir) => onChange(moveItem(list, i, dir));
   const remove   = async (i) => {
     if (!(await confirm({ title: 'Remover esta seção?', message: 'O conteúdo dela sai da página ao salvar.', confirmLabel: 'Remover' }))) return;
-    onChange(sections.filter((_, idx) => idx !== i));
+    onChange(list.filter((_, idx) => idx !== i));
   };
-  const update   = (i, updates) => { const s = [...sections]; s[i] = { ...s[i], ...updates }; onChange(s); };
+  const update   = (i, updates) => { const s = [...list]; s[i] = { ...s[i], ...updates }; onChange(s); };
 
   const isUploading = uploadCount > 0;
 
@@ -192,7 +198,7 @@ export default function ContentSections({ sections = [], onChange, onUploading }
     <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm space-y-4">
       <div className="border-b pb-4">
         <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">Seções de Conteúdo</h3>
-        <p className="text-xs text-gray-400 mt-1">Adicione e reordene blocos de conteúdo da página usando as setas ↑↓</p>
+        <p className="text-xs text-gray-400 mt-1">Adicione blocos de conteúdo, mude a ordem com as setas ↑↓ e use o olho para ocultar uma seção sem apagá-la.</p>
       </div>
 
       {isUploading && (
@@ -205,21 +211,20 @@ export default function ContentSections({ sections = [], onChange, onUploading }
         </div>
       )}
 
-      {sections.length === 0 && (
+      {list.length === 0 && (
         <p className="text-gray-400 text-sm italic text-center py-6">
           Nenhuma seção. Clique abaixo para adicionar conteúdo.
         </p>
       )}
 
       <div className="space-y-4">
-        {sections.map((section, i) => (
+        {list.map((section, i) => (
           <SectionBlock
-            key={section.id || i}
+            key={section.id}
             section={section}
             index={i}
-            total={sections.length}
-            onMoveUp={() => moveUp(i)}
-            onMoveDown={() => moveDown(i)}
+            total={list.length}
+            onMove={(dir) => move(i, dir)}
             onRemove={() => remove(i)}
             onUpdate={(updates) => update(i, updates)}
             onUploadingChange={handleUploadingChange}
@@ -228,10 +233,10 @@ export default function ContentSections({ sections = [], onChange, onUploading }
       </div>
 
       <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-        {SECTION_TYPES.map(({ type, label, Icon }) => (
+        {ADD_BUTTONS.map(({ type, Icon }) => (
           <button key={type} type="button" onClick={() => addSection(type)}
             className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#007a3d] hover:text-white transition-colors border border-gray-200 hover:border-[#007a3d]">
-            <Icon size={14}/> + {label}
+            <Icon size={14}/> + {SECTION_TYPES[type].label}
           </button>
         ))}
       </div>

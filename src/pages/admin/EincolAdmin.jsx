@@ -1,32 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useConfirm, AdminPage, SaveButton, useDirty } from '../../components/admin/kit';
+import LogosEditor from '../../components/admin/sections/LogosEditor';
+import { TitleField, TitleExtraControls } from '../../components/admin/sections/TitleStyleFields';
+import { useConfirm, AdminPage, SaveButton, useDirty, ItemActions } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
-import { TITLE_SIZES, TITLE_WEIGHTS, resolveTitleStyle } from '../../utils/sectionTitle';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
-
-// Faz upload de uma imagem avulsa (patrocinadores) e devolve a URL salva.
-async function uploadEincolImage(file) {
-  if (!file) return null;
-  if (file.size > 10 * 1024 * 1024) {
-    window.showToast?.('Imagem muito grande. Máximo 10 MB.', 'error');
-    return null;
-  }
-  const fd = new FormData();
-  fd.append('image', file);
-  try {
-    const res = await fetch(`${API_BASE_URL}/upload.php`, { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.success) return data.url;
-    window.showToast?.(data.message || 'Erro ao enviar imagem.', 'error');
-  } catch {
-    window.showToast?.('Falha ao conectar ao servidor de upload.', 'error');
-  }
-  return null;
-}
 
 // Componente para upload de uma imagem com preview
 const ImageUploadField = ({ label, value, fileKey, onFileChange, hint, onRemove }) => {
@@ -459,6 +440,8 @@ export default function EincolAdmin() {
                   onMove={(dir) => moveSection(i, dir)}
                   isFirst={i === 0}
                   isLast={i === form.sections.length - 1}
+                  visible={sec.visible !== false}
+                  onToggleVisible={() => updateSection(i, 'visible', sec.visible === false)}
                 />
               : <QuillSection
                   key={sec._uid || i}
@@ -469,6 +452,8 @@ export default function EincolAdmin() {
                   onMove={(dir) => moveSection(i, dir)}
                   isFirst={i === 0}
                   isLast={i === form.sections.length - 1}
+                  visible={sec.visible !== false}
+                  onToggleVisible={() => updateSection(i, 'visible', sec.visible === false)}
                 />
           ))}
           {form.sections.length > 0 && (
@@ -488,60 +473,6 @@ export default function EincolAdmin() {
 
 // --- SUB-COMPONENTES ---
 
-// Estilo do título da seção no site (ver src/utils/sectionTitle.js).
-// Tamanho e peso ficam na mesma linha do título; o campo já mostra o estilo.
-const selCls = "p-2 bg-white rounded-xl border border-gray-200 text-xs font-bold text-gray-600 outline-none focus:border-[#007a3d] shrink-0";
-
-function TitleField({ sec, onUpdate, placeholder, defaultSize, defaultAlign }) {
-  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
-  return (
-    <>
-      <input
-        className={`flex-1 min-w-0 p-3 bg-white rounded-xl outline-none border focus:border-[#007a3d] ${TITLE_SIZES[st.size].admin} ${TITLE_WEIGHTS[st.weight].cls} ${st.upper ? 'uppercase' : ''} ${st.align === 'center' ? 'text-center' : ''}`}
-        placeholder={placeholder}
-        value={sec.title}
-        onChange={e => onUpdate('title', e.target.value)}
-      />
-      <select className={selCls} value={st.size} onChange={e => onUpdate('title_size', e.target.value)} title="Tamanho do título">
-        {Object.entries(TITLE_SIZES).map(([v, o]) => <option key={v} value={v}>Tamanho: {o.label}</option>)}
-      </select>
-      <select className={selCls} value={st.weight} onChange={e => onUpdate('title_weight', e.target.value)} title="Peso (grossura) do título">
-        {Object.entries(TITLE_WEIGHTS).map(([v, o]) => <option key={v} value={v}>Peso: {o.label}</option>)}
-      </select>
-    </>
-  );
-}
-
-// Opções extras do título: maiúsculas e alinhamento.
-function TitleExtraControls({ sec, onUpdate, defaultSize, defaultAlign }) {
-  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
-  const chip = (active) => `px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${active ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#007a3d]'}`;
-  return (
-    <div className="flex flex-wrap items-center gap-2 pl-1">
-      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest mr-1">Título:</span>
-      <button type="button" className={chip(st.upper)} onClick={() => onUpdate('title_upper', !st.upper)} title="Tudo em maiúsculas">AA Maiúsculas</button>
-      {[['left', 'Esquerda'], ['center', 'Centro']].map(([v, label]) => (
-        <button key={v} type="button" className={chip(st.align === v)} onClick={() => onUpdate('title_align', v)}>{label}</button>
-      ))}
-    </div>
-  );
-}
-
-// Setas para mudar a ordem (a ordem aqui é a ordem em que aparece no site)
-function MoveButtons({ onMove, isFirst, isLast }) {
-  const cls = "p-2 bg-white text-gray-500 rounded-xl border border-gray-200 hover:text-[#007a3d] hover:border-[#007a3d] disabled:opacity-30 disabled:hover:text-gray-500 disabled:hover:border-gray-200 transition-all";
-  return (
-    <div className="flex gap-1 shrink-0">
-      <button type="button" onClick={() => onMove(-1)} disabled={isFirst} className={cls} title="Mover para cima">
-        <ChevronUp size={16} />
-      </button>
-      <button type="button" onClick={() => onMove(1)} disabled={isLast} className={cls} title="Mover para baixo">
-        <ChevronDown size={16} />
-      </button>
-    </div>
-  );
-}
-
 function AddSectionButtons({ onAddText, onAddLogos }) {
   return (
     <div className="flex flex-wrap gap-2">
@@ -557,7 +488,7 @@ function AddSectionButtons({ onAddText, onAddLogos }) {
   );
 }
 
-function QuillTab({ tab, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
+function QuillTab({ tab, index, onUpdate, onRemove, onMove, isFirst, isLast, visible, onToggleVisible }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
@@ -568,26 +499,20 @@ function QuillTab({ tab, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
           value={tab.title}
           onChange={e => onUpdate('title', e.target.value)}
         />
-        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
-        <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
-          <Trash2 size={16} />
-        </button>
+        <ItemActions onMove={onMove} isFirst={isFirst} isLast={isLast} visible={visible} onToggleVisible={onToggleVisible} onDelete={onRemove} />
       </div>
       <QuillEditor value={tab.content} onChange={val => onUpdate('content', val)} height="h-[420px]" />
     </div>
   );
 }
 
-function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
+function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast, visible, onToggleVisible }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
       <div className="flex items-center gap-3">
         <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest shrink-0">Seção {index + 1}</span>
         <TitleField sec={sec} onUpdate={onUpdate} placeholder="Título da seção..." defaultSize="lg" defaultAlign="left" />
-        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
-        <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
-          <Trash2 size={16} />
-        </button>
+        <ItemActions onMove={onMove} isFirst={isFirst} isLast={isLast} visible={visible} onToggleVisible={onToggleVisible} onDelete={onRemove} />
       </div>
       <TitleExtraControls sec={sec} onUpdate={onUpdate} defaultSize="lg" defaultAlign="left" />
       <QuillEditor value={sec.text} onChange={val => onUpdate('text', val)} height="h-[420px]" />
@@ -596,36 +521,7 @@ function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast 
 }
 
 // Grupo de patrocinadores: título + lista de logos (viram carrossel no site).
-function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
-  const confirm = useConfirm();
-  const [uploading, setUploading] = useState(false);
-  const images = Array.isArray(group.images) ? group.images : [];
-
-  const handleAddImages = async (fileList) => {
-    const arr = Array.from(fileList || []);
-    if (arr.length === 0) return;
-    setUploading(true);
-    const urls = [];
-    for (const file of arr) {
-      const url = await uploadEincolImage(file);
-      if (url) urls.push(url);
-    }
-    if (urls.length) onUpdate('images', [...images, ...urls]);
-    setUploading(false);
-  };
-
-  const removeImage = async (i) => {
-    if (!(await confirm({ title: 'Remover esta logo do carrossel?', confirmLabel: 'Remover' }))) return;
-    onUpdate('images', images.filter((_, idx) => idx !== i));
-  };
-  const moveImage = (i, dir) => {
-    const j = i + dir;
-    if (j < 0 || j >= images.length) return;
-    const next = [...images];
-    [next[i], next[j]] = [next[j], next[i]];
-    onUpdate('images', next);
-  };
-
+function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst, isLast, visible, onToggleVisible }) {
   return (
     <div className="bg-emerald-50/40 rounded-2xl p-5 border border-emerald-100 space-y-4">
       <div className="flex items-center gap-3">
@@ -633,45 +529,13 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst,
           <Users size={13} /> Carrossel de logos
         </span>
         <TitleField sec={group} onUpdate={onUpdate} placeholder="Título (ex: Organização e apoio, Patrocinadores...)" defaultSize="md" defaultAlign="center" />
-        <MoveButtons onMove={onMove} isFirst={isFirst} isLast={isLast} />
-        <button type="button" onClick={onRemove} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
-          <Trash2 size={16} />
-        </button>
+        <ItemActions onMove={onMove} isFirst={isFirst} isLast={isLast} visible={visible} onToggleVisible={onToggleVisible} onDelete={onRemove} />
       </div>
 
       <TitleExtraControls sec={group} onUpdate={onUpdate} defaultSize="md" defaultAlign="center" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {images.map((img, i) => (
-          <div key={i} className="relative group bg-white rounded-xl border border-gray-200 h-24 flex items-center justify-center overflow-hidden">
-            <img src={getImageUrl(img)} alt={`Patrocinador ${i + 1}`} className="max-w-[85%] max-h-[85%] object-contain" />
-            <button type="button" onClick={() => removeImage(i)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-              <X size={12} />
-            </button>
-            <div className="absolute bottom-1 left-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
-                className="px-1.5 bg-white/90 rounded text-gray-600 text-xs font-bold disabled:opacity-30">‹</button>
-              <button type="button" onClick={() => moveImage(i, 1)} disabled={i === images.length - 1}
-                className="px-1.5 bg-white/90 rounded text-gray-600 text-xs font-bold disabled:opacity-30">›</button>
-            </div>
-          </div>
-        ))}
-
-        <label className="h-24 bg-white rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#007a3d] transition-colors text-gray-400">
-          {uploading ? (
-            <span className="text-[10px] font-bold uppercase tracking-widest">Enviando...</span>
-          ) : (
-            <>
-              <Plus size={20} />
-              <span className="text-[9px] font-bold uppercase tracking-widest">Add logos</span>
-            </>
-          )}
-          <input type="file" accept="image/*" multiple className="hidden" disabled={uploading}
-            onChange={e => { handleAddImages(e.target.files); e.target.value = ''; }} />
-        </label>
-      </div>
-      <p className="text-[11px] text-gray-400">As imagens são enviadas na hora. Lembre de clicar em "Salvar Configuração EINCOL" no final para persistir o grupo.</p>
+      <LogosEditor images={group.images} onChange={(imgs) => onUpdate('images', imgs)}
+        hint='As imagens são enviadas na hora. Clique em "Salvar configuração EINCOL" para publicar o carrossel.' />
     </div>
   );
 }

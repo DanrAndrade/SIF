@@ -1,6 +1,21 @@
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
 import { getImageUrl, cleanRichHtml } from '../apiConfig';
+import { visibleSections } from './sections/sectionTypes';
+import SectionTitle from './sections/SectionTitle';
+import LogoCarousel from './sections/LogoCarousel';
+
+// Carrossel de logos (patrocinadores, apoio, parceiros...)
+function LogosSection({ section }) {
+  const imgs = Array.isArray(section.images) ? section.images.filter(Boolean) : [];
+  if (!imgs.length) return null;
+  return (
+    <div>
+      <SectionTitle sec={section} defaultSize="md" defaultAlign="center" className="mb-8" as="h3" />
+      <LogoCarousel images={imgs} />
+    </div>
+  );
+}
 
 function EditorSection({ section }) {
   if (!section.content || section.content === '<p><br></p>') return null;
@@ -84,19 +99,23 @@ function PdfsSection({ section }) {
   );
 }
 
+// Renderiza as seções de uma página no modelo único (components/sections/sectionTypes.js).
+// Aceita formatos antigos (normaliza) e pula as seções ocultas no painel.
 export default function ContentSectionsRenderer({ sections }) {
   const [activeTabs, setActiveTabs] = useState({});
   const setActiveTab = (key, idx) => setActiveTabs(prev => ({ ...prev, [key]: idx }));
 
-  if (!Array.isArray(sections) || !sections.length) return null;
+  const list = visibleSections(sections);
+  if (!list.length) return null;
 
   return (
     <div className="space-y-12">
-      {sections.map((section, i) => {
+      {list.map((section, i) => {
         if (!section?.type) return null;
         if (section.type === 'editor') return <EditorSection key={section.id || i} section={section} />;
         if (section.type === 'tabs')   return <TabsSection   key={section.id || i} index={i} section={section} activeTabs={activeTabs} setActiveTab={setActiveTab} />;
         if (section.type === 'pdfs')   return <PdfsSection   key={section.id || i} section={section} />;
+        if (section.type === 'logos')  return <LogosSection  key={section.id || i} section={section} />;
         return null;
       })}
     </div>

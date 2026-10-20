@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LogoCarousel from '../components/sections/LogoCarousel';
+import SectionTitle from '../components/sections/SectionTitle';
 import { usePageTitle } from '../hooks/usePageTitle';
 import SmartLink from '../components/ui/SmartLink';
 import { Navigate } from 'react-router-dom';
@@ -7,7 +9,6 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
-import { TITLE_SIZES, TITLE_WEIGHTS, resolveTitleStyle } from '../utils/sectionTitle';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
@@ -236,7 +237,7 @@ export default function Eincol() {
         )}
 
         {/* SEÇÕES CONFIGURÁVEIS ADICIONAIS (texto e grupos de patrocinadores) */}
-        {sections.map((sec, i) => {
+        {sections.filter(sec => sec.visible !== false).map((sec, i) => {
           const bg = i % 2 === 0 ? 'bg-[#f8f9fa]' : 'bg-white';
 
           // Grupo de patrocinadores → carrossel de logos
@@ -245,7 +246,10 @@ export default function Eincol() {
             if (imgs.length === 0) return null;
             return (
               <section key={i} className={`py-20 ${bg}`}>
-                <SponsorCarousel sec={sec} images={imgs} />
+                <div className="container mx-auto px-6 max-w-6xl">
+                  <SectionTitle sec={sec} defaultSize="md" defaultAlign="center" className="mb-10" />
+                  <LogoCarousel images={imgs} altPrefix="Patrocinador" />
+                </div>
               </section>
             );
           }
@@ -268,56 +272,6 @@ export default function Eincol() {
       </main>
 
       <Footer />
-    </div>
-  );
-}
-
-// Título de seção com o estilo escolhido no painel (tamanho, peso,
-// maiúsculas, alinhamento). Sem escolha, mantém o visual padrão de cada tipo.
-function SectionTitle({ sec, defaultSize, defaultAlign, className = '' }) {
-  if (!sec.title) return null;
-  const st = resolveTitleStyle(sec, defaultSize, defaultAlign);
-  const cls = [
-    TITLE_SIZES[st.size].site,
-    TITLE_WEIGHTS[st.weight].cls,
-    st.upper ? 'uppercase tracking-tighter' : 'tracking-tight',
-    st.align === 'center' ? 'text-center' : 'text-left',
-    'text-[#1f2937]',
-    className,
-  ].join(' ');
-  return <h2 className={cls}>{sec.title}</h2>;
-}
-
-// Carrossel de logos de patrocinadores.
-// Com muitos logos, roda em marquee infinito (reaproveita a animação
-// `.animate-scroll` do index.css, que já duplica o conteúdo). Com poucos,
-// centraliza estático para não ficar com buracos girando.
-function SponsorCarousel({ sec, images }) {
-  const many = images.length > 5;
-  return (
-    <div className="container mx-auto px-6 max-w-6xl">
-      <SectionTitle sec={sec} defaultSize="md" defaultAlign="center" className="mb-10" />
-      {many ? (
-        <div className="relative overflow-hidden">
-          <div className="flex items-center gap-12 w-max animate-scroll hover:[animation-play-state:paused]">
-            {[...images, ...images].map((img, i) => (
-              <div key={i} className="h-20 md:h-24 flex items-center justify-center shrink-0">
-                <img src={getImageUrl(img)} alt="Patrocinador" loading="lazy" decoding="async"
-                  className="max-h-full max-w-[180px] object-contain" />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16">
-          {images.map((img, i) => (
-            <div key={i} className="h-20 md:h-24 flex items-center justify-center">
-              <img src={getImageUrl(img)} alt="Patrocinador" loading="lazy" decoding="async"
-                className="max-h-full max-w-[180px] object-contain" />
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
