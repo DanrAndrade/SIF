@@ -4,19 +4,10 @@ import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud }
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
 import { validateImageSize } from '../../../utils/toast';
+import { DEFAULT_TEAM_GROUPS, resolveTeamGroups } from '../../../utils/teamGroups';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
-const GROUPS = [
-  'Diretoria',
-  'Coordenadoras',
-  'Coord. Fundação SIF & EMBRAPII',
-  'Coord. Inovação e Projetos',
-  'Coord. de CSC',
-  'Coord. de Produtos e Serviços',
-  'Coord. de RH & Facilities',
-  'Consultores',
-];
 
 // Equipe atual da página estática /institucional — usada apenas para o botão
 // "Importar equipe atual" quando o banco está vazio. As fotos vivem em
@@ -55,7 +46,7 @@ const STATIC_TEAM = [
     .map(f => ({ ...parseFile(f, 'Consultores'), group: 'Consultores' })),
 ];
 
-function MemberCard({ member, onDelete, onUpdate, onMove, isFirst, isLast, onToggleVisible }) {
+function MemberCard({ member, groupList, onDelete, onUpdate, onMove, isFirst, isLast, onToggleVisible }) {
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...member });
@@ -96,7 +87,7 @@ function MemberCard({ member, onDelete, onUpdate, onMove, isFirst, isLast, onTog
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm text-[#1f2937] truncate">{member.name}</p>
           <p className="text-xs text-[#007a3d] truncate">{member.role}</p>
-          <p className="text-[10px] text-gray-400">{member.group_name}</p>
+          <p className="text-[10px] text-gray-400">{groupList.find(g => g.key === member.group_name)?.label || member.group_name}</p>
         </div>
         <ItemActions
           size={14}
@@ -146,7 +137,7 @@ function MemberCard({ member, onDelete, onUpdate, onMove, isFirst, isLast, onTog
           <div>
             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">Grupo</label>
             <select className="w-full p-2 bg-white border rounded-lg text-sm outline-none focus:border-[#007a3d]" value={form.group_name} onChange={e => setForm(p => ({ ...p, group_name: e.target.value }))}>
-              {GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
+              {groupList.map(g => <option key={g.key} value={g.key}>{g.label}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -169,10 +160,12 @@ function MemberCard({ member, onDelete, onUpdate, onMove, isFirst, isLast, onTog
   );
 }
 
-export default function TeamManager() {
+// groups / onGroupsChange: nomes e ordem dos grupos (salvos com o botão do topo)
+export default function TeamManager({ groups, onGroupsChange }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeGroup, setActiveGroup] = useState(GROUPS[0]);
+  const [activeGroup, setActiveGroup] = useState(DEFAULT_TEAM_GROUPS[0].key);
+  const [editingGroups, setEditingGroups] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newForm, setNewForm] = useState({ name: '', role: '', link_email: '', link_whatsapp: '', photo: null, preview: null });
 
@@ -240,6 +233,9 @@ export default function TeamManager() {
   };
 
   const groupMembers = members.filter(m => m.group_name === activeGroup);
+  const groupList = resolveTeamGroups(groups, members.map(m => m.group_name));
+  const activeLabel = groupList.find(g => g.key === activeGroup)?.label || activeGroup;
+  const updateGroups = (next) => onGroupsChange?.(next);
 
   // Mudar a ordem dentro do grupo (grava a nova posição de todos do grupo)
   const handleMove = async (index, dir) => {
@@ -274,23 +270,48 @@ export default function TeamManager() {
     <div className="space-y-6">
       {/* Abas de grupo */}
       <div className="flex flex-wrap gap-2">
-        {GROUPS.map(g => {
-          const count = members.filter(m => m.group_name === g).length;
+        {groupList.map(({ key, label }) => {
+          const count = members.filter(m => m.group_name === key).length;
           return (
             <button
-              key={g}
-              onClick={() => setActiveGroup(g)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeGroup === g ? 'bg-[#007a3d] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+              key={key}
+              onClick={() => setActiveGroup(key)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeGroup === key ? 'bg-[#007a3d] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
             >
-              {g} {count > 0 && <span className="ml-1 opacity-70">({count})</span>}
+              {label} {count > 0 && <span className="ml-1 opacity-70">({count})</span>}
             </button>
           );
         })}
+        {onGroupsChange && (
+          <button type="button" onClick={() => setEditingGroups(v => !v)}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-dashed border-gray-300 text-gray-500 hover:border-[#007a3d] hover:text-[#007a3d]">
+            {editingGroups ? 'Fechar grupos' : 'Renomear / ordenar grupos'}
+          </button>
+        )}
       </div>
+
+      {editingGroups && onGroupsChange && (
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3">
+          <p className="text-xs text-gray-500">Altere o nome exibido no site e a ordem dos grupos. As pessoas continuam nos mesmos grupos. Grupos sem ninguém visível não aparecem no site. Clique em <strong>Salvar alterações</strong> no topo para gravar.</p>
+          {groupList.map((g, i) => (
+            <div key={g.key} className="flex items-center gap-3">
+              <input className="flex-1 p-2 bg-white border rounded-xl text-sm outline-none focus:border-[#007a3d]" value={g.label}
+                onChange={e => updateGroups(groupList.map(x => x.key === g.key ? { ...x, label: e.target.value } : x))} />
+              {g.label !== g.key && <span className="hidden md:inline text-[10px] text-gray-400 shrink-0">antes: {g.key}</span>}
+              <ItemActions onMove={dir => updateGroups(moveItem(groupList, i, dir))} isFirst={i === 0} isLast={i === groupList.length - 1} />
+            </div>
+          ))}
+          <button type="button" onClick={() => {
+              const name = window.prompt('Nome do novo grupo:');
+              if (name && name.trim() && !groupList.some(g => g.key === name.trim())) updateGroups([...groupList, { key: name.trim(), label: name.trim() }]);
+            }}
+            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-[#007a3d] hover:underline"><Plus size={14} /> Novo grupo</button>
+        </div>
+      )}
 
       {/* Formulário de adição */}
       <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-4">
-        <p className="text-xs font-black uppercase tracking-widest text-[#007a3d]">+ Adicionar em "{activeGroup}"</p>
+        <p className="text-xs font-black uppercase tracking-widest text-[#007a3d]">+ Adicionar em "{activeLabel}"</p>
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 shrink-0 rounded-full bg-white border-2 border-dashed border-emerald-200 flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#007a3d] transition-colors"
             onClick={() => document.getElementById('new-member-photo').click()}>
@@ -322,7 +343,7 @@ export default function TeamManager() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {groupMembers.map((m, i) => (
-            <MemberCard key={m.id} member={m} onDelete={handleDelete} onUpdate={fetch_}
+            <MemberCard key={m.id} member={m} groupList={groupList} onDelete={handleDelete} onUpdate={fetch_}
               onMove={(dir) => handleMove(i, dir)} isFirst={i === 0} isLast={i === groupMembers.length - 1}
               onToggleVisible={() => handleToggleVisible(m)} />
           ))}

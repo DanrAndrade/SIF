@@ -12,6 +12,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { resolveTeamGroups } from '../utils/teamGroups';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -105,16 +106,6 @@ const AREA_ICON_MAP = { Sprout, Map, Leaf, Shield, Settings, Microscope, Globe, 
 // --- EQUIPE ---
 // As fotos da equipe vêm 100% do banco (admin de Institucional → aba Equipe),
 // passando pelo helper getImageUrl no fetch. Ordem de exibição dos grupos:
-const TEAM_GROUP_ORDER = [
-  'Diretoria',
-  'Coordenadoras',
-  'Coord. Fundação SIF & EMBRAPII',
-  'Coord. Inovação e Projetos',
-  'Coord. de CSC',
-  'Coord. de Produtos e Serviços',
-  'Coord. de RH & Facilities',
-  'Consultores',
-];
 
 // --- COMPONENTE TIMELINE ITEM ---
 const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) => {
@@ -314,7 +305,7 @@ export default function Institucional() {
     axios.get(`${API_BASE_URL}/institucional.php?resource=team`)
       .then((res) => {
         const list = Array.isArray(res.data) ? res.data : [];
-        if (list.length === 0) return;
+        if (list.length === 0) { setTeamFromApi({}); return; }
         // Filtra inativos e remapeia para o shape esperado pelo GalleryCarousel
         const active = list.filter(m => m.active == 1 || m.active === undefined);
         const byGroup = {};
@@ -330,19 +321,15 @@ export default function Institucional() {
         }
         setTeamFromApi(byGroup);
       })
-      .catch(() => setTeamFromApi(null));
+      .catch(() => setTeamFromApi({}));
   }, []);
 
   // Grupos da equipe a renderizar: somente o que veio do banco (já com getImageUrl),
   // ordenados por TEAM_GROUP_ORDER; grupos fora da lista vão para o fim.
+  // Ordem e nome exibido vêm do painel (cfg.team_groups); grupos vazios somem.
   const teamGroups = teamFromApi
-    ? Object.keys(teamFromApi)
-        .filter((g) => teamFromApi[g] && teamFromApi[g].length > 0)
-        .sort((a, b) => {
-          const ia = TEAM_GROUP_ORDER.indexOf(a);
-          const ib = TEAM_GROUP_ORDER.indexOf(b);
-          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        })
+    ? resolveTeamGroups(cfg.team_groups, Object.keys(teamFromApi))
+        .filter((g) => teamFromApi[g.key] && teamFromApi[g.key].length > 0)
     : [];
 
   const scrollAreas = (direction) => {
@@ -470,8 +457,8 @@ export default function Institucional() {
       </div>
 
       <div className="bg-[#f8f9fa] pt-20">
-        {/* NOSSA GENTE */}
-        <div id="nossa-gente" className="py-32">
+        {/* NOSSA GENTE — some inteira quando não há ninguém visível */}
+        <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-20">
                     <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block underline underline-offset-8">{cfg.team_tag}</span>
@@ -481,7 +468,7 @@ export default function Institucional() {
 
                 {/* CARROSSEIS — dados 100% do banco (admin → Equipe), via getImageUrl */}
                 {teamGroups.map((g) => (
-                    <GalleryCarousel key={g} title={g} data={teamFromApi[g]} />
+                    <GalleryCarousel key={g.key} title={g.label} data={teamFromApi[g.key]} />
                 ))}
             </div>
         </div>

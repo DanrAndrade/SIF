@@ -210,8 +210,8 @@ export default function InstitucionalAdmin() {
         <div>
           <SectionHeader cfg={config} set={set} prefix="team" />
           <hr className="my-6 border-gray-100" />
-          <p className="text-xs text-gray-500 mb-4">O título acima é salvo pelo botão <strong>Salvar alterações</strong> do topo. Cada membro da equipe tem o próprio botão de salvar.</p>
-          <TeamManager />
+          <p className="text-xs text-gray-500 mb-4">O título acima e os nomes/ordem dos grupos são salvos pelo botão <strong>Salvar alterações</strong> do topo. Cada membro da equipe tem o próprio botão de salvar.</p>
+          <TeamManager groups={config.team_groups} onGroupsChange={v => set('team_groups', v)} />
         </div>
       )}
       {activeTab === 'areas' && (
