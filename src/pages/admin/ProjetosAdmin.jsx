@@ -226,6 +226,7 @@ export default function ProjetosAdmin() {
             </div>
 
             <ContentSections
+              template="projetos" autoTemplate={!editingId}
               sections={form.sections}
               onChange={sections => setForm(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

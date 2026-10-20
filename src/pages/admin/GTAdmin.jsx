@@ -224,6 +224,7 @@ export default function GTAdmin() {
             <ResponsavelForm value={formData.responsavel} onChange={r => setFormData(f => ({ ...f, responsavel: r }))} onUploading={setSectionsUploading} />
 
             <ContentSections
+              template="gt" autoTemplate={!editingId}
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

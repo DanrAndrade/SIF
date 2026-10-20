@@ -432,6 +432,7 @@ function SectionEditor({ prefix, config, set, onUploading }) {
         onChange={v => set(k('intro'), v)}
       />
       <ContentSections
+        template="produtos"
         sections={config[k('sections')] || []}
         onChange={v => set(k('sections'), v)}
         onUploading={onUploading}

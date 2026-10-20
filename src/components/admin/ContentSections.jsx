@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useConfirm, ItemActions, moveItem } from './kit';
-import { SECTION_TYPES, createSection, normalizeSections } from '../sections/sectionTypes';
+import { SECTION_TYPES, createSection, normalizeSections, PAGE_TEMPLATES, createTemplate } from '../sections/sectionTypes';
 import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
 import LogosEditor from './sections/LogosEditor';
 import { Upload, X, Type, Layers, FileText, Loader2, Users } from 'lucide-react';
@@ -169,7 +169,9 @@ const ADD_BUTTONS = [
   { type: 'logos',  Icon: Users },
 ];
 
-export default function ContentSections({ sections = [], onChange, onUploading }) {
+// template: tipo de página (PAGE_TEMPLATES) → oferece a estrutura padrão.
+// autoTemplate: item novo → já começa com a estrutura padrão.
+export default function ContentSections({ sections = [], onChange, onUploading, template, autoTemplate = false }) {
   const confirm = useConfirm();
   const [uploadCount, setUploadCount] = useState(0);
 
@@ -185,6 +187,16 @@ export default function ContentSections({ sections = [], onChange, onUploading }
   const list = normalizeSections(sections);
 
   const addSection = (type) => onChange([...list, createSection(type)]);
+  const hasTemplate = !!(template && PAGE_TEMPLATES[template]);
+  const applyTemplate = () => onChange([...list, ...createTemplate(template)]);
+  // Item novo: começa com a estrutura padrão (uma vez só)
+  const autoDone = useRef(false);
+  useEffect(() => {
+    if (autoDone.current) return;
+    autoDone.current = true;
+    if (autoTemplate && hasTemplate && list.length === 0) onChange(createTemplate(template));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const move     = (i, dir) => onChange(moveItem(list, i, dir));
   const remove   = async (i) => {
     if (!(await confirm({ title: 'Remover esta seção?', message: 'O conteúdo dela sai da página ao salvar.', confirmLabel: 'Remover' }))) return;
@@ -212,9 +224,18 @@ export default function ContentSections({ sections = [], onChange, onUploading }
       )}
 
       {list.length === 0 && (
-        <p className="text-gray-400 text-sm italic text-center py-6">
-          Nenhuma seção. Clique abaixo para adicionar conteúdo.
-        </p>
+        <div className="text-center py-6 space-y-3">
+          <p className="text-gray-400 text-sm italic">Nenhuma seção. Clique abaixo para adicionar conteúdo.</p>
+          {hasTemplate && (
+            <button type="button" onClick={applyTemplate}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#1B5E20] transition-colors">
+              Usar a estrutura padrão
+            </button>
+          )}
+        </div>
+      )}
+      {list.length > 0 && hasTemplate && (
+        <p className="text-xs text-gray-400">Blocos deixados vazios não aparecem no site.</p>
       )}
 
       <div className="space-y-4">

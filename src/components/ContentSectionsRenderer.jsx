@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
 import { getImageUrl, cleanRichHtml } from '../apiConfig';
-import { visibleSections } from './sections/sectionTypes';
+import { visibleSections, isSectionEmpty } from './sections/sectionTypes';
 import SectionTitle from './sections/SectionTitle';
 import LogoCarousel from './sections/LogoCarousel';
 
@@ -105,7 +105,8 @@ export default function ContentSectionsRenderer({ sections }) {
   const [activeTabs, setActiveTabs] = useState({});
   const setActiveTab = (key, idx) => setActiveTabs(prev => ({ ...prev, [key]: idx }));
 
-  const list = visibleSections(sections);
+  // Ocultas no painel e blocos vazios (ex.: do modelo, não preenchidos) não aparecem
+  const list = visibleSections(sections).filter(s => !isSectionEmpty(s));
   if (!list.length) return null;
 
   return (

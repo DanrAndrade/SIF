@@ -46,3 +46,49 @@ export function normalizeSections(list) {
 
 // Só as seções que aparecem no site
 export const visibleSections = (list) => normalizeSections(list).filter(s => s.visible !== false);
+
+// Seção sem conteúdo nenhum (ex.: veio do modelo e não foi preenchida) —
+// o site não mostra, para não aparecer título solto.
+export function isSectionEmpty(s) {
+  if (!s) return true;
+  const blankHtml = (h) => !h || (!/<img|<iframe|<video/i.test(h) && h.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() === '');
+  if (s.type === 'editor') return blankHtml(s.content);
+  if (s.type === 'tabs')   return !(s.tabs || []).some(t => t && (t.title || !blankHtml(t.content)));
+  if (s.type === 'pdfs')   return !(s.pdfs || []).some(p => p && (p.url || p.pdf_url));
+  if (s.type === 'logos')  return !(s.images || []).some(Boolean);
+  return false;
+}
+
+// ESTRUTURA PADRÃO por tipo de página: blocos já com título, para preencher.
+// O que ficar vazio não aparece no site; a ordem e os títulos podem mudar.
+export const PAGE_TEMPLATES = {
+  gt: [
+    ['editor', 'Objetivos'], ['editor', 'Linhas de pesquisa'],
+    ['logos', 'Empresas participantes'], ['pdfs', 'Documentos e relatórios'],
+  ],
+  eventos: [
+    ['editor', 'Sobre o evento'], ['tabs', 'Programação'], ['editor', 'Local e inscrições'],
+    ['logos', 'Patrocinadores e apoio'], ['pdfs', 'Materiais'],
+  ],
+  treinamentos: [
+    ['editor', 'Objetivos'], ['editor', 'Público-alvo'], ['tabs', 'Conteúdo programático'],
+    ['editor', 'Instrutores'], ['pdfs', 'Materiais'],
+  ],
+  in_company: [
+    ['editor', 'Objetivos'], ['editor', 'Para quem é'], ['tabs', 'Conteúdo programático'], ['pdfs', 'Materiais'],
+  ],
+  projetos: [
+    ['editor', 'Objetivos'], ['editor', 'Metodologia'], ['editor', 'Resultados'],
+    ['logos', 'Empresas parceiras'], ['pdfs', 'Publicações'],
+  ],
+  produtos: [
+    ['editor', 'Como funciona'], ['editor', 'Benefícios para a empresa'], ['pdfs', 'Materiais'],
+  ],
+  blog: [
+    ['pdfs', 'Arquivos para download'],
+  ],
+};
+
+export function createTemplate(kind) {
+  return (PAGE_TEMPLATES[kind] || []).map(([type, title]) => ({ ...createSection(type), title }));
+}

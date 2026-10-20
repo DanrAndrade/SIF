@@ -325,6 +325,7 @@ export default function BlogAdmin() {
             />
 
             <ContentSections
+              template="blog"
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

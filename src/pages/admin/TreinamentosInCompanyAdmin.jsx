@@ -277,6 +277,7 @@ export default function TreinamentosInCompanyAdmin() {
             </div>
 
             <ContentSections
+              template="in_company" autoTemplate={!editingId}
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

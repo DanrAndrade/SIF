@@ -270,6 +270,7 @@ export default function EventosAdmin() {
             </div>
 
             <ContentSections
+              template="eventos" autoTemplate={!editingId}
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}
