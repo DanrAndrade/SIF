@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AdminPage, AdminCard, useDirty, useConfirm } from '../../components/admin/kit';
+import { AdminPage, AdminCard, useDirty, useConfirm, ItemActions, moveItem, SaveButton, SecondaryButton, useUnsavedGuard } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe,
@@ -334,33 +334,49 @@ function EmpresasManager({ partners, loading, reload }) {
     } catch (err) { toastError(err); }
   };
 
-  const handleToggle = async (id, currentActive) => {
+  // Atualiza campos de uma empresa (PUT tunelado pelo POST)
+  const putFields = async (id, fields, file) => {
     const fd = new FormData();
     fd.append('id', id);
-    fd.append('active', currentActive == 1 ? '0' : '1');
+    for (const [k, v] of Object.entries(fields)) fd.append(k, v);
+    if (file) fd.append('logo', file);
     fd.append('_method', 'PUT');
-    await fetch(ASSOC_URL, { method: 'POST', body: fd });
-    reload();
+    await apiRequest(ASSOC_URL, { method: 'POST', body: fd });
   };
 
-  const handleEditField = async (id, field, value) => {
-    const fd = new FormData();
-    fd.append('id', id);
-    fd.append(field, value);
-    fd.append('_method', 'PUT');
-    await fetch(ASSOC_URL, { method: 'POST', body: fd });
-    reload();
+  const handleToggle = async (p) => {
+    try {
+      await putFields(p.id, { active: p.active == 1 ? '0' : '1' });
+      window.showToast?.(p.active == 1 ? `${p.name} ocultada do site.` : `${p.name} visível no site.`);
+      reload();
+    } catch (err) { toastError(err); }
   };
-  const handleEditName    = (id, name)    => handleEditField(id, 'name', name);
-  const handleEditAddress = (id, address) => handleEditField(id, 'address', address);
-  const handleEditWebsite = (id, website) => handleEditField(id, 'website', website);
+
+  // Salva nome, endereço e site juntos (botão Salvar do cartão)
+  const handleSaveData = async (p, data) => {
+    try {
+      await putFields(p.id, data);
+      window.showToast?.('Dados da empresa salvos.');
+      reload();
+      return true;
+    } catch (err) { toastError(err); return false; }
+  };
 
   const handleUploadLogo = async (id, file) => {
-    const fd = new FormData();
-    fd.append('id', id);
-    fd.append('logo', file);
-    fd.append('_method', 'PUT');
-    await fetch(ASSOC_URL, { method: 'POST', body: fd });
+    try {
+      await putFields(id, {}, file);
+      window.showToast?.('Logo atualizada.');
+      reload();
+    } catch (err) { toastError(err); }
+  };
+
+  // Ordem das empresas (vale para a página Associadas e o carrossel da Home)
+  const handleMove = async (index, dir) => {
+    const next = moveItem(partners, index, dir);
+    if (next === partners) return;
+    try {
+      for (let i = 0; i < next.length; i++) await putFields(next[i].id, { sort_order: String(i + 1) });
+    } catch (err) { toastError(err); }
     reload();
   };
 
@@ -435,16 +451,17 @@ function EmpresasManager({ partners, loading, reload }) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 p-4">
-            {partners.map(p => (
+            {partners.map((p, i) => (
               <PartnerCard
                 key={p.id}
                 partner={p}
-                onToggle={handleToggle}
+                onToggle={() => handleToggle(p)}
                 onDelete={() => requestDelete(p)}
-                onEditName={handleEditName}
-                onEditAddress={handleEditAddress}
-                onEditWebsite={handleEditWebsite}
+                onSave={(data) => handleSaveData(p, data)}
                 onUploadLogo={handleUploadLogo}
+                onMove={(dir) => handleMove(i, dir)}
+                isFirst={i === 0}
+                isLast={i === partners.length - 1}
               />
             ))}
           </div>
@@ -454,7 +471,7 @@ function EmpresasManager({ partners, loading, reload }) {
   );
 }
 
-function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, onEditWebsite, onUploadLogo }) {
+function PartnerCard({ partner, onToggle, onDelete, onSave, onUploadLogo, onMove, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState(partner.name);
   const [address, setAddress] = useState(partner.address || '');
@@ -466,14 +483,15 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
     setName(partner.name); setAddress(partner.address || ''); setWebsite(partner.website || '');
   }, [partner.name, partner.address, partner.website]);
 
-  const saveName = () => {
-    if (name.trim() && name.trim() !== partner.name) onEditName(partner.id, name.trim());
-  };
-  const saveAddress = () => {
-    if ((address || '') !== (partner.address || '')) onEditAddress(partner.id, address.trim());
-  };
-  const saveWebsite = () => {
-    if ((website || '') !== (partner.website || '')) onEditWebsite(partner.id, website.trim());
+  const [saving, setSaving] = useState(false);
+  const changed = name.trim() !== partner.name || (address || '') !== (partner.address || '') || (website || '') !== (partner.website || '');
+  useUnsavedGuard(expanded && changed);
+  const save = async () => {
+    if (!name.trim()) { window.showToast?.('O nome da empresa é obrigatório.', 'error'); return; }
+    setSaving(true);
+    const ok = await onSave({ name: name.trim(), address: address.trim(), website: website.trim() });
+    setSaving(false);
+    if (ok) setExpanded(false);
   };
 
   return (
@@ -506,15 +524,17 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
             </a>
           )}
         </div>
-        <div className="flex items-center gap-1">
-          <button onClick={() => onToggle(partner.id, partner.active)} className={`p-1.5 rounded ${partner.active == 1 ? 'text-emerald-600 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100'}`} title={partner.active == 1 ? 'Ocultar' : 'Mostrar'}>
-            {partner.active == 1 ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-          </button>
-          <button onClick={() => setExpanded(e => !e)} className={`p-1.5 rounded ${expanded ? 'text-blue-700 bg-blue-50' : 'text-blue-500 hover:bg-blue-50'}`} title="Editar dados">
-            <Edit size={14} />
-          </button>
-          <button onClick={onDelete} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 size={14} /></button>
-        </div>
+        <ItemActions
+          size={14}
+          onMove={onMove}
+          isFirst={isFirst}
+          isLast={isLast}
+          visible={partner.active == 1}
+          onToggleVisible={onToggle}
+          onEdit={() => setExpanded(e => !e)}
+          editing={expanded}
+          onDelete={onDelete}
+        />
       </div>
 
       {expanded && (
@@ -525,8 +545,7 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
               className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
               value={name}
               onChange={e => setName(e.target.value)}
-              onBlur={saveName}
-              onKeyDown={e => { if (e.key === 'Enter') { saveName(); setExpanded(false); } }}
+              onKeyDown={e => { if (e.key === 'Enter') save(); }}
             />
           </div>
           <div>
@@ -536,8 +555,7 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
               placeholder="Endereço da empresa"
               value={address}
               onChange={e => setAddress(e.target.value)}
-              onBlur={saveAddress}
-              onKeyDown={e => { if (e.key === 'Enter') { saveAddress(); setExpanded(false); } }}
+              onKeyDown={e => { if (e.key === 'Enter') save(); }}
             />
           </div>
           <div>
@@ -547,11 +565,13 @@ function PartnerCard({ partner, onToggle, onDelete, onEditName, onEditAddress, o
               placeholder="www.empresa.com.br"
               value={website}
               onChange={e => setWebsite(e.target.value)}
-              onBlur={saveWebsite}
-              onKeyDown={e => { if (e.key === 'Enter') { saveWebsite(); setExpanded(false); } }}
+              onKeyDown={e => { if (e.key === 'Enter') save(); }}
             />
           </div>
-          <p className="text-[10px] text-gray-400">As alterações são salvas ao sair do campo (ou Enter).</p>
+          <div className="flex justify-end gap-2 pt-1">
+            <SecondaryButton onClick={() => { setName(partner.name); setAddress(partner.address || ''); setWebsite(partner.website || ''); setExpanded(false); }}>Cancelar</SecondaryButton>
+            <SaveButton onSave={save} saving={saving} disabled={!changed} label="Salvar" />
+          </div>
         </div>
       )}
     </div>

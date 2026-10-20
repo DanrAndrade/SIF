@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm } from './kit';
-import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2 } from 'lucide-react';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton } from './kit';
+import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2, RefreshCw } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
 import PageHeaderForm from './PageHeaderForm';
@@ -78,14 +78,14 @@ export const LeadsView = () => {
 
     const updateStatus = async (id, newStatus) => {
         try {
-            await fetch(`${API_BASE_URL}/leads.php`, {
+            await apiRequest(`${API_BASE_URL}/leads.php`, {
                 method: 'POST',
-                credentials: 'include',
                 body: JSON.stringify({ id, status: newStatus })
             });
+            window.showToast?.('Status da mensagem atualizado.');
             fetchLeads(); 
             if (selectedLead) setSelectedLead(prev => ({ ...prev, status: newStatus }));
-        } catch (e) { console.error(e); }
+        } catch (err) { toastError(err); }
     };
 
     const getStatusBadge = (status) => {
@@ -98,8 +98,7 @@ export const LeadsView = () => {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gestão de Leads</h2><button onClick={fetchLeads} className="text-xs text-gray-500 underline hover:text-[#007a3d]">Atualizar Lista</button></div>
+        <AdminPage title="Leads / Contato" subtitle="Mensagens enviadas pelo formulário de contato do site." actions={<SecondaryButton icon={RefreshCw} onClick={fetchLeads}>Atualizar</SecondaryButton>}>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
                     <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider"><tr><th className="p-4">Status</th><th className="p-4">Nome / Empresa</th><th className="p-4">Assunto</th><th className="p-4">Data</th><th className="p-4 text-right">Ações</th></tr></thead>
@@ -132,7 +131,7 @@ export const LeadsView = () => {
                     </div>
                 </Modal>
             )}
-        </div>
+        </AdminPage>
     );
 };
 
@@ -152,14 +151,15 @@ export const CandidatesView = () => {
 
     const updateCandidateStatus = async (id, newStatus) => {
         try {
-            await fetch(`${API_BASE_URL}/candidates.php`, {
+            await apiRequest(`${API_BASE_URL}/candidates.php`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({ id, status: newStatus })
             });
+            window.showToast?.('Status da candidatura atualizado.');
             fetchCandidates();
             if (viewCandidate) setViewCandidate(prev => ({ ...prev, status: newStatus }));
-        } catch (e) { console.error(e); }
+        } catch (err) { toastError(err); }
     };
 
     const handleDownload = (filename) => {
@@ -167,11 +167,7 @@ export const CandidatesView = () => {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-[#1f2937] uppercase">Candidaturas</h2>
-                <button onClick={fetchCandidates} className="text-xs text-gray-500 underline hover:text-[#007a3d]">Atualizar</button>
-            </div>
+        <AdminPage title="Candidatos" subtitle="Candidaturas enviadas pela página Trabalhe Conosco." actions={<SecondaryButton icon={RefreshCw} onClick={fetchCandidates}>Atualizar</SecondaryButton>}>
             
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
@@ -243,7 +239,7 @@ export const CandidatesView = () => {
                     </div>
                 </Modal>
             )}
-        </div>
+        </AdminPage>
     );
 };
 
@@ -327,10 +323,11 @@ export const JobsManagerView = () => {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <AdminPage title="Trabalhe Conosco" subtitle="Cabeçalho, textos da página e vagas abertas. Cada bloco tem o próprio botão de salvar."
+            actions={<PrimaryButton icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova vaga</PrimaryButton>}>
             <PageHeaderForm pageKey="jobs" defaults={JOBS_HERO_DEFAULTS} title="Cabeçalho da página /trabalhe-conosco" />
             <PageContentForm pageKey="jobs" defaults={JOBS_CONTENT_DEFAULTS} fields={JOBS_CONTENT_FIELDS} title="Textos da página /trabalhe-conosco" />
-            <div className="flex justify-between items-center"><h2 className="text-2xl font-bold text-[#1f2937] uppercase">Gerenciar Vagas</h2><Button size="sm" variant="primary" icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova Vaga</Button></div>
+            <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest pt-2">Vagas cadastradas</h3>
             <div className="grid gap-4">
                 {jobs.map(job => (
                     <div key={job.id} className="bg-white p-6 rounded-2xl border border-gray-100 flex justify-between items-center shadow-sm hover:shadow-md transition-all group">
@@ -350,7 +347,7 @@ export const JobsManagerView = () => {
                     </div>
                 ))}
             </div>
-        </div>
+        </AdminPage>
     );
 };
 

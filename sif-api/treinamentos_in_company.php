@@ -90,6 +90,10 @@ if ($method == 'POST') {
         );
         $stmt->execute([$slug, $title, $description, $segment, $hours, $location, $video_url, $image_url, $active, $extra_data]);
     }
+    // Botão "remover imagem" do painel (só quando não veio imagem nova)
+    if (!empty($id) && ($_POST['remove_image'] ?? '') === '1' && empty($_FILES['image']['tmp_name'])) {
+        $pdo->prepare("UPDATE treinamentos_in_company SET image_url = '' WHERE id = ?")->execute([$id]);
+    }
     echo json_encode(["status" => "success"]);
     exit;
 }

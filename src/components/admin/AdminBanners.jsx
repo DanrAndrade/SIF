@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm } from './kit';
+import { useConfirm, AdminPage } from './kit';
 import { Plus, Trash2, Image as ImageIcon, ToggleLeft, ToggleRight, Save, UploadCloud, Edit, X, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import Button from '../ui/Button';
@@ -147,15 +147,16 @@ export default function AdminBanners() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative">
-      
-
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Gerenciar Banners</h2>
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${banners.length >= 5 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-            {banners.length} / 5 Utilizados
+    <AdminPage
+      title="Banners da Home"
+      subtitle="Imagens do carrossel logo abaixo do topo da página inicial (até 5)."
+      actions={
+        <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${banners.length >= 5 ? 'bg-gray-200 text-gray-700' : 'bg-emerald-100 text-emerald-700'}`}>
+            {banners.length} / 5 utilizados
         </span>
-      </div>
+      }
+    >
+    <div className="bg-white p-6 rounded-xl border border-gray-200 relative">
 
       {/* FORMULÁRIO */}
       <div className={`p-6 rounded-xl mb-8 border transition-colors ${editingId ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
@@ -296,5 +297,6 @@ export default function AdminBanners() {
         )}
       </div>
     </div>
+    </AdminPage>
   );
 }

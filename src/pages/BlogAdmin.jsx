@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiRequest, toastError } from '../utils/adminApi';
-import { useConfirm } from '../components/admin/kit';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty } from '../components/admin/kit';
+import PageContactForm from '../components/admin/PageContactForm';
 import { Trash2, Edit3, X, Plus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 import QuillEditor from '../components/admin/QuillEditor';
@@ -35,7 +36,9 @@ export default function BlogAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', imageFile: null, sections: [] });
+  const formRef = useRef(null);
   const [selectedTags, setSelectedTags] = useState([]);
+  const { dirty } = useDirty({ formData: { ...formData, imageFile: !!formData.imageFile }, selectedTags }, { ready: view === 'form', settleMs: 1200 });
 
   useEffect(() => {
     return () => {
@@ -64,9 +67,10 @@ export default function BlogAdmin() {
     fd.append('id', post.id);
     fd.append('active', post.active == 1 ? 0 : 1);
     try {
-      await fetch(API_URL, { method: 'POST', body: fd });
+      await apiRequest(API_URL, { method: 'POST', body: fd });
+      window.showToast?.(post.active == 1 ? 'Ocultado do site.' : 'Publicado no site.');
       fetchPosts();
-    } catch { window.showToast('Erro ao alterar visibilidade.'); }
+    } catch (err) { toastError(err); }
   };
 
   const toggleTag = (tag) =>
@@ -123,6 +127,7 @@ export default function BlogAdmin() {
     data.append('extra_data', JSON.stringify({ sections: formData.sections }));
     if (editingId) data.append('id', editingId);
     if (formData.imageFile) data.append('image', formData.imageFile);
+    if (editingId && formData.removeImage && !formData.imageFile) data.append('remove_image', '1'); // imagem removida no formulário
 
     try {
       const res = await fetch(API_URL, { method: 'POST', body: data });
@@ -148,7 +153,14 @@ export default function BlogAdmin() {
   };
 
   return (
-    <div className="w-full relative">
+    <AdminPage
+      title={view === 'list' ? 'Blog' : (editingId ? 'Editar publicação' : 'Nova publicação')}
+      subtitle={view === 'list' ? 'Gerencie as publicações do blog.' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
+      actions={view === 'list'
+        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Nova publicação</PrimaryButton>
+        : <SecondaryButton icon={X} disabled={loading} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
+      save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty } : undefined}
+    >
 
 
       {error && (
@@ -159,18 +171,13 @@ export default function BlogAdmin() {
       )}
 
       {view === 'list' && <PageHeaderForm pageKey="blog" defaults={HERO_DEFAULTS} title="Cabeçalho da página /blog" />}
+      {view === 'list' && <PageContactForm pageKey="blog" title="Contato responsável pelo Blog" />}
 
       {/* LISTA */}
       {view === 'list' && (
-        <div className="bg-white rounded-[40px] shadow-sm overflow-hidden border border-gray-100 mb-12">
-          <div className="p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-3xl font-bold uppercase text-[#1B5E20] tracking-tighter">Blog SIF</h2>
-              <p className="text-gray-500 text-sm mt-1">Gerencie as publicações do site</p>
-            </div>
-            <Button onClick={() => setView('form')} variant="primary" className="flex items-center gap-2 py-4 px-6 rounded-2xl">
-              <Plus size={20}/> Nova Publicação
-            </Button>
+        <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest">Publicações cadastradas</h3>
           </div>
           <div className="divide-y divide-gray-50">
             {posts.length === 0 ? (
@@ -191,22 +198,13 @@ export default function BlogAdmin() {
                   </div>
                   <h4 className="font-bold text-gray-900 group-hover:text-[#007a3d] transition-colors text-lg line-clamp-2 flex-1">{post.title}</h4>
                 </div>
-                <div className="flex gap-2 ml-4 flex-shrink-0">
-                  <button
-                    onClick={() => handleToggleActive(post)}
-                    title={post.active == 1 ? 'Publicado — clique para ocultar' : 'Oculto — clique para publicar'}
-                    className={`p-4 rounded-2xl transition-all shadow-sm ${post.active == 1 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-400 hover:text-white'}`}
-                  >
-                    {post.active == 1 ? <Eye size={18}/> : <EyeOff size={18}/>}
-                  </button>
-                  <button onClick={() => handleEdit(post)} disabled={loading}
-                    className="p-4 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50">
-                    <Edit3 size={20}/>
-                  </button>
-                  <button onClick={() => requestDelete(post)}
-                    className="p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
-                    <Trash2 size={20}/>
-                  </button>
+                <div className="ml-4">
+                  <ItemActions
+                    visible={post.active == 1}
+                    onToggleVisible={() => handleToggleActive(post)}
+                    onEdit={() => handleEdit(post)}
+                    onDelete={() => requestDelete(post)}
+                  />
                 </div>
               </div>
             ))}
@@ -216,18 +214,9 @@ export default function BlogAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex justify-between items-center mb-8 pb-6 border-b">
-            <h2 className="text-3xl font-bold uppercase text-[#1B5E20] tracking-tighter">
-              {editingId ? 'Editar Artigo' : 'Nova Publicação SIF'}
-            </h2>
-            <button onClick={resetForm} disabled={loading}
-              className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-xl flex items-center gap-2 hover:bg-gray-200 transition-colors disabled:opacity-50">
-              <X size={18}/> Cancelar
-            </button>
-          </div>
+        <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200">
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
             <div>
               <input
                 className="w-full p-5 bg-gray-50 rounded-2xl font-bold text-2xl outline-none border focus:border-[#007a3d] transition-colors disabled:opacity-50"
@@ -245,9 +234,9 @@ export default function BlogAdmin() {
                 onFileChange={file => {
                   if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview);
                   setPreview(URL.createObjectURL(file));
-                  setFormData(f => ({...f, imageFile: file}));
+                  setFormData(f => ({...f, imageFile: file, removeImage: false}));
                 }}
-                onClear={() => { if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview); setPreview(null); setFormData(f => ({...f, imageFile: null})); }}
+                onClear={() => { if (preview?.startsWith('blob:')) URL.revokeObjectURL(preview); setPreview(null); setFormData(f => ({...f, imageFile: null, removeImage: true})); }}
                 height="h-56"
                 label="Imagem de Capa (Hero)"
                 hint="Máximo 10MB (JPG, PNG, WebP)"
@@ -292,6 +281,6 @@ export default function BlogAdmin() {
           </form>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }

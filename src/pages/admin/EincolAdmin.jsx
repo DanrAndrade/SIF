@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useConfirm } from '../../components/admin/kit';
+import React, { useState, useEffect, useRef } from 'react';
+import { useConfirm, AdminPage, SaveButton, useDirty } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -104,8 +104,10 @@ const PdfUploadField = ({ index, title, url, onTitleChange, onFileChange }) => (
 export default function EincolAdmin() {
   const confirm = useConfirm();
   const [loading, setLoading] = useState(false);
+  const formRef = useRef(null);
   const [saved, setSaved] = useState(false);
   const [files, setFiles] = useState({});
+  const [loaded, setLoaded] = useState(false);
   const [form, setForm] = useState({
     active: 1,
     hero_title: 'EINCOL',
@@ -120,6 +122,7 @@ export default function EincolAdmin() {
     // imagens existentes
     hero_image: '', render_image: '', planta_image: ''
   });
+  const { dirty, markCleanSoon } = useDirty(form, { ready: loaded, extra: Object.keys(files).length > 0, settleMs: 1200 });
 
   useEffect(() => { fetchConfig(); }, []);
 
@@ -143,6 +146,8 @@ export default function EincolAdmin() {
         render_image: data.render_image || '',
         planta_image: data.planta_image || '',
       }));
+      setLoaded(true);
+      markCleanSoon(1200); // recarregou do banco = estado limpo
     } catch (err) { console.error('Erro ao carregar EINCOL:', err); }
   };
 
@@ -252,6 +257,7 @@ export default function EincolAdmin() {
       let data = null;
       try { data = JSON.parse(text); } catch { /* não é JSON */ }
       if (data?.success) {
+        window.showToast?.('Página EINCOL salva.');
         setFiles({}); // arquivos já enviados — não reenviar no próximo salvar
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -269,18 +275,11 @@ export default function EincolAdmin() {
   };
 
   return (
-    <div className="w-full space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">Página EINCOL</h2>
-          <p className="text-gray-500 text-sm mt-1">Configure todas as seções do evento especial EINCOL</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {saved && (
-            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-widest">
-              ✓ Salvo com sucesso!
-            </span>
-          )}
+    <AdminPage
+      title="Página EINCOL"
+      subtitle="Configure todas as seções do evento especial EINCOL."
+      save={{ onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, savedAt: saved ? Date.now() : null }}
+      actions={
           <button
             type="button"
             onClick={handleToggleActive}
@@ -294,10 +293,9 @@ export default function EincolAdmin() {
             {form.active ? <Eye size={14}/> : <EyeOff size={14}/>}
             {form.active ? 'Publicada' : 'Desativada'}
           </button>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-8">
+      }
+    >
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
         {/* SEÇÃO 1: HERO */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-6">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
@@ -480,11 +478,11 @@ export default function EincolAdmin() {
           )}
         </div>
 
-        <Button type="submit" variant="primary" icon={Save} className="w-full rounded-2xl font-black uppercase tracking-widest" isLoading={loading}>
-          Salvar Configuração EINCOL
-        </Button>
+        <div className="flex justify-end">
+          <SaveButton type="submit" saving={loading} label="Salvar configuração EINCOL" />
+        </div>
       </form>
-    </div>
+    </AdminPage>
   );
 }
 

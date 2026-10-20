@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AdminPage, AdminCard, SaveButton, SaveStatus, useDirty } from '../../components/admin/kit';
 import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
@@ -35,6 +36,7 @@ export default function ContatoAdmin() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
+  const { dirty, markClean } = useDirty(cfg, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${PAGE_KEY}`)
@@ -58,6 +60,8 @@ export default function ContatoAdmin() {
     try {
       // Só os campos deste formulário — o hero é salvo pelo PageHeaderForm.
       await savePageConfig(PAGE_KEY, cfg);
+      markClean(cfg);
+      window.showToast?.('Dados de contato salvos.');
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
     } catch (err) {
@@ -68,24 +72,14 @@ export default function ContatoAdmin() {
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">Página Contato</h2>
-        <p className="text-gray-500 text-sm mt-1">Configure o cabeçalho, dados de contato exibidos e textos do formulário.</p>
-      </div>
+    <AdminPage title="Página Contato" subtitle="Configure o cabeçalho, os dados de contato exibidos e os textos do formulário. Cada bloco tem o próprio botão de salvar.">
 
       <PageHeaderForm pageKey={PAGE_KEY} defaults={HERO_DEFAULTS} title="Cabeçalho da página /contato" />
 
-      <div className="bg-white p-6 rounded-xl border border-gray-200">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-base font-bold text-gray-800">Dados de contato exibidos na página</h3>
-          <div className="flex items-center gap-3">
-            {savedAt && <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5"><Check size={14} /> Salvo</span>}
-            <Button onClick={handleSave} disabled={saving || loading} isLoading={saving} variant="primary">
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-        </div>
+      <AdminCard
+        title="Dados de contato exibidos na página"
+        actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loading} label="Salvar dados" /></>}
+      >
 
         {loading ? <div className="text-center py-6"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div> : (
           <div className="space-y-5">
@@ -118,14 +112,14 @@ export default function ContatoAdmin() {
             </div>
           </div>
         )}
-      </div>
+      </AdminCard>
 
       <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
         <p className="text-xs text-emerald-800">
           <strong>📌 Sobre o formulário:</strong> O formulário em si não é editável (campos fixos: Nome, E-mail, Telefone, Assunto, Mensagem). As mensagens recebidas aparecem na aba <strong>"Leads / Contato"</strong>.
         </p>
       </div>
-    </div>
+    </AdminPage>
   );
 }
 

@@ -320,6 +320,12 @@ if ($resource === 'timeline') {
             $values[] = intval($_POST['sort_order']);
         }
 
+        // Mostrar/ocultar o marco no site
+        if (isset($_POST['active'])) {
+            $fields[] = 'active = ?';
+            $values[] = intval($_POST['active']);
+        }
+
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $url = uploadInstitucionalFile($_FILES['image'], 'timeline');
             if ($url) { $fields[] = 'image_url = ?'; $values[] = $url; }

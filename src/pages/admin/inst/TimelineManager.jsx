@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm } from '../../../components/admin/kit';
+import { useConfirm, ItemActions, moveItem } from '../../../components/admin/kit';
 import { Plus, Trash2, Save, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
@@ -73,24 +73,38 @@ export default function TimelineManager() {
 
   const handleDelete = async (id) => {
     if (!(await confirm({ title: 'Remover este marco da Linha do Tempo?', confirmLabel: 'Remover' }))) return;
-    await fetch(API + `?resource=timeline&id=${id}`, { method: 'DELETE' });
+    await apiRequest(API + `?resource=timeline&id=${id}`, { method: 'DELETE' }).catch(toastError);
     fetch_();
   };
 
   const handleMove = async (index, dir) => {
-    const newItems = [...items];
-    const swapIdx = index + dir;
-    if (swapIdx < 0 || swapIdx >= newItems.length) return;
-    [newItems[index], newItems[swapIdx]] = [newItems[swapIdx], newItems[index]];
-    // Atualiza sort_order dos dois
-    for (let i = 0; i < newItems.length; i++) {
-      const fd = new FormData();
-      fd.append('_method', 'PUT');
-      fd.append('id', newItems[i].id);
-      fd.append('sort_order', i + 1);
-      await fetch(API + '?resource=timeline', { method: 'POST', body: fd });
-    }
+    const newItems = moveItem(items, index, dir);
+    if (newItems === items) return;
+    setItems(newItems); // mostra a nova ordem na hora
+    try {
+      for (let i = 0; i < newItems.length; i++) {
+        const fd = new FormData();
+        fd.append('_method', 'PUT');
+        fd.append('id', newItems[i].id);
+        fd.append('sort_order', String(i + 1));
+        await apiRequest(API + '?resource=timeline', { method: 'POST', body: fd });
+      }
+    } catch (err) { toastError(err); }
     fetch_();
+  };
+
+  // Mostrar/ocultar o marco no site sem excluir
+  const handleToggleVisible = async (item) => {
+    const visible = item.active == 1 || item.active === undefined;
+    const fd = new FormData();
+    fd.append('_method', 'PUT');
+    fd.append('id', item.id);
+    fd.append('active', visible ? '0' : '1');
+    try {
+      await apiRequest(API + '?resource=timeline', { method: 'POST', body: fd });
+      window.showToast?.(visible ? 'Marco ocultado do site.' : 'Marco visível no site.');
+      fetch_();
+    } catch (err) { toastError(err); }
   };
 
   return (
@@ -161,12 +175,16 @@ export default function TimelineManager() {
                     <p className="text-xs text-gray-400 truncate">{item.content}</p>
                     <p className="text-[10px] text-gray-300 mt-0.5">{item.layout === 'image-left' ? 'Img ← Texto' : 'Texto → Img'}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => handleMove(idx, -1)} disabled={idx === 0} className="p-1.5 rounded-lg bg-gray-100 text-gray-400 hover:bg-gray-200 disabled:opacity-30 transition-colors"><ArrowUp size={14} /></button>
-                    <button onClick={() => handleMove(idx, 1)} disabled={idx === items.length - 1} className="p-1.5 rounded-lg bg-gray-100 text-gray-400 hover:bg-gray-200 disabled:opacity-30 transition-colors"><ArrowDown size={14} /></button>
-                    <button onClick={() => setEditingId(item.id)} className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-600 transition-colors">Editar</button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all"><Trash2 size={14} /></button>
-                  </div>
+                  <ItemActions
+                    size={14}
+                    onMove={(dir) => handleMove(idx, dir)}
+                    isFirst={idx === 0}
+                    isLast={idx === items.length - 1}
+                    visible={item.active == 1 || item.active === undefined}
+                    onToggleVisible={() => handleToggleVisible(item)}
+                    onEdit={() => setEditingId(item.id)}
+                    onDelete={() => handleDelete(item.id)}
+                  />
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useConfirm } from '../../components/admin/kit';
+import { useState, useEffect, useRef } from 'react';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
 import { Plus, Edit3, Trash2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -37,6 +37,8 @@ export default function ProjetosAdmin() {
   const [sectionsUploading, setSectionsUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const formRef = useRef(null);
+  const { dirty } = useDirty(form, { ready: view === 'form', settleMs: 1200 });
   const [preview, setPreview] = useState(null);
 
   useEffect(() => { fetchProjetos(); }, []);
@@ -86,9 +88,10 @@ export default function ProjetosAdmin() {
     fd.append('id', p.id);
     fd.append('active', p.active == 1 ? 0 : 1);
     try {
-      await fetch(API_URL, { method: 'POST', body: fd });
+      await apiRequest(API_URL, { method: 'POST', body: fd });
+      window.showToast?.(p.active == 1 ? 'Ocultado do site.' : 'Publicado no site.');
       fetchProjetos();
-    } catch { window.showToast('Erro ao alterar visibilidade.'); }
+    } catch (err) { toastError(err); }
   };
 
   const handleSubmit = async (e) => {
@@ -107,6 +110,7 @@ export default function ProjetosAdmin() {
     fd.append('extra_data', JSON.stringify({ sections: form.sections }));
     if (editingId) fd.append('id', editingId);
     if (form.imageFile) fd.append('image', form.imageFile);
+    if (editingId && form.removeImage && !form.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
     else if (form.image_url) fd.append('image_url', form.image_url);
 
     try {
@@ -119,22 +123,23 @@ export default function ProjetosAdmin() {
   const reset = () => { setEditingId(null); setForm(emptyForm); setPreview(null); setView('list'); };
 
   return (
-    <div className="w-full relative">
+    <AdminPage
+      title={view === 'list' ? 'Projetos P&D' : (editingId ? 'Editar Projeto' : 'Novo Projeto')}
+      subtitle={view === 'list' ? 'Gerencie os projetos de pesquisa e inovação publicados no site' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
+      actions={view === 'list'
+        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo projeto</PrimaryButton>
+        : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) reset(); }}>Cancelar</SecondaryButton>}
+      save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
+    >
 
       {view === 'list' && <PageHeaderForm pageKey="projetos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /projetos" />}
       {view === 'list' && <PageContactForm pageKey="projetos" title="Contato responsável por Projetos" />}
 
       {/* LISTA */}
       {view === 'list' && (
-        <div className="bg-white rounded-[40px] shadow-sm overflow-hidden border border-gray-100 mb-12">
-          <div className="p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">Projetos P&D</h2>
-              <p className="text-gray-500 text-sm mt-1">Gerencie os projetos de pesquisa e inovação publicados no site</p>
-            </div>
-            <Button onClick={() => setView('form')} variant="primary" className="flex items-center gap-2 py-4 px-6 rounded-2xl font-bold">
-              <Plus size={20}/> Novo Projeto
-            </Button>
+        <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest">Projetos P&D cadastrados</h3>
           </div>
           <div className="divide-y divide-gray-50">
             {projetos.length === 0 ? (
@@ -158,15 +163,12 @@ export default function ProjetosAdmin() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => handleToggleActive(p)}
-                    title={p.active == 1 ? 'Publicado — clique para ocultar' : 'Oculto — clique para publicar'}
-                    className={`p-4 rounded-2xl transition-all shadow-sm ${p.active == 1 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-400 hover:text-white'}`}
-                  >
-                    {p.active == 1 ? <Eye size={18}/> : <EyeOff size={18}/>}
-                  </button>
-                  <button onClick={() => handleEdit(p)} className="p-4 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit3 size={18}/></button>
-                  <button onClick={() => handleDelete(p.id)} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={18}/></button>
+                  <ItemActions
+                    visible={p.active == 1}
+                    onToggleVisible={() => handleToggleActive(p)}
+                    onEdit={() => handleEdit(p)}
+                    onDelete={() => handleDelete(p.id)}
+                  />
                 </div>
               </div>
             ))}
@@ -176,16 +178,8 @@ export default function ProjetosAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12">
-          <div className="flex justify-between items-center mb-8 pb-6 border-b">
-            <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">
-              {editingId ? 'Editar Projeto' : 'Novo Projeto'}
-            </h2>
-            <button onClick={reset} className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-2xl flex items-center gap-2 hover:bg-gray-200 transition-colors">
-              <X size={18}/> Cancelar
-            </button>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1 space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Título do Projeto *</label>
@@ -220,7 +214,8 @@ export default function ProjetosAdmin() {
 
             <ImageUploadArea
               preview={preview}
-              onFileChange={file => { setPreview(URL.createObjectURL(file)); setForm(f => ({...f, imageFile: file})); }}
+              onFileChange={file => { setPreview(URL.createObjectURL(file)); setForm(f => ({...f, removeImage: false, imageFile: file})); }}
+              onClear={() => { setPreview(null); setForm(f => ({...f, imageFile: null, image_url: '', removeImage: true})); }}
               height="h-48"
               label="Imagem de Capa"
             />
@@ -237,13 +232,11 @@ export default function ProjetosAdmin() {
             />
 
             <div className="pt-12">
-              <Button type="submit" className="w-full font-bold uppercase tracking-widest rounded-2xl" variant="primary" isLoading={loading} disabled={loading || sectionsUploading}>
-                {editingId ? 'Salvar Alterações' : 'Publicar Projeto'}
-              </Button>
+              <div className="flex justify-end"><SaveButton type="submit" saving={loading} disabled={sectionsUploading} label={editingId ? 'Salvar alterações' : 'Publicar Projeto'} /></div>
             </div>
           </form>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }

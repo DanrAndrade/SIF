@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm } from '../../../components/admin/kit';
+import { useConfirm, ItemActions, moveItem } from '../../../components/admin/kit';
 import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
@@ -55,7 +55,7 @@ const STATIC_TEAM = [
     .map(f => ({ ...parseFile(f, 'Consultores'), group: 'Consultores' })),
 ];
 
-function MemberCard({ member, onDelete, onUpdate }) {
+function MemberCard({ member, onDelete, onUpdate, onMove, isFirst, isLast, onToggleVisible }) {
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...member });
@@ -98,12 +98,17 @@ function MemberCard({ member, onDelete, onUpdate }) {
           <p className="text-xs text-[#007a3d] truncate">{member.role}</p>
           <p className="text-[10px] text-gray-400">{member.group_name}</p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button onClick={() => setEditing(true)} className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-600 transition-colors">Editar</button>
-          <button onClick={async () => { if (await confirm({ title: `Remover ${member.name}?`, message: 'A pessoa sai da página Institucional.', confirmLabel: 'Remover' })) onDelete(member.id); }} className="p-1.5 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all">
-            <Trash2 size={14} />
-          </button>
-        </div>
+        <ItemActions
+          size={14}
+          onMove={onMove}
+          isFirst={isFirst}
+          isLast={isLast}
+          visible={member.active == 1}
+          onToggleVisible={onToggleVisible}
+          onEdit={() => setEditing(e => !e)}
+          editing={editing}
+          onDelete={async () => { if (await confirm({ title: `Remover ${member.name}?`, message: 'A pessoa sai da página Institucional.', confirmLabel: 'Remover' })) onDelete(member.id); }}
+        />
       </div>
 
       {editing && (
@@ -201,7 +206,10 @@ export default function TeamManager() {
   useEffect(() => { fetch_(); }, []);
 
   const handleDelete = async (id) => {
-    await fetch(API + `?resource=team&id=${id}`, { method: 'DELETE' });
+    try {
+      await apiRequest(API + `?resource=team&id=${id}`, { method: 'DELETE' });
+      window.showToast?.('Pessoa removida.');
+    } catch (err) { toastError(err); }
     fetch_();
   };
 
@@ -232,6 +240,35 @@ export default function TeamManager() {
   };
 
   const groupMembers = members.filter(m => m.group_name === activeGroup);
+
+  // Mudar a ordem dentro do grupo (grava a nova posição de todos do grupo)
+  const handleMove = async (index, dir) => {
+    const next = moveItem(groupMembers, index, dir);
+    if (next === groupMembers) return;
+    setMembers(prev => [...prev.filter(m => m.group_name !== activeGroup), ...next]);
+    try {
+      for (let i = 0; i < next.length; i++) {
+        const fd = new FormData();
+        fd.append('_method', 'PUT');
+        fd.append('id', next[i].id);
+        fd.append('sort_order', String(i + 1));
+        await apiRequest(API + '?resource=team', { method: 'POST', body: fd });
+      }
+    } catch (err) { toastError(err); fetch_(); }
+  };
+
+  // Mostrar/ocultar a pessoa no site sem excluir
+  const handleToggleVisible = async (m) => {
+    const fd = new FormData();
+    fd.append('_method', 'PUT');
+    fd.append('id', m.id);
+    fd.append('active', m.active == 1 ? '0' : '1');
+    try {
+      await apiRequest(API + '?resource=team', { method: 'POST', body: fd });
+      window.showToast?.(m.active == 1 ? `${m.name} ocultado(a) do site.` : `${m.name} visível no site.`);
+      fetch_();
+    } catch (err) { toastError(err); }
+  };
 
   return (
     <div className="space-y-6">
@@ -284,7 +321,11 @@ export default function TeamManager() {
         <div className="text-center py-8 text-gray-400 text-sm">Nenhum membro neste grupo ainda.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {groupMembers.map(m => <MemberCard key={m.id} member={m} onDelete={handleDelete} onUpdate={fetch_} />)}
+          {groupMembers.map((m, i) => (
+            <MemberCard key={m.id} member={m} onDelete={handleDelete} onUpdate={fetch_}
+              onMove={(dir) => handleMove(i, dir)} isFirst={i === 0} isLast={i === groupMembers.length - 1}
+              onToggleVisible={() => handleToggleVisible(m)} />
+          ))}
         </div>
       )}
     </div>

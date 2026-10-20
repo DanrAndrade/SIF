@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useConfirm } from '../../components/admin/kit';
+import React, { useState, useEffect, useRef } from 'react';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
 import { Target, Trash2, Edit3, X, Plus, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -39,6 +39,8 @@ export default function GTAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const formRef = useRef(null);
+  const { dirty } = useDirty(formData, { ready: view === 'form', settleMs: 1200 });
 
   useEffect(() => { fetchGts(); }, []);
 
@@ -82,9 +84,10 @@ export default function GTAdmin() {
     fd.append('id', gt.id);
     fd.append('active', gt.active == 1 ? 0 : 1);
     try {
-      await fetch(API_URL, { method: 'POST', body: fd });
+      await apiRequest(API_URL, { method: 'POST', body: fd });
+      window.showToast?.(gt.active == 1 ? 'Ocultado do site.' : 'Publicado no site.');
       fetchGts();
-    } catch { window.showToast('Erro ao alterar visibilidade.'); }
+    } catch (err) { toastError(err); }
   };
 
   const handleSubmit = async (e) => {
@@ -103,6 +106,7 @@ export default function GTAdmin() {
     fd.append('extra_data', JSON.stringify({ sections: formData.sections }));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
+    if (editingId && formData.removeImage && !formData.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
 
     try {
       await apiRequest(API_URL, { method: 'POST', body: fd });
@@ -117,22 +121,23 @@ export default function GTAdmin() {
   };
 
   return (
-    <div className="w-full relative">
+    <AdminPage
+      title={view === 'list' ? 'Grupos Temáticos' : (editingId ? 'Editar Grupo' : 'Novo Grupo Temático')}
+      subtitle={view === 'list' ? 'Gerencie os clusters de pesquisa e inovação da SIF' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
+      actions={view === 'list'
+        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo grupo temático</PrimaryButton>
+        : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
+      save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
+    >
 
       {view === 'list' && <PageHeaderForm pageKey="gt" defaults={HERO_DEFAULTS} title="Cabeçalho da página /grupos-tematicos" />}
       {view === 'list' && <PageContactForm pageKey="gt" title="Contato responsável por Grupos Temáticos" />}
 
       {/* LISTA */}
       {view === 'list' && (
-        <div className="bg-white rounded-[40px] shadow-sm overflow-hidden border border-gray-100 mb-12">
-          <div className="p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">Grupos Temáticos</h2>
-              <p className="text-gray-500 text-sm mt-1">Gerencie os clusters de pesquisa e inovação da SIF</p>
-            </div>
-            <Button onClick={() => setView('form')} variant="primary" className="flex items-center gap-2 py-4 px-6 rounded-2xl font-bold">
-              <Plus size={20}/> Novo Grupo Temático
-            </Button>
+        <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest">Grupos Temáticos cadastrados</h3>
           </div>
 
           <div className="divide-y divide-gray-50">
@@ -150,15 +155,12 @@ export default function GTAdmin() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => handleToggleActive(gt)}
-                    title={gt.active == 1 ? 'Publicado — clique para ocultar' : 'Oculto — clique para publicar'}
-                    className={`p-4 rounded-2xl transition-all shadow-sm ${gt.active == 1 ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-400 hover:text-white'}`}
-                  >
-                    {gt.active == 1 ? <Eye size={18}/> : <EyeOff size={18}/>}
-                  </button>
-                  <button onClick={() => handleEdit(gt)} className="p-4 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit3 size={18}/></button>
-                  <button onClick={() => handleDelete(gt.id)} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm"><Trash2 size={18}/></button>
+                  <ItemActions
+                    visible={gt.active == 1}
+                    onToggleVisible={() => handleToggleActive(gt)}
+                    onEdit={() => handleEdit(gt)}
+                    onDelete={() => handleDelete(gt.id)}
+                  />
                 </div>
               </div>
             ))}
@@ -168,17 +170,9 @@ export default function GTAdmin() {
 
       {/* FORMULÁRIO */}
       {view === 'form' && (
-        <div className="bg-white p-6 md:p-10 rounded-[40px] shadow-sm border border-gray-100 mb-12">
-          <div className="flex justify-between items-center mb-8 pb-6 border-b">
-            <h2 className="text-3xl font-bold uppercase text-[#007a3d] tracking-tighter">
-              {editingId ? 'Editar Grupo' : 'Novo Grupo Temático'}
-            </h2>
-            <button onClick={resetForm} className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-2xl flex items-center gap-2 hover:bg-gray-200 transition-colors">
-              <X size={18}/> Cancelar
-            </button>
-          </div>
+        <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200">
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -195,7 +189,8 @@ export default function GTAdmin() {
               </div>
               <ImageUploadArea
                 preview={preview}
-                onFileChange={file => { setPreview(URL.createObjectURL(file)); setFormData(f => ({...f, imageFile: file})); }}
+                onFileChange={file => { setPreview(URL.createObjectURL(file)); setFormData(f => ({...f, removeImage: false, imageFile: file})); }}
+                onClear={() => { setPreview(null); setFormData(f => ({...f, imageFile: null, image_url: '', removeImage: true})); }}
                 height="h-44"
                 label="Foto de Capa do Grupo"
               />
@@ -224,13 +219,11 @@ export default function GTAdmin() {
             />
 
             <div className="pt-12">
-              <Button type="submit" className="w-full font-bold uppercase tracking-widest rounded-2xl" variant="primary" isLoading={loading} disabled={loading || sectionsUploading}>
-                {editingId ? 'Salvar Alterações' : 'Publicar Grupo Temático'}
-              </Button>
+              <div className="flex justify-end"><SaveButton type="submit" saving={loading} disabled={sectionsUploading} label={editingId ? 'Salvar alterações' : 'Publicar Grupo Temático'} /></div>
             </div>
           </form>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
