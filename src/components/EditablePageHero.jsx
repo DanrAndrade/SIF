@@ -52,7 +52,7 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{c.hero_badge}</span>
           </div>
         )}
-        <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.95] md:leading-[0.9] tracking-tighter mb-6 md:mb-8">
+        <h1 className="sif-title text-4xl sm:text-5xl md:text-8xl text-white leading-[0.95] md:leading-[0.9] tracking-tighter mb-6 md:mb-8">
           {c.hero_title_line1} <br/>
           <span className="text-[#007a3d]">{c.hero_title_highlight}</span>
         </h1>

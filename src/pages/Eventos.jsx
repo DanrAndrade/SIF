@@ -103,7 +103,7 @@ function EventoCard({ ev, faded = false }) {
 function SectionTitle({ title, accent }) {
   return (
     <div className="mb-16 border-b border-gray-100 pb-10">
-      <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tighter">
+      <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tighter">
         {title} <span className="text-[#007a3d]">{accent}</span>
       </h2>
     </div>
@@ -163,7 +163,7 @@ export default function Eventos() {
                       <Sparkles size={12} className="text-[#7FBA00]" />
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Evento Especial</span>
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-white tracking-tighter leading-[0.95] mb-3">
+                    <h2 className="sif-title text-4xl md:text-5xl text-white tracking-tighter leading-[0.95] mb-3">
                       EINCOL
                     </h2>
                     <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-xl font-medium">

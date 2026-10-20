@@ -85,7 +85,7 @@ function ProjetoCard({ proj }) {
 function SectionTitle({ title, accent }) {
   return (
     <div className="mb-16 border-b border-gray-100 pb-10">
-      <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tighter">
+      <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tighter">
         {title} <span className="text-[#007a3d]">{accent}</span>
       </h2>
     </div>

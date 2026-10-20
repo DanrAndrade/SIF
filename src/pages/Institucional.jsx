@@ -126,7 +126,7 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                 <div className={`space-y-6 ${isRight ? 'order-2 md:order-1 text-right' : 'order-2 md:order-2'}`}>
                      <div className="flex items-center gap-4 group-hover/item:pl-2 transition-all">
                         {!isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
-                        <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937]">
+                        <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937]">
                             <span dangerouslySetInnerHTML={{ __html: title }} />
                         </h2>
                         {isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
@@ -409,7 +409,7 @@ export default function Institucional() {
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{cfg.hero_badge}</span>
           </div>
 
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
+          <h1 className="sif-title text-5xl md:text-8xl text-white leading-[0.9] tracking-tighter mb-8">
               {cfg.hero_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
           </h1>
@@ -441,7 +441,7 @@ export default function Institucional() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 <div className="space-y-8 animate-in slide-in-from-left duration-1000">
                     <div className="w-16 h-1.5 bg-[#007a3d]"></div>
-                    <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[1.0] tracking-tight">
+                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[1.0] tracking-tight">
                         {cfg.quem_somos_title_line1} <br/><span className="text-[#007a3d]">{cfg.quem_somos_title_highlight}</span>
                     </h2>
                     <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text1}</p>
@@ -475,7 +475,7 @@ export default function Institucional() {
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-20">
                     <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block underline underline-offset-8">{cfg.team_tag}</span>
-                    <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937]">{cfg.team_title}</h2>
+                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937]">{cfg.team_title}</h2>
                     <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
@@ -492,7 +492,7 @@ export default function Institucional() {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                     <div className="w-full max-w-2xl text-left">
                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.areas_tag}</span>
-                        <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
+                        <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8 items-start lg:items-center w-full lg:w-auto">
@@ -546,7 +546,7 @@ export default function Institucional() {
                 {/* Cabeçalho */}
                 <div className="mb-20 max-w-3xl">
                     <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-6 block underline underline-offset-8">{cfg.estatuto_tag}</span>
-                    <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-6">
+                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-tight mb-6">
                         {cfg.estatuto_title_line1} <br/><span className="text-[#007a3d]">{cfg.estatuto_title_highlight}</span>
                     </h2>
                     <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
@@ -616,7 +616,7 @@ export default function Institucional() {
                 <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                     <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
                     <span className="text-[#007a3d] font-bold uppercase tracking-[0.4em] text-xs mb-6 block">{cfg.historia_tag}</span>
-                    <h2 className="text-5xl md:text-8xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter">
+                    <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] leading-[0.9] tracking-tighter">
                         {cfg.historia_title_line1} <span className="text-[#007a3d]">{cfg.historia_title_highlight}</span><br/>{cfg.historia_title_line2}
                     </h2>
                 </div>
@@ -644,7 +644,7 @@ export default function Institucional() {
                 {/* CTA FINAL */}
                 <div className="mt-32 text-center">
                     <div className="timeline-marker w-1 h-1 bg-transparent mb-12 mx-auto"></div>
-                    <h2 className="text-5xl md:text-8xl font-bold font-heading uppercase text-[#1f2937] mb-12 leading-none">
+                    <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] mb-12 leading-none">
                         {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
                     </h2>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">

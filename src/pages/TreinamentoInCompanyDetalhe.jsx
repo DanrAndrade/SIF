@@ -47,7 +47,7 @@ export default function TreinamentoInCompanyDetalhe() {
   if (!training) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Treinamento não encontrado</h2>
+        <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Treinamento não encontrado</h2>
         <Button href="/treinamentos-in-company" variant="primary" className="rounded-xl">Voltar para Treinamentos In-Company</Button>
       </div>
     );
@@ -79,7 +79,7 @@ export default function TreinamentoInCompanyDetalhe() {
             <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-1">Voltar aos Treinamentos In-Company</span>
           </Link>
           <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter leading-[0.9]">
+            <h1 className="sif-title sif-title-strong text-5xl md:text-7xl text-white mb-8 tracking-tighter leading-[0.9]">
               {training.title}
             </h1>
           </div>

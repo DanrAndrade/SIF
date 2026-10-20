@@ -195,7 +195,7 @@ export default function ProdutosServicos() {
 
               return (
                 <div key={tab.id} className="space-y-10 max-w-5xl mx-auto">
-                  <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] tracking-tight">
+                  <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] tracking-tight">
                     {titleLine1}{' '}
                     <span className="text-[#007a3d]">{titleHighlight}</span>
                   </h2>
@@ -232,7 +232,7 @@ export default function ProdutosServicos() {
                   <Briefcase size={12} className="text-[#7FBA00]" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Oportunidades</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-white tracking-tighter leading-[0.95] mb-4">
+                <h2 className="sif-title text-4xl md:text-5xl text-white tracking-tighter leading-[0.95] mb-4">
                   Conheça as vagas do <span className="text-[#7FBA00]">Programa Germinar</span>
                 </h2>
                 <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">

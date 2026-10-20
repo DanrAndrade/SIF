@@ -45,7 +45,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                         <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7FBA00]">{tag}</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold uppercase leading-[1.1] tracking-tight text-white">
+                    <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.1] tracking-tight text-white">
                         {titleLine1} <br/>
                         <span className="text-[#cce399]">{titleLine2}</span>
                     </h1>

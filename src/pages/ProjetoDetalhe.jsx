@@ -103,7 +103,7 @@ export default function ProjetoDetalhe() {
             )}
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-heading uppercase text-white leading-tight tracking-tighter mb-8 max-w-5xl">
+          <h1 className="sif-title text-4xl md:text-6xl lg:text-7xl text-white leading-tight tracking-tighter mb-8 max-w-5xl">
             {projeto.title}
           </h1>
 

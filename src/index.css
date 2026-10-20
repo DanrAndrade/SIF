@@ -27,9 +27,32 @@ html.lenis, html.lenis body { height: auto; }
   --container: 1280px;
 }
 
+/* ─── TIPOGRAFIA (um lugar só) ─────────────────────────────────────────
+   Para trocar a fonte do site: carregue a fonte no index.html (link do
+   Google Fonts já preparado lá, comentado) e mude --sif-font-sans/heading.
+   Títulos das páginas (h1/h2) usam a classe .sif-title: caixa-alta e peso
+   vêm de --sif-title-transform / --sif-title-weight. Para tirar a caixa-alta
+   e o negrito de todos os títulos: transform → none e peso → 500/600.
+   ─────────────────────────────────────────────────────────────────────── */
+:root {
+  --sif-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --sif-font-heading: var(--sif-font-sans);
+  --sif-title-transform: uppercase;
+  --sif-title-weight: 700;        /* títulos "font-bold" */
+  --sif-title-weight-strong: 900; /* títulos que eram "font-black" */
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
-h2.section-heading { font-family: 'Oswald', sans-serif; }
+body { font-family: var(--sif-font-sans); overflow-x: hidden; }
+
+@layer components {
+  .sif-title {
+    font-family: var(--sif-font-heading);
+    text-transform: var(--sif-title-transform);
+    font-weight: var(--sif-title-weight);
+  }
+  .sif-title-strong { font-weight: var(--sif-title-weight-strong); }
+}
 
 a { text-decoration: none; color: inherit; transition: 0.2s ease; }
 ul { list-style: none; }

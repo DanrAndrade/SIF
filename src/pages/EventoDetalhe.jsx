@@ -58,7 +58,7 @@ export default function EventoDetalhe() {
   if (!event || !event.title) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Evento não encontrado</h2>
+        <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Evento não encontrado</h2>
         <Button href="/eventos" variant="primary" className="rounded-xl font-bold tracking-tight">Voltar para Eventos</Button>
       </div>
     );
@@ -95,7 +95,7 @@ export default function EventoDetalhe() {
             <span className="inline-block px-4 py-1.5 rounded-full bg-[#7FBA00] text-white text-[10px] font-black uppercase tracking-widest mb-6 shadow-lg shadow-emerald-900/20">
               {event.date || 'Data a confirmar'}
             </span>
-            <h1 className="text-5xl md:text-8xl font-black text-white mb-8 uppercase tracking-tighter leading-[0.9]">
+            <h1 className="sif-title sif-title-strong text-5xl md:text-8xl text-white mb-8 tracking-tighter leading-[0.9]">
               {event.title}
             </h1>
             

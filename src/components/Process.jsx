@@ -65,7 +65,7 @@ export default function Process({ config = {} }) {
             <div className="container relative z-10 flex flex-col items-center">
                 <div className="max-w-2xl px-6 w-full text-center mb-10">
                     <span className="inline-block text-[#4ADE80] font-bold tracking-[0.2em] uppercase text-[10px] mb-2">{sectionTag}</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight uppercase">{sectionTitle}</h2>
+                    <h2 className="sif-title text-3xl md:text-4xl text-white mb-3 tracking-tight">{sectionTitle}</h2>
                     <p className="text-gray-400 text-sm md:text-base font-light">{sectionSubtitle}</p>
                 </div>
 

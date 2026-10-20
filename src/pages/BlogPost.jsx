@@ -106,7 +106,7 @@ export default function BlogPost() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Artigo não encontrado</h2>
+        <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Artigo não encontrado</h2>
         <p className="text-gray-500 mb-6 max-w-md">{error || 'Este artigo não está mais disponível.'}</p>
         <Button href="/blog" variant="primary" className="rounded-xl">Voltar ao Blog</Button>
       </div>
@@ -154,7 +154,7 @@ export default function BlogPost() {
 
           <div className="max-w-4xl flex flex-col gap-6">
             <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest border border-white/10 w-fit">Blog &amp; Notícias</span>
-            <h1 className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter leading-[0.95]">
+            <h1 className="sif-title text-4xl md:text-6xl text-white tracking-tighter leading-[0.95]">
               {post.title}
             </h1>
             <p className="text-white/60 text-sm font-bold uppercase tracking-widest flex items-center gap-2">

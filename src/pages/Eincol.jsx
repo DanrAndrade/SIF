@@ -76,7 +76,7 @@ export default function Eincol() {
             <span className="text-white text-[10px] font-black tracking-[0.25em] uppercase">Evento Especial SIF</span>
           </div>
 
-          <h1 className="text-6xl sm:text-8xl md:text-[10rem] font-black text-white uppercase tracking-tighter leading-none mb-6 drop-shadow-2xl">
+          <h1 className="sif-title sif-title-strong text-6xl sm:text-8xl md:text-[10rem] text-white tracking-tighter leading-none mb-6 drop-shadow-2xl">
             {title}
           </h1>
 
@@ -148,7 +148,7 @@ export default function Eincol() {
                 )}
                 <div className="flex-shrink-0 md:w-72 text-center md:text-left">
                   <span className="text-[#7FBA00] text-[10px] font-black uppercase tracking-[0.25em] block mb-4">Planta do Evento</span>
-                  <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-6">
+                  <h2 className="sif-title sif-title-strong text-3xl md:text-4xl text-white tracking-tighter mb-6">
                     Conheça o<br /><span className="text-[#007a3d]">Espaço</span>
                   </h2>
                   {config.planta_url && (
@@ -169,7 +169,7 @@ export default function Eincol() {
         {pdfs.length > 0 && (
           <section className="py-16 bg-[#f8f9fa] border-t border-gray-100">
             <div className="container mx-auto px-6 max-w-4xl">
-              <h2 className="text-2xl font-black uppercase tracking-tighter text-[#1f2937] mb-8">
+              <h2 className="sif-title sif-title-strong text-2xl tracking-tighter text-[#1f2937] mb-8">
                 Downloads
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -200,7 +200,7 @@ export default function Eincol() {
         {tabs.length > 0 && (
           <section className="py-24 bg-white">
             <div className="container mx-auto px-6 max-w-5xl">
-              <h2 className="text-4xl font-black uppercase tracking-tighter text-[#1f2937] mb-12">
+              <h2 className="sif-title sif-title-strong text-4xl tracking-tighter text-[#1f2937] mb-12">
                 Programação
               </h2>
 

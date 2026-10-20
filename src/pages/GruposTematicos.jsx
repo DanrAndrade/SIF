@@ -64,7 +64,7 @@ export default function GruposTematicos() {
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="max-w-3xl mb-24">
-            <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
+            <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
             <p className="text-gray-500 text-xl font-medium leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
           </div>
 

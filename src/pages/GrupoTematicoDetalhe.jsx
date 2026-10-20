@@ -54,7 +54,7 @@ export default function GrupoTematicoDetalhe() {
   if (!gt || !gt.title) {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Grupo Temático não encontrado</h2>
+        <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Grupo Temático não encontrado</h2>
         <Button href="/grupos-tematicos" variant="primary" className="rounded-xl">Ver todos os Grupos</Button>
       </div>
     );
@@ -108,7 +108,7 @@ export default function GrupoTematicoDetalhe() {
               <IconComponent size={32} />
             </div>
             <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest border border-white/10 w-fit">Pesquisa Aplicada</span>
-            <h1 className="text-5xl md:text-8xl font-bold text-white uppercase tracking-tighter leading-[0.9]">
+            <h1 className="sif-title text-5xl md:text-8xl text-white tracking-tighter leading-[0.9]">
               {gt.title}
             </h1>
             <p className="text-white/60 text-base font-medium tracking-tight">SIF - Sociedade de Investigações Florestais</p>

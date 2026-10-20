@@ -176,7 +176,7 @@ export default function Contact() {
                         
                         <div className="mb-12">
                             <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">{cfg.form_tag}</span>
-                            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tight">{cfg.form_title_line1} <br/>{cfg.form_title_line2}</h2>
+                            <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] leading-tight tracking-tight">{cfg.form_title_line1} <br/>{cfg.form_title_line2}</h2>
                         </div>
                         
                         {status === 'success' && (

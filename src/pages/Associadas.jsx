@@ -142,7 +142,7 @@ export default function Associadas() {
               <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{cfg.hero_badge}</span>
           </div>
 
-          <h1 className="text-5xl md:text-8xl font-bold font-heading uppercase text-white leading-[0.9] tracking-tighter mb-8">
+          <h1 className="sif-title text-5xl md:text-8xl text-white leading-[0.9] tracking-tighter mb-8">
               {cfg.hero_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
           </h1>
@@ -174,7 +174,7 @@ export default function Associadas() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
         <div className="container mx-auto px-6 md:px-12 lg:px-24 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6">
+            <h2 className="sif-title text-3xl md:text-5xl mb-6">
               {cfg.beneficios_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.beneficios_title_highlight}</span>
             </h2>
@@ -197,7 +197,7 @@ export default function Associadas() {
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <div className="text-center mb-20">
             <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.logos_tag}</span>
-            <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
+            <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
             <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 

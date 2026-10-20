@@ -149,7 +149,7 @@ export default function Jobs() {
                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-gray-100 pb-10 gap-8">
                     <div>
                         <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.vagas_tag}</span>
-                        <h2 className="text-4xl md:text-5xl font-bold font-heading uppercase text-[#1f2937] tracking-tight">{cfg.vagas_title}</h2>
+                        <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tight">{cfg.vagas_title}</h2>
                     </div>
                     
 
@@ -325,7 +325,7 @@ function ApplicationModal({ job, onClose }) {
                               Passo {step} de 2
                           </span>
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-bold font-heading uppercase text-[#1f2937] leading-tight tracking-tighter">{job.title}</h2>
+                        <h2 className="sif-title text-3xl md:text-4xl text-[#1f2937] leading-tight tracking-tighter">{job.title}</h2>
                     </div>
                     <button onClick={onClose} className="w-12 h-12 bg-gray-50 text-[#1f2937] rounded-full flex items-center justify-center hover:bg-[#007a3d] hover:text-white transition-all"><X size={24} /></button>
                 </div>
