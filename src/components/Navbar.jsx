@@ -64,7 +64,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
     { name: 'Grupos Temáticos', href: '/grupos-tematicos' },
     { name: 'Blog', href: '/blog' },
     { 
-      name: 'Projetos & Transparência', 
+      name: 'Projetos', 
       href: '#', 
       submenu: [
         { name: 'Projetos', href: '/projetos' },
@@ -160,7 +160,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
             <div className="hidden lg:block z-20 relative group py-2">
                 <button className={`text-[10px] font-bold uppercase tracking-widest bg-transparent ${commonTextColor} hover:text-[#007a3d] transition-all duration-300 flex items-center gap-2 cursor-pointer`}>
                     <User size={14} />
-                    Área do Associado
+                    Conveniar
                     <ChevronDown size={12} className="opacity-50 group-hover:rotate-180 transition-transform" />
                 </button>
 
@@ -255,7 +255,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                     >
                         <div className="flex items-center gap-2">
                             <User size={16} className="text-[#007a3d]" />
-                            Área do Associado
+                            Conveniar
                         </div>
                         <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-[#007a3d]' : 'text-gray-300'}`} />
                     </button>
