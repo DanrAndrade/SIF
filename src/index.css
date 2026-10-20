@@ -53,70 +53,7 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.pl-responsive { padding-left: 24px; }
-@media (min-width: 1024px) {
-  .pl-responsive { padding-left: max(48px, calc((100vw - 1280px) / 2 + 48px)); }
-}
-
-/* Header Otimizado - Efeito Verde SIF */
-.header {
-  position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; 
-  padding: 20px 0; 
-  transition: background-color 0.6s ease-in-out, backdrop-filter 0.6s ease-in-out, padding 0.3s;
-  background-color: transparent;
-  backdrop-filter: blur(0px);
-}
-.header.scrolled {
-  background-color: rgba(60, 122, 67, 0.95); /* #3c7a43 com transparência */
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding: 16px 0;
-}
-.header-inner { display: flex; align-items: center; } 
-
-/* Logo */
-.logo {
-  font-size: 22px; font-weight: 900; color: white;
-  display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px;
-  margin-right: 40px;
-}
-.logo-icon {
-  width: 32px; height: 32px; background: white; color: var(--primary);
-  border-radius: 6px; display: flex; align-items: center; justify-content: center;
-}
-
-/* Navegação */
-.header-nav { margin-left: auto; margin-right: 32px; }
-.nav-list { display: flex; gap: 32px; }
-@media(max-width: 768px) { .nav-list { display: none; } }
-
-.nav-item {
-  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9);
-  text-transform: uppercase; letter-spacing: 1px;
-}
-.nav-item:hover { color: white; }
-.header.scrolled .nav-item:hover { color: var(--pill-green); } /* Hover Verde Pálido */
-
-.header-right { display: flex; align-items: center; gap: 16px; }
-
-/* Botões do Header */
-.btn-header {
-  padding: 8px 24px; font-size: 11px; border-radius: 99px;
-  background: transparent; 
-  border: 1px solid rgba(255,255,255,0.5);
-  color: white; 
-  font-weight: 700; text-transform: uppercase;
-  transition: 0.3s ease;
-  letter-spacing: 0.5px;
-}
-.btn-header:hover {
-  border-color: var(--pill-green);
-  background: var(--pill-green); 
-  color: var(--primary);
-}
-
-.mobile-toggle { display: none; color: white; margin-left: auto; }
-@media(max-width: 768px) { .mobile-toggle { display: block; } .header-nav { display: none; } }
+/* (CSS antigo do template — header/logo/nav — removido: o site usa a Navbar com Tailwind) */
 
 /* Animações e Otimizações */
 @keyframes subtle-pulse {
@@ -126,7 +63,6 @@ button { font-family: inherit; cursor: pointer; border: none; }
 
 .will-change-transform { will-change: transform; }
 .gpu-layer { transform: translateZ(0); backface-visibility: hidden; perspective: 1000px; }
-.optimize-paint { contain: paint layout; }
 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 .bg-noise { image-rendering: pixelated; }
 

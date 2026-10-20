@@ -22,3 +22,9 @@ deploy-hostgator/
 
 # Cache de boot gerado em runtime pelo page_content.php
 sif-api/cache/
+
+# Build do Vite (gerado com npm run build; nao versionar)
+dist/
+
+# Pacotes zip de build/deploy gerados localmente
+*.zip
