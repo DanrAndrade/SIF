@@ -14,7 +14,11 @@ import { Save, Check, Loader2, CircleDot } from 'lucide-react';
 export default function AdminPage({ title, subtitle, actions, save, tabs, activeTab, onTabChange, children }) {
   return (
     <div className="w-full">
-      <div className="sticky top-0 z-30 -mx-4 lg:-mx-12 px-4 lg:px-12 py-4 bg-[#f3f4f6]/95 backdrop-blur">
+      {/* A área de rolagem do painel tem margem interna (p-4 / lg:p-12). O topo
+          negativo + margem negativa + padding de mesmo valor faz a barra colar
+          na borda de cima de verdade, cobrindo essa margem (sem frestinha de
+          conteúdo aparecendo por cima) e sem mudar a posição inicial. */}
+      <div className="sticky -top-4 lg:-top-12 z-30 -mt-4 lg:-mt-12 -mx-4 lg:-mx-12 px-4 lg:px-12 pt-4 lg:pt-12 pb-4 bg-[#f3f4f6] border-b border-gray-200/70">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="min-w-0">
