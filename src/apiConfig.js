@@ -28,7 +28,7 @@ export const stripNbsp = (str) => {
 };
 
 // Extrai o link de embed (YouTube/Vimeo) a partir de qualquer URL do vídeo.
-const toVideoEmbed = (url) => {
+export const toVideoEmbed = (url) => {
   if (!url) return null;
   let m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
   if (m) return `https://www.youtube.com/embed/${m[1]}`;

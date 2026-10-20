@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LoadError from '../components/ui/LoadError';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -18,6 +20,8 @@ const HERO_DEFAULTS = {
 };
 
 export default function Treinamentos() {
+  const [loadError, setLoadError] = useState(false);
+  usePageTitle('Treinamentos'); // título da aba do navegador / Google
   const [trainings, setTrainings] = useState([]);
   const [segments, setSegments] = useState(['Todos']);
   const [selectedSegment, setSelectedSegment] = useState('Todos');
@@ -29,7 +33,9 @@ export default function Treinamentos() {
 
   const fetchTrainings = async () => {
     try {
+      setLoadError(false);
       const res = await fetch(`${API_BASE_URL}/treinamentos.php`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setTrainings(list);
@@ -39,6 +45,7 @@ export default function Treinamentos() {
       setSegments(uniqueSegments);
     } catch (err) {
       console.error("Erro ao carregar treinamentos:", err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -134,6 +141,8 @@ export default function Treinamentos() {
                     </div>
                   </Link>
                 ))
+              ) : loadError ? (
+                <LoadError onRetry={() => { setLoading(true); fetchTrainings(); }} />
               ) : (
                 <div className="col-span-full py-40 text-center">
                    <BookOpen size={48} className="mx-auto text-gray-200 mb-6" />
@@ -153,9 +162,7 @@ export default function Treinamentos() {
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
             <h2 className="text-4xl md:text-6xl font-bold font-heading uppercase text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
             <p className="text-gray-400 text-base mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
-            <Link to="/treinamentos-in-company">
-              <Button className="rounded-2xl font-black uppercase tracking-widest shadow-2xl">Consultar Projeto Customizado</Button>
-            </Link>
+            <Button href="/treinamentos-in-company" className="rounded-2xl font-black uppercase tracking-widest shadow-2xl">Consultar Projeto Customizado</Button>
          </div>
       </section>
 

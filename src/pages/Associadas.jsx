@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -86,6 +87,7 @@ const DEFAULTS = {
 };
 
 export default function Associadas() {
+  usePageTitle('Empresas Associadas'); // título da aba do navegador / Google
   const [partners, setPartners] = useState(fallbackPartners);
   const [cfg, setCfg] = useState(DEFAULTS);
   // Hero só renderiza conteúdo/imagem após o banco responder (evita flash de exemplo)

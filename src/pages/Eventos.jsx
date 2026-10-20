@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LoadError from '../components/ui/LoadError';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { STATUS_DOT } from '../utils/helpers';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -109,6 +111,8 @@ function SectionTitle({ title, accent }) {
 }
 
 export default function Eventos() {
+  const [loadError, setLoadError] = useState(false);
+  usePageTitle('Eventos'); // título da aba do navegador / Google
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const eincolActive = useEincolActive();
@@ -117,11 +121,14 @@ export default function Eventos() {
 
   const fetchEvents = async () => {
     try {
+      setLoadError(false);
       const res = await fetch(`${API_BASE_URL}/eventos.php`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setEvents(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Erro ao carregar eventos:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -184,6 +191,8 @@ export default function Eventos() {
                   <div key={i} className="bg-white h-80 rounded-[40px] animate-pulse" />
                 ))}
               </div>
+            ) : loadError ? (
+              <LoadError onRetry={() => { setLoading(true); fetchEvents(); }} />
             ) : ativos.length === 0 ? (
               <div className="py-16 text-center text-gray-400 font-bold uppercase tracking-widest italic">
                 Nenhum evento agendado no momento.

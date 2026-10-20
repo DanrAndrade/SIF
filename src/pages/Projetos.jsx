@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LoadError from '../components/ui/LoadError';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -92,16 +93,22 @@ function SectionTitle({ title, accent }) {
 }
 
 export default function Projetos() {
+  const [loadError, setLoadError] = useState(false);
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = 'SIF | Projetos P&D';
-    fetch(API_URL)
-      .then(r => r.json())
-      .then(data => { setProjetos(Array.isArray(data) ? data : []); setLoading(false); })
-      .catch(() => setLoading(false));
+    loadProjetos();
   }, []);
+
+  const loadProjetos = () => {
+    setLoadError(false);
+    fetch(API_URL)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(data => { setProjetos(Array.isArray(data) ? data : []); setLoading(false); })
+      .catch(() => { setLoadError(true); setLoading(false); });
+  };
 
   // Separa por data_limite (automático)
   const ativos     = projetos.filter(isProjetoAtivo);
@@ -126,6 +133,8 @@ export default function Projetos() {
                   <div key={i} className="bg-white h-60 rounded-[40px] animate-pulse" />
                 ))}
               </div>
+            ) : loadError ? (
+              <LoadError onRetry={() => { setLoading(true); loadProjetos(); }} />
             ) : ativos.length === 0 ? (
               <div className="py-16 text-center text-gray-400 font-bold uppercase tracking-widest italic">
                 Nenhum projeto em andamento no momento.

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -22,6 +23,7 @@ const iconMap = {
 export default function GrupoTematicoDetalhe() {
   const { slug } = useParams();
   const [gt, setGt] = useState(null);
+  usePageTitle(gt?.title); // título da aba do navegador / Google
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,9 +55,7 @@ export default function GrupoTematicoDetalhe() {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Grupo Temático não encontrado</h2>
-        <Link to="/grupos-tematicos">
-          <Button variant="primary" className="rounded-xl">Ver todos os Grupos</Button>
-        </Link>
+        <Button href="/grupos-tematicos" variant="primary" className="rounded-xl">Ver todos os Grupos</Button>
       </div>
     );
   }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LoadError from '../components/ui/LoadError';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -16,6 +18,8 @@ const HERO_DEFAULTS = {
 };
 
 export default function TreinamentosInCompany() {
+  const [loadError, setLoadError] = useState(false);
+  usePageTitle('Treinamentos In-Company'); // título da aba do navegador / Google
   const [trainings, setTrainings] = useState([]);
   const [segments, setSegments] = useState(['Todos']);
   const [selectedSegment, setSelectedSegment] = useState('Todos');
@@ -25,7 +29,9 @@ export default function TreinamentosInCompany() {
 
   const fetchTrainings = async () => {
     try {
+      setLoadError(false);
       const res = await fetch(`${API_BASE_URL}/treinamentos_in_company.php`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setTrainings(list);
@@ -33,6 +39,7 @@ export default function TreinamentosInCompany() {
       setSegments(uniqueSegments);
     } catch (err) {
       console.error('Erro ao carregar treinamentos in-company:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -123,9 +130,11 @@ export default function TreinamentosInCompany() {
                   </div>
                 </Link>
               ))
+            ) : loadError ? (
+              <LoadError onRetry={() => { setLoading(true); fetchTrainings(); }} />
             ) : (
               <div className="col-span-full py-40 text-center">
-                <BookOpen size={48} className="mx-auto text-gray-200 mb-6" />
+                 <BookOpen size={48} className="mx-auto text-gray-200 mb-6" />
                 <p className="text-gray-400 font-bold uppercase tracking-widest">Nenhum treinamento encontrado nesta categoria.</p>
               </div>
             )}

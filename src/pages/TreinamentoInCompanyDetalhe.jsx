@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Clock, ChevronLeft, Play, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 
 export default function TreinamentoInCompanyDetalhe() {
   const { slug } = useParams();
   const [training, setTraining] = useState(null);
+  usePageTitle(training?.title); // título da aba do navegador / Google
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,9 +48,7 @@ export default function TreinamentoInCompanyDetalhe() {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Treinamento não encontrado</h2>
-        <Link to="/treinamentos-in-company">
-          <Button variant="primary" className="rounded-xl">Voltar para Treinamentos In-Company</Button>
-        </Link>
+        <Button href="/treinamentos-in-company" variant="primary" className="rounded-xl">Voltar para Treinamentos In-Company</Button>
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function TreinamentoInCompanyDetalhe() {
             src={getImageUrl(training.image_url)}
             className="w-full h-full object-cover opacity-50"
             alt={training.title}
-            loading="lazy"
+            fetchpriority="high"
             decoding="async"
           />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/20 to-transparent"></div>
@@ -125,7 +125,7 @@ export default function TreinamentoInCompanyDetalhe() {
                 <div className="mt-16 bg-gray-900 rounded-[32px] overflow-hidden aspect-video shadow-2xl">
                   <iframe
                     className="w-full h-full"
-                    src={training.video_url.replace('watch?v=', 'embed/')}
+                    src={toVideoEmbed(training.video_url) || training.video_url}
                     title="Apresentação do Treinamento"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

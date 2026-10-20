@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, ChevronLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -25,6 +26,7 @@ const formatDate = (value) => {
 export default function BlogPost() {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
+  usePageTitle(post?.title); // título da aba do navegador / Google
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -106,9 +108,7 @@ export default function BlogPost() {
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Artigo não encontrado</h2>
         <p className="text-gray-500 mb-6 max-w-md">{error || 'Este artigo não está mais disponível.'}</p>
-        <Link to="/blog">
-          <Button variant="primary" className="rounded-xl">Voltar ao Blog</Button>
-        </Link>
+        <Button href="/blog" variant="primary" className="rounded-xl">Voltar ao Blog</Button>
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -277,6 +278,7 @@ const GalleryCarousel = ({ title, data }) => {
 };
 
 export default function Institucional() {
+  usePageTitle('Institucional'); // título da aba do navegador / Google
   const mainRef = useRef(null);
   const areasScrollRef = useRef(null);
   const location = useLocation();
@@ -448,11 +450,15 @@ export default function Institucional() {
                 <div className="relative animate-in zoom-in duration-1000">
                     <div className="absolute inset-0 bg-emerald-100/50 rounded-[60px] translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
                     <div className="rounded-[60px] overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
-                        <img
-                            src={cfg.quem_somos_image && !cfg.quem_somos_image.startsWith('http') ? getImageUrl(cfg.quem_somos_image) : cfg.quem_somos_image}
-                            alt="Quem Somos"
-                            className="w-full h-full object-cover"
-                        />
+                        {cfg.quem_somos_image ? (
+                          <img
+                              src={getImageUrl(cfg.quem_somos_image)}
+                              alt="Quem Somos"
+                              className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d]" />
+                        )}
                         <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-[#1f2937] via-transparent to-transparent">
                             <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
                             <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
+import SmartLink from '../components/ui/SmartLink';
 import { Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -11,6 +13,7 @@ const API_URL = `${API_BASE_URL}/eincol.php`;
 
 export default function Eincol() {
   const [config, setConfig] = useState(null);
+  usePageTitle(config?.hero_title || 'EINCOL'); // título da aba do navegador / Google
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -149,14 +152,12 @@ export default function Eincol() {
                     Conheça o<br /><span className="text-[#007a3d]">Espaço</span>
                   </h2>
                   {config.planta_url && (
-                    <a
+                    <SmartLink
                       href={config.planta_url}
-                      target="_blank"
-                      rel="noreferrer"
                       className="inline-flex items-center gap-3 px-8 py-4 bg-[#007a3d] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#047857] transition-all shadow-lg shadow-emerald-900/40"
                     >
                       <Download size={18} /> Baixar Planta
-                    </a>
+                    </SmartLink>
                   )}
                 </div>
               </div>

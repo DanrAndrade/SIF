@@ -54,9 +54,13 @@ export default function Jobs() {
     fetch(`${API_BASE_URL}/jobs.php`)
       .then(res => res.json())
       .then(data => {
-          const formattedData = data.map(j => ({
+          const parseReqs = (r) => {
+              if (Array.isArray(r)) return r;
+              try { const v = JSON.parse(r || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+          };
+          const formattedData = (Array.isArray(data) ? data : []).map(j => ({
               ...j,
-              requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements) : j.requirements
+              requirements: parseReqs(j.requirements)
           })).filter(job => job.active == 1 || job.active === true);
           setJobs(formattedData);
           setLoading(false);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -139,6 +140,7 @@ function BoletimGrid({ pdfs, legacySections }) {
 }
 
 export default function ProdutosServicos() {
+  usePageTitle('Produtos e Serviços'); // título da aba do navegador / Google
   const [activeTab, setActiveTab] = useState('comercial');
   const { config } = usePageConfig('produtos');
 

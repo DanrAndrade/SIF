@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LoadError from '../components/ui/LoadError';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -28,6 +30,8 @@ const iconMap = {
 };
 
 export default function GruposTematicos() {
+  const [loadError, setLoadError] = useState(false);
+  usePageTitle('Grupos Temáticos'); // título da aba do navegador / Google
   const [gts, setGts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,11 +41,14 @@ export default function GruposTematicos() {
 
   const fetchGts = async () => {
     try {
+      setLoadError(false);
       const res = await fetch(`${API_BASE_URL}/gt.php`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setGts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Erro ao carregar GTs:", err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -67,6 +74,10 @@ export default function GruposTematicos() {
               Array(6).fill(0).map((_, i) => (
                 <div key={i} className="bg-white h-80 rounded-[48px] animate-pulse shadow-sm"></div>
               ))
+            ) : loadError ? (
+              <LoadError onRetry={() => { setLoading(true); fetchGts(); }} />
+            ) : gts.length === 0 ? (
+              <p className="col-span-full py-16 text-center text-gray-400 font-bold uppercase tracking-widest italic">Nenhum grupo temático publicado no momento.</p>
             ) : (
               gts.map((gt) => {
                 const IconComponent = iconMap[gt.icon] || Target;
@@ -119,15 +130,13 @@ export default function GruposTematicos() {
 
           {/* CTAs EXTRAS */}
           <div className="mt-24 p-12 md:p-20 bg-[#1f2937] rounded-[60px] text-white relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.35)_1px,transparent_0)] bg-[length:10px_10px] opacity-20"></div>
              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
                <div className="max-w-xl">
                  <h3 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">parceira de um GT?</span></h3>
                  <p className="text-gray-400 font-medium text-base">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
                </div>
-               <Link to="/associadas">
-                 <Button variant="primary" className="bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>
-               </Link>
+               <Button href="/associadas" variant="primary" className="bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>
              </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,12 +7,13 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 export default function EventoDetalhe() {
   const { slug } = useParams();
   const [event, setEvent] = useState(null);
+  usePageTitle(event?.title); // título da aba do navegador / Google
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -57,9 +59,7 @@ export default function EventoDetalhe() {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 uppercase tracking-tighter">Evento não encontrado</h2>
-        <Link to="/eventos">
-          <Button variant="primary" className="rounded-xl font-bold tracking-tight">Voltar para Eventos</Button>
-        </Link>
+        <Button href="/eventos" variant="primary" className="rounded-xl font-bold tracking-tight">Voltar para Eventos</Button>
       </div>
     );
   }
@@ -192,7 +192,7 @@ export default function EventoDetalhe() {
                 <div className="mt-16 bg-gray-900 rounded-[32px] overflow-hidden aspect-video shadow-2xl relative group">
                   <iframe 
                     className="w-full h-full"
-                    src={event.video_url.replace('watch?v=', 'embed/')} 
+                    src={toVideoEmbed(event.video_url) || event.video_url} 
                     title="Vídeo Chamada do Evento"
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

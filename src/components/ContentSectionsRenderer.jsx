@@ -17,10 +17,10 @@ function EditorSection({ section }) {
   );
 }
 
-function TabsSection({ section, activeTabs, setActiveTab }) {
+function TabsSection({ section, index, activeTabs, setActiveTab }) {
   const tabs = section.tabs || [];
   if (!tabs.length) return null;
-  const key = section.id || section.title || 'tabs';
+  const key = section.id || `tabs-${index}`; // duas seções de abas com o mesmo título não dividem mais o estado
   const activeIdx = activeTabs[key] ?? 0;
   return (
     <div>
@@ -95,7 +95,7 @@ export default function ContentSectionsRenderer({ sections }) {
       {sections.map((section, i) => {
         if (!section?.type) return null;
         if (section.type === 'editor') return <EditorSection key={section.id || i} section={section} />;
-        if (section.type === 'tabs')   return <TabsSection   key={section.id || i} section={section} activeTabs={activeTabs} setActiveTab={setActiveTab} />;
+        if (section.type === 'tabs')   return <TabsSection   key={section.id || i} index={i} section={section} activeTabs={activeTabs} setActiveTab={setActiveTab} />;
         if (section.type === 'pdfs')   return <PdfsSection   key={section.id || i} section={section} />;
         return null;
       })}
