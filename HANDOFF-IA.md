@@ -182,3 +182,36 @@ Visual (Montserrat, títulos, degradê, textura, bento de números, rodapé
 editável), modelo de página para Produtos/GT/Eventos/Projetos usando o modelo
 de seções, página Projetos SIF/EMBRAPII (conteúdo da landing do Lucas),
 vagas por categoria, menus, usuários e permissões (blog por responsável do GT).
+
+## 8. Proposta revisada (R$ 3.840) — o que foi implementado (20/10/2026)
+
+Tudo commitado localmente; **ainda não publicado** na HostGator nem enviado ao GitHub.
+
+**Semana 1 — visual e conteúdo**
+- Home: degradê e textura do topo editáveis (Painel › Home › Topo — `utils/homeVisual.js`); bloco de números em bento com contagem animada (aba Números — `components/NumbersBento.jsx`, começa **desligado** até preencher); 3º botão "Trabalhe Conosco" no topo.
+- Fonte Montserrat; títulos sem caixa-alta/negrito (tokens `--sif-title-*` no `index.css`).
+- Rodapé editável + nova cor verde (Painel › Páginas › Rodapé — `utils/footerDefaults.js`, page_configs `footer`).
+- Menu: "Área do Associado" → "Conveniar"; "Projetos & Transparência" → "Projetos"; item "SIF e EMBRAPII" aponta para a página nova.
+- Equipe: nome/ordem dos grupos editáveis (`utils/teamGroups.js`, salvo em `institucional_geral.team_groups`); seção some quando vazia.
+- Institucional: card de chamada no fim (aba CTA Final) — **modelo de referência da equipe não foi recebido**; o card é um esboço editável.
+- Associadas: seção de texto corrido (aba Texto) — some enquanto vazia.
+- Vagas por categoria Interna / Associadas / Germinar (`utils/jobCategories.js`; migração v2 troca o enum e converte "Externa" → "Associadas").
+- Boletins: já tinha upload de PDF + capa; padronizado (botões do kit, erros claros).
+- GT: responsável próprio por grupo (nome, cargo, e-mail, WhatsApp, foto, link) em `gt.extra_data.responsavel`.
+- Página nova **/projetos-sif-embrapii** (`pages/ProjetosEmbrapii.jsx`, painel `EmbrapiiAdmin`, page_configs `embrapii`) — esboço para aprovação; conteúdo resumido da landing EMBRAPII (sem nomes do comitê).
+
+**Semanas 2–3 — usuários, permissões e modelos de página**
+- `admins` ganhou: name, cargo, role (`admin`|`editor`), modules (JSON), gt_ids (JSON), active, last_login (migração **v3**, roda sozinha no 1º login).
+  Os usuários que já existem viram **admin** (nada muda para eles).
+- `api_guard.php`: `sif_user()`, `sif_can($modulo)`, `sif_require()`, `sif_deny()` (403). Mapa script→módulo para gravações;
+  `page_content.php` confere por página (`sif_page_module`); leads/candidatos/banners/download conferem o módulo.
+  Usuário logado sem permissão recebe **403** (nunca 401, que o painel trata como sessão expirada).
+- `users.php` (novo): lista/cria/edita/exclui (só admin), `responsaveis=1` (nomes para o blog), `my_password`. Não deixa ficar sem admin ativo.
+- Painel: tela **Usuários**, menu lateral filtrado por permissão (`utils/adminModules.js`, `contexts/AdminUserContext.jsx`), "Minha senha".
+- Blog: `blog_posts.gt_id`, `responsavel_ids` (vários), `created_by`. Quem tem módulo Blog edita tudo; responsável por GT publica no blog do(s) seu(s) grupo(s);
+  responsável pelo post edita o post. Página do GT mostra "Blog do grupo" (`components/GtBlogPosts.jsx`); post mostra os autores.
+- Estrutura padrão de página: `PAGE_TEMPLATES` em `sectionTypes.js`; item novo de GT/Eventos/Treinamentos/In-Company/Projetos já nasce com os blocos;
+  Produtos e Blog têm o botão "Usar a estrutura padrão". Bloco vazio não aparece no site (`isSectionEmpty`).
+
+**Para publicar** (quando o Dan pedir): build + copiar `sif-api/*.php` novos/alterados **sem** `db.php`, `uploads/`, `nossa-gente/`.
+Arquivos PHP novos: `users.php`. Alterados: api_guard, blog, page_content, login_admin, session, leads, candidates, banners, download, jobs, institucional.
