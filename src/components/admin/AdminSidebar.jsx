@@ -113,6 +113,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, 
                         active={activeTab === 'projetos'} 
                         onClick={() => {setActiveTab('projetos'); closeMobile();}} 
                     />
+                    <SidebarItem
+                        icon={<FlaskConical size={18}/>}
+                        label="Projetos SIF e EMBRAPII"
+                        active={activeTab === 'embrapii'}
+                        onClick={() => {setActiveTab('embrapii'); closeMobile();}}
+                    />
                 </div>
 
                 {/* GRUPO: Páginas Estáticas */}

@@ -25,6 +25,7 @@ const GruposTematicos     = lazy(() => import('./pages/GruposTematicos'));
 const GrupoTematicoDetalhe = lazy(() => import('./pages/GrupoTematicoDetalhe'));
 const Eincol              = lazy(() => import('./pages/Eincol'));
 const Projetos            = lazy(() => import('./pages/Projetos'));
+const ProjetosEmbrapii    = lazy(() => import('./pages/ProjetosEmbrapii'));
 const ProjetoDetalhe      = lazy(() => import('./pages/ProjetoDetalhe'));
 
 // --- ADMIN ---
@@ -117,6 +118,7 @@ export default function App() {
 
           {/* Projetos P&D */}
           <Route path="/projetos"              element={<Projetos />} />
+          <Route path="/projetos-sif-embrapii" element={<ProjetosEmbrapii />} />
           <Route path="/projetos/:slug"        element={<ProjetoDetalhe />} />
 
           {/* ── ROTAS ADMIN ────────────────────────────────── */}
@@ -142,6 +144,7 @@ export default function App() {
           <Route path="/admin/in-company"      element={<AdminTab tab="in_company" />} />
           <Route path="/admin/contato"         element={<AdminTab tab="contato" />} />
           <Route path="/admin/rodape"          element={<AdminTab tab="rodape" />} />
+          <Route path="/admin/embrapii"        element={<AdminTab tab="embrapii" />} />
 
           {/* Fallback: rota admin desconhecida → login */}
           <Route path="/admin/*"              element={<Navigate to="/admin" replace />} />

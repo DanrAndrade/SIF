@@ -23,6 +23,7 @@ import ProdutosAdmin from './ProdutosAdmin';
 import TreinamentosInCompanyAdmin from './TreinamentosInCompanyAdmin';
 import ContatoAdmin from './ContatoAdmin';
 import RodapeAdmin from './RodapeAdmin';
+import EmbrapiiAdmin from './EmbrapiiAdmin';
 
 // Endereço de cada tela do painel (o menu muda a URL: recarregar a página
 // volta para a mesma tela, e dá para mandar o link de uma tela específica)
@@ -34,6 +35,7 @@ const TAB_PATHS = {
   home: '/admin/home', produtos: '/admin/produtos', in_company: '/admin/in-company',
   contato: '/admin/contato',
   rodape: '/admin/rodape',
+  embrapii: '/admin/embrapii',
 };
 
 export default function AdminDashboard(props) {
@@ -112,6 +114,7 @@ function DashboardInner({ currentTab }) {
                 {activeTab === 'in_company' && <TreinamentosInCompanyAdmin />}
                 {activeTab === 'contato' && <ContatoAdmin />}
                 {activeTab === 'rodape' && <RodapeAdmin />}
+                {activeTab === 'embrapii' && <EmbrapiiAdmin />}
             </div>
         </div>
       </main>

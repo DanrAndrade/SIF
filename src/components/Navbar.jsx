@@ -70,7 +70,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
         { name: 'Projetos', href: '/projetos' },
         { name: 'Portal da Transparência', href: 'https://sif.conveniar.com.br/portaltransparencia/', external: true },
         { name: 'Conveniar', href: 'https://sif.conveniar.com.br/', external: true },
-        { name: 'EMBRAPII', href: 'https://sif.org.br/embrapii/', external: true },
+        { name: 'SIF e EMBRAPII', href: '/projetos-sif-embrapii' },
       ]
     },
     { 
