@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm, AdminPage, AdminCard, useDirty } from './kit';
 import axios from 'axios';
 import {
   Save, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
@@ -120,6 +121,7 @@ export default function AdminHome() {
   const [error, setError] = useState('');
   const [pendingFiles, setPendingFiles] = useState({});
   const [pendingPreviews, setPendingPreviews] = useState({});
+  const { dirty, markClean } = useDirty(config, { ready: !loading, extra: Object.keys(pendingFiles).length > 0 });
 
   useEffect(() => {
     (async () => {
@@ -157,13 +159,18 @@ export default function AdminHome() {
       fd.append('content_json', JSON.stringify(config));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const res = await axios.post(API_URL, fd);
-      if (res.data && res.data.data) setConfig(mergeConfig(DEFAULTS, res.data.data));
+      const next = res.data && res.data.data ? mergeConfig(DEFAULTS, res.data.data) : config;
+      setConfig(next);
+      markClean(next);
       setPendingFiles({});
       setPendingPreviews({});
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
+      window.showToast?.('Página Home salva.');
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao salvar.');
+      const msg = err.response?.data?.message || err.response?.data?.error || 'Erro ao salvar.';
+      setError(msg);
+      window.showToast?.(msg, 'error');
     } finally {
       setSaving(false);
     }
@@ -179,41 +186,15 @@ export default function AdminHome() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Página Home</h2>
-          <p className="text-xs text-gray-500 mt-1">Os campos abaixo já vêm preenchidos com o conteúdo atual do site. Edite e salve.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          {activeTab !== 'faq' && (
-            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar alterações'}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-        <div className="flex gap-1 min-w-max">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const active = activeTab === t.id;
-            return (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${active ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-gray-400 hover:text-gray-700'}`}>
-                <Icon size={14} /> {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <AdminPage
+      title="Página Home"
+      subtitle="Os campos já vêm preenchidos com o conteúdo atual do site. Edite e clique em Salvar."
+      save={{ onSave: handleSave, saving, dirty, savedAt }}
+      tabs={TABS}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+     <AdminCard>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -233,13 +214,14 @@ export default function AdminHome() {
       )}
       {activeTab === 'faq' && (
         <div>
-          <p className="text-xs text-gray-500 mb-4">Cada pergunta tem botão próprio de salvar.</p>
-          <AboutFAQSide config={config.faq_side} update={(p) => updateSection('faq_side', p)} onMainSave={handleSave} saving={saving} />
+          <p className="text-xs text-gray-500 mb-4">O bloco lateral é salvo pelo botão <strong>Salvar alterações</strong> do topo. Cada pergunta tem o próprio botão de salvar.</p>
+          <AboutFAQSide config={config.faq_side} update={(p) => updateSection('faq_side', p)} />
           <hr className="my-6 border-gray-100" />
           <AdminFAQ pageKey="home" />
         </div>
       )}
-    </div>
+     </AdminCard>
+    </AdminPage>
   );
 }
 
@@ -389,10 +371,11 @@ function ProcessForm({ config, update, onFile, pendingPreviews }) {
 
 // ─── CARDS (Services) ──────────────────────────────────────────
 function CardsEditor({ section, config, update, onFile, pendingPreviews, hint }) {
+  const confirm = useConfirm();
   const cards = config.cards || [];
   const updateCard = (idx, patch) => update({ cards: cards.map((c, i) => i === idx ? { ...c, ...patch } : c) });
   const addCard = () => update({ cards: [...cards, { id: String(cards.length + 1).padStart(2, '0'), tag: '', title: 'Novo card', desc: '', link: '/', image: '' }] });
-  const removeCard = (idx) => { if (window.confirm('Remover este card?')) update({ cards: cards.filter((_, i) => i !== idx) }); };
+  const removeCard = async (idx) => { if (await confirm({ title: 'Remover este card?', message: 'O card sai da Home ao salvar.', confirmLabel: 'Remover' })) update({ cards: cards.filter((_, i) => i !== idx) }); };
   const moveCard = (idx, dir) => {
     const newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= cards.length) return;
@@ -450,7 +433,7 @@ function CardsEditor({ section, config, update, onFile, pendingPreviews, hint })
 }
 
 // ─── FAQ — bloco lateral (texto fixo ao lado das perguntas) ────
-function AboutFAQSide({ config, update, onMainSave, saving }) {
+function AboutFAQSide({ config, update }) {
   return (
     <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl mb-2">
       <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Bloco lateral (verde, à esquerda das perguntas)</h4>
@@ -459,11 +442,6 @@ function AboutFAQSide({ config, update, onMainSave, saving }) {
         <Input label="Subtítulo" value={config.subtitle || ''} onChange={(e) => update({ subtitle: e.target.value })} />
         <Input label="Texto do botão" value={config.cta_label || ''} onChange={(e) => update({ cta_label: e.target.value })} />
         <Input label="Link do botão" value={config.cta_link || ''} onChange={(e) => update({ cta_link: e.target.value })} />
-      </div>
-      <div className="mt-4 flex justify-end">
-        <Button onClick={onMainSave} disabled={saving} isLoading={saving} variant="primary">
-          <Save size={16} /> Salvar bloco lateral
-        </Button>
       </div>
     </div>
   );

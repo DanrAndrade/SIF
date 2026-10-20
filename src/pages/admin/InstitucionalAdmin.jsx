@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AdminPage, AdminCard, useDirty, useConfirm } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check, Upload,
@@ -131,6 +132,7 @@ export default function InstitucionalAdmin() {
   const [error, setError] = useState('');
   const [pendingFiles, setPendingFiles] = useState({});
   const [pendingPreviews, setPendingPreviews] = useState({});
+  const { dirty, markClean } = useDirty(config, { ready: !loading, extra: Object.keys(pendingFiles).length > 0 });
 
   useEffect(() => {
     fetch(API + '?resource=config')
@@ -161,7 +163,10 @@ export default function InstitucionalAdmin() {
       fd.append('content_json', JSON.stringify(config));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const data = await apiRequest(API + '?resource=config', { method: 'POST', body: fd });
-      if (data && data.data) setConfig(mergeCfg(DEFAULTS, data.data));
+      const next = data && data.data ? mergeCfg(DEFAULTS, data.data) : config;
+      setConfig(next);
+      markClean(next);
+      window.showToast?.('Página Institucional salva.');
       setPendingFiles({});
       setPendingPreviews({});
       setSavedAt(Date.now());
@@ -184,40 +189,15 @@ export default function InstitucionalAdmin() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Página Institucional</h2>
-        </div>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          {!['team', 'timeline'].includes(activeTab) && (
-            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar alterações'}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-        <div className="flex gap-1 min-w-max">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const active = activeTab === t.id;
-            return (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${active ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-gray-400 hover:text-gray-700'}`}>
-                <Icon size={14} /> {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <AdminPage
+      title="Página Institucional"
+      subtitle="Edite os textos, a equipe e a linha do tempo. O botão Salvar vale para todas as abas."
+      save={{ onSave: handleSave, saving, dirty, savedAt }}
+      tabs={TABS}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+     <AdminCard>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -229,14 +209,8 @@ export default function InstitucionalAdmin() {
       {activeTab === 'team' && (
         <div>
           <SectionHeader cfg={config} set={set} prefix="team" />
-          {/* O botão principal fica oculto nesta aba — sem este, o título da seção não tinha como ser salvo */}
-          <div className="flex justify-end mt-4">
-            <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> Salvar título da seção
-            </Button>
-          </div>
           <hr className="my-6 border-gray-100" />
-          <p className="text-xs text-gray-500 mb-4">Cada membro tem seu próprio botão de salvar. Edite contato (e-mail/WhatsApp) clicando em "Editar".</p>
+          <p className="text-xs text-gray-500 mb-4">O título acima é salvo pelo botão <strong>Salvar alterações</strong> do topo. Cada membro da equipe tem o próprio botão de salvar.</p>
           <TeamManager />
         </div>
       )}
@@ -252,11 +226,7 @@ export default function InstitucionalAdmin() {
         <div>
           <div className="space-y-4 mb-6">
             <TimelineHeaderForm cfg={config} set={set} />
-            <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-                <Save size={16} /> Salvar título da Linha do Tempo
-              </Button>
-            </div>
+            <p className="text-xs text-gray-500">O título acima é salvo pelo botão <strong>Salvar alterações</strong> do topo.</p>
           </div>
           <hr className="my-6 border-gray-100" />
           <p className="text-xs text-gray-500 mb-4">Marcos históricos (CRUD):</p>
@@ -266,7 +236,8 @@ export default function InstitucionalAdmin() {
       {activeTab === 'cta' && (
         <CtaForm cfg={config} set={set} />
       )}
-    </div>
+     </AdminCard>
+    </AdminPage>
   );
 }
 
@@ -309,10 +280,11 @@ function QuemSomosForm({ cfg, set, onFile, preview }) {
 
 // ─── ÁREAS DE ATUAÇÃO ─────────────────────────────────────────
 function AreasForm({ cfg, set }) {
+  const confirm = useConfirm();
   const areas = Array.isArray(cfg.areas) ? cfg.areas : [];
   const updateArea = (idx, patch) => set('areas', areas.map((a, i) => i === idx ? { ...a, ...patch } : a));
   const addArea = () => set('areas', [...areas, { title: 'Nova área', icon: 'Sprout', desc: '' }]);
-  const removeArea = (idx) => { if (window.confirm('Remover esta área?')) set('areas', areas.filter((_, i) => i !== idx)); };
+  const removeArea = async (idx) => { if (await confirm({ title: 'Remover esta área?', confirmLabel: 'Remover' })) set('areas', areas.filter((_, i) => i !== idx)); };
   const moveArea = (idx, dir) => {
     const newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= areas.length) return;
@@ -357,11 +329,12 @@ function AreasForm({ cfg, set }) {
 //   - ícone, título, subtítulo (opcional), parágrafos (textos do lado esquerdo)
 //   - lista de PDFs (cada um com label, ícone, arquivo enviado ou URL direta)
 function EstatutoForm({ cfg, set }) {
+  const confirm = useConfirm();
   const blocks = Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : [];
 
   const updateBlock = (idx, patch) => set('estatuto_blocks', blocks.map((b, i) => i === idx ? { ...b, ...patch } : b));
   const addBlock = () => set('estatuto_blocks', [...blocks, { icon: 'FileText', title: 'Novo bloco', subtitle: '', paragraphs: [''], pdfs: [] }]);
-  const removeBlock = (idx) => { if (window.confirm('Remover este bloco inteiro (textos e PDFs)?')) set('estatuto_blocks', blocks.filter((_, i) => i !== idx)); };
+  const removeBlock = async (idx) => { if (await confirm({ title: 'Remover este bloco inteiro?', message: 'Os textos e PDFs do bloco saem junto.', confirmLabel: 'Remover' })) set('estatuto_blocks', blocks.filter((_, i) => i !== idx)); };
   const moveBlock = (idx, dir) => {
     const newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= blocks.length) return;
@@ -411,6 +384,7 @@ function EstatutoForm({ cfg, set }) {
 }
 
 function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp, onMoveDown }) {
+  const confirm = useConfirm();
   const paragraphs = Array.isArray(block.paragraphs) ? block.paragraphs : [];
   const pdfs = Array.isArray(block.pdfs) ? block.pdfs : [];
 
@@ -420,7 +394,7 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp
 
   const updatePdf = (i, patch) => onUpdate({ pdfs: pdfs.map((p, j) => j === i ? { ...p, ...patch } : p) });
   const addPdf = () => onUpdate({ pdfs: [...pdfs, { label: 'Novo documento', url: '', icon: 'FileText' }] });
-  const removePdf = (i) => { if (window.confirm('Remover este PDF do bloco?')) onUpdate({ pdfs: pdfs.filter((_, j) => j !== i) }); };
+  const removePdf = async (i) => { if (await confirm({ title: 'Remover este PDF do bloco?', confirmLabel: 'Remover' })) onUpdate({ pdfs: pdfs.filter((_, j) => j !== i) }); };
   const movePdf = (i, dir) => {
     const newIdx = i + dir;
     if (newIdx < 0 || newIdx >= pdfs.length) return;

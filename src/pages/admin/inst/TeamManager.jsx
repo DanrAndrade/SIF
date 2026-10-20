@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../../../components/admin/kit';
 import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
@@ -55,6 +56,7 @@ const STATIC_TEAM = [
 ];
 
 function MemberCard({ member, onDelete, onUpdate }) {
+  const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...member });
 
@@ -98,7 +100,7 @@ function MemberCard({ member, onDelete, onUpdate }) {
         </div>
         <div className="flex gap-2 shrink-0">
           <button onClick={() => setEditing(true)} className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold text-gray-600 transition-colors">Editar</button>
-          <button onClick={() => { if (window.confirm('Remover?')) onDelete(member.id); }} className="p-1.5 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all">
+          <button onClick={async () => { if (await confirm({ title: `Remover ${member.name}?`, message: 'A pessoa sai da página Institucional.', confirmLabel: 'Remover' })) onDelete(member.id); }} className="p-1.5 bg-red-50 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all">
             <Trash2 size={14} />
           </button>
         </div>

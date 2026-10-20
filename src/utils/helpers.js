@@ -7,11 +7,20 @@ export const generateSlug = (text) =>
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 
+// Cores de status — só tons de verde e cinza (identidade visual SIF)
 export const projectStatusColor = (status) => {
-  if (status === 'Concluído') return 'bg-emerald-50 text-emerald-700';
-  if (status === 'Em Planejamento') return 'bg-blue-50 text-blue-700';
-  if (status === 'Suspenso') return 'bg-red-50 text-red-600';
-  return 'bg-amber-50 text-amber-700';
+  if (status === 'Concluído') return 'bg-emerald-50 text-emerald-800';
+  if (status === 'Em Planejamento') return 'bg-gray-100 text-gray-600';
+  if (status === 'Suspenso') return 'bg-gray-100 text-gray-400';
+  return 'bg-lime-50 text-lime-700'; // Em Andamento
+};
+
+// Bolinha de status nos cards públicos (mesma lógica de cores)
+export const STATUS_DOT = {
+  'Em Andamento': 'bg-[#7FBA00]',
+  'Concluído': 'bg-[#1B5E20]',
+  'Em Planejamento': 'bg-gray-400',
+  'Suspenso': 'bg-gray-300',
 };
 
 // Retorna o status efetivo do projeto.

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -101,6 +102,7 @@ const PdfUploadField = ({ index, title, url, onTitleChange, onFileChange }) => (
 );
 
 export default function EincolAdmin() {
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [files, setFiles] = useState({});
@@ -152,7 +154,7 @@ export default function EincolAdmin() {
   // Salva imediatamente no backend (sem precisar clicar "Salvar Configuração").
   const handleToggleActive = async () => {
     const novo = form.active ? 0 : 1;
-    if (form.active && !window.confirm('Desativar a página EINCOL? Ela vai sumir do menu e do card na página de Eventos. Você poderá reativar a qualquer momento.')) return;
+    if (form.active && !(await confirm({ title: 'Desativar a página EINCOL?', message: 'Ela vai sumir do menu e do card na página de Eventos. Você poderá reativar a qualquer momento.', confirmLabel: 'Desativar' }))) return;
     try {
       const fd = new FormData();
       fd.append('active', String(novo));
@@ -170,7 +172,10 @@ export default function EincolAdmin() {
 
   // Tabs
   const addTab = () => setForm(f => ({ ...f, tabs: [...f.tabs, { _uid: `tab-${Date.now()}-${Math.random()}`, title: 'Nova Aba', content: '' }] }));
-  const removeTab = (i) => setForm(f => ({ ...f, tabs: f.tabs.filter((_, idx) => idx !== i) }));
+  const removeTab = async (i) => {
+    if (!(await confirm({ title: 'Remover esta aba da programação?', message: form.tabs[i]?.title || '', confirmLabel: 'Remover' }))) return;
+    setForm(f => ({ ...f, tabs: f.tabs.filter((_, idx) => idx !== i) }));
+  };
   const updateTab = (i, field, val) => setForm(f => {
     const tabs = [...f.tabs];
     tabs[i] = { ...tabs[i], [field]: val };
@@ -190,7 +195,10 @@ export default function EincolAdmin() {
   // Sections (texto e grupos de patrocinadores compartilham o mesmo array)
   const addSection = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `sec-${Date.now()}-${Math.random()}`, title: '', text: '' }] }));
   const addSponsorGroup = () => setForm(f => ({ ...f, sections: [...f.sections, { _uid: `spon-${Date.now()}-${Math.random()}`, type: 'sponsors', title: '', images: [] }] }));
-  const removeSection = (i) => setForm(f => ({ ...f, sections: f.sections.filter((_, idx) => idx !== i) }));
+  const removeSection = async (i) => {
+    if (!(await confirm({ title: 'Remover esta seção?', message: form.sections[i]?.title || '', confirmLabel: 'Remover' }))) return;
+    setForm(f => ({ ...f, sections: f.sections.filter((_, idx) => idx !== i) }));
+  };
   const updateSection = (i, field, val) => setForm(f => {
     const sections = [...f.sections];
     sections[i] = { ...sections[i], [field]: val };
@@ -591,6 +599,7 @@ function QuillSection({ sec, index, onUpdate, onRemove, onMove, isFirst, isLast 
 
 // Grupo de patrocinadores: título + lista de logos (viram carrossel no site).
 function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst, isLast }) {
+  const confirm = useConfirm();
   const [uploading, setUploading] = useState(false);
   const images = Array.isArray(group.images) ? group.images : [];
 
@@ -607,7 +616,10 @@ function SponsorGroupEditor({ group, index, onUpdate, onRemove, onMove, isFirst,
     setUploading(false);
   };
 
-  const removeImage = (i) => onUpdate('images', images.filter((_, idx) => idx !== i));
+  const removeImage = async (i) => {
+    if (!(await confirm({ title: 'Remover esta logo do carrossel?', confirmLabel: 'Remover' }))) return;
+    onUpdate('images', images.filter((_, idx) => idx !== i));
+  };
   const moveImage = (i, dir) => {
     const j = i + dir;
     if (j < 0 || j >= images.length) return;

@@ -6,7 +6,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, ChevronDown, Clock } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
-import { getEffectiveProjectStatus } from '../utils/helpers';
+import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -19,10 +19,6 @@ const HERO_DEFAULTS = {
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
-const STATUS_DOT = {
-  'Em Andamento':     'bg-amber-400',
-  'Concluído':        'bg-emerald-500',
-};
 
 // Projeto está "ativo" (em andamento) se o status efetivo não for "Concluído"
 const isProjetoAtivo = (proj) => getEffectiveProjectStatus(proj) !== 'Concluído';

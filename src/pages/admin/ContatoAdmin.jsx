@@ -120,8 +120,8 @@ export default function ContatoAdmin() {
         )}
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <p className="text-xs text-amber-800">
+      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+        <p className="text-xs text-emerald-800">
           <strong>📌 Sobre o formulário:</strong> O formulário em si não é editável (campos fixos: Nome, E-mail, Telefone, Assunto, Mensagem). As mensagens recebidas aparecem na aba <strong>"Leads / Contato"</strong>.
         </p>
       </div>

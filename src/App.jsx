@@ -126,6 +126,7 @@ export default function App() {
           <Route path="/admin/dashboard"       element={<AdminTab tab="leads" />} />
 
           {/* Módulos específicos */}
+          <Route path="/admin/candidatos"      element={<AdminTab tab="candidates" />} />
           <Route path="/admin/blog"            element={<AdminTab tab="blog" />} />
           <Route path="/admin/banners"         element={<AdminTab tab="banners" />} />
           <Route path="/admin/jobs"            element={<AdminTab tab="jobs" />} />

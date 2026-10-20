@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../../components/admin/kit';
 import { Target, Trash2, Edit3, X, Plus, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -30,6 +31,7 @@ const emptyForm = {
 };
 
 export default function GTAdmin() {
+  const confirm = useConfirm();
   const [gts, setGts] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export default function GTAdmin() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Deseja excluir este Grupo Temático? Isso removerá a página pública do mesmo.')) return;
+    if (!(await confirm({ title: 'Excluir este Grupo Temático?', message: 'A página pública do grupo sai do site. Não dá para desfazer.' }))) return;
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchGts();

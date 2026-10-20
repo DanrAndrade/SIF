@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../../../components/admin/kit';
 import { Plus, Trash2, Save, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
@@ -6,6 +7,7 @@ import { apiRequest, toastError } from '../../../utils/adminApi';
 const API = `${API_BASE_URL}/institucional.php`;
 
 export default function TimelineManager() {
+  const confirm = useConfirm();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -70,7 +72,7 @@ export default function TimelineManager() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Remover este marco?')) return;
+    if (!(await confirm({ title: 'Remover este marco da Linha do Tempo?', confirmLabel: 'Remover' }))) return;
     await fetch(API + `?resource=timeline&id=${id}`, { method: 'DELETE' });
     fetch_();
   };

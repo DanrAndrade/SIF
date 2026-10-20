@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from './kit';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2 } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from '../ui/Button';
@@ -90,7 +91,7 @@ export const LeadsView = () => {
     const getStatusBadge = (status) => {
         switch(status) {
             case 'unread': return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-700 border border-red-200"><div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div> Não Lido</span>;
-            case 'read': return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-yellow-100 text-yellow-700 border border-yellow-200">Em Análise</span>;
+            case 'read': return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-600 border border-gray-200">Em Análise</span>;
             case 'contacted': return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700 border border-green-200"><CheckCircle2 size={10}/> Respondido</span>;
             default: return null;
         }
@@ -248,6 +249,7 @@ export const CandidatesView = () => {
 
 // --- VIEW 3: CRUD VAGAS ---
 export const JobsManagerView = () => {
+  const confirm = useConfirm();
     const [jobs, setJobs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', active: 1, tipo_vaga: 'Interna', requirements: [] });
@@ -278,7 +280,7 @@ export const JobsManagerView = () => {
     };
 
     const handleDelete = async (id) => {
-        if(!confirm("Tem certeza?")) return;
+        if (!(await confirm({ title: 'Excluir esta vaga?', message: 'Ela sai do site imediatamente.' }))) return;
         await fetch(`${API_BASE_URL}/jobs.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
         fetchJobs();
     };
@@ -336,7 +338,7 @@ export const JobsManagerView = () => {
                           <div className="flex items-center gap-3">
                             <h3 className="font-bold text-[#1f2937] text-lg">{job.title}</h3>
                             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                              job.tipo_vaga === 'Externa' ? 'bg-orange-50 text-orange-600' : 'bg-emerald-50 text-emerald-700'
+                              job.tipo_vaga === 'Externa' ? 'bg-lime-50 text-lime-700' : 'bg-emerald-50 text-emerald-700'
                             }`}>{job.tipo_vaga || 'Interna'}</span>
                           </div>
                           <p className="text-xs text-gray-500 font-bold uppercase mt-1">{job.location} • {job.type}</p>

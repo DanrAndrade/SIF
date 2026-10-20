@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from './kit';
 import axios from 'axios';
 import { Plus, Trash2, Edit, X, Save, ChevronUp, ChevronDown, ToggleLeft, ToggleRight, AlertTriangle, HelpCircle, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
@@ -16,6 +17,7 @@ const DEFAULT_FAQS_HOME = [
 ];
 
 export default function AdminFAQ({ pageKey = 'home' }) {
+  const confirm = useConfirm();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -24,7 +26,6 @@ export default function AdminFAQ({ pageKey = 'home' }) {
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [toDelete, setToDelete] = useState(null);
   const [seeded, setSeeded] = useState(false);
 
   const fetchItems = async () => {
@@ -104,13 +105,14 @@ export default function AdminFAQ({ pageKey = 'home' }) {
     }
   };
 
-  const confirmDelete = async () => {
-    if (!toDelete) return;
+  // Exclusão com a confirmação padrão do painel
+  const requestDelete = async (item) => {
+    if (!(await confirm({ title: 'Excluir esta pergunta?', message: item.question }))) return;
     try {
-      await axios.delete(`${API_URL}?id=${toDelete.id}`);
-      setItems(items.filter(i => i.id !== toDelete.id));
-      if (editingId === toDelete.id) resetForm();
-      setToDelete(null);
+      await axios.delete(`${API_URL}?id=${item.id}`);
+      setItems(items.filter(i => i.id !== item.id));
+      if (editingId === item.id) resetForm();
+      window.showToast?.('Pergunta excluída.');
     } catch {
       window.showToast('Erro ao excluir.');
     }
@@ -155,19 +157,6 @@ export default function AdminFAQ({ pageKey = 'home' }) {
 
   return (
     <div className="relative">
-      {toDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4"><AlertTriangle className="text-red-600" size={24} /></div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Excluir pergunta?</h3>
-            <p className="text-sm text-gray-500 mb-6 line-clamp-3">{toDelete.question}</p>
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => setToDelete(null)} className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50">Cancelar</button>
-              <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 flex items-center gap-2"><Trash2 size={16} /> Excluir</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className={`p-6 rounded-xl mb-8 border ${editingId ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
         <div className="flex justify-between items-center mb-4">
@@ -215,7 +204,7 @@ export default function AdminFAQ({ pageKey = 'home' }) {
             <div className="flex items-center gap-1 pl-2 border-l border-gray-100">
               <button onClick={() => toggleActive(item)} className={`p-2 rounded-full ${item.active == 1 ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 bg-gray-100'}`}>{item.active == 1 ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}</button>
               <button onClick={() => handleEdit(item)} className="p-2 rounded-full text-blue-500 bg-blue-50"><Edit size={18} /></button>
-              <button onClick={() => setToDelete(item)} className="p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50"><Trash2 size={18} /></button>
+              <button onClick={() => requestDelete(item)} className="p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50"><Trash2 size={18} /></button>
             </div>
           </div>
         ))}

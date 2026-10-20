@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { AdminPage, AdminCard, useDirty, useConfirm } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe,
@@ -94,6 +95,7 @@ export default function AssociadasAdmin() {
   const [error, setError] = useState('');
   const [pendingFiles, setPendingFiles] = useState({});
   const [pendingPreviews, setPendingPreviews] = useState({});
+  const { dirty, markClean } = useDirty(config, { ready: !loading, extra: Object.keys(pendingFiles).length > 0 });
 
   // Empresas (CRUD próprio — endpoint associadas.php)
   const [partners, setPartners] = useState([]);
@@ -159,7 +161,10 @@ export default function AssociadasAdmin() {
       fd.append('content_json', JSON.stringify(config));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
-      if (data && data.data) setConfig(mergeCfg(DEFAULTS, data.data));
+      const next = data && data.data ? mergeCfg(DEFAULTS, data.data) : config;
+      setConfig(next);
+      markClean(next);
+      window.showToast?.('Página Associadas salva.');
       setPendingFiles({});
       setPendingPreviews({});
       setSavedAt(Date.now());
@@ -182,41 +187,15 @@ export default function AssociadasAdmin() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Página Empresas Associadas</h2>
-          <p className="text-xs text-gray-500 mt-1">Textos vêm pré-preenchidos com o conteúdo atual da página.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          {activeTab !== 'empresas' && (
-            <Button onClick={handleSavePage} disabled={saving} isLoading={saving} variant="primary">
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar alterações'}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-        <div className="flex gap-1 min-w-max">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const active = activeTab === t.id;
-            return (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${active ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-gray-400 hover:text-gray-700'}`}>
-                <Icon size={14} /> {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <AdminPage
+      title="Página Empresas Associadas"
+      subtitle="Os textos vêm preenchidos com o conteúdo atual. As empresas são salvas uma a uma, na aba Empresas."
+      save={{ onSave: handleSavePage, saving, dirty, savedAt }}
+      tabs={TABS}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+     <AdminCard>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -231,7 +210,8 @@ export default function AssociadasAdmin() {
       {activeTab === 'cta' && (
         <CtaForm cfg={config} set={set} />
       )}
-    </div>
+     </AdminCard>
+    </AdminPage>
   );
 }
 
@@ -316,12 +296,12 @@ function CtaForm({ cfg, set }) {
 
 // ─── EMPRESAS (CRUD) ──────────────────────────────────────────
 function EmpresasManager({ partners, loading, reload }) {
+  const confirm = useConfirm();
   const [newName, setNewName] = useState('');
   const [newWebsite, setNewWebsite] = useState('');
   const [newLogo, setNewLogo] = useState(null);
   const [newLogoPreview, setNewLogoPreview] = useState(null);
   const [adding, setAdding] = useState(false);
-  const [toDelete, setToDelete] = useState(null);
   const newLogoRef = useRef();
 
   const handleAdd = async () => {
@@ -344,10 +324,14 @@ function EmpresasManager({ partners, loading, reload }) {
     } finally { setAdding(false); }
   };
 
-  const handleDelete = async (id) => {
-    await fetch(`${ASSOC_URL}?id=${id}`, { method: 'DELETE' });
-    reload();
-    setToDelete(null);
+  // Exclusão com a confirmação padrão do painel
+  const requestDelete = async (p) => {
+    if (!(await confirm({ title: `Excluir ${p.name}?`, message: 'A empresa sai da página Associadas e do carrossel da Home.' }))) return;
+    try {
+      await apiRequest(`${ASSOC_URL}?id=${p.id}`, { method: 'DELETE' });
+      window.showToast?.('Empresa excluída.');
+      reload();
+    } catch (err) { toastError(err); }
   };
 
   const handleToggle = async (id, currentActive) => {
@@ -385,19 +369,6 @@ function EmpresasManager({ partners, loading, reload }) {
 
   return (
     <div className="relative space-y-6">
-      {toDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
-            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4"><AlertTriangle className="text-red-600" size={24} /></div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Excluir empresa?</h3>
-            <p className="text-sm text-gray-500 mb-6"><strong>{toDelete.name}</strong> será removida do site.</p>
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => setToDelete(null)} className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50">Cancelar</button>
-              <button onClick={() => handleDelete(toDelete.id)} className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 flex items-center gap-2"><Trash2 size={16} /> Excluir</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Adicionar nova */}
       <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
@@ -469,7 +440,7 @@ function EmpresasManager({ partners, loading, reload }) {
                 key={p.id}
                 partner={p}
                 onToggle={handleToggle}
-                onDelete={() => setToDelete(p)}
+                onDelete={() => requestDelete(p)}
                 onEditName={handleEditName}
                 onEditAddress={handleEditAddress}
                 onEditWebsite={handleEditWebsite}

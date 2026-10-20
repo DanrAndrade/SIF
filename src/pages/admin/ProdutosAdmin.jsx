@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm, AdminPage, AdminCard, useDirty } from '../../components/admin/kit';
 import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
@@ -109,6 +110,9 @@ export default function ProdutosAdmin() {
   const [savedAt, setSavedAt]       = useState(null);
   const [error, setError]           = useState('');
   const [uploading, setUploading]   = useState(false);
+  // O hero tem formulário próprio (PageHeaderForm): fica fora da comparação
+  const contentOnly = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_')));
+  const { dirty, markClean } = useDirty(contentOnly, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${PAGE_KEY}`)
@@ -132,7 +136,10 @@ export default function ProdutosAdmin() {
       const content = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_')));
       fd.append('content_json', JSON.stringify(content));
       const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
-      if (data?.data) setConfig(mergeCfg(CONTENT_DEFAULTS, data.data));
+      const next = data?.data ? mergeCfg(CONTENT_DEFAULTS, data.data) : config;
+      setConfig(next);
+      markClean(Object.fromEntries(Object.entries(next).filter(([k]) => !k.startsWith('hero_'))));
+      window.showToast?.('Página Produtos & Serviços salva.');
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
     } catch (err) {
@@ -153,43 +160,17 @@ export default function ProdutosAdmin() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-
-      {/* Cabeçalho */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h2 className="text-xl font-bold text-gray-800">Página Produtos &amp; Serviços</h2>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          {activeTab !== 'hero' && (
-            <Button onClick={handleSave} disabled={saving || uploading} isLoading={saving} variant="primary">
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar alterações'}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Abas de navegação */}
-      <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-        <div className="flex gap-1 min-w-max">
-          {SECTION_TABS.map(t => {
-            const Icon   = t.icon;
-            const active = activeTab === t.id;
-            return (
-              <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${
-                  active ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-gray-400 hover:text-gray-700'
-                }`}>
-                <Icon size={14} /> {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <AdminPage
+      title="Página Produtos & Serviços"
+      subtitle={activeTab === 'hero'
+        ? 'O cabeçalho tem o próprio botão de salvar, logo abaixo.'
+        : 'O botão Salvar vale para todas as abas de conteúdo.'}
+      save={activeTab !== 'hero' ? { onSave: handleSave, saving, dirty, savedAt, disabled: uploading } : undefined}
+      tabs={SECTION_TABS}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+     <AdminCard>
       {error && (
         <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>
       )}
@@ -219,7 +200,8 @@ export default function ProdutosAdmin() {
           onUploading={setUploading}
         />
       )}
-    </div>
+     </AdminCard>
+    </AdminPage>
   );
 }
 
@@ -257,6 +239,7 @@ function BoletimEditor({ config, set, onUploading }) {
 
 // ─── Gerenciador de PDFs do Boletim: título + arquivo PDF + capa opcional ──
 function BoletimPdfManager({ pdfs, onChange, onUploading }) {
+  const confirm = useConfirm();
   const [uploadCount, setUploadCount] = useState(0);
   useEffect(() => { onUploading?.(uploadCount > 0); }, [uploadCount, onUploading]);
 
@@ -265,7 +248,10 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
   const addEntry = () => {
     onChange([...(pdfs || []), { id: `bol-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, title: '', pdf_url: '', cover_url: '' }]);
   };
-  const removeEntry = (i) => onChange(pdfs.filter((_, idx) => idx !== i));
+  const removeEntry = async (i) => {
+    if (!(await confirm({ title: 'Remover esta edição do Boletim?', message: pdfs[i]?.title || '', confirmLabel: 'Remover' }))) return;
+    onChange(pdfs.filter((_, idx) => idx !== i));
+  };
   const updateEntry = (i, patch) => {
     const next = [...pdfs]; next[i] = { ...next[i], ...patch }; onChange(next);
   };

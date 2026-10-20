@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useConfirm } from '../../components/admin/kit';
 import { Plus, Edit3, Trash2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -29,6 +30,7 @@ const emptyForm = {
 };
 
 export default function ProjetosAdmin() {
+  const confirm = useConfirm();
   const [projetos, setProjetos] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,7 @@ export default function ProjetosAdmin() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Deseja excluir este projeto?')) return;
+    if (!(await confirm({ title: 'Excluir este projeto?', message: 'A página do projeto sai do site. Não dá para desfazer.' }))) return;
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchProjetos();

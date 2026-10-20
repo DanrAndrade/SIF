@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ConfirmProvider, UnsavedGuardProvider, useCanLeave } from '../../components/admin/kit';
 import { Menu } from 'lucide-react'; 
 
 // --- CAMINHOS DE IMPORTAÇÃO ---
@@ -21,10 +23,40 @@ import ProdutosAdmin from './ProdutosAdmin';
 import TreinamentosInCompanyAdmin from './TreinamentosInCompanyAdmin';
 import ContatoAdmin from './ContatoAdmin';
 
-export default function AdminDashboard({ currentTab }) {
-  const [activeTab, setActiveTab] = useState(currentTab || 'leads');
+// Endereço de cada tela do painel (o menu muda a URL: recarregar a página
+// volta para a mesma tela, e dá para mandar o link de uma tela específica)
+const TAB_PATHS = {
+  leads: '/admin/dashboard', candidates: '/admin/candidatos', banners: '/admin/banners',
+  jobs: '/admin/jobs', blog: '/admin/blog', eventos: '/admin/eventos',
+  treinamentos: '/admin/treinamentos', gt: '/admin/gt', projetos: '/admin/projetos',
+  eincol: '/admin/eincol', institucional: '/admin/institucional', associadas: '/admin/associadas',
+  home: '/admin/home', produtos: '/admin/produtos', in_company: '/admin/in-company',
+  contato: '/admin/contato',
+};
+
+export default function AdminDashboard(props) {
+  return (
+    <ConfirmProvider>
+      <UnsavedGuardProvider>
+        <DashboardInner {...props} />
+      </UnsavedGuardProvider>
+    </ConfirmProvider>
+  );
+}
+
+function DashboardInner({ currentTab }) {
+  const activeTab = currentTab || 'leads';
   const [sidebarOpen, setSidebarOpen] = useState(false); 
   const { logout } = useAuth();
+  const navigate = useNavigate();
+  const canLeave = useCanLeave();
+
+  // Troca de tela pelo menu: avisa se há alterações não salvas
+  const setActiveTab = async (tab) => {
+    if (tab === activeTab) return;
+    if (!(await canLeave())) return;
+    navigate(TAB_PATHS[tab] || '/admin/dashboard');
+  };
 
   return (
     <div className="flex h-screen bg-[#f3f4f6] font-sans text-[#1f2937] overflow-hidden">

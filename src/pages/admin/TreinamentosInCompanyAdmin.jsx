@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useConfirm } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
@@ -29,6 +30,7 @@ const emptyForm = {
 const segmentsDefault = ['Corporativo', 'Gestão Florestal', 'Segurança', 'Operações'];
 
 export default function TreinamentosInCompanyAdmin() {
+  const confirm = useConfirm();
   const [trainings, setTrainings] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -87,7 +89,7 @@ export default function TreinamentosInCompanyAdmin() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Deseja excluir este treinamento permanentemente?')) return;
+    if (!(await confirm({ title: 'Excluir este treinamento?', message: 'A página do treinamento sai do site. Não dá para desfazer.' }))) return;
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchTrainings();
@@ -147,9 +149,9 @@ export default function TreinamentosInCompanyAdmin() {
     }
   };
 
-  const removeSegment = (seg) => {
+  const removeSegment = async (seg) => {
     const inUse = trainings.some(t => t.segment === seg);
-    if (inUse && !window.confirm(`O segmento "${seg}" está sendo usado. Remover da lista não altera os treinamentos já salvos. Continuar?`)) return;
+    if (inUse && !(await confirm({ title: 'Remover este segmento?', message: `O segmento "${seg}" está sendo usado. Remover da lista não altera os treinamentos já salvos. Continuar?`, confirmLabel: 'Remover' }))) return;
     const next = segments.filter(s => s !== seg);
     setSegments(next);
     persistSegments(next);

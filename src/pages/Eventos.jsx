@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { STATUS_DOT } from '../utils/helpers';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -16,10 +17,6 @@ const HERO_DEFAULTS = {
   hero_scroll_label: 'Ver Agenda',
 };
 
-const STATUS_DOT = {
-  'Em Andamento':     'bg-amber-400',
-  'Concluído':        'bg-emerald-500',
-};
 
 // Determina se evento está ativo: respeita status manual, usa event_date como fallback
 const isEventoAtivo = (ev) => {

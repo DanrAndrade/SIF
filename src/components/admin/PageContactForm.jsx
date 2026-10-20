@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AdminCard, SaveButton, SaveStatus, useDirty } from './kit';
 import { Save, UploadCloud, Check, Loader2, User } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -22,6 +23,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [error, setError] = useState('');
+  const { dirty, markClean } = useDirty(cfg, { ready: !loading, extra: !!photoFile });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${pageKey}`)
@@ -60,7 +62,10 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
       // (hero etc.), sem sobrescrever com a cópia antiga desta tela.
       const saved = await savePageConfig(pageKey, cfg, { contact_photo: photoFile });
       const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo } = saved;
-      setCfg({ contact_name: contact_name || '', contact_role: contact_role || '', contact_email: contact_email || '', contact_whatsapp: contact_whatsapp || '', contact_photo: contact_photo || '' });
+      const next = { contact_name: contact_name || '', contact_role: contact_role || '', contact_email: contact_email || '', contact_whatsapp: contact_whatsapp || '', contact_photo: contact_photo || '' };
+      setCfg(next);
+      markClean(next);
+      window.showToast?.('Contato salvo.');
       setPhotoFile(null);
       setPhotoPreview(null);
       setSavedAt(Date.now());
@@ -78,23 +83,11 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
   const photoUrl = photoPreview || (cfg.contact_photo ? (cfg.contact_photo.startsWith('http') ? cfg.contact_photo : getImageUrl(cfg.contact_photo)) : '');
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 mb-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-        <div>
-          <h3 className="text-base font-bold text-gray-800 flex items-center gap-2"><User size={16} /> {title}</h3>
-          <p className="text-xs text-gray-500 mt-1">Os dados aqui aparecem como contato em todas as postagens deste tipo.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-            <Save size={16} /> {saving ? 'Salvando...' : 'Salvar contato'}
-          </Button>
-        </div>
-      </div>
+    <AdminCard
+      title={title}
+      subtitle="Os dados aqui aparecem como contato em todas as postagens deste tipo."
+      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} label="Salvar contato" /></>}
+    >
 
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
@@ -113,6 +106,10 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
             )}
             <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handlePhoto} />
           </div>
+          {photoUrl && (
+            <button type="button" onClick={() => { setPhotoFile(null); setPhotoPreview(null); set('contact_photo', ''); }}
+              className="mt-2 text-[11px] font-bold text-gray-400 hover:text-red-600">Remover foto</button>
+          )}
         </div>
 
         {/* Campos */}
@@ -125,7 +122,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
           </div>
         </div>
       </div>
-    </div>
+    </AdminCard>
   );
 }
 

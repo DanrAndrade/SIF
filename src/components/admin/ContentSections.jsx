@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useConfirm } from './kit';
 import { ChevronUp, ChevronDown, Trash2, Upload, X, Type, Layers, FileText, Loader2 } from 'lucide-react';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
@@ -7,6 +8,7 @@ import { API_BASE_URL } from '../../apiConfig';
 const PDF_UPLOAD_URL = `${API_BASE_URL}/upload_pdf.php`;
 
 function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
+  const confirm = useConfirm();
   const [uploading, setUploading] = useState(false);
 
   const setUploadState = useCallback((val) => {
@@ -39,7 +41,10 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
     p[i] = { ...p[i], [field]: val };
     onChange(p);
   };
-  const remove = (i) => onChange(pdfs.filter((_, idx) => idx !== i));
+  const remove = async (i) => {
+    if (!(await confirm({ title: 'Remover este PDF?', message: pdfs[i]?.title || '', confirmLabel: 'Remover' }))) return;
+    onChange(pdfs.filter((_, idx) => idx !== i));
+  };
 
   return (
     <div className="space-y-3">
@@ -63,9 +68,9 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
       ))}
 
       {uploading && (
-        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <Loader2 size={16} className="text-amber-600 animate-spin flex-shrink-0" />
-          <span className="text-xs font-bold text-amber-700 uppercase tracking-widest">
+        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+          <Loader2 size={16} className="text-emerald-600 animate-spin flex-shrink-0" />
+          <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest">
             Enviando PDF... aguarde antes de salvar
           </span>
         </div>
@@ -153,6 +158,7 @@ const SECTION_TYPES = [
 ];
 
 export default function ContentSections({ sections = [], onChange, onUploading }) {
+  const confirm = useConfirm();
   const [uploadCount, setUploadCount] = useState(0);
 
   const handleUploadingChange = useCallback((isUploading) => {
@@ -174,7 +180,10 @@ export default function ContentSections({ sections = [], onChange, onUploading }
 
   const moveUp   = (i) => { if (i === 0) return; const s = [...sections]; [s[i - 1], s[i]] = [s[i], s[i - 1]]; onChange(s); };
   const moveDown = (i) => { if (i === sections.length - 1) return; const s = [...sections]; [s[i], s[i + 1]] = [s[i + 1], s[i]]; onChange(s); };
-  const remove   = (i) => onChange(sections.filter((_, idx) => idx !== i));
+  const remove   = async (i) => {
+    if (!(await confirm({ title: 'Remover esta seção?', message: 'O conteúdo dela sai da página ao salvar.', confirmLabel: 'Remover' }))) return;
+    onChange(sections.filter((_, idx) => idx !== i));
+  };
   const update   = (i, updates) => { const s = [...sections]; s[i] = { ...s[i], ...updates }; onChange(s); };
 
   const isUploading = uploadCount > 0;
@@ -187,11 +196,11 @@ export default function ContentSections({ sections = [], onChange, onUploading }
       </div>
 
       {isUploading && (
-        <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-          <Loader2 size={18} className="text-amber-600 animate-spin flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+          <Loader2 size={18} className="text-emerald-600 animate-spin flex-shrink-0" />
           <div>
-            <p className="text-sm font-bold text-amber-800">Upload em andamento</p>
-            <p className="text-xs text-amber-600">Aguarde o envio terminar antes de salvar o formulário.</p>
+            <p className="text-sm font-bold text-emerald-800">Upload em andamento</p>
+            <p className="text-xs text-emerald-600">Aguarde o envio terminar antes de salvar o formulário.</p>
           </div>
         </div>
       )}

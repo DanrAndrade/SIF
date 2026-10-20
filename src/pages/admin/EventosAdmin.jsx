@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Play, MapPin, Calendar, Clock, Eye, EyeOff } from 'lucide-react';
 import { projectStatusColor } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
@@ -28,6 +29,7 @@ const emptyForm = {
 };
 
 export default function EventosAdmin() {
+  const confirm = useConfirm();
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -83,7 +85,7 @@ export default function EventosAdmin() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Tem certeza que deseja excluir este evento?')) return;
+    if (!(await confirm({ title: 'Excluir este evento?', message: 'A página do evento sai do site. Não dá para desfazer.' }))) return;
     try {
       await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
       fetchEvents();

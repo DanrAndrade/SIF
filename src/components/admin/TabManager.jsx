@@ -1,50 +1,31 @@
 import React from 'react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
+import { Plus } from 'lucide-react';
+import { useConfirm, ItemActions } from './kit';
+import QuillEditor from './QuillEditor';
 
+// Editor de uma aba: usa o QuillEditor padrão do painel (barra fixa,
+// imagem colada vira arquivo) e as ações padrão ↑ ↓ · Excluir.
 function TabEditorItem({ tab, index, total, itemLabel, onMoveUp, onMoveDown, onRemove, onUpdate }) {
-  const { quillRef, modules } = useQuillImageHandler();
-
   return (
     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200 space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="flex flex-col gap-0.5 flex-shrink-0">
-          <button type="button" onClick={onMoveUp} disabled={index === 0}
-            className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-            <ChevronUp size={13}/>
-          </button>
-          <button type="button" onClick={onMoveDown} disabled={index === total - 1}
-            className="p-1 text-gray-400 hover:text-[#007a3d] disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-            <ChevronDown size={13}/>
-          </button>
-        </div>
+      <div className="flex items-center gap-3">
         <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest shrink-0">
           {itemLabel} {index + 1}
         </span>
         <input
-          className="flex-1 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
+          className="flex-1 min-w-0 p-3 bg-white rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]"
           placeholder="Título..."
           value={tab.title}
           onChange={e => onUpdate('title', e.target.value)}
         />
-        <button type="button" onClick={onRemove}
-          className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shrink-0">
-          <Trash2 size={16}/>
-        </button>
-      </div>
-      <div className="bg-white rounded-lg border border-gray-200">
-        <ReactQuill
-          ref={quillRef}
-          theme="snow"
-          modules={modules}
-          value={tab.content}
-          onChange={val => onUpdate('content', val)}
-          useSemanticHTML={false}
-          className="h-[420px]"
+        <ItemActions
+          onMove={(dir) => (dir < 0 ? onMoveUp() : onMoveDown())}
+          isFirst={index === 0}
+          isLast={index === total - 1}
+          onDelete={onRemove}
         />
       </div>
+      <QuillEditor value={tab.content} onChange={val => onUpdate('content', val)} height="h-[420px]" />
     </div>
   );
 }
@@ -56,8 +37,12 @@ export default function TabManager({
   itemLabel = 'Aba',
   hint = '',
 }) {
-  const addTab = () => onChange([...tabs, { title: '', content: '' }]);
-  const removeTab = (i) => onChange(tabs.filter((_, idx) => idx !== i));
+  const confirm = useConfirm();
+  const addTab = () => onChange([...tabs, { _uid: `tab-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, title: '', content: '' }]);
+  const removeTab = async (i) => {
+    if (!(await confirm({ title: 'Remover esta aba?', message: tabs[i]?.title || '', confirmLabel: 'Remover' }))) return;
+    onChange(tabs.filter((_, idx) => idx !== i));
+  };
   const updateTab = (i, field, val) => {
     const next = [...tabs];
     next[i] = { ...next[i], [field]: val };
@@ -102,7 +87,7 @@ export default function TabManager({
 
       {tabs.map((tab, i) => (
         <TabEditorItem
-          key={i}
+          key={tab._uid || tab.id || i}
           tab={tab}
           index={i}
           total={tabs.length}

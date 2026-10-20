@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiRequest, toastError } from '../utils/adminApi';
+import { useConfirm } from '../components/admin/kit';
 import { Trash2, Edit3, X, Plus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
 import QuillEditor from '../components/admin/QuillEditor';
@@ -24,12 +26,12 @@ const AVAILABLE_TAGS = [
 ];
 
 export default function BlogAdmin() {
+  const confirm = useConfirm();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sectionsUploading, setSectionsUploading] = useState(false);
   const [error, setError] = useState(null);
   const [view, setView] = useState('list');
-  const [deleteId, setDeleteId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', imageFile: null, sections: [] });
@@ -64,24 +66,22 @@ export default function BlogAdmin() {
     try {
       await fetch(API_URL, { method: 'POST', body: fd });
       fetchPosts();
-    } catch { alert('Erro ao alterar visibilidade.'); }
+    } catch { window.showToast('Erro ao alterar visibilidade.'); }
   };
 
   const toggleTag = (tag) =>
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  // Exclusão com a confirmação padrão do painel
+  const requestDelete = async (post) => {
+    if (!(await confirm({ title: 'Excluir esta publicação?', message: post.title }))) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}?id=${deleteId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const result = await res.json();
-      if (result.success) { setDeleteId(null); await fetchPosts(); }
-      else alert(result.error || 'Erro ao excluir publicação');
+      await apiRequest(`${API_URL}?id=${post.id}`, { method: 'DELETE' });
+      window.showToast?.('Publicação excluída.');
+      await fetchPosts();
     } catch (err) {
-      console.error('Erro ao excluir:', err);
-      alert('Erro de conexão com o servidor. Tente novamente.');
+      toastError(err);
     } finally { setLoading(false); }
   };
 
@@ -105,15 +105,15 @@ export default function BlogAdmin() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Erro ao carregar artigo:', err);
-      alert('Erro ao carregar os dados do artigo. Tente novamente.');
+      window.showToast('Erro ao carregar os dados do artigo. Tente novamente.');
     } finally { setLoading(false); }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title.trim()) { alert('O título é obrigatório.'); return; }
+    if (!formData.title.trim()) { window.showToast('O título é obrigatório.'); return; }
     if (!formData.content.trim() || formData.content === '<p><br></p>') {
-      alert('O conteúdo é obrigatório.'); return;
+      window.showToast('O conteúdo é obrigatório.'); return;
     }
     setLoading(true); setError(null);
     const data = new FormData();
@@ -130,13 +130,13 @@ export default function BlogAdmin() {
       const result = await res.json();
       if (result.success) {
         resetForm(); await fetchPosts();
-        alert(editingId ? 'Artigo atualizado com sucesso!' : 'Artigo publicado com sucesso!');
+        window.showToast(editingId ? 'Artigo atualizado com sucesso!' : 'Artigo publicado com sucesso!');
       } else {
-        alert('Erro: ' + (result.error || 'Falha ao salvar publicação'));
+        window.showToast('Erro: ' + (result.error || 'Falha ao salvar publicação'));
       }
     } catch (err) {
       console.error('Erro ao salvar:', err);
-      alert('Erro ao salvar publicação. Verifique sua conexão e tente novamente.');
+      window.showToast('Erro ao salvar publicação. Verifique sua conexão e tente novamente.');
     } finally { setLoading(false); }
   };
 
@@ -150,28 +150,6 @@ export default function BlogAdmin() {
   return (
     <div className="w-full relative">
 
-      {/* Modal de confirmação de exclusão */}
-      {deleteId && (
-        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center backdrop-blur-sm px-4">
-          <div className="bg-white p-8 rounded-3xl max-w-md w-full shadow-2xl">
-            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6 mx-auto">
-              <Trash2 size={32}/>
-            </div>
-            <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">Excluir Artigo?</h3>
-            <p className="text-center text-gray-500 mb-8">Esta ação é irreversível. O artigo será removido permanentemente.</p>
-            <div className="flex gap-4">
-              <button onClick={() => setDeleteId(null)} disabled={loading}
-                className="flex-1 py-4 rounded-2xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50">
-                Cancelar
-              </button>
-              <button onClick={confirmDelete} disabled={loading}
-                className="flex-1 py-4 rounded-2xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50">
-                {loading ? 'Excluindo...' : 'Sim, Excluir'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
@@ -225,7 +203,7 @@ export default function BlogAdmin() {
                     className="p-4 bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-50">
                     <Edit3 size={20}/>
                   </button>
-                  <button onClick={() => setDeleteId(post.id)}
+                  <button onClick={() => requestDelete(post)}
                     className="p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all">
                     <Trash2 size={20}/>
                   </button>

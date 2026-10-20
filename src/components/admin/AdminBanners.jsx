@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useConfirm } from './kit';
 import { Plus, Trash2, Image as ImageIcon, ToggleLeft, ToggleRight, Save, UploadCloud, Edit, X, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import Button from '../ui/Button';
@@ -6,6 +7,7 @@ import { Input } from '../ui/FormElements';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 export default function AdminBanners() {
+  const confirm = useConfirm();
   const [banners, setBanners] = useState([]);
   
   // Estados do formulário
@@ -20,7 +22,6 @@ export default function AdminBanners() {
   const [uploading, setUploading] = useState(false);
 
   // --- NOVO: Estado para o Modal de Exclusão ---
-  const [bannerToDelete, setBannerToDelete] = useState(null);
 
   // URL da API (Já atualizada para SIF)
   const API_URL = `${API_BASE_URL}/banners.php`; 
@@ -107,20 +108,14 @@ export default function AdminBanners() {
     }
   };
 
-  // --- FUNÇÃO 1: Abre o Modal ---
-  const requestDelete = (banner) => {
-    setBannerToDelete(banner);
-  };
-
-  // --- FUNÇÃO 2: Executa a Exclusão Real ---
-  const confirmDelete = async () => {
-    if (!bannerToDelete) return;
-
+  // Exclusão com a confirmação padrão do painel
+  const requestDelete = async (banner) => {
+    if (!(await confirm({ title: 'Excluir este banner?', message: 'Ele sai do carrossel da Home. Não dá para desfazer.' }))) return;
     try {
-        await axios.delete(`${API_URL}?id=${bannerToDelete.id}`, { withCredentials: true });
-        setBanners(banners.filter(b => b.id !== bannerToDelete.id));
-        if (editingId === bannerToDelete.id) resetForm();
-        setBannerToDelete(null); // Fecha o modal
+        await axios.delete(`${API_URL}?id=${banner.id}`, { withCredentials: true });
+        setBanners(banners.filter(b => b.id !== banner.id));
+        if (editingId === banner.id) resetForm();
+        window.showToast?.('Banner excluído.');
     } catch (err) {
         window.showToast('Erro ao excluir banner.');
     }
@@ -154,37 +149,6 @@ export default function AdminBanners() {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative">
       
-      {/* --- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO --- */}
-      {bannerToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 p-6 text-center">
-                
-                <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                    <AlertTriangle className="text-red-600" size={24} />
-                </div>
-                
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Excluir Banner?</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                    Esta ação não pode ser desfeita. O banner será removido permanentemente do site.
-                </p>
-
-                <div className="flex gap-3 justify-center">
-                    <button 
-                        onClick={() => setBannerToDelete(null)}
-                        className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                    <button 
-                        onClick={confirmDelete}
-                        className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 shadow-md transition-colors flex items-center gap-2"
-                    >
-                        <Trash2 size={16} /> Sim, Excluir
-                    </button>
-                </div>
-            </div>
-        </div>
-      )}
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Gerenciar Banners</h2>

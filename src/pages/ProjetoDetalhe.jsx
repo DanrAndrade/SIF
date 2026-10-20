@@ -7,16 +7,10 @@ import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, Chevro
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
-import { getEffectiveProjectStatus } from '../utils/helpers';
+import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
-const STATUS_DOT = {
-  'Em Andamento': 'bg-amber-400',
-  'Concluído': 'bg-emerald-500',
-  'Em Planejamento': 'bg-blue-400',
-  'Suspenso': 'bg-red-400',
-};
 
 function formatDate(dateStr) {
   if (!dateStr) return null;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AdminCard, SaveButton, SaveStatus, useDirty } from './kit';
 import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL } from '../../apiConfig';
@@ -17,6 +18,7 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
+  const { dirty, markClean } = useDirty(cfg, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${pageKey}`)
@@ -41,6 +43,8 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
     try {
       // Só os campos deste formulário — o PHP preserva o resto da página.
       await savePageConfig(pageKey, cfg);
+      markClean(cfg);
+      window.showToast?.('Conteúdo salvo.');
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
     } catch (err) {
@@ -63,20 +67,10 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-        <h3 className="text-base font-bold text-gray-800">{title}</h3>
-        <div className="flex items-center gap-3">
-          {savedAt && (
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Check size={14} /> Salvo
-            </span>
-          )}
-          <Button onClick={handleSave} disabled={saving} isLoading={saving} variant="primary">
-            <Save size={16} /> {saving ? 'Salvando...' : 'Salvar'}
-          </Button>
-        </div>
-      </div>
+    <AdminCard
+      title={title}
+      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} label="Salvar" /></>}
+    >
 
       <div className="space-y-5">
         {groupNames.map(groupName => (
@@ -100,7 +94,7 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
           </div>
         ))}
       </div>
-    </div>
+    </AdminCard>
   );
 }
 

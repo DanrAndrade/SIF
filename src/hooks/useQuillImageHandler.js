@@ -47,10 +47,10 @@ export function useQuillImageHandler(toolbar = DEFAULT_TOOLBAR) {
           quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
           quill.setSelection(range.index + 1);
         } else if (!data.success) {
-          alert(data.message || 'Erro ao fazer upload da imagem.');
+          window.showToast?.(data.message || 'Erro ao fazer upload da imagem.', 'error');
         }
       } catch {
-        alert('Falha ao conectar ao servidor de upload.');
+        window.showToast?.('Falha ao conectar ao servidor de upload.', 'error');
       }
     };
   }, []);
