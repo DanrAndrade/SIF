@@ -6,7 +6,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // RESTRITO: Só admin vê as mensagens
 if ($method === 'GET') {
-    if (!isset($_SESSION['admin_logged_in'])) {
+    if (!sif_can('leads')) { if (sif_is_admin()) sif_deny();
         http_response_code(401); exit;
     }
     $stmt = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC");
@@ -18,7 +18,7 @@ elseif ($method === 'POST') {
     
     // RESTRITO: Atualizar status (só admin pode)
     if (isset($data['id']) && isset($data['status'])) {
-        if (!isset($_SESSION['admin_logged_in'])) {
+        if (!sif_can('leads')) { if (sif_is_admin()) sif_deny();
             http_response_code(401); exit;
         }
         $stmt = $pdo->prepare("UPDATE leads SET status=? WHERE id=?");

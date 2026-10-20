@@ -18,7 +18,7 @@ if ($method === 'GET') {
 // --- POST: Criar OU Editar Banner ---
 elseif ($method === 'POST') {
     
-    if (!isset($_SESSION['admin_logged_in'])) {
+    if (!sif_can('banners')) { if (sif_is_admin()) sif_deny();
         http_response_code(401);
         echo json_encode(['error' => 'Não autorizado']);
         exit;
@@ -97,7 +97,7 @@ elseif ($method === 'POST') {
 
 // --- PUT: Toggle Status ---
 elseif ($method === 'PUT') {
-    if (!isset($_SESSION['admin_logged_in'])) { http_response_code(401); exit; }
+    if (!sif_can('banners')) { if (sif_is_admin()) sif_deny(); http_response_code(401); exit; }
     $data = json_decode(sif_raw_input(), true);
     $id = $_GET['id'] ?? $data['id'] ?? null;
     $active = $data['active'] ?? null;
@@ -112,7 +112,7 @@ elseif ($method === 'PUT') {
 
 // --- DELETE ---
 elseif ($method === 'DELETE') {
-    if (!isset($_SESSION['admin_logged_in'])) { http_response_code(401); exit; }
+    if (!sif_can('banners')) { if (sif_is_admin()) sif_deny(); http_response_code(401); exit; }
     $id = $_GET['id'] ?? null;
     if ($id) {
         $stmt = $pdo->prepare("SELECT image_url FROM banners WHERE id = ?");

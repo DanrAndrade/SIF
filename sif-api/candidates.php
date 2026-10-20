@@ -6,7 +6,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // GET: Listar candidatos (Só Admin)
 if ($method === 'GET') {
-    if (!isset($_SESSION['admin_logged_in'])) {
+    if (!sif_can('candidates')) { if (sif_is_admin()) sif_deny();
         http_response_code(401); 
         echo json_encode(['error' => 'Não autorizado']);
         exit;
@@ -79,7 +79,7 @@ elseif ($method === 'POST') {
     else {
         $data = json_decode(sif_raw_input(), true);
         
-        if (!isset($_SESSION['admin_logged_in'])) {
+        if (!sif_can('candidates')) { if (sif_is_admin()) sif_deny();
             http_response_code(401); exit;
         }
 

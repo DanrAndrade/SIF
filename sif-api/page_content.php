@@ -108,6 +108,9 @@ if ($method === 'POST') {
         echo json_encode(['error' => 'Campo "page" obrigatório.']);
         exit;
     }
+    // Permissão: página → módulo (páginas sem módulo, só administrador)
+    $pageModule = sif_page_module($page);
+    if ($pageModule === null ? !sif_is_superadmin() : !sif_can($pageModule)) sif_deny();
 
     // Lê a config atual do banco
     $stmt = $pdo->prepare("SELECT config_json FROM page_configs WHERE page_key = ?");

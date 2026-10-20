@@ -11,7 +11,8 @@
  *      - JSON:   use sif_raw_input() no lugar de file_get_contents('php://input')
  *    Valores sem o prefixo passam intactos (compatível com envios antigos).
  *
- * 2) EXIGE LOGIN DO PAINEL para qualquer gravação (POST/PUT/DELETE).
+ * 2) EXIGE LOGIN DO PAINEL para qualquer gravação (POST/PUT/DELETE) e
+ *    confere a PERMISSÃO do usuário para a área (perfis: admin / editor).
  *    Leitura (GET) continua pública, pois o site precisa dela.
  *    Exceções: login e os formulários públicos (contato e candidatura),
  *    que já checam o login sozinhos nas partes restritas.
@@ -121,7 +122,7 @@ function sif_safe_name(string $ext): string {
 // Ajustes de estrutura, idempotentes e versionados. Rodam uma única vez
 // (a versão aplicada fica em page_configs, chave "_schema"). Chamado pelo
 // session.php quando o admin abre o painel — não pesa nas visitas do site.
-const SIF_SCHEMA_VERSION = 2;
+const SIF_SCHEMA_VERSION = 3;
 
 function sif_ensure_schema(PDO $pdo): void {
     try {
@@ -183,6 +184,31 @@ function sif_ensure_schema(PDO $pdo): void {
             }
         }
 
+        if ($current < 3) {
+            // Usuários e permissões: perfil, módulos liberados e GTs pelos quais responde
+            if ($tableExists('admins')) {
+                $add = [
+                    'name'       => "VARCHAR(120) NULL",
+                    'cargo'      => "VARCHAR(120) NULL",
+                    'role'       => "VARCHAR(20) NOT NULL DEFAULT 'admin'",
+                    'modules'    => "TEXT NULL",
+                    'gt_ids'     => "TEXT NULL",
+                    'active'     => "TINYINT(1) NOT NULL DEFAULT 1",
+                    'last_login' => "DATETIME NULL",
+                    'created_at' => "TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
+                ];
+                foreach ($add as $col => $def) {
+                    if ($colType('admins', $col) === false) $pdo->exec("ALTER TABLE admins ADD COLUMN `$col` $def");
+                }
+            }
+            // Blog: grupo temático do post, responsáveis (vários) e quem criou
+            if ($tableExists('blog_posts')) {
+                if ($colType('blog_posts', 'gt_id') === false)           $pdo->exec("ALTER TABLE blog_posts ADD COLUMN gt_id INT NULL");
+                if ($colType('blog_posts', 'responsavel_ids') === false) $pdo->exec("ALTER TABLE blog_posts ADD COLUMN responsavel_ids TEXT NULL");
+                if ($colType('blog_posts', 'created_by') === false)      $pdo->exec("ALTER TABLE blog_posts ADD COLUMN created_by INT NULL");
+            }
+        }
+
         $pdo->prepare("INSERT INTO page_configs (page_key, config_json) VALUES ('_schema', ?)
                        ON DUPLICATE KEY UPDATE config_json = VALUES(config_json)")
             ->execute([json_encode(['version' => SIF_SCHEMA_VERSION, 'applied_at' => date('c')])]);
@@ -192,16 +218,79 @@ function sif_ensure_schema(PDO $pdo): void {
 }
 
 // ---------------------------------------------------------------- 2) login para gravar
-function sif_is_admin(): bool {
-    return !empty($_SESSION['admin_logged_in']);
+// ---------------------------------------------------------------- 3) usuários e permissões
+// Perfis:  admin  → tudo, inclusive cadastrar usuários
+//          editor → só os módulos marcados no cadastro (coluna modules)
+// Responsável por GT (coluna gt_ids): pode publicar no blog dos seus grupos,
+// mesmo sem o módulo "blog" completo. Ver sif_blog_* no blog.php.
+const SIF_MODULES = [
+    'leads', 'candidates', 'banners', 'jobs', 'blog', 'eventos', 'treinamentos',
+    'gt', 'projetos', 'embrapii', 'home', 'institucional', 'associadas',
+    'produtos', 'in_company', 'contato', 'rodape', 'eincol',
+];
+
+function sif_json_list($v): array {
+    $a = is_array($v) ? $v : json_decode((string)$v, true);
+    return is_array($a) ? array_values($a) : [];
+}
+
+// Usuário logado (lido do banco a cada pedido: desativar/alterar vale na hora).
+function sif_user(): ?array {
+    static $cache = null; // só guarda quando achou (o login cria a sessão no meio do pedido)
+    if ($cache !== null) return $cache;
+    if (empty($_SESSION['admin_logged_in']) || empty($_SESSION['admin_id'])) return null;
+    global $pdo;
+    if (!isset($pdo)) return null;
+    $st = $pdo->prepare("SELECT * FROM admins WHERE id = ?");
+    $st->execute([(int)$_SESSION['admin_id']]);
+    $u = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$u || (isset($u['active']) && (int)$u['active'] !== 1)) return null;
+    $cache = [
+        'id'      => (int)$u['id'],
+        'email'   => $u['email'],
+        'name'    => $u['name'] ?? '',
+        'cargo'   => $u['cargo'] ?? '',
+        'role'    => ($u['role'] ?? 'admin') === 'editor' ? 'editor' : 'admin',
+        'modules' => array_values(array_intersect(sif_json_list($u['modules'] ?? null), SIF_MODULES)),
+        'gt_ids'  => array_map('intval', sif_json_list($u['gt_ids'] ?? null)),
+    ];
+    return $cache;
+}
+
+function sif_is_admin(): bool { return sif_user() !== null; }               // = está logado no painel
+function sif_is_superadmin(): bool { $u = sif_user(); return $u && $u['role'] === 'admin'; }
+function sif_can(string $module): bool {
+    $u = sif_user();
+    if (!$u) return false;
+    return $u['role'] === 'admin' || in_array($module, $u['modules'], true);
+}
+function sif_deny(string $msg = 'Seu usuário não tem permissão para alterar esta área do painel. Fale com um administrador.'): void {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'sem_permissao', 'message' => $msg]);
+    exit;
+}
+function sif_require(string $module): void { if (!sif_can($module)) sif_deny(); }
+
+// Página (page_configs) → módulo que pode editá-la
+function sif_page_module(string $page): ?string {
+    $map = [
+        'home' => 'home', 'associadas' => 'associadas', 'produtos' => 'produtos',
+        'contato' => 'contato', 'footer' => 'rodape', 'embrapii' => 'embrapii',
+        'eventos' => 'eventos', 'treinamentos' => 'treinamentos', 'gt' => 'gt',
+        'projetos' => 'projetos', 'jobs' => 'jobs', 'blog' => 'blog',
+        'treinamentos_in_company' => 'in_company', 'in_company' => 'in_company',
+    ];
+    return $map[$page] ?? null; // desconhecida → só admin
 }
 
 $sif_public_scripts = ['login_admin.php', 'leads.php', 'candidates.php', 'session.php'];
 $sif_script = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
 $sif_method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+$sif_is_write = !in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true);
+
 if (!in_array($sif_script, $sif_public_scripts, true)
-    && !in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true)
+    && $sif_is_write
     && !sif_is_admin()) {
     http_response_code(401);
     header('Content-Type: application/json');
@@ -211,6 +300,18 @@ if (!in_array($sif_script, $sif_public_scripts, true)
         'message' => 'Sua sessão do painel expirou. Faça login novamente para salvar.',
     ]);
     exit;
+}
+
+// Permissão por área. Endpoints que decidem sozinhos (página, blog, leads,
+// candidaturas, uploads e usuários) ficam fora deste mapa.
+$sif_script_module = [
+    'banners.php' => 'banners', 'jobs.php' => 'jobs', 'eventos.php' => 'eventos',
+    'treinamentos.php' => 'treinamentos', 'gt.php' => 'gt', 'projetos.php' => 'projetos',
+    'faqs.php' => 'home', 'institucional.php' => 'institucional', 'associadas.php' => 'associadas',
+    'treinamentos_in_company.php' => 'in_company', 'eincol.php' => 'eincol',
+];
+if ($sif_is_write && sif_is_admin() && isset($sif_script_module[$sif_script])) {
+    sif_require($sif_script_module[$sif_script]);
 }
 
 // Admin gravando: garante que a estrutura do banco está atualizada (1 consulta

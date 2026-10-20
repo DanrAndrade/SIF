@@ -1,8 +1,10 @@
 <?php
 require 'db.php'; // Isso já inicia a session_start() se estiver configurado no db.php
+require_once 'api_guard.php';
 
-// 1. SEGURANÇA: Verifica se é Admin mesmo
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+// 1. SEGURANÇA: logado e com acesso a Candidatos
+if (!sif_can('candidates')) {
+    header('Content-Type: text/plain; charset=utf-8');
     http_response_code(403);
     die("Acesso Negado. Você precisa estar logado.");
 }
