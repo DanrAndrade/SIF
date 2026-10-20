@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Mail, Phone, User } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { Mail, Phone, User, ExternalLink } from 'lucide-react';
+import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
 
 // Card de contato responsável por tipo de página.
 // Configurado em /admin/<page> (Eventos/Treinamentos/GT/Projetos) e exibido
 // em cada postagem do tipo.
-export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com o responsável' }) {
-  const [cfg, setCfg] = useState(null);
+// override: responsável próprio da postagem (ex.: o de cada Grupo Temático).
+// Quando tem nome/e-mail/WhatsApp, é usado no lugar do contato geral da página.
+export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com o responsável', override = null }) {
+  const hasOverride = !!(override && (override.contact_name || override.contact_email || override.contact_whatsapp));
+  const [fetched, setCfg] = useState(null);
+  const cfg = hasOverride ? override : fetched;
 
   useEffect(() => {
-    if (!pageKey) return;
+    if (!pageKey || hasOverride) return;
     axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`)
       .then(res => {
         const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
@@ -19,7 +23,7 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
         }
       })
       .catch(() => {});
-  }, [pageKey]);
+  }, [pageKey, hasOverride]);
 
   // Sem dados de contato cadastrados → não renderiza nada
   if (!cfg) return null;
@@ -58,6 +62,11 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
             {cfg.contact_whatsapp && (
               <a href={`https://wa.me/55${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#007a3d]">
                 <Phone size={14} className="shrink-0" /> {cfg.contact_whatsapp}
+              </a>
+            )}
+            {cfg.contact_link && (
+              <a href={toExternalUrl(cfg.contact_link)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-bold text-[#007a3d] hover:underline">
+                <ExternalLink size={14} className="shrink-0" /> {cfg.contact_link_label || 'Ver perfil'}
               </a>
             )}
           </div>

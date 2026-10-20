@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
+import { useConfirm, AdminPage, AdminCard, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, ImageField } from '../../components/admin/kit';
 import { Target, Trash2, Edit3, X, Plus, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -9,7 +9,7 @@ import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL } from '../../apiConfig';
-import { apiRequest, toastError } from '../../utils/adminApi';
+import { apiRequest, toastError, uploadImageNow } from '../../utils/adminApi';
 
 const API_URL = `${API_BASE_URL}/gt.php`;
 
@@ -28,6 +28,8 @@ const emptyForm = {
   content_title: 'Objetivos do Cluster',
   content_subtitle: 'Linhas de Pesquisa e Inovação',
   sections: [],
+  responsavel: { name: '', role: '', email: '', whatsapp: '', link: '', link_label: '', photo: '' },
+  extraRest: {}, // outras chaves do extra_data que esta tela não edita
 };
 
 export default function GTAdmin() {
@@ -54,8 +56,15 @@ export default function GTAdmin() {
 
   const handleEdit = (gt) => {
     let sections = [];
+    let responsavel = { ...emptyForm.responsavel };
+    let extraRest = {};
     if (gt.extra_data) {
-      try { sections = JSON.parse(gt.extra_data).sections || []; } catch {}
+      try {
+        const { sections: s, responsavel: r, ...rest } = JSON.parse(gt.extra_data) || {};
+        sections = s || [];
+        responsavel = { ...responsavel, ...(r || {}) };
+        extraRest = rest;
+      } catch {}
     }
     setEditingId(gt.id);
     setFormData({
@@ -64,7 +73,7 @@ export default function GTAdmin() {
       image_url: gt.image_url || '',
       content_title: gt.content_title || 'Objetivos do Cluster',
       content_subtitle: gt.content_subtitle || 'Linhas de Pesquisa e Inovação',
-      sections,
+      sections, responsavel, extraRest,
     });
     setPreview(gt.image_url || null);
     setView('form');
@@ -103,7 +112,7 @@ export default function GTAdmin() {
     fd.append('bg_color', formData.color + '22');
     fd.append('content_title', formData.content_title);
     fd.append('content_subtitle', formData.content_subtitle);
-    fd.append('extra_data', JSON.stringify({ sections: formData.sections }));
+    fd.append('extra_data', JSON.stringify({ ...formData.extraRest, sections: formData.sections, responsavel: formData.responsavel }));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     if (editingId && formData.removeImage && !formData.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
@@ -212,6 +221,8 @@ export default function GTAdmin() {
               <QuillEditor value={formData.description} onChange={val => setFormData(f => ({...f, description: val}))} height="h-[500px]" />
             </div>
 
+            <ResponsavelForm value={formData.responsavel} onChange={r => setFormData(f => ({ ...f, responsavel: r }))} onUploading={setSectionsUploading} />
+
             <ContentSections
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
@@ -225,5 +236,42 @@ export default function GTAdmin() {
         </div>
       )}
     </AdminPage>
+  );
+}
+
+// Responsável deste grupo — aparece no card "Fale com o responsável" da página
+// do grupo. Vazio = usa o contato geral de Grupos Temáticos.
+function ResponsavelForm({ value, onChange, onUploading }) {
+  const r = value || {};
+  const set = (k, v) => onChange({ ...r, [k]: v });
+  const [busy, setBusy] = useState(false);
+  const cls = 'w-full p-3 bg-gray-50 rounded-xl text-sm outline-none border focus:border-[#007a3d]';
+  const field = (k, label, ph = '') => (
+    <div className="space-y-1">
+      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">{label}</label>
+      <input className={cls} placeholder={ph} value={r[k] || ''} onChange={e => set(k, e.target.value)} />
+    </div>
+  );
+  const onPhoto = async (file) => {
+    setBusy(true); onUploading?.(true);
+    try { set('photo', await uploadImageNow(file)); }
+    catch (err) { toastError(err); }
+    finally { setBusy(false); onUploading?.(false); }
+  };
+  return (
+    <AdminCard title="Responsável por este grupo">
+      <p className="text-xs text-gray-500 mb-4">Aparece no fim da página do grupo. Se ficar vazio, o site mostra o contato geral de Grupos Temáticos.</p>
+      <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
+        <ImageField label={busy ? 'Enviando...' : 'Foto'} value={r.photo} onFile={onPhoto} onRemove={() => set('photo', '')} aspect="h-44" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {field('name', 'Nome')}
+          {field('role', 'Cargo / função', 'Ex.: Coordenador(a) do GT')}
+          {field('email', 'E-mail')}
+          {field('whatsapp', 'WhatsApp', 'Somente números, com DDD')}
+          {field('link', 'Link (Lattes, LinkedIn...)', 'https://')}
+          {field('link_label', 'Texto do link', 'Ver perfil')}
+        </div>
+      </div>
+    </AdminCard>
   );
 }

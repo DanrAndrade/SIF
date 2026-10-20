@@ -20,6 +20,14 @@ const iconMap = {
   Activity: Activity
 };
 
+// Responsável próprio do grupo (Painel › Grupos Temáticos › editar grupo)
+function gtResponsavel(gt) {
+  try {
+    const r = (gt?.extra_data ? JSON.parse(gt.extra_data) : {}).responsavel || {};
+    return { contact_name: r.name, contact_role: r.role, contact_email: r.email, contact_whatsapp: r.whatsapp, contact_photo: r.photo, contact_link: r.link, contact_link_label: r.link_label };
+  } catch { return null; }
+}
+
 export default function GrupoTematicoDetalhe() {
   const { slug } = useParams();
   const [gt, setGt] = useState(null);
@@ -154,7 +162,7 @@ export default function GrupoTematicoDetalhe() {
       {/* CONTATO RESPONSÁVEL — configurado em /admin/gt */}
       <section className="py-16 bg-[#f8f9fa]">
         <div className="container mx-auto px-6 max-w-3xl">
-          <EditablePageContact pageKey="gt" fallbackTitle="Fale com o responsável" />
+          <EditablePageContact pageKey="gt" fallbackTitle="Fale com o responsável" override={gtResponsavel(gt)} />
         </div>
       </section>
 
