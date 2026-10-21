@@ -91,7 +91,7 @@ export default function Treinamentos() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {loading ? (
                Array(3).fill(0).map((_, i) => (
-                 <div key={i} className="bg-white h-96 rounded-[40px] animate-pulse"></div>
+                 <div key={i} className="bg-white h-96 rounded-panel animate-pulse"></div>
                ))
             ) : (
               filteredTrainings.length > 0 ? (
@@ -99,7 +99,7 @@ export default function Treinamentos() {
                   <Link 
                     key={training.id} 
                     to={`/treinamentos/${training.slug}`}
-                    className="group bg-white rounded-[48px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
+                    className="group bg-white rounded-panel overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
                   >
                     <div className="h-64 relative overflow-hidden bg-gray-100">
                       <img
@@ -118,7 +118,7 @@ export default function Treinamentos() {
                     </div>
                     
                     <div className="p-10 flex flex-col flex-grow">
-                      <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
+                      <h3 className="text-2xl font-semibold font-heading text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
                       
                       <div className="mt-auto space-y-4">
                         {training.date && (
@@ -160,7 +160,7 @@ export default function Treinamentos() {
             <NoiseOverlay opacity={1} />
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
-            <h2 className="sif-title text-4xl md:text-6xl text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
+            <h2 className="sif-title sif-h2 text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
             <p className="text-gray-400 text-base mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
             <Button href="/treinamentos-in-company" className="rounded-2xl font-black uppercase tracking-widest shadow-2xl">Consultar Projeto Customizado</Button>
          </div>

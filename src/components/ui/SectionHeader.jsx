@@ -27,7 +27,7 @@ export default function SectionHeader({
         </div>
       )}
       
-      <h2 className={`sif-title text-3xl md:text-5xl lg:text-6xl leading-none tracking-tight mb-6 ${textColor}`}>
+      <h2 className={`sif-title sif-h2 lg:text-6xl leading-none tracking-tight mb-6 ${textColor}`}>
         {/* Renderiza HTML dentro do título se necessário (para as quebras de linha <br/>) */}
         <span dangerouslySetInnerHTML={{ __html: title }} />
       </h2>

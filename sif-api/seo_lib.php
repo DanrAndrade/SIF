@@ -16,6 +16,9 @@
 const SIF_SEO_CACHE = __DIR__ . '/cache/seo_index.json';
 
 function sif_seo_text(?string $html, int $max = 160): string {
+    // Treinamentos antigos guardam a descrição como JSON {"presentation": "..."}
+    $raw = trim((string)$html);
+    if ($raw !== '' && $raw[0] === '{') { $j = json_decode($raw, true); if (is_array($j)) $html = $j['presentation'] ?? $j['description'] ?? implode(' ', array_filter($j, 'is_string')); }
     $t = html_entity_decode(strip_tags((string)$html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $t = trim(preg_replace('/\s+/u', ' ', $t));
     if (mb_strlen($t) <= $max) return $t;

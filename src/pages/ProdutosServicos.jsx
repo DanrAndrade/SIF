@@ -107,7 +107,7 @@ function BoletimGrid({ pdfs, legacySections }) {
           href={getImageUrl(p.pdf_url)}
           target="_blank"
           rel="noopener noreferrer"
-          className="group bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
+          className="group bg-white rounded-card overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
         >
           {p.cover_url ? (
             <div className="h-48 bg-gray-100 overflow-hidden">
@@ -125,7 +125,7 @@ function BoletimGrid({ pdfs, legacySections }) {
           )}
           <div className="p-6 flex flex-col flex-grow">
             <span className="text-[9px] font-black uppercase tracking-widest text-[#007a3d] mb-2">Boletim Técnico</span>
-            <h3 className="text-base font-bold font-heading uppercase text-[#1f2937] leading-tight mb-4 group-hover:text-[#007a3d] transition-colors flex-grow">
+            <h3 className="text-base font-semibold font-heading text-[#1f2937] leading-tight mb-4 group-hover:text-[#007a3d] transition-colors flex-grow">
               {p.title || 'Boletim sem título'}
             </h3>
             <div className="flex items-center justify-between pt-4 border-t border-gray-50">
@@ -195,7 +195,7 @@ export default function ProdutosServicos() {
 
               return (
                 <div key={tab.id} className="space-y-10 max-w-5xl mx-auto">
-                  <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] tracking-tight">
+                  <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">
                     {titleLine1}{' '}
                     <span className="text-[#007a3d]">{titleHighlight}</span>
                   </h2>
@@ -222,7 +222,7 @@ export default function ProdutosServicos() {
       {/* ── CARD GERMINAR: sempre visível no final, leva para Trabalhe Conosco ── */}
       <section className="pb-24 bg-transparent">
         <div className="container mx-auto px-6 max-w-5xl">
-          <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] via-[#1a3d20] to-[#0f1f11] p-10 md:p-16 shadow-xl">
+          <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] via-[#1a3d20] to-[#0f1f11] p-10 md:p-16 shadow-xl">
             <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-56 h-56 bg-[#007a3d]/40 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
@@ -232,7 +232,7 @@ export default function ProdutosServicos() {
                   <Briefcase size={12} className="text-[#7FBA00]" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Oportunidades</span>
                 </div>
-                <h2 className="sif-title text-4xl md:text-5xl text-white tracking-tighter leading-[0.95] mb-4">
+                <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-4">
                   Conheça as vagas do <span className="text-[#7FBA00]">Programa Germinar</span>
                 </h2>
                 <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">

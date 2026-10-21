@@ -67,7 +67,7 @@ export default function GruposTematicos() {
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="max-w-3xl mb-24">
-            <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
+            <h2 className="sif-title sif-h2 text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
             <p className="text-gray-500 text-xl font-medium leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
           </div>
 
@@ -75,7 +75,7 @@ export default function GruposTematicos() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {loading ? (
               Array(6).fill(0).map((_, i) => (
-                <div key={i} className="bg-white h-80 rounded-[48px] animate-pulse shadow-sm"></div>
+                <div key={i} className="bg-white h-80 rounded-panel animate-pulse shadow-sm"></div>
               ))
             ) : loadError ? (
               <LoadError onRetry={() => { setLoading(true); fetchGts(); }} />
@@ -88,7 +88,7 @@ export default function GruposTematicos() {
                   <Link 
                     key={gt.id} 
                     to={`/grupos-tematicos/${gt.slug}`}
-                    className="group bg-white rounded-[48px] border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all block relative overflow-hidden h-full flex flex-col"
+                    className="group bg-white rounded-panel border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all block relative overflow-hidden h-full flex flex-col"
                   >
                     {/* Banner (foto ou cor com ícone) */}
                     <div className="relative h-44 overflow-hidden rounded-t-[48px] flex-shrink-0">
@@ -132,11 +132,11 @@ export default function GruposTematicos() {
           </div>
 
           {/* CTAs EXTRAS */}
-          <div className="mt-24 p-12 md:p-20 bg-[#1f2937] rounded-[60px] text-white relative overflow-hidden">
+          <div className="mt-24 p-12 md:p-20 bg-[#1f2937] rounded-panel text-white relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.35)_1px,transparent_0)] bg-[length:10px_10px] opacity-20"></div>
              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
                <div className="max-w-xl">
-                 <h3 className="text-3xl md:text-5xl font-bold font-heading uppercase mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">parceira de um GT?</span></h3>
+                 <h3 className="text-3xl md:text-5xl font-medium font-heading mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">parceira de um GT?</span></h3>
                  <p className="text-gray-400 font-medium text-base">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
                </div>
                <Button href="/associadas" variant="primary" className="bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>

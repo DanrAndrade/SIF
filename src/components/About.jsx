@@ -22,7 +22,7 @@ export default function About({ config = {} }) {
 
   return (
       <div className="w-full max-w-[1280px] mx-auto px-3 md:px-12 mt-12">
-        <section className="w-full py-14 px-5 md:py-24 md:px-16 lg:px-24 mt-4 relative bg-white rounded-[32px] md:rounded-[60px] shadow-sm border border-gray-50 overflow-hidden">
+        <section className="w-full py-14 px-5 md:py-24 md:px-16 lg:px-24 mt-4 relative bg-white rounded-card md:rounded-panel shadow-sm border border-gray-50 overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full blur-[120px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
 
             <SectionHeader
@@ -48,7 +48,7 @@ export default function About({ config = {} }) {
                 </div>
 
                 <div className="lg:col-span-7 relative">
-                    <div className="relative w-full aspect-video rounded-[40px] overflow-hidden border border-gray-100 group shadow-2xl bg-black">
+                    <div className="relative w-full aspect-video rounded-panel overflow-hidden border border-gray-100 group shadow-2xl bg-black">
                         <iframe
                             className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
                             src={toVideoEmbed(c.video_url) || c.video_url}
@@ -57,10 +57,10 @@ export default function About({ config = {} }) {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                         ></iframe>
-                        <div className="absolute inset-0 pointer-events-none border-[12px] border-white/5 rounded-[40px]"></div>
+                        <div className="absolute inset-0 pointer-events-none border-[12px] border-white/5 rounded-panel"></div>
                     </div>
 
-                    <div className="absolute -bottom-8 -left-8 bg-white p-8 rounded-[32px] shadow-2xl border border-gray-50 hidden md:block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
+                    <div className="absolute -bottom-8 -left-8 bg-white p-8 rounded-card shadow-2xl border border-gray-50 hidden md:block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-[#007a3d]">
                                 <CheckCircle size={24} />

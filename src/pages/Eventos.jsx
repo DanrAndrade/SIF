@@ -50,7 +50,7 @@ function EventoCard({ ev, faded = false }) {
   return (
     <Link
       to={`/eventos/${ev.slug}`}
-      className={`bg-white rounded-[40px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col block ${faded ? 'opacity-80 hover:opacity-100' : ''}`}
+      className={`bg-white rounded-panel overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col block ${faded ? 'opacity-80 hover:opacity-100' : ''}`}
     >
       {ev.image_url && (
         <div className="h-48 overflow-hidden bg-gray-100">
@@ -77,7 +77,7 @@ function EventoCard({ ev, faded = false }) {
           )}
         </div>
 
-        <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-4 leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">
+        <h3 className="text-xl font-semibold font-heading text-[#1f2937] mb-4 leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">
           {ev.title}
         </h3>
 
@@ -103,7 +103,7 @@ function EventoCard({ ev, faded = false }) {
 function SectionTitle({ title, accent }) {
   return (
     <div className="mb-16 border-b border-gray-100 pb-10">
-      <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tighter">
+      <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tighter">
         {title} <span className="text-[#007a3d]">{accent}</span>
       </h2>
     </div>
@@ -152,7 +152,7 @@ export default function Eventos() {
             <div className="container mx-auto px-6 max-w-4xl">
               <Link
                 to="/eincol"
-                className="group block relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#0f1f11] via-[#1a3d20] to-[#007a3d] p-10 md:p-14 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+                className="group block relative overflow-hidden rounded-panel bg-gradient-to-br from-[#0f1f11] via-[#1a3d20] to-[#007a3d] p-10 md:p-14 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
               >
                 <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-56 h-56 bg-[#007a3d]/40 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none" />
@@ -163,7 +163,7 @@ export default function Eventos() {
                       <Sparkles size={12} className="text-[#7FBA00]" />
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Evento Especial</span>
                     </div>
-                    <h2 className="sif-title text-4xl md:text-5xl text-white tracking-tighter leading-[0.95] mb-3">
+                    <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-3">
                       EINCOL
                     </h2>
                     <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-xl font-medium">
@@ -188,7 +188,7 @@ export default function Eventos() {
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="bg-white h-80 rounded-[40px] animate-pulse" />
+                  <div key={i} className="bg-white h-80 rounded-panel animate-pulse" />
                 ))}
               </div>
             ) : loadError ? (

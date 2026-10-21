@@ -34,7 +34,7 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
   const whatsappDigits = (cfg.contact_whatsapp || '').replace(/\D/g, '');
 
   return (
-    <div className="bg-white border border-gray-100 rounded-[32px] p-6 md:p-8 shadow-sm">
+    <div className="bg-white border border-gray-100 rounded-card p-6 md:p-8 shadow-sm">
       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[#007a3d] mb-5">
         <User size={14} /> {fallbackTitle}
       </div>

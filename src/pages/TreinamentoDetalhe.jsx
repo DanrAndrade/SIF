@@ -10,6 +10,8 @@ import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiCo
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import { useSeo } from '../hooks/useSeo';
 import EditablePageContact from '../components/EditablePageContact';
+import DetailHero from '../components/DetailHero';
+import { BookOpen } from 'lucide-react';
 
 export default function TreinamentoDetalhe() {
   const { slug } = useParams();
@@ -69,40 +71,14 @@ export default function TreinamentoDetalhe() {
     <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
-      {/* HERO PREMIUM COM CONTRASTE */}
-      <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-[#0f1f11]">
-        <div className="absolute inset-0 z-0">
-          {training.image_url && <img
-            src={getImageUrl(training.image_url)}
-            className="w-full h-full object-cover opacity-50"
-            alt={training.title}
-            fetchpriority="high"
-            decoding="async"
-          />}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/20 to-transparent"></div>
-          <NoiseOverlay opacity={0.3} />
-        </div>
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <Link
-            to="/treinamentos"
-            className="inline-flex items-center gap-2 text-white/50 hover:text-white mb-10 transition-colors group"
-          >
-            <div className="p-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md group-hover:bg-[#007a3d] transition-all">
-              <ChevronLeft size={16} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mt-1">Voltar aos Treinamentos</span>
-          </Link>
-          
-          <div className="max-w-4xl">
-            <h1 className="sif-title sif-title-strong text-5xl md:text-7xl text-white mb-8 tracking-tighter leading-[0.9]">
-              {training.title}
-            </h1>
-            
-
-          </div>
-        </div>
-      </div>
+      {/* TOPO (padrão das páginas de detalhe) */}
+      <DetailHero
+        cover={training.image_url ? getImageUrl(training.image_url) : ''}
+        crumbs={[{ label: 'Treinamentos', to: '/treinamentos' }]}
+        eyebrow="Treinamento" icon={BookOpen}
+        title={training.title}
+        chips={[{ icon: Calendar, text: training.date }, { icon: MapPin, text: training.location }, { icon: Clock, text: training.hours ? `${training.hours}${/\d$/.test(String(training.hours)) ? 'h' : ''}` : '' }, { icon: Layers, text: training.segment }]}
+      />
 
       {/* CONTEÚDO PRINCIPAL */}
       <section className="py-24 relative -mt-20 z-20">
@@ -110,8 +86,8 @@ export default function TreinamentoDetalhe() {
           <div className="flex flex-col gap-12">
 
             {/* CONTEÚDO PRINCIPAL */}
-            <div className="w-full bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
-              <h3 className="text-3xl font-bold text-gray-900 mb-12 uppercase tracking-tighter flex items-center gap-4">
+            <div className="w-full bg-white rounded-panel p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[600px]">
+              <h3 className="text-3xl font-medium text-gray-900 mb-12 tracking-tight flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]">
                    <Award size={20} />
                 </div>
@@ -185,7 +161,7 @@ export default function TreinamentoDetalhe() {
               )}
 
               {training.video_url && (
-                <div className="mt-16 bg-gray-900 rounded-[32px] overflow-hidden aspect-video shadow-2xl relative group">
+                <div className="mt-16 bg-gray-900 rounded-card overflow-hidden aspect-video shadow-2xl relative group">
                   <iframe 
                     className="w-full h-full"
                     src={toVideoEmbed(training.video_url) || training.video_url} 

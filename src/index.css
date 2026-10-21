@@ -370,3 +370,27 @@ body { background-color: #f6f8f7; }
 .sif-page .bg-white[class*="rounded-"][class*="border-gray-100"]:not(.shadow-xl):not(.shadow-2xl) { box-shadow: var(--sif-shadow-card); }
 .sif-page .bg-white.shadow-sm:hover,
 .sif-page .bg-white.hover\:shadow-xl:hover { box-shadow: var(--sif-shadow-card-hover); }
+
+/* ─── PADRÃO VISUAL (design system) ────────────────────────────────────
+   Use estas classes em vez de repetir combinações do Tailwind:
+     .sif-eyebrow  etiqueta pequena verde acima do título
+     .sif-display  título gigante (topo/chamada final)
+     .sif-h1       título do topo das páginas
+     .sif-h2       título de seção
+     .sif-h3       título de bloco/card grande
+     .sif-lead     texto de apoio abaixo do título
+     .sif-section  espaçamento vertical padrão de seção
+     .sif-container largura e margens padrão do conteúdo
+   Cantos: rounded-card (28px) e rounded-panel (40px) — tailwind.config.js.
+   Cores: sif-green, sif-deep, sif-dark, sif-leaf, sif-lime, sif-ink.
+   Botões: componente <Button> (ou buttonClass() para estilizar um link). */
+@layer components {
+  .sif-eyebrow { @apply block text-xs font-bold uppercase tracking-[0.2em] text-sif-green; }
+  .sif-display { @apply text-5xl md:text-7xl leading-[1.02]; }
+  .sif-h1      { @apply text-4xl sm:text-5xl md:text-6xl leading-[1.05]; }
+  .sif-h2      { @apply text-3xl md:text-5xl leading-tight; }
+  .sif-h3      { @apply text-2xl md:text-3xl leading-snug; }
+  .sif-lead    { @apply text-base md:text-lg text-gray-500 leading-relaxed; }
+  .sif-section { @apply py-20 md:py-28; }
+  .sif-container { @apply max-w-7xl mx-auto px-6 md:px-10; }
+}

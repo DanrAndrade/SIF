@@ -41,7 +41,7 @@ export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null,
         {rest.length > 0 && (
           <div className="grid gap-6 content-start">
             {rest.map(p => (
-              <Link key={p.id} to={`/blog/${p.slug}`} className="group sif-card sif-card-hover rounded-[28px] overflow-hidden border border-gray-100 flex">
+              <Link key={p.id} to={`/blog/${p.slug}`} className="group sif-card sif-card-hover rounded-card overflow-hidden border border-gray-100 flex">
                 {p.image_url && (
                   <div className="w-32 md:w-44 shrink-0 overflow-hidden bg-gray-100">
                     <img src={getImageUrl(p.image_url)} alt={p.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -64,7 +64,7 @@ export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null,
 // Card grande de post (imagem em cima)
 function BigCard({ post: first }) {
   return (
-    <Link to={`/blog/${first.slug}`} className="group sif-card sif-card-hover rounded-[32px] overflow-hidden border border-gray-100 flex flex-col">
+    <Link to={`/blog/${first.slug}`} className="group sif-card sif-card-hover rounded-card overflow-hidden border border-gray-100 flex flex-col">
       {first.image_url && (
         <div className="aspect-[16/9] overflow-hidden bg-gray-100">
           <img src={getImageUrl(first.image_url)} alt={first.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />

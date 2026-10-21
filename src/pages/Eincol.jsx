@@ -138,7 +138,7 @@ export default function Eincol() {
               <div className="flex flex-col md:flex-row items-center gap-12">
                 {config.planta_image && (
                   <div className="flex-1">
-                    <div className="rounded-[32px] overflow-hidden shadow-2xl border border-white/10">
+                    <div className="rounded-card overflow-hidden shadow-2xl border border-white/10">
                       <img
                         src={getImageUrl(config.planta_image)}
                         alt="Planta do Evento"
@@ -224,8 +224,8 @@ export default function Eincol() {
 
               {/* Tab content */}
               {tabs[activeTab] && (
-                <div className="bg-gray-50 rounded-[32px] p-8 md:p-12 border border-gray-100 shadow-sm min-h-[200px]">
-                  <h3 className="text-xl font-bold uppercase tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h3>
+                <div className="bg-gray-50 rounded-card p-8 md:p-12 border border-gray-100 shadow-sm min-h-[200px]">
+                  <h3 className="text-xl font-semibold tracking-tight text-[#007a3d] mb-6">{tabs[activeTab].title}</h3>
                   <div
                     className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-headings:tracking-tight prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d]"
                     dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab].content) }}

@@ -135,7 +135,7 @@ export default function Contact() {
                 
                 {/* Lateral: Informações */}
                 <div className="lg:col-span-4 flex flex-col gap-8">
-                    <div className="bg-white p-10 rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden relative group">
+                    <div className="bg-white p-10 rounded-panel shadow-2xl border border-gray-100 overflow-hidden relative group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[80px] -z-0"></div>
                         
                         <h3 className="text-xs font-black uppercase mb-12 tracking-[0.3em] text-[#007a3d] flex items-center gap-4 relative z-10">
@@ -172,12 +172,12 @@ export default function Contact() {
 
                 {/* Formulário de Mensagem */}
                 <div className="lg:col-span-8">
-                    <div className="bg-white p-8 md:p-16 rounded-[40px] shadow-2xl border border-gray-100 relative overflow-hidden">
+                    <div className="bg-white p-8 md:p-16 rounded-panel shadow-2xl border border-gray-100 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-[200px] pointer-events-none opacity-50"></div>
                         
                         <div className="mb-12">
-                            <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] mb-4 block">{cfg.form_tag}</span>
-                            <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] leading-tight tracking-tight">{cfg.form_title_line1} <br/>{cfg.form_title_line2}</h2>
+                            <span className="sif-eyebrow mb-4">{cfg.form_tag}</span>
+                            <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight tracking-tight">{cfg.form_title_line1} <br/>{cfg.form_title_line2}</h2>
                         </div>
                         
                         {status === 'success' && (

@@ -82,14 +82,14 @@ export default function TreinamentosInCompany() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {loading ? (
               Array(3).fill(0).map((_, i) => (
-                <div key={i} className="bg-white h-96 rounded-[40px] animate-pulse"></div>
+                <div key={i} className="bg-white h-96 rounded-panel animate-pulse"></div>
               ))
             ) : filteredTrainings.length > 0 ? (
               filteredTrainings.map((training) => (
                 <Link
                   key={training.id}
                   to={`/treinamentos-in-company/${training.slug}`}
-                  className="group bg-white rounded-[48px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
+                  className="group bg-white rounded-panel overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full relative"
                 >
                   <div className="h-64 relative overflow-hidden bg-gray-100">
                     <img
@@ -109,7 +109,7 @@ export default function TreinamentosInCompany() {
                     )}
                   </div>
                   <div className="p-10 flex flex-col flex-grow">
-                    <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
+                    <h3 className="text-2xl font-semibold font-heading text-[#1f2937] leading-tight mb-8 group-hover:text-[#007a3d] transition-colors">{training.title}</h3>
                     <div className="mt-auto">
                       <div className="flex items-center justify-between pt-6 border-t border-gray-50">
                         <div className="flex items-center gap-3">

@@ -43,13 +43,13 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
 
         <div className="flex flex-col lg:flex-row gap-16 items-start mt-12">
             <div className="w-full lg:w-[40%] shrink-0">
-                <div className="h-auto lg:aspect-[4/3] w-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d] rounded-[32px] p-8 md:p-10 flex flex-col justify-between text-white relative shadow-2xl overflow-hidden group">
+                <div className="h-auto lg:aspect-[4/3] w-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d] rounded-card p-8 md:p-10 flex flex-col justify-between text-white relative shadow-2xl overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative z-10 mb-8 lg:mb-0">
                         <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md border border-white/10">
                             <Mail size={24} className="text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold uppercase mb-2 leading-tight" dangerouslySetInnerHTML={{ __html: side.title }}></h3>
+                        <h3 className="text-2xl font-semibold mb-2 leading-tight" dangerouslySetInnerHTML={{ __html: side.title }}></h3>
                         <p className="text-white/80 text-sm font-medium">{side.subtitle}</p>
                     </div>
 

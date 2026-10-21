@@ -11,6 +11,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { getEffectiveProjectStatus } from '../utils/helpers';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../utils/embrapiiDefaults';
+import { buttonClass } from '../components/ui/Button';
 
 const FRENTE_ICONS = [Sprout, Factory, Leaf];
 
@@ -43,8 +44,8 @@ export default function ProjetosEmbrapii() {
         <section id="embrapii-intro" className="py-24 scroll-mt-24">
           <div className="container mx-auto px-6 max-w-7xl">
             <div className="max-w-3xl mb-16">
-              {c.intro_tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{c.intro_tag}</span>}
-              {c.intro_title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] leading-tight mb-6">{c.intro_title}</h2>}
+              {c.intro_tag && <span className="sif-eyebrow mb-4">{c.intro_tag}</span>}
+              {c.intro_title && <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight mb-6">{c.intro_title}</h2>}
               {c.intro_text && <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-line">{c.intro_text}</p>}
             </div>
             {frentes.length > 0 && (
@@ -52,7 +53,7 @@ export default function ProjetosEmbrapii() {
                 {frentes.map((f, i) => {
                   const Icon = FRENTE_ICONS[i % FRENTE_ICONS.length];
                   return (
-                    <div key={i} className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm">
+                    <div key={i} className="bg-white rounded-card p-8 border border-gray-100 shadow-sm">
                       <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#007a3d] flex items-center justify-center mb-6"><Icon size={22} /></div>
                       <h3 className="text-xl font-semibold text-[#1f2937] mb-3">{f.title}</h3>
                       {f.text && <p className="text-gray-500 leading-relaxed">{f.text}</p>}
@@ -79,8 +80,8 @@ export default function ProjetosEmbrapii() {
             <div className="container mx-auto px-6 max-w-7xl">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>
-                  {c.projects_tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-3 block">{c.projects_tag}</span>}
-                  {c.projects_title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937]">{c.projects_title}</h2>}
+                  {c.projects_tag && <span className="sif-eyebrow mb-3">{c.projects_tag}</span>}
+                  {c.projects_title && <h2 className="sif-title sif-h2 text-[#1f2937]">{c.projects_title}</h2>}
                 </div>
                 <Link to="/projetos" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#007a3d] hover:underline">
                   Ver todos os projetos <ArrowRight size={14} />
@@ -88,7 +89,7 @@ export default function ProjetosEmbrapii() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {shownProjects.map(p => (
-                  <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col">
+                  <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col">
                     {p.image_url && (
                       <div className="h-44 overflow-hidden bg-gray-100">
                         <img src={getImageUrl(p.image_url)} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -109,13 +110,13 @@ export default function ProjetosEmbrapii() {
         {(c.cta_title || c.cta_text) && (
           <section className="pb-24 pt-8">
             <div className="container mx-auto px-6 max-w-7xl">
-              <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white p-10 md:p-16 text-center">
+              <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white p-10 md:p-16 text-center">
                 <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
                 <div className="relative max-w-2xl mx-auto">
-                  {c.cta_title && <h2 className="sif-title text-3xl md:text-5xl mb-5">{c.cta_title}</h2>}
+                  {c.cta_title && <h2 className="sif-title sif-h2 mb-5">{c.cta_title}</h2>}
                   {c.cta_text && <p className="text-white/80 text-lg leading-relaxed">{c.cta_text}</p>}
                   {c.cta_btn_label && (
-                    <SmartLink href={c.cta_btn_link || '/contato'} className="mt-8 inline-flex items-center gap-3 bg-white text-[#0f3d24] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#7FBA00] hover:text-white transition-colors">
+                    <SmartLink href={c.cta_btn_link || '/contato'} className={`mt-8 ${buttonClass('light')}`}>
                       {c.cta_btn_label} <ArrowRight size={16} />
                     </SmartLink>
                   )}

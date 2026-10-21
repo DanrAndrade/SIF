@@ -55,7 +55,7 @@ export default function Process({ config = {} }) {
 
   return (
       <div className="wrapper mb-4">
-        <section className="relative w-full rounded-[32px] overflow-hidden bg-[#1f2937] py-12 lg:py-16 shadow-2xl">
+        <section className="relative w-full rounded-card overflow-hidden bg-[#1f2937] py-12 lg:py-16 shadow-2xl">
             
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#007a3d] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
             <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-[#4ADE80] rounded-full blur-[100px] opacity-15 pointer-events-none -translate-x-1/4 translate-y-1/4"></div>
@@ -84,13 +84,13 @@ export default function Process({ config = {} }) {
                             {...linkProps}
                             onMouseEnter={() => setActiveStep(index)}
                             className={`
-                                relative h-full rounded-[32px] overflow-hidden cursor-pointer 
+                                relative h-full rounded-card overflow-hidden cursor-pointer 
                                 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] p-[2px]
                                 bg-gradient-to-b from-[#1B5E20] to-[#007a3d]
                                 ${isActive ? 'flex-[3.5]' : 'flex-[1] opacity-60'}
                             `}
                         >
-                            <div className="relative w-full h-full bg-[#0a0f16] rounded-[30px] overflow-hidden">
+                            <div className="relative w-full h-full bg-[#0a0f16] rounded-card overflow-hidden">
                                 <div className="absolute inset-0 z-0">
                                     {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.45]" />}
                                     <NoiseOverlay opacity={0.3} />
@@ -113,7 +113,7 @@ export default function Process({ config = {} }) {
                                         
                                         {/* Conteúdo Expandido com altura flexível para não cortar */}
                                         <div className={`transition-all duration-500 flex flex-col justify-end ${isActive ? 'opacity-100 translate-y-0 relative' : 'opacity-0 translate-y-8 absolute inset-x-0'}`}>
-                                            <h3 className="text-xl md:text-2xl font-bold uppercase text-white mb-2 leading-tight">{step.title}</h3>
+                                            <h3 className="text-xl md:text-2xl font-semibold text-white mb-2 leading-tight">{step.title}</h3>
                                             <p className={`text-xs font-bold ${step.textColor} mb-2 leading-tight uppercase`}>{step.shortDesc}</p>
                                             <p className="text-[11px] md:text-xs text-gray-300 leading-relaxed mb-4 font-light">{step.fullDesc}</p>
                                             <div className="flex flex-wrap gap-2">
@@ -146,8 +146,8 @@ export default function Process({ config = {} }) {
 
                             return (
                             <LinkComponent key={index} {...linkProps} className="min-w-full box-border snap-center px-3 pb-2">
-                                <div className="relative rounded-[30px] overflow-hidden flex flex-col min-h-[440px] bg-[#0a0f16] p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
-                                    <div className="relative rounded-[28px] overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
+                                <div className="relative rounded-card overflow-hidden flex flex-col min-h-[440px] bg-[#0a0f16] p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
+                                    <div className="relative rounded-card overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
                                         {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}
                                         <NoiseOverlay opacity={0.3} />
@@ -159,7 +159,7 @@ export default function Process({ config = {} }) {
                                                 <span className="text-3xl font-black text-[#4ADE80]">{step.id}</span>
                                                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-white ${step.color}`}><step.icon size={22} /></div>
                                             </div>
-                                            <h3 className="text-xl font-bold uppercase text-white mb-1">{step.title}</h3>
+                                            <h3 className="text-xl font-semibold text-white mb-1">{step.title}</h3>
                                             <p className={`text-xs font-bold ${step.textColor} mb-3`}>{step.shortDesc}</p>
                                             <p className="text-xs text-gray-200 font-light leading-relaxed mb-6">{step.fullDesc}</p>
                                         </div>

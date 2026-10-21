@@ -10,6 +10,8 @@ import EditablePageContact from '../components/EditablePageContact';
 import { useSeo } from '../hooks/useSeo';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
+import DetailHero from '../components/DetailHero';
+import { FlaskConical } from 'lucide-react';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
@@ -67,64 +69,28 @@ export default function ProjetoDetalhe() {
     <div className="sif-page min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
-      {/* HEADER SECTION */}
-      <div className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-[#1f2937]">
-        <div className="absolute inset-0 z-0 opacity-20">
-          {projeto.image_url ? (
-            <img src={getImageUrl(projeto.image_url)} alt="bg" className="w-full h-full object-cover blur-sm" />
-          ) : (
-            <div className="w-full h-full bg-[#007a3d]"></div>
-          )}
-        </div>
-        <NoiseOverlay opacity={0.4} />
-
-        <div className="container mx-auto px-6 relative z-10">
-          <Link to="/projetos" className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest mb-10 group">
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Voltar para Projetos
-          </Link>
-
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            {projeto.tag && (
-              <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
-                {projeto.tag}
-              </span>
-            )}
-            {(() => {
-              const es = getEffectiveProjectStatus(projeto);
-              return es ? (
-                <span className="flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
-                  <span className={`w-2 h-2 rounded-full ${STATUS_DOT[es] || 'bg-gray-400'}`}></span>
-                  {es}
-                </span>
-              ) : null;
-            })()}
-            {projeto.lab && (
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
-                <MapPin size={12} />
-                {projeto.lab}
-              </span>
-            )}
-          </div>
-
-          <h1 className="sif-title text-4xl md:text-6xl lg:text-7xl text-white leading-tight tracking-tighter mb-8 max-w-5xl">
-            {projeto.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-6 text-gray-300 text-sm font-medium">
-            {projeto.data_limite && (
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest">
-                <Clock size={16} className="text-[#007a3d]" />
-                Prazo: {formatDate(projeto.data_limite)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* TOPO (padrão das páginas de detalhe) */}
+      {(() => {
+        const es = getEffectiveProjectStatus(projeto);
+        return (
+          <DetailHero
+            cover={projeto.image_url ? getImageUrl(projeto.image_url) : ''}
+            crumbs={[{ label: 'Projetos', to: '/projetos' }]}
+            eyebrow="Projeto de P&D" icon={FlaskConical}
+            title={projeto.title}
+            chips={[
+              { icon: Tag, text: projeto.tag },
+              { dot: STATUS_DOT[es] || 'bg-gray-400', text: es },
+              { icon: MapPin, text: projeto.lab },
+              { icon: Clock, text: projeto.data_limite ? `Prazo: ${formatDate(projeto.data_limite)}` : '' },
+            ]}
+          />
+        );
+      })()}
 
       {/* CONTENT SECTION */}
       <main className="flex-grow container mx-auto px-6 py-16 max-w-4xl relative z-20 -mt-10">
-        <div className="bg-white rounded-[28px] md:rounded-[40px] shadow-sm border border-gray-100 p-5 md:p-16">
+        <div className="bg-white rounded-card md:rounded-panel shadow-sm border border-gray-100 p-5 md:p-16">
           {projeto.image_url && (
             <div className="w-full h-[300px] md:h-[400px] rounded-3xl overflow-hidden mb-12 shadow-sm">
               <img src={getImageUrl(projeto.image_url)} alt={projeto.title} className="w-full h-full object-cover" />
@@ -165,7 +131,7 @@ export default function ProjetoDetalhe() {
                         </button>
                       ))}
                     </div>
-                    <div className="bg-gray-50 p-8 md:p-12 rounded-[32px] border border-gray-100">
+                    <div className="bg-gray-50 p-8 md:p-12 rounded-card border border-gray-100">
                       <div className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
                         dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab]?.content) }} />
                     </div>

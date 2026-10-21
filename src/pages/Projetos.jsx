@@ -32,7 +32,7 @@ function formatDate(dateStr) {
 
 function ProjetoCard({ proj }) {
   return (
-    <Link to={`/projetos/${proj.slug}`} className="bg-white rounded-[40px] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col block">
+    <Link to={`/projetos/${proj.slug}`} className="bg-white rounded-panel overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group flex flex-col block">
       {proj.image_url && (
         <div className="h-48 overflow-hidden bg-gray-100">
           <img
@@ -60,7 +60,7 @@ function ProjetoCard({ proj }) {
           })()}
         </div>
 
-        <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-4 leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">
+        <h3 className="text-xl font-semibold font-heading text-[#1f2937] mb-4 leading-tight group-hover:text-[#007a3d] transition-colors flex-grow">
           {proj.title}
         </h3>
 
@@ -86,7 +86,7 @@ function ProjetoCard({ proj }) {
 function SectionTitle({ title, accent }) {
   return (
     <div className="mb-16 border-b border-gray-100 pb-10">
-      <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937] tracking-tighter">
+      <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tighter">
         {title} <span className="text-[#007a3d]">{accent}</span>
       </h2>
     </div>
@@ -131,7 +131,7 @@ export default function Projetos() {
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {Array(6).fill(0).map((_, i) => (
-                  <div key={i} className="bg-white h-60 rounded-[40px] animate-pulse" />
+                  <div key={i} className="bg-white h-60 rounded-panel animate-pulse" />
                 ))}
               </div>
             ) : loadError ? (

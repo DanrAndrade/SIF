@@ -9,6 +9,7 @@ import SectionTitle from './SectionTitle';
 import LogoCarousel from './LogoCarousel';
 import SmartLink from '../ui/SmartLink';
 import { videoEmbedUrl } from '../ui/VideoModal';
+import { buttonClass } from '../ui/Button';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
@@ -50,9 +51,9 @@ export function TextImageBlock({ sec, dark }) {
       </div>
       {sec.image && (
         <div className={`relative ${left ? 'lg:order-1' : ''}`}>
-          <div className="absolute -inset-3 rounded-[40px] bg-[var(--accent,#007a3d)] opacity-10 rotate-2" aria-hidden="true" />
+          <div className="absolute -inset-3 rounded-panel bg-[var(--accent,#007a3d)] opacity-10 rotate-2" aria-hidden="true" />
           <img src={img(sec.image)} alt={sec.title || ''} loading="lazy" decoding="async"
-            className="relative w-full aspect-[4/3] object-cover rounded-[32px] shadow-[var(--sif-shadow-card-hover)]" />
+            className="relative w-full aspect-[4/3] object-cover rounded-card shadow-[var(--sif-shadow-card-hover)]" />
         </div>
       )}
     </div>
@@ -69,7 +70,7 @@ export function CardsBlock({ sec, dark }) {
         {items.map((it, i) => {
           const Icon = BLOCK_ICONS[it.icon] || Target;
           return (
-            <div key={i} className={`group relative rounded-[28px] p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.1]' : 'sif-card sif-card-hover border border-gray-100'}`}>
+            <div key={i} className={`group relative rounded-card p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.1]' : 'sif-card sif-card-hover border border-gray-100'}`}>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)] group-hover:bg-[var(--accent,#007a3d)] group-hover:text-white'}`}>
                 <Icon size={22} />
               </div>
@@ -198,7 +199,7 @@ export function VideoBlock({ sec, dark }) {
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className="relative aspect-video rounded-[28px] overflow-hidden bg-[#0b3320] shadow-[var(--sif-shadow-card-hover)]">
+      <div className="relative aspect-video rounded-card overflow-hidden bg-[#0b3320] shadow-[var(--sif-shadow-card-hover)]">
         {!embed ? (
           <video src={getImageUrl(url)} controls preload="metadata" playsInline className="w-full h-full" />
         ) : play ? (
@@ -239,7 +240,7 @@ export function QuoteBlock({ sec, dark }) {
 
 export function CtaBlock({ sec }) {
   return (
-    <div className="relative overflow-hidden rounded-[36px] bg-[#0b3320] text-white px-8 py-12 md:px-16 md:py-16 shadow-[var(--sif-shadow-card-hover)]">
+    <div className="relative overflow-hidden rounded-card bg-[#0b3320] text-white px-8 py-12 md:px-16 md:py-16 shadow-[var(--sif-shadow-card-hover)]">
       <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />
       <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[var(--accent,#007a3d)] blur-[110px] opacity-40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
@@ -248,7 +249,7 @@ export function CtaBlock({ sec }) {
           {sec.text && <p className="text-white/75 text-lg leading-relaxed whitespace-pre-line">{sec.text}</p>}
         </div>
         {sec.btn_label && (
-          <SmartLink href={sec.btn_link || '/contato'} className="shrink-0 inline-flex items-center gap-3 bg-white text-[#0b3320] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#7FBA00] hover:text-white transition-colors">
+          <SmartLink href={sec.btn_link || '/contato'} className={`shrink-0 ${buttonClass('light')}`}>
             {sec.btn_label} <ArrowRight size={16} />
           </SmartLink>
         )}
@@ -275,7 +276,7 @@ export function TabsBlock({ sec, dark }) {
         ))}
       </div>
       {cur && (
-        <div className={`rounded-[28px] p-6 md:p-10 ${dark ? 'bg-white/[0.06] border border-white/10' : 'sif-card border border-gray-100'}`}>
+        <div className={`rounded-card p-6 md:p-10 ${dark ? 'bg-white/[0.06] border border-white/10' : 'sif-card border border-gray-100'}`}>
           <div className={proseCls(dark)} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />
         </div>
       )}

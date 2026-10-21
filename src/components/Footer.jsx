@@ -23,7 +23,7 @@ export default function Footer() {
     <footer className="bg-transparent pt-0 pb-8 flex justify-center w-full">
 
       {/* Container Principal */}
-      <div className="w-[95%] max-w-[1600px] rounded-[40px] relative overflow-hidden text-white shadow-2xl" style={{ backgroundColor: footerBg(c) }}>
+      <div className="w-[95%] max-w-[1600px] rounded-panel relative overflow-hidden text-white shadow-2xl" style={{ backgroundColor: footerBg(c) }}>
 
         {/* Brilhos verdes */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-[0.12] pointer-events-none translate-x-1/3 -translate-y-1/3"></div>

@@ -158,7 +158,7 @@ export default function BlogPost() {
 
           <div className="max-w-4xl flex flex-col gap-6">
             <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest border border-white/10 w-fit">Blog &amp; Notícias</span>
-            <h1 className="sif-title text-4xl md:text-6xl text-white tracking-tighter leading-[0.95]">
+            <h1 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95]">
               {post.title}
             </h1>
             <p className="text-white/60 text-sm font-bold uppercase tracking-widest flex items-center gap-2">
@@ -181,13 +181,13 @@ export default function BlogPost() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 gap-12">
 
-            <div className="bg-white rounded-[48px] p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[400px]">
+            <div className="bg-white rounded-panel p-8 md:p-20 shadow-2xl shadow-gray-200/50 border border-gray-100 min-h-[400px]">
               <div className="flex items-center gap-6 mb-16">
                 <div className="p-4 rounded-3xl bg-gray-50 text-[#007a3d]">
                   <Newspaper size={32} />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-bold text-gray-900 uppercase tracking-tighter">Artigo</h3>
+                  <h3 className="text-3xl font-medium text-gray-900 tracking-tight">Artigo</h3>
                   <p className="text-xs font-black text-gray-300 uppercase tracking-widest mt-1">SIF Media Center</p>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export default function BlogPost() {
       {relatedPosts.length > 0 && (
         <section className="pb-24">
           <div className="container mx-auto px-6">
-            <h3 className="text-2xl font-bold uppercase text-[#007a3d] tracking-tighter mb-8">Leia Também</h3>
+            <h3 className="text-2xl font-semibold text-[#007a3d] tracking-tight mb-8">Leia Também</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedPosts.map(relPost => (
                 <Link

@@ -3,6 +3,7 @@ import { ArrowRight, Briefcase } from 'lucide-react';
 import SmartLink from './ui/SmartLink';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { JOB_CATEGORIES, jobCategory, jobCategoryLabel } from '../utils/jobCategories';
+import { buttonClass } from './ui/Button';
 
 // Home › seção "Trabalhe Conosco" (abaixo das empresas associadas).
 // Card que leva para a página de vagas; mostra quantas vagas estão abertas
@@ -41,11 +42,11 @@ export default function JobsCtaSection({ config: saved }) {
     <section className="py-16 md:py-24 px-4">
       <div className="max-w-[1280px] mx-auto">
         <SmartLink href={link}
-          className="group relative grid grid-cols-1 md:grid-cols-[1.1fr_1fr] overflow-hidden rounded-[40px] bg-[#0b3320] text-white shadow-[var(--sif-shadow-card-hover)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00]">
+          className="group relative grid grid-cols-1 md:grid-cols-[1.1fr_1fr] overflow-hidden rounded-panel bg-[#0b3320] text-white shadow-[var(--sif-shadow-card-hover)] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00]">
           <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />
           <div className="relative p-8 md:p-14 flex flex-col justify-center">
             {config.tag && <span className="text-[#b5e05c] font-bold uppercase tracking-widest text-xs mb-4 block">{config.tag}</span>}
-            {config.title && <h2 className="sif-title text-3xl md:text-5xl leading-tight mb-5">{config.title}</h2>}
+            {config.title && <h2 className="sif-title sif-h2 leading-tight mb-5">{config.title}</h2>}
             {config.text && <p className="text-white/75 text-base md:text-lg leading-relaxed max-w-xl">{config.text}</p>}
 
             {counts.length > 0 && (
@@ -58,7 +59,7 @@ export default function JobsCtaSection({ config: saved }) {
               </ul>
             )}
 
-            <span className="mt-8 inline-flex w-fit items-center gap-3 bg-white text-[#0b3320] px-7 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-colors group-hover:bg-[#7FBA00] group-hover:text-white">
+            <span className={`mt-8 w-fit ${buttonClass('light')} group-hover:bg-sif-leaf group-hover:text-white`}>
               {config.btn_label || 'Ver vagas'} <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </span>
           </div>

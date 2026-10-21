@@ -10,6 +10,8 @@ import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import DetailHero from '../components/DetailHero';
+import { CalendarDays } from 'lucide-react';
 
 export default function EventoDetalhe() {
   const { slug } = useParams();
@@ -70,49 +72,23 @@ export default function EventoDetalhe() {
     <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
-      {/* HERO PREMIUM COM CONTRASTE */}
-      <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-[#0f1f11]">
-        <div className="absolute inset-0 z-0">
-          {event.image_url && (
-            <img 
-              src={getImageUrl(event.image_url)} 
-              className="w-full h-full object-cover opacity-50" 
-              alt={event.title} 
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/20 to-transparent"></div>
-          <NoiseOverlay opacity={0.3} />
-        </div>
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <Link 
-            to="/eventos" 
-            className="inline-flex items-center gap-2 text-white/70 hover:text-[#7FBA00] mb-8 transition-colors group bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
-          >
-            <ChevronLeft size={16} />
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-1">Voltar aos Eventos</span>
-          </Link>
-          
-          <div className="max-w-4xl">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-[#7FBA00] text-white text-[10px] font-black uppercase tracking-widest mb-6 shadow-lg shadow-emerald-900/20">
-              {event.date || 'Data a confirmar'}
-            </span>
-            <h1 className="sif-title sif-title-strong text-5xl md:text-8xl text-white mb-8 tracking-tighter leading-[0.9]">
-              {event.title}
-            </h1>
-            
-          </div>
-        </div>
-      </div>
+      {/* TOPO (padrão das páginas de detalhe) */}
+      <DetailHero
+        cover={event.image_url ? getImageUrl(event.image_url) : ''}
+        crumbs={[{ label: 'Eventos', to: '/eventos' }]}
+        eyebrow="Evento" icon={CalendarDays}
+        title={event.title}
+        chips={[{ icon: Calendar, text: event.date || 'Data a confirmar' }, { icon: MapPin, text: event.location }]}
+      />
 
       {/* SEÇÃO DE CONTEÚDO */}
-      <section className="py-24 relative -mt-32 z-20">
+      <section className="py-16 md:py-20 relative z-20">
         <div className="container mx-auto px-6">
           <div className="flex flex-col gap-12">
             
             {/* Detalhes do Evento */}
-            <div className="w-full bg-white rounded-[28px] md:rounded-[40px] p-5 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
-              <h3 className="text-3xl font-bold text-gray-900 mb-12 uppercase tracking-tighter flex items-center gap-4">
+            <div className="w-full bg-white rounded-card md:rounded-panel p-5 md:p-16 shadow-xl shadow-gray-200/50 border border-gray-100">
+              <h3 className="text-3xl font-medium text-gray-900 mb-12 tracking-tight flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]">
                    <Info size={20} />
                 </div>
@@ -149,7 +125,7 @@ export default function EventoDetalhe() {
                 <>
                   {tabs.length > 0 && (
                     <div className="mt-16">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-8 uppercase tracking-tighter flex items-center gap-4">
+                      <h3 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight flex items-center gap-4">
                         <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]"><Calendar size={20}/></div>
                         Programação
                       </h3>
@@ -172,7 +148,7 @@ export default function EventoDetalhe() {
                   )}
                   {pdfs.length > 0 && (
                     <div className="mt-16">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-8 uppercase tracking-tighter flex items-center gap-4">
+                      <h3 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight flex items-center gap-4">
                         <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#007a3d]"><FileText size={20}/></div>
                         Arquivos Anexos
                       </h3>
@@ -191,7 +167,7 @@ export default function EventoDetalhe() {
               )}
 
               {event.video_url && (
-                <div className="mt-16 bg-gray-900 rounded-[32px] overflow-hidden aspect-video shadow-2xl relative group">
+                <div className="mt-16 bg-gray-900 rounded-card overflow-hidden aspect-video shadow-2xl relative group">
                   <iframe 
                     className="w-full h-full"
                     src={toVideoEmbed(event.video_url) || event.video_url} 

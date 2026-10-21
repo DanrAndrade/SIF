@@ -180,8 +180,8 @@ export default function Associadas() {
       {cfg.texto_enabled !== false && hasText(cfg.texto_html) && (
         <section className="py-20 md:py-24 bg-white">
           <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-5xl">
-            {cfg.texto_tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.texto_tag}</span>}
-            {cfg.texto_title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] mb-8 leading-tight">{cfg.texto_title}</h2>}
+            {cfg.texto_tag && <span className="sif-eyebrow mb-4">{cfg.texto_tag}</span>}
+            {cfg.texto_title && <h2 className="sif-title sif-h2 text-[#1f2937] mb-8 leading-tight">{cfg.texto_title}</h2>}
             <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-3xl"
               dangerouslySetInnerHTML={{ __html: cleanRichHtml(cfg.texto_html) }} />
           </div>
@@ -193,7 +193,7 @@ export default function Associadas() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
         <div className="container mx-auto px-6 md:px-12 lg:px-24 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="sif-title text-3xl md:text-5xl mb-6">
+            <h2 className="sif-title sif-h2 mb-6">
               {cfg.beneficios_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.beneficios_title_highlight}</span>
             </h2>
@@ -202,8 +202,8 @@ export default function Associadas() {
 
           <div className={`grid grid-cols-1 md:grid-cols-2 ${cfg.benefits.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-8`}>
             {(cfg.benefits || []).map((benefit, index) => (
-              <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-[40px] hover:bg-white/10 transition-all duration-300">
-                <h3 className="text-xl font-bold uppercase font-heading mb-4 text-emerald-400">{benefit.title}</h3>
+              <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-panel hover:bg-white/10 transition-all duration-300">
+                <h3 className="text-xl font-semibold font-heading mb-4 text-emerald-400">{benefit.title}</h3>
                 <p className="text-gray-400 leading-relaxed font-medium">{benefit.description}</p>
               </div>
             ))}
@@ -215,8 +215,8 @@ export default function Associadas() {
       <div className="py-24 bg-white">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <div className="text-center mb-20">
-            <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.logos_tag}</span>
-            <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
+            <span className="sif-eyebrow mb-4">{cfg.logos_tag}</span>
+            <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
             <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 
@@ -262,7 +262,7 @@ export default function Associadas() {
             })}
           </div>
 
-          <div className="mt-24 bg-[#f8f9fa] rounded-[50px] p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border border-gray-100 italic">
+          <div className="mt-24 bg-[#f8f9fa] rounded-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border border-gray-100 italic">
             <div className="max-w-xl">
               <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
               <p className="text-gray-500 text-lg">{cfg.cta_text}</p>

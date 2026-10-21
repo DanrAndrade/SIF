@@ -14,6 +14,7 @@ import Button from '../components/ui/Button';
 import SmartLink from '../components/ui/SmartLink';
 import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
+import { buttonClass } from '../components/ui/Button';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -125,7 +126,7 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                 <div className={`space-y-6 ${isRight ? 'order-2 md:order-1 text-right' : 'order-2 md:order-2'}`}>
                      <div className="flex items-center gap-4 group-hover/item:pl-2 transition-all">
                         {!isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
-                        <h2 className="sif-title text-4xl md:text-5xl text-[#1f2937]">
+                        <h2 className="sif-title sif-h2 text-[#1f2937]">
                             <span dangerouslySetInnerHTML={{ __html: title }} />
                         </h2>
                         {isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
@@ -137,8 +138,8 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                 </div>
                 {/* Imagem */}
                 <div className={`relative ${isRight ? 'order-1 md:order-2' : 'order-1 md:order-1'}`}>
-                    <div className="absolute inset-0 bg-emerald-50 rounded-[40px] translate-x-4 translate-y-4 -z-10 group-hover/item:translate-x-6 group-hover/item:translate-y-6 transition-transform"></div>
-                    <div className="rounded-[40px] overflow-hidden shadow-2xl aspect-[4/3] relative bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
+                    <div className="absolute inset-0 bg-emerald-50 rounded-panel translate-x-4 translate-y-4 -z-10 group-hover/item:translate-x-6 group-hover/item:translate-y-6 transition-transform"></div>
+                    <div className="rounded-panel overflow-hidden shadow-2xl aspect-[4/3] relative bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
                         {imgSrc && <img src={imgSrc} alt={year} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" />}
                         <div className="absolute inset-0 bg-[#1f2937]/20"></div>
                         <div className="absolute top-8 left-8 bg-white/90 backdrop-blur-sm px-6 py-2 rounded-2xl font-black text-2xl text-[#1f2937] shadow-xl">{year}</div>
@@ -187,7 +188,7 @@ const GalleryCarousel = ({ title, data }) => {
         <div className="mb-20 last:mb-0">
             {/* Cabeçalho */}
             <div className="flex items-center justify-between mb-10">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold uppercase text-[#1f2937] border-l-4 border-[#007a3d] pl-4">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#1f2937] border-l-4 border-[#007a3d] pl-4">
                     {title}
                 </h3>
                 {/* Botões de navegação: só aparecem quando o carrossel é necessário */}
@@ -436,15 +437,15 @@ export default function Institucional() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 <div className="space-y-8 animate-in slide-in-from-left duration-1000">
                     <div className="w-16 h-1.5 bg-[#007a3d]"></div>
-                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[1.0] tracking-tight">
+                    <h2 className="sif-title sif-h2 text-[#1f2937] leading-[1.0] tracking-tight">
                         {cfg.quem_somos_title_line1} <br/><span className="text-[#007a3d]">{cfg.quem_somos_title_highlight}</span>
                     </h2>
                     <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text1}</p>
                     <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text2}</p>
                 </div>
                 <div className="relative animate-in zoom-in duration-1000">
-                    <div className="absolute inset-0 bg-emerald-100/50 rounded-[60px] translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
-                    <div className="rounded-[60px] overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
+                    <div className="absolute inset-0 bg-emerald-100/50 rounded-panel translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
+                    <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
                         {cfg.quem_somos_image ? (
                           <img
                               src={getImageUrl(cfg.quem_somos_image)}
@@ -469,8 +470,8 @@ export default function Institucional() {
         <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-20">
-                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block underline underline-offset-8">{cfg.team_tag}</span>
-                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937]">{cfg.team_title}</h2>
+                    <span className="sif-eyebrow mb-4 underline underline-offset-8">{cfg.team_tag}</span>
+                    <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.team_title}</h2>
                     <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
@@ -486,8 +487,8 @@ export default function Institucional() {
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                     <div className="w-full max-w-2xl text-left">
-                        <span className="text-[#007a3d] font-black uppercase tracking-[0.3em] text-[10px] block mb-4">{cfg.areas_tag}</span>
-                        <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
+                        <span className="sif-eyebrow mb-4">{cfg.areas_tag}</span>
+                        <h2 className="sif-title sif-h2 text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8 items-start lg:items-center w-full lg:w-auto">
@@ -518,12 +519,12 @@ export default function Institucional() {
                         return (
                           <div
                             key={i}
-                            className="group flex-shrink-0 w-[85vw] max-w-[450px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
+                            className="group flex-shrink-0 w-[85vw] max-w-[450px] md:w-[450px] bg-white p-12 rounded-panel transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
                           >
                             <div className="text-[#007a3d] mb-10 group-hover:scale-110 transition-transform origin-left duration-500">
                                 <Icon size={42} strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-2xl font-bold font-heading uppercase text-[#1f2937] mb-6 group-hover:text-[#007a3d] transition-colors leading-tight">{area.title}</h3>
+                            <h3 className="text-2xl font-semibold font-heading text-[#1f2937] mb-6 group-hover:text-[#007a3d] transition-colors leading-tight">{area.title}</h3>
                             <p className="text-gray-500 text-base leading-relaxed font-medium">
                                 {area.desc}
                             </p>
@@ -540,8 +541,8 @@ export default function Institucional() {
 
                 {/* Cabeçalho */}
                 <div className="mb-20 max-w-3xl">
-                    <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-6 block underline underline-offset-8">{cfg.estatuto_tag}</span>
-                    <h2 className="sif-title text-4xl md:text-6xl text-[#1f2937] leading-tight mb-6">
+                    <span className="sif-eyebrow mb-6 underline underline-offset-8">{cfg.estatuto_tag}</span>
+                    <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight mb-6">
                         {cfg.estatuto_title_line1} <br/><span className="text-[#007a3d]">{cfg.estatuto_title_highlight}</span>
                     </h2>
                     <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
@@ -557,7 +558,7 @@ export default function Institucional() {
                                   <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
                                       <BlockIcon size={20} />
                                   </div>
-                                  <h3 className="text-2xl font-bold uppercase text-[#1f2937] font-heading tracking-tight">{block.title}</h3>
+                                  <h3 className="text-2xl font-semibold text-[#1f2937] font-heading tracking-tight">{block.title}</h3>
                               </div>
                               {block.subtitle && (
                                 <p className="text-[#007a3d] text-xs font-black uppercase tracking-[0.2em]">{block.subtitle}</p>
@@ -592,7 +593,7 @@ export default function Institucional() {
 
                 {/* Texto de Encerramento — centralizado */}
                 <div className="text-center max-w-3xl mx-auto">
-                    <h3 className="text-2xl md:text-3xl font-bold uppercase text-[#1f2937] font-heading leading-tight mb-10">
+                    <h3 className="text-2xl md:text-3xl font-medium text-[#1f2937] font-heading leading-tight mb-10">
                         {cfg.estatuto_footer_title_line1} <span className="text-[#007a3d]">{cfg.estatuto_footer_title_highlight}</span>
                     </h3>
                     <div className="space-y-5 text-gray-500 text-base leading-relaxed font-medium text-left">
@@ -610,7 +611,7 @@ export default function Institucional() {
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                     <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
-                    <span className="text-[#007a3d] font-bold uppercase tracking-[0.4em] text-xs mb-6 block">{cfg.historia_tag}</span>
+                    <span className="sif-eyebrow mb-6">{cfg.historia_tag}</span>
                     <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] leading-[0.9] tracking-tighter">
                         {cfg.historia_title_line1} <span className="text-[#007a3d]">{cfg.historia_title_highlight}</span><br/>{cfg.historia_title_line2}
                     </h2>
@@ -658,17 +659,17 @@ export default function Institucional() {
 
                 {/* CARD DE CHAMADA — editável em Painel › Institucional › CTA Final */}
                 {cfg.cta_card_enabled !== false && (cfg.cta_card_title || cfg.cta_card_text) && (
-                  <div className="mt-32 relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
+                  <div className="mt-32 relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
                     <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
                     <div className={`relative grid grid-cols-1 ${cfg.cta_card_image ? 'md:grid-cols-2' : ''} items-stretch`}>
                       <div className="p-10 md:p-16 flex flex-col justify-center">
                         {cfg.cta_card_tag && <span className="text-[#b5e05c] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.cta_card_tag}</span>}
-                        {cfg.cta_card_title && <h2 className="sif-title text-3xl md:text-5xl leading-tight mb-6">{cfg.cta_card_title}</h2>}
+                        {cfg.cta_card_title && <h2 className="sif-title sif-h2 leading-tight mb-6">{cfg.cta_card_title}</h2>}
                         {cfg.cta_card_text && <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-2xl whitespace-pre-line">{cfg.cta_card_text}</p>}
                         {cfg.cta_card_btn_label && (
                           <div className="mt-8">
                             <SmartLink href={cfg.cta_card_btn_link || '/contato'}
-                              className="inline-flex items-center gap-3 bg-white text-[#0f3d24] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#7FBA00] hover:text-white transition-colors">
+                              className={buttonClass('light')}>
                               {cfg.cta_card_btn_label} <ArrowRight size={16} />
                             </SmartLink>
                           </div>

@@ -87,7 +87,7 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="group bg-white rounded-[32px] overflow-hidden shadow-xl border border-gray-100 transition-all hover:-translate-y-2"
+                className="group bg-white rounded-card overflow-hidden shadow-xl border border-gray-100 transition-all hover:-translate-y-2"
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   <img 
@@ -108,7 +108,7 @@ export default function Blog() {
                       }
                     })()}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 line-clamp-2 uppercase leading-tight group-hover:text-[#007a3d] transition-colors">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6 line-clamp-2 leading-tight group-hover:text-[#007a3d] transition-colors">
                     {post.title}
                   </h3>
                   <div className="flex items-center justify-between pt-6 border-t border-gray-50">
