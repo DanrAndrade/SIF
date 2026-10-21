@@ -177,7 +177,7 @@ export function GalleryBlock({ sec, dark }) {
         ))}
       </div>
       {open >= 0 && (
-        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4" role="dialog" aria-modal="true" onClick={() => setOpen(-1)}>
+        <div data-lenis-prevent className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4" role="dialog" aria-modal="true" onClick={() => setOpen(-1)}>
           <button type="button" aria-label="Fechar" className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"><X size={22} /></button>
           {imgs.length > 1 && <button type="button" aria-label="Anterior" onClick={(e) => { e.stopPropagation(); setOpen(i => (i - 1 + imgs.length) % imgs.length); }} className="absolute left-3 md:left-8 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"><ChevronLeft size={22} /></button>}
           <img src={img(imgs[open])} alt="" className="max-h-[85vh] max-w-full rounded-2xl" onClick={(e) => e.stopPropagation()} />

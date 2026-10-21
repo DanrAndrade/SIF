@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { Calendar, ArrowRight, ChevronDown, AlertCircle } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, toDate } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
 
@@ -102,7 +102,7 @@ export default function Blog() {
                     <Calendar size={14} />
                     {(() => {
                       try {
-                        return new Date(post.created_at).toLocaleDateString('pt-BR');
+                        return toDate(post.created_at)?.toLocaleDateString('pt-BR') || '';
                       } catch {
                         return 'Data indisponível';
                       }

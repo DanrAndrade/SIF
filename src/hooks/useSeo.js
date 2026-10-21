@@ -27,8 +27,18 @@ function setCanonical(href) {
   el.setAttribute('href', href);
 }
 
+const decode = (s) => {
+  if (typeof document === 'undefined') return s;
+  const ta = document.createElement('textarea');
+  ta.innerHTML = s;
+  return ta.value;
+};
+
 const clean = (t = '', max = 160) => {
-  const s = String(t).replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  let raw = String(t || '');
+  // Treinamentos antigos guardam a descrição como JSON {"presentation": "..."}
+  if (raw.trim().startsWith('{')) { try { const j = JSON.parse(raw); raw = j.presentation || j.description || Object.values(j).find(v => typeof v === 'string') || ''; } catch { /* texto comum */ } }
+  const s = decode(raw.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
   return s.length > max ? s.slice(0, max - 1).replace(/\s+\S*$/, '') + '…' : s;
 };
 

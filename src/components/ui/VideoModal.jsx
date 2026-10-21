@@ -29,7 +29,7 @@ export default function VideoModal({ url, title = 'Vídeo', onClose }) {
   }, [onClose]);
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 md:p-10" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
+    <div data-lenis-prevent className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 md:p-10" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
       <button ref={closeRef} type="button" onClick={onClose} aria-label="Fechar vídeo"
         className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors">
         <X size={22} />

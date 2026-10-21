@@ -14,11 +14,13 @@ import SmartLink from './ui/SmartLink';
 
 // "10,73" → { value: 10.73, decimals: 2 }   "713" → { value: 713, decimals: 0 }
 function parseNumber(str) {
-  const s = String(str ?? '').trim().replace(/\./g, '').replace(',', '.');
+  const m = String(str ?? '').trim().match(/^([\d.]*\d(?:,\d+)?)(.*)$/);
+  if (!m) return null;
+  const s = m[1].replace(/\./g, '').replace(',', '.');
   const value = parseFloat(s);
   if (!isFinite(value)) return null;
   const decimals = (s.split('.')[1] || '').length;
-  return { value, decimals };
+  return { value, decimals, rest: m[2] || '' };
 }
 
 const fmt = (n, decimals) =>
@@ -26,20 +28,20 @@ const fmt = (n, decimals) =>
 
 function CountUp({ number, start }) {
   const parsed = parseNumber(number);
-  const [shown, setShown] = useState(parsed ? fmt(0, parsed.decimals) : number);
+  const [shown, setShown] = useState(parsed ? fmt(0, parsed.decimals) + parsed.rest : number);
 
   useEffect(() => {
     if (!parsed) { setShown(number); return; }
     if (!start) return;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { setShown(fmt(parsed.value, parsed.decimals)); return; }
+    if (reduce) { setShown(fmt(parsed.value, parsed.decimals) + parsed.rest); return; }
     const dur = 1800;
     let raf;
     const t0 = performance.now();
     const tick = (now) => {
       const p = Math.min(1, (now - t0) / dur);
       const eased = 1 - Math.pow(1 - p, 3); // desacelera no fim
-      setShown(fmt(parsed.value * eased, parsed.decimals));
+      setShown(fmt(parsed.value * eased, parsed.decimals) + parsed.rest);
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -112,7 +114,7 @@ export default function NumbersBento({ config }) {
     if (typeof IntersectionObserver === 'undefined') { setStart(true); return; }
     const io = new IntersectionObserver((entries) => {
       if (entries.some(e => e.isIntersecting)) { setStart(true); io.disconnect(); }
-    }, { threshold: 0.25 });
+    }, { threshold: 0, rootMargin: '0px 0px -15% 0px' });
     io.observe(el);
     return () => io.disconnect();
   }, [visible]);

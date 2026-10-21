@@ -13,6 +13,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 import iconLogo from '../assets/icone.svg';
 
 import { API_BASE_URL, stripNbsp } from '../apiConfig';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -42,6 +43,7 @@ const CONTENT_DEFAULTS = {
 };
 
 export default function Jobs() {
+  usePageTitle('Trabalhe Conosco');
   const [selectedJob, setSelectedJob] = useState(null);
   const { config: pageConfig } = usePageConfig('jobs');
   const cfg = { ...CONTENT_DEFAULTS, ...pageConfig };
@@ -52,7 +54,6 @@ export default function Jobs() {
 
   useEffect(() => {
     // 1. Configura Título
-    document.title = "SIF | Trabalhe Conosco";
 
     // 2. Busca Vagas
     fetch(`${API_BASE_URL}/jobs.php`)
@@ -179,7 +180,7 @@ export default function Jobs() {
                  ) : (
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {currentJobs.map((job) => (
-                            <div key={job.id} onClick={() => setSelectedJob(job)} className="w-full bg-white rounded-[40px] p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
+                            <div key={job.id} role="button" tabIndex={0} aria-label={`Ver vaga: ${job.title}`} onClick={() => setSelectedJob(job)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedJob(job); } }} className="w-full bg-white rounded-[40px] p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
                                 <div className={`absolute top-0 left-0 w-full h-1.5 ${jobCategory(job) === 'Interna' ? 'bg-[#007a3d]' : 'bg-[#4ADE80]'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
                                 
                                 <div>
@@ -279,6 +280,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!file) { window.alert('Anexe o seu currículo (PDF ou Word) antes de enviar.'); return; }
         setSubmitStatus('loading');
 
         const data = new FormData();
@@ -423,7 +425,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
                                         return;
                                       }
                                       setFile(f);
-                                    }} required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
+                                    }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
                                     <div className={`w-full border-2 border-dashed rounded-[2.5rem] px-8 py-16 flex flex-col items-center justify-center text-center transition-all duration-500 ${
                                       file ? 'border-[#007a3d] bg-emerald-50' : 'border-gray-100 bg-[#f8f9fa] group-hover:border-[#007a3d]'
                                     }`}>

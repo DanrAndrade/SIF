@@ -145,7 +145,7 @@ export default function Process({ config = {} }) {
                                 : { to: step.link };
 
                             return (
-                            <LinkComponent key={index} {...linkProps} className="min-w-[100vw] box-border snap-center px-3 pb-2">
+                            <LinkComponent key={index} {...linkProps} className="min-w-full box-border snap-center px-3 pb-2">
                                 <div className="relative rounded-[30px] overflow-hidden flex flex-col min-h-[440px] bg-[#0a0f16] p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
                                     <div className="relative rounded-[28px] overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">

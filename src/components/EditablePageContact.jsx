@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { http } from '../utils/http';
 import { Mail, Phone, User, ExternalLink } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, toExternalUrl, whatsappLink } from '../apiConfig';
 
 // Card de contato responsável por tipo de página.
 // Configurado em /admin/<page> (Eventos/Treinamentos/GT/Projetos) e exibido
@@ -60,7 +60,7 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
               </a>
             )}
             {cfg.contact_whatsapp && (
-              <a href={`https://wa.me/55${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#007a3d]">
+              <a href={whatsappLink(cfg.contact_whatsapp)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#007a3d]">
                 <Phone size={14} className="shrink-0" /> {cfg.contact_whatsapp}
               </a>
             )}

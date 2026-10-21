@@ -12,7 +12,7 @@ import NoiseOverlay from '../components/ui/NoiseOverlay';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
 import SmartLink from '../components/ui/SmartLink';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
@@ -258,7 +258,7 @@ const GalleryCarousel = ({ title, data }) => {
                                 )}
                                 {member.link_whatsapp && (
                                     <a
-                                        href={`https://wa.me/55${member.link_whatsapp.replace(/\D/g, '')}`}
+                                        href={whatsappLink(member.link_whatsapp)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight"
@@ -518,7 +518,7 @@ export default function Institucional() {
                         return (
                           <div
                             key={i}
-                            className="group flex-shrink-0 w-[350px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
+                            className="group flex-shrink-0 w-[85vw] max-w-[450px] md:w-[450px] bg-white p-12 rounded-[56px] transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
                           >
                             <div className="text-[#007a3d] mb-10 group-hover:scale-110 transition-transform origin-left duration-500">
                                 <Icon size={42} strokeWidth={1.5} />

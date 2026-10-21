@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import BackgroundPattern from './components/ui/BackgroundPattern';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './apiConfig';
 
@@ -80,6 +81,19 @@ const AdminTab = ({ tab }) => (
 );
 
 // =============================================================
+// Página de detalhe recomeça do zero quando o endereço (slug) muda: respostas
+// atrasadas do item anterior não aparecem no item novo
+function BySlug({ page: Page }) {
+  const { slug } = useParams();
+  return <Page key={slug} />;
+}
+
+// Erro numa página não derruba o site; ao mudar de rota, tenta de novo
+function BoundaryByRoute({ children }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
+}
+
 // Padronagem de fundo só no site público (o painel tem fundo próprio)
 function PublicBackground() {
   const { pathname } = useLocation();
@@ -90,6 +104,7 @@ export default function App() {
   return (
     <AuthProvider>
       <PublicBackground />
+      <BoundaryByRoute>
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
 
@@ -101,7 +116,7 @@ export default function App() {
 
           {/* Blog */}
           <Route path="/blog"                  element={<Blog />} />
-          <Route path="/blog/:slug"            element={<BlogPost />} />
+          <Route path="/blog/:slug"            element={<BySlug page={BlogPost} />} />
 
           {/* Institucional / Produtos */}
           <Route path="/associadas"            element={<Associadas />} />
@@ -109,17 +124,17 @@ export default function App() {
 
           {/* Eventos */}
           <Route path="/eventos"               element={<Eventos />} />
-          <Route path="/eventos/:slug"         element={<EventoDetalhe />} />
+          <Route path="/eventos/:slug"         element={<BySlug page={EventoDetalhe} />} />
 
           {/* Treinamentos */}
           <Route path="/treinamentos"          element={<Treinamentos />} />
-          <Route path="/treinamentos/:slug"    element={<TreinamentoDetalhe />} />
+          <Route path="/treinamentos/:slug"    element={<BySlug page={TreinamentoDetalhe} />} />
           <Route path="/treinamentos-in-company" element={<TreinamentosInCompany />} />
-          <Route path="/treinamentos-in-company/:slug" element={<TreinamentoInCompanyDetalhe />} />
+          <Route path="/treinamentos-in-company/:slug" element={<BySlug page={TreinamentoInCompanyDetalhe} />} />
 
           {/* Grupos Temáticos */}
           <Route path="/grupos-tematicos"      element={<GruposTematicos />} />
-          <Route path="/grupos-tematicos/:slug" element={<GrupoTematicoDetalhe />} />
+          <Route path="/grupos-tematicos/:slug" element={<BySlug page={GrupoTematicoDetalhe} />} />
 
           {/* EINCOL */}
           <Route path="/eincol"                element={<Eincol />} />
@@ -127,7 +142,7 @@ export default function App() {
           {/* Projetos P&D */}
           <Route path="/projetos"              element={<Projetos />} />
           <Route path="/projetos-sif-embrapii" element={<ProjetosEmbrapii />} />
-          <Route path="/projetos/:slug"        element={<ProjetoDetalhe />} />
+          <Route path="/projetos/:slug"        element={<BySlug page={ProjetoDetalhe} />} />
 
           {/* ── ROTAS ADMIN ────────────────────────────────── */}
           <Route path="/admin"                 element={<AdminLogin />} />
@@ -163,6 +178,7 @@ export default function App() {
 
         </Routes>
       </Suspense>
+      </BoundaryByRoute>
     </AuthProvider>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getImageUrl } from '../../apiConfig';
+import { getImageUrl, toExternalUrl } from '../../apiConfig';
 
 // Carrossel de logos (patrocinadores, organização, apoio, parceiros...).
 // Com muitas logos, roda em marquee infinito (reaproveita a animação
@@ -20,7 +20,7 @@ export default function LogoCarousel({ images = [], altPrefix = 'Logo' }) {
     );
     return (
       <div className="h-20 md:h-24 flex items-center justify-center shrink-0">
-        {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer">{img}</a> : img}
+        {item.link ? <a href={toExternalUrl(item.link) || undefined} target="_blank" rel="noopener noreferrer">{img}</a> : img}
       </div>
     );
   };

@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toDate } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
@@ -14,7 +14,9 @@ const API_URL = `${API_BASE_URL}/blog.php`;
 
 const formatDate = (value) => {
   try {
-    return new Date(value).toLocaleDateString('pt-BR', {
+    const d = toDate(value);
+    if (!d) return '';
+    return d.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -74,7 +76,7 @@ export default function BlogPost() {
               });
 
               const sortedFiltered = filtered.sort((a, b) =>
-                new Date(b.created_at) - new Date(a.created_at)
+                (toDate(b.created_at)?.getTime() || 0) - (toDate(a.created_at)?.getTime() || 0)
               );
 
               setRelatedPosts(sortedFiltered.slice(0, 3));

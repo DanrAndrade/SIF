@@ -179,7 +179,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                 </div>
             </div>
 
-            <button className={`lg:hidden p-2 rounded-md ${commonTextColor}`} onClick={() => setMobileMenuOpen(true)}>
+            <button aria-label="Abrir menu" className={`lg:hidden p-2 rounded-md ${commonTextColor}`} onClick={() => setMobileMenuOpen(true)}>
                 <Menu size={28} />
             </button>
         </div>
@@ -191,7 +191,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
         onClick={closeMenu}
       ></div>
 
-      <div className={`fixed top-0 right-0 h-full w-[85%] max-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out lg:hidden flex flex-col ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out lg:hidden flex flex-col ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
                 <img src={logoSif} alt="SIF" className="h-8 w-auto object-contain" />
                 <button onClick={closeMenu} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#007a3d] hover:text-white transition-colors">

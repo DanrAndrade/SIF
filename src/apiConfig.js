@@ -78,7 +78,31 @@ const embedVideos = (html) => {
 //  - transforma links de YouTube/Vimeo em players incorporados.
 export const cleanRichHtml = (html) => {
   if (!html || typeof html !== 'string') return html;
-  return embedVideos(stripNbsp(html));
+  return embedVideos(stripNbsp(sanitizeHtml(html)));
+};
+
+// Remove o que pode executar código (o servidor já limpa ao gravar; aqui
+// protege também o conteúdo antigo): <script>, eventos "on...", links
+// javascript: e iframes que não sejam de YouTube/Vimeo.
+const SAFE_IFRAME = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//i;
+export const sanitizeHtml = (html) => {
+  if (!html || typeof html !== 'string' || html.indexOf('<') === -1 || typeof DOMParser === 'undefined') return html;
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
+  const root = doc.body.firstElementChild;
+  if (!root) return html;
+  root.querySelectorAll('script,style,object,embed,form,meta,link,base,svg,math').forEach(n => n.remove());
+  root.querySelectorAll('iframe').forEach(n => { if (!SAFE_IFRAME.test(n.getAttribute('src') || '')) n.remove(); });
+  root.querySelectorAll('*').forEach(el => {
+    for (const a of [...el.attributes]) {
+      const name = a.name.toLowerCase();
+      const val = (a.value || '').replace(/[\s\u0000-\u001f]+/g, '').toLowerCase();
+      if (name.startsWith('on') || name === 'srcdoc'
+        || (['href', 'src', 'xlink:href', 'action', 'formaction', 'poster'].includes(name) && /^(javascript|vbscript|data:text)/.test(val))) {
+        el.removeAttribute(a.name);
+      }
+    }
+  });
+  return root.innerHTML;
 };
 
 // Texto puro a partir do HTML do editor (para resumos de cards). Cortar o
@@ -88,15 +112,34 @@ export const htmlToText = (html, max = 0) => {
   const txt = (typeof DOMParser !== 'undefined'
     ? new DOMParser().parseFromString(html, 'text/html').body.textContent
     : html.replace(/<[^>]*>/g, ' ')) || '';
-  const clean = txt.replace(/s+/g, ' ').trim();
-  return max && clean.length > max ? clean.slice(0, max).replace(/s+S*$/, '') + '…' : clean;
+  const clean = txt.replace(/\s+/g, ' ').trim();
+  return max && clean.length > max ? clean.slice(0, max).replace(/\s+\S*$/, '') + '…' : clean;
 };
 
 // Link externo digitado no painel (ex: "www.empresa.com.br") → URL completa.
 export const toExternalUrl = (url) => {
   const u = (url || '').trim();
   if (!u) return null;
-  return /^https?:\/\//i.test(u) ? u : `https://${u}`;
+  if (/^(javascript|vbscript|data):/i.test(u)) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(u)) return u;
+  return `https://${u.replace(/^\/\//, '')}`;
+};
+
+// Link de WhatsApp a partir do número digitado no painel ("31 9...", "+55 31 9..." ou "5531...")
+export const whatsappLink = (raw) => {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (!d) return null;
+  if (!(d.startsWith('55') && d.length >= 12)) d = '55' + d;
+  return `https://wa.me/${d}`;
+};
+
+// Data do banco ("2026-10-20 14:30:00" ou "2026-10-20") → Date válida em
+// qualquer navegador (o Safari não entende o espaço no meio).
+export const toDate = (v) => {
+  if (!v) return null;
+  const s = String(v).trim();
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T12:00:00' : s.replace(' ', 'T'));
+  return isNaN(d.getTime()) ? null : d;
 };
 
 export const getImageUrl = (path) => {

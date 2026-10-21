@@ -36,8 +36,10 @@ import SectionHeader from '../components/ui/SectionHeader';
 import iconLogo from '../assets/icone.svg'; 
 
 import { API_BASE_URL } from '../apiConfig';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Contact() {
+  usePageTitle('Contato');
   const { hash } = useLocation();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
@@ -49,7 +51,6 @@ export default function Contact() {
   });
 
   useEffect(() => {
-    document.title = "SIF | Contato";
 
     window.scrollTo(0, 0);
     if (hash) {

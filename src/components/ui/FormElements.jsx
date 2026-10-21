@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 // --- INPUT ---
-export function Input({ label, error, className = "", ...props }) {
+export function Input({ label, error, className = "", id, ...props }) {
+  const autoId = useId();
+  const fieldId = id || autoId;
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <label className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
+        <label htmlFor={fieldId} className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
           {label}
         </label>
       )}
       <input
+        id={fieldId}
         className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] disabled:bg-gray-100 disabled:text-gray-400 ${
           error ? "border-red-400 focus:border-red-400" : "border-gray-200"
         } ${className}`}
@@ -21,15 +24,18 @@ export function Input({ label, error, className = "", ...props }) {
 }
 
 // --- TEXTAREA (Corrigido para CamelCase para bater com o import) ---
-export function TextArea({ label, error, className = "", ...props }) {
+export function TextArea({ label, error, className = "", id, ...props }) {
+  const autoId = useId();
+  const fieldId = id || autoId;
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <label className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
+        <label htmlFor={fieldId} className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
           {label}
         </label>
       )}
       <textarea
+        id={fieldId}
         className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] min-h-[100px] resize-y ${
           error ? "border-red-400 focus:border-red-400" : "border-gray-200"
         } ${className}`}
@@ -41,16 +47,19 @@ export function TextArea({ label, error, className = "", ...props }) {
 }
 
 // --- SELECT (Adicionado pois estava faltando) ---
-export function Select({ label, options = [], error, className = "", children, ...props }) {
+export function Select({ label, options = [], error, className = "", children, id, ...props }) {
+  const autoId = useId();
+  const fieldId = id || autoId;
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <label className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
+        <label htmlFor={fieldId} className="text-xs font-bold text-gray-600 uppercase tracking-wider ml-1">
           {label}
         </label>
       )}
       <div className="relative">
         <select
+          id={fieldId}
           className={`w-full px-4 py-3 rounded-lg border bg-white text-gray-800 appearance-none transition-all focus:outline-none focus:ring-2 focus:ring-[#007a3d]/20 focus:border-[#007a3d] disabled:bg-gray-100 ${
             error ? "border-red-400 focus:border-red-400" : "border-gray-200"
           } ${className}`}

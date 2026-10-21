@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import { useSeo } from '../hooks/useSeo';
@@ -154,7 +154,7 @@ export default function ProjetoDetalhe() {
               {projeto.tabs && (() => {
                 let tabs = [];
                 try { tabs = JSON.parse(projeto.tabs); } catch {}
-                if (!tabs.length) return null;
+                if (!Array.isArray(tabs) || !tabs.length) return null;
                 return (
                   <div className="mt-16 space-y-8">
                     <div className="flex flex-wrap gap-2 justify-center">
@@ -178,7 +178,7 @@ export default function ProjetoDetalhe() {
           {projeto.link_url && (
             <div className="mt-16 pt-12 border-t border-gray-100 flex justify-center">
               <a 
-                href={projeto.link_url} 
+                href={toExternalUrl(projeto.link_url) || undefined} 
                 target="_blank" 
                 rel="noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-[#1f2937] text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-[#007a3d] hover:shadow-lg transition-all hover:-translate-y-1"

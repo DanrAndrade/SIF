@@ -5,6 +5,7 @@ import logoSif from '../assets/sif.svg';
 import SmartLink from './ui/SmartLink';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { FOOTER_DEFAULTS, footerBg } from '../utils/footerDefaults';
+import { toExternalUrl } from '../apiConfig';
 
 // Rodapé — conteúdo e cor editáveis em Painel › Páginas › Rodapé.
 // Sem configuração salva (ou backend fora do ar), mostra os textos padrão.
@@ -43,7 +44,7 @@ export default function Footer() {
 
               {socials.length > 0 && (
                 <div className="flex gap-4 pt-2">
-                  {socials.map(([k, Icon, name]) => <SocialLink key={k} href={c[k]} label={name} icon={<Icon size={20} />} />)}
+                  {socials.map(([k, Icon, name]) => <SocialLink key={k} href={toExternalUrl(c[k])} label={name} icon={<Icon size={20} />} />)}
                 </div>
               )}
             </div>

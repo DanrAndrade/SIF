@@ -11,6 +11,7 @@ import { BlockHeader } from '../components/sections/SectionBlocks';
 import { withGtDefaults, htmlExcerpt } from '../components/sections/sectionTypes';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useSeo } from '../hooks/useSeo';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 // Página de um Grupo Temático: topo com capa, menu da página (âncoras) e
@@ -51,6 +52,9 @@ export default function GrupoTematicoDetalhe() {
     contact_name: resp.name, contact_role: resp.role, contact_email: resp.email, contact_whatsapp: resp.whatsapp,
     contact_photo: resp.photo, contact_link: resp.link, contact_link_label: resp.link_label,
   } : null;
+  // Contato geral de Grupos Temáticos (usado quando o grupo não tem responsável próprio)
+  const { config: gtPage } = usePageConfig('gt');
+  const hasContact = !!responsavel || !!(gtPage?.contact_name || gtPage?.contact_email || gtPage?.contact_whatsapp);
   const intro = sections.find(s => s.type === 'gt_intro');
   const summary = extra.summary || htmlExcerpt(intro?.content || gt?.description || '', 220);
 
@@ -60,7 +64,7 @@ export default function GrupoTematicoDetalhe() {
   // Blocos especiais
   const special = {
     gt_blog: (sec) => (posts && posts.length ? <GtBlogPosts posts={posts} limit={sec.limit || 3} sec={sec} /> : null),
-    gt_contact: (sec) => (
+    gt_contact: (sec) => (!hasContact ? null :
       <div className="max-w-3xl mx-auto">
         <BlockHeader sec={sec} align="center" size="md" className="mb-8" />
         <EditablePageContact pageKey="gt" fallbackTitle="Responsável pelo grupo" override={responsavel} />

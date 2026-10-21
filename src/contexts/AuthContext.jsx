@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('chocosul_user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) { try { setUser(JSON.parse(storedUser)); } catch { localStorage.removeItem('chocosul_user'); } }
     setLoading(false);
   }, []);
 

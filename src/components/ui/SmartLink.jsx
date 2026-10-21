@@ -16,6 +16,9 @@ export function resolveHref(href) {
   if (!href || typeof href !== 'string') return { type: 'none' };
   let h = href.trim();
   if (/^(https?:|mailto:|tel:|#|\/\/)/i.test(h)) return { type: 'external', href: h };
+  if (/^(javascript|vbscript|data):/i.test(h)) return { type: 'none' };
+  // Sem "/" no começo e com cara de domínio (www.x.com, empresa.com.br/...) → site externo
+  if (!h.startsWith('/') && /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$|\?)/i.test(h)) return { type: 'external', href: 'https://' + h };
   if (!h.startsWith('/')) h = '/' + h;
   // Link já salvo com a subpasta: tira o prefixo para virar rota interna
   if (BASE && h.startsWith(BASE + '/')) h = h.slice(BASE.length);

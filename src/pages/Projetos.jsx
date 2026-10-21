@@ -8,6 +8,7 @@ import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, ChevronDown, Clock } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -93,12 +94,12 @@ function SectionTitle({ title, accent }) {
 }
 
 export default function Projetos() {
+  usePageTitle('Projetos');
   const [loadError, setLoadError] = useState(false);
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'SIF | Projetos P&D';
     loadProjetos();
   }, []);
 

@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
-import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
 // --- LOGOS DE FALLBACK (caso a API esteja offline) ---
 import logoAgropalma from '../assets/logos/Agropalma-Logo.webp';
@@ -183,7 +183,7 @@ export default function Associadas() {
             {cfg.texto_tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.texto_tag}</span>}
             {cfg.texto_title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] mb-8 leading-tight">{cfg.texto_title}</h2>}
             <div className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-3xl"
-              dangerouslySetInnerHTML={{ __html: cfg.texto_html }} />
+              dangerouslySetInnerHTML={{ __html: cleanRichHtml(cfg.texto_html) }} />
           </div>
         </section>
       )}

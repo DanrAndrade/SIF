@@ -60,15 +60,15 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
             <div className="w-full lg:w-[60%]">
                 {items.map((item, index) => (
                     <div key={item.id ?? index} className="border-b border-gray-200 mb-6 pb-6">
-                        <div className="flex justify-between items-center cursor-pointer group" onClick={() => toggleFaq(index)}>
-                            <h4 className={`text-lg font-bold transition-colors uppercase section-heading ${openFaq === index ? 'text-[#007a3d]' : 'text-[#1f2937] group-hover:text-[#007a3d]'}`}>
+                        <button type="button" aria-expanded={openFaq === index} className="w-full text-left flex justify-between items-center gap-4 cursor-pointer group" onClick={() => toggleFaq(index)}>
+                            <h4 className={`text-lg font-semibold transition-colors ${openFaq === index ? 'text-[#007a3d]' : 'text-[#1f2937] group-hover:text-[#007a3d]'}`}>
                                 {item.question}
                             </h4>
-                            <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-[#1f2937] border-[#1f2937] text-[#7FBA00] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#007a3d] group-hover:text-[#007a3d]'}`}>
+                            <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-[#1f2937] border-[#1f2937] text-[#7FBA00] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#007a3d] group-hover:text-[#007a3d]'}`}>
                                 <ChevronDown size={16} />
                             </div>
-                        </div>
-                        <div className={`overflow-hidden transition-all duration-500 ${openFaq === index ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-500 ${openFaq === index ? 'max-h-[3000px] opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
                             <p className="text-gray-500 text-sm leading-relaxed font-medium whitespace-pre-line">{item.answer}</p>
                         </div>
                     </div>
