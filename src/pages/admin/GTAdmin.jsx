@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useConfirm, AdminPage, AdminCard, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, ImageField } from '../../components/admin/kit';
+import { useConfirm, AdminPage, AdminCard, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, ImageField, useCanLeave } from '../../components/admin/kit';
 import { Target, Trash2, Edit3, X, Plus, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
@@ -35,6 +35,7 @@ const emptyForm = {
 
 export default function GTAdmin() {
   const confirm = useConfirm();
+  const canLeave = useCanLeave();
   const [gts, setGts] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -55,21 +56,22 @@ export default function GTAdmin() {
     } catch (err) { console.error('Erro ao carregar GTs:', err); }
   };
 
-  const handleEdit = (gt) => {
+  const handleEdit = async (gt) => {
+    if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
     let sections = [];
     let responsavel = { ...emptyForm.responsavel };
     let extraRest = {};
+    let summaryLoaded = '';
     if (gt.extra_data) {
       try {
         const { sections: s, responsavel: r, summary: sm, ...rest } = JSON.parse(gt.extra_data) || {};
         sections = s || [];
-        if (sm) extraRest.__summary = sm;
+        summaryLoaded = sm || '';
         responsavel = { ...responsavel, ...(r || {}) };
         extraRest = rest;
       } catch {}
     }
-    const summary = extraRest.__summary || '';
-    delete extraRest.__summary;
+    const summary = summaryLoaded;
     setEditingId(gt.id);
     setFormData({
       title: gt.title, description: gt.description,
@@ -89,9 +91,9 @@ export default function GTAdmin() {
   const handleDelete = async (id) => {
     if (!(await confirm({ title: 'Excluir este Grupo Temático?', message: 'A página pública do grupo sai do site. Não dá para desfazer.' }))) return;
     try {
-      await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      await apiRequest(`${API_URL}?id=${id}`, { method: "DELETE" }); // erro (ex.: sem permissão) aparece
       fetchGts();
-    } catch { window.showToast('Erro ao excluir GT.'); }
+    } catch (err) { toastError(err); }
   };
 
   const handleToggleActive = async (gt) => {
@@ -108,6 +110,7 @@ export default function GTAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sectionsUploading) { window.showToast?.('Aguarde o envio dos arquivos terminar para salvar.', 'error'); return; }
     setLoading(true);
     const fd = new FormData();
     // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
@@ -143,7 +146,7 @@ export default function GTAdmin() {
       title={view === 'list' ? 'Grupos Temáticos' : (editingId ? 'Editar Grupo' : 'Novo Grupo Temático')}
       subtitle={view === 'list' ? 'Gerencie os clusters de pesquisa e inovação da SIF' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo grupo temático</PrimaryButton>
+        ? <PrimaryButton icon={Plus} onClick={async () => { if (await canLeave()) setView('form'); }}>Novo grupo temático</PrimaryButton>
         : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
       save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
     >
@@ -222,7 +225,7 @@ export default function GTAdmin() {
               <p className="text-xs text-gray-400 ml-1">{(formData.summary || '').length}/320 · Vazio: usa o começo do texto de apresentação.</p>
             </div>
 
-            <ResponsavelForm value={formData.responsavel} onChange={r => setFormData(f => ({ ...f, responsavel: r }))} onUploading={setSectionsUploading} />
+            <ResponsavelForm value={formData.responsavel} onChange={r => setFormData(f => ({ ...f, responsavel: typeof r === 'function' ? r(f.responsavel) : r }))} onUploading={setSectionsUploading} />
 
             <ContentSections
               template="gt" autoTemplate={!editingId} bands title="Blocos da página do grupo"
@@ -256,7 +259,7 @@ function ResponsavelForm({ value, onChange, onUploading }) {
   );
   const onPhoto = async (file) => {
     setBusy(true); onUploading?.(true);
-    try { set('photo', await uploadImageNow(file)); }
+    try { const url = await uploadImageNow(file); if (url) onChange(cur => ({ ...cur, photo: url })); }
     catch (err) { toastError(err); }
     finally { setBusy(false); onUploading?.(false); }
   };

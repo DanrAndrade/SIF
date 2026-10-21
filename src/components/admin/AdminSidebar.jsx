@@ -7,6 +7,7 @@ import {
 import iconLogo from '../../assets/icone.svg';
 import { ADMIN_GROUPS } from '../../utils/adminModules';
 import { useAdminUser } from '../../contexts/AdminUserContext';
+import { useCanLeave } from './kit';
 
 const ICONS = {
   leads: LayoutGrid, candidates: Users, usuarios: UserCog,
@@ -37,8 +38,10 @@ const SidebarItem = ({ icon, label, active, onClick }) => (
 export default function AdminSidebar({ activeTab, setActiveTab, logout, isOpen, closeMobile, onMyPassword }) {
   const navigate = useNavigate();
   const { user, can } = useAdminUser();
+  const canLeave = useCanLeave();
 
   const handleLogout = async () => {
+      if (!(await canLeave())) return;
       await logout();
       navigate('/admin', { replace: true });
   };

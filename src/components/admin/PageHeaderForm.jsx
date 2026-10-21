@@ -12,6 +12,7 @@ const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho da página' }) {
   const [cfg, setCfg] = useState(defaults || {});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [file, setFile] = useState(null);
@@ -23,12 +24,12 @@ export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho 
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${pageKey}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         setCfg({ ...(defaults || {}), ...incoming });
       })
-      .catch(() => setCfg(defaults || {}))
+      .catch(() => { setCfg(defaults || {}); setLoadError(true); })
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageKey]);
@@ -64,7 +65,7 @@ export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho 
   return (
     <AdminCard
       title={title}
-      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} label="Salvar cabeçalho" /></>}
+      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loadError} label="Salvar cabeçalho" /></>}
     >
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 

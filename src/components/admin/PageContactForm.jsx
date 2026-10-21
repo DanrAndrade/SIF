@@ -18,6 +18,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
     contact_whatsapp: '',
   });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -27,7 +28,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${pageKey}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const { contact_name, contact_role, contact_email, contact_whatsapp, contact_photo } = incoming;
@@ -39,7 +40,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
           contact_photo: contact_photo || '',
         });
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, [pageKey]);
 
@@ -86,7 +87,7 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
     <AdminCard
       title={title}
       subtitle="Os dados aqui aparecem como contato em todas as postagens deste tipo."
-      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} label="Salvar contato" /></>}
+      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loadError} label="Salvar contato" /></>}
     >
 
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiRequest, toastError } from '../utils/adminApi';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty } from '../components/admin/kit';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, useCanLeave } from '../components/admin/kit';
 import PageContactForm from '../components/admin/PageContactForm';
 import { Trash2, Edit3, X, Plus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -29,6 +29,7 @@ const AVAILABLE_TAGS = [
 
 export default function BlogAdmin() {
   const confirm = useConfirm();
+  const canLeave = useCanLeave();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sectionsUploading, setSectionsUploading] = useState(false);
@@ -50,7 +51,8 @@ export default function BlogAdmin() {
   }, []);
   const gtOptions = fullBlog ? gts : gts.filter(g => myGtIds.includes(Number(g.id)));
   const gtTitle = (id) => gts.find(g => Number(g.id) === Number(id))?.title;
-  const newPost = () => {
+  const newPost = async () => {
+    if (!(await canLeave())) return;
     setFormData(f => ({ ...f, gt_id: fullBlog ? '' : (myGtIds[0] || ''), responsavel_ids: me?.id ? [me.id] : [] }));
     setView('form');
   };
@@ -108,6 +110,7 @@ export default function BlogAdmin() {
   };
 
   const handleEdit = async (post) => {
+    if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
     setLoading(true); setError(null);
     try {
       const res = await fetch(`${API_URL}?slug=${post.slug}`);
@@ -135,6 +138,7 @@ export default function BlogAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sectionsUploading) { window.showToast?.('Aguarde o envio dos arquivos terminar para salvar.', 'error'); return; }
     if (!formData.title.trim()) { window.showToast('O título é obrigatório.'); return; }
     if (!formData.content.trim() || formData.content === '<p><br></p>') {
       window.showToast('O conteúdo é obrigatório.'); return;
@@ -173,9 +177,9 @@ export default function BlogAdmin() {
       title={view === 'list' ? 'Blog' : (editingId ? 'Editar publicação' : 'Nova publicação')}
       subtitle={view === 'list' ? 'Gerencie as publicações do blog.' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={newPost}>Nova publicação</PrimaryButton>
+        ? ((fullBlog || myGtIds.length > 0) ? <PrimaryButton icon={Plus} onClick={newPost}>Nova publicação</PrimaryButton> : null)
         : <SecondaryButton icon={X} disabled={loading} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
-      save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty } : undefined}
+      save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: sectionsUploading } : undefined}
     >
 
 

@@ -97,6 +97,7 @@ export default function AssociadasAdmin() {
   const [activeTab, setActiveTab] = useState('hero');
   const [config, setConfig] = useState(DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState('');
@@ -112,12 +113,12 @@ export default function AssociadasAdmin() {
   // Carrega config geral
   useEffect(() => {
     fetch(`${PAGE_URL}?page=associadas`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         setConfig(mergeCfg(DEFAULTS, incoming));
       })
-      .catch(() => setConfig(DEFAULTS))
+      .catch(() => { setConfig(DEFAULTS); setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -129,25 +130,29 @@ export default function AssociadasAdmin() {
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
 
-      if (list.length === 0 && !seedingRef.current) {
-        seedingRef.current = true;
-        for (const p of STATIC_PARTNERS) {
-          const fd = new FormData();
-          fd.append('name', p.name);
-          if (p.logo) fd.append('logo_url', p.logo);
-          await fetch(ASSOC_URL, { method: 'POST', body: fd });
-        }
-        const res2 = await fetch(ASSOC_URL);
-        const data2 = await res2.json();
-        setPartners(Array.isArray(data2) ? data2 : []);
-      } else {
-        setPartners(list);
-      }
+      setPartners(list);
     } catch { setPartners([]); }
     finally { setLoadingPartners(false); }
   }, []);
 
   useEffect(() => { fetchPartners(); }, []);
+
+  // Importa as empresas que estavam fixas no site antigo — só por botão
+  const importStatic = async () => {
+    if (seedingRef.current) return;
+    seedingRef.current = true;
+    try {
+      for (const p of STATIC_PARTNERS) {
+        const fd = new FormData();
+        fd.append('name', p.name);
+        if (p.logo) fd.append('logo_url', p.logo);
+        await apiRequest(ASSOC_URL, { method: 'POST', body: fd });
+      }
+      window.showToast?.('Empresas importadas.');
+    } catch (err) { toastError(err); }
+    seedingRef.current = false;
+    fetchPartners();
+  };
 
   const set = (k, v) => setConfig(p => ({ ...p, [k]: v }));
 
@@ -197,7 +202,7 @@ export default function AssociadasAdmin() {
     <AdminPage
       title="Página Empresas Associadas"
       subtitle="Os textos vêm preenchidos com o conteúdo atual. As empresas são salvas uma a uma, na aba Empresas."
-      save={{ onSave: handleSavePage, saving, dirty, savedAt }}
+      save={{ onSave: handleSavePage, saving, dirty, savedAt, disabled: loadError }}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
@@ -215,7 +220,7 @@ export default function AssociadasAdmin() {
         <BeneficiosForm cfg={config} set={set} />
       )}
       {activeTab === 'empresas' && (
-        <EmpresasManager partners={partners} loading={loadingPartners} reload={fetchPartners} />
+        <EmpresasManager partners={partners} loading={loadingPartners} reload={fetchPartners} onImport={importStatic} />
       )}
       {activeTab === 'cta' && (
         <CtaForm cfg={config} set={set} />
@@ -330,7 +335,7 @@ function CtaForm({ cfg, set }) {
 }
 
 // ─── EMPRESAS (CRUD) ──────────────────────────────────────────
-function EmpresasManager({ partners, loading, reload }) {
+function EmpresasManager({ partners, loading, reload, onImport }) {
   const confirm = useConfirm();
   const [newName, setNewName] = useState('');
   const [newWebsite, setNewWebsite] = useState('');
@@ -483,6 +488,7 @@ function EmpresasManager({ partners, loading, reload }) {
           <div className="text-center py-12 text-gray-400">
             <Building2 size={32} className="mx-auto mb-2 opacity-30" />
             <p className="text-sm">Nenhuma empresa cadastrada.</p>
+            {onImport && <button type="button" onClick={onImport} className="mt-4 px-4 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]">Importar as empresas do site antigo</button>}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 p-4">

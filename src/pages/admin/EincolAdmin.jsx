@@ -148,6 +148,7 @@ export default function EincolAdmin() {
       const data = await res.json();
       if (data.success) {
         setForm(f => ({ ...f, active: novo }));
+        if (!dirty) markCleanSoon(); // já salvo no servidor: não é alteração pendente
       } else {
         window.showToast('Erro ao alterar visibilidade.');
       }

@@ -21,6 +21,7 @@ export default function EmbrapiiAdmin() {
   const [tab, setTab] = useState('intro');
   const [cfg, setCfg] = useState(EMBRAPII_DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
@@ -29,14 +30,14 @@ export default function EmbrapiiAdmin() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/page_content.php?page=${PAGE_KEY}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const inc = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...EMBRAPII_DEFAULTS };
         for (const k of KEYS) if (k in inc) next[k] = inc[k];
         setCfg(next);
       })
-      .catch(() => {})
+      .catch(() => { setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -61,10 +62,10 @@ export default function EmbrapiiAdmin() {
     <AdminPage
       title="Projetos SIF e EMBRAPII"
       subtitle="Página /projetos-sif-embrapii. O cabeçalho tem botão próprio; o resto é salvo pelo botão do topo."
-      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loading || uploading }}
+      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loading || uploading || loadError }}
       tabs={TABS} activeTab={tab} onTabChange={setTab}
     >
-      {tab === 'intro' && <PageHeaderForm pageKey={PAGE_KEY} defaults={EMBRAPII_HERO_DEFAULTS} title="Cabeçalho da página" />}
+      <div className={tab === 'intro' ? '' : 'hidden'}><PageHeaderForm pageKey={PAGE_KEY} defaults={EMBRAPII_HERO_DEFAULTS} title="Cabeçalho da página" /></div>
 
       {loading ? (
         <div className="text-center py-10"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div>

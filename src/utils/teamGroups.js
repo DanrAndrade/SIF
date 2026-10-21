@@ -16,7 +16,7 @@ export const DEFAULT_TEAM_GROUPS = [
 // Junta o que está salvo com os padrões e com grupos que só existem no banco.
 export function resolveTeamGroups(saved, extraKeys = []) {
   const base = Array.isArray(saved) && saved.length
-    ? saved.filter(g => g && g.key).map(g => ({ key: g.key, label: g.label || g.key }))
+    ? saved.filter(g => g && g.key).map(g => ({ key: g.key, label: g.label ?? g.key })) // vazio = mostra o nome original no site
     : DEFAULT_TEAM_GROUPS.map(g => ({ ...g }));
   const known = new Set(base.map(g => g.key));
   for (const k of [...DEFAULT_TEAM_GROUPS.map(g => g.key), ...extraKeys]) {

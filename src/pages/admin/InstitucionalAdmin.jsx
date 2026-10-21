@@ -121,10 +121,10 @@ const mergeCfg = (base, incoming) => {
   for (const k of Object.keys(incoming)) {
     out[k] = incoming[k];
   }
-  if (!Array.isArray(incoming.areas) || incoming.areas.length === 0) {
+  if (!Array.isArray(incoming.areas)) { // lista vazia salva de propósito continua vazia
     out.areas = base.areas;
   }
-  if (!Array.isArray(incoming.estatuto_blocks) || incoming.estatuto_blocks.length === 0) {
+  if (!Array.isArray(incoming.estatuto_blocks)) {
     out.estatuto_blocks = base.estatuto_blocks;
   }
   return out;
@@ -134,6 +134,7 @@ export default function InstitucionalAdmin() {
   const [activeTab, setActiveTab] = useState('hero');
   const [config, setConfig] = useState(DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState('');
@@ -143,12 +144,12 @@ export default function InstitucionalAdmin() {
 
   useEffect(() => {
     fetch(API + '?resource=config')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         setConfig(mergeCfg(DEFAULTS, incoming));
       })
-      .catch(() => setConfig(DEFAULTS))
+      .catch(() => { setConfig(DEFAULTS); setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -199,7 +200,7 @@ export default function InstitucionalAdmin() {
     <AdminPage
       title="Página Institucional"
       subtitle="Edite os textos, a equipe e a linha do tempo. O botão Salvar vale para todas as abas."
-      save={{ onSave: handleSave, saving, dirty, savedAt }}
+      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loadError }}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}

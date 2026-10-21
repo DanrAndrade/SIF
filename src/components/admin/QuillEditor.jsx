@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
@@ -21,6 +21,13 @@ async function uploadDataImage(dataUrl) {
 
 export default function QuillEditor({ value, onChange, height = 'h-[550px]', className = '' }) {
   const { quillRef, modules } = useQuillImageHandler();
+  // Ao abrir, o editor "arruma" o HTML (ex.: põe <p>) e avisaria mudança sem
+  // ninguém mexer — aparecia "Alterações não salvas" à toa. Só repassamos
+  // mudanças feitas pela pessoa (digitação, colar, botões, imagem).
+  const handleChange = useCallback((html, _delta, source) => {
+    if (source !== 'user') return;
+    onChange?.(html);
+  }, [onChange]);
 
   useEffect(() => {
     const quill = quillRef.current?.getEditor();
@@ -60,7 +67,7 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
         theme="snow"
         modules={modules}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         useSemanticHTML={false}
         className="flex-1 min-h-0 flex flex-col"
       />

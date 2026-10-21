@@ -148,7 +148,7 @@ export default function ProdutosServicos() {
   const cfg = {
     ...CONTENT_DEFAULTS,
     ...config,
-    germinar_sections: (config.germinar_sections?.length > 0)
+    germinar_sections: Array.isArray(config.germinar_sections)
       ? config.germinar_sections
       : CONTENT_DEFAULTS.germinar_sections,
     comercial_sections: config.comercial_sections || [],

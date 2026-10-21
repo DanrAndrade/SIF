@@ -300,7 +300,7 @@ export default function Institucional() {
     http.get(`${API_BASE_URL}/institucional.php?resource=config`).then(res => {
       const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
       setCfg(prev => ({ ...prev, ...data }));
-      if (Array.isArray(data.areas) && data.areas.length > 0) setAreas(data.areas);
+      if (Array.isArray(data.areas)) setAreas(data.areas); // vazio = seção some
     }).catch(() => {}).finally(() => setHeroReady(true));
 
     // Linha do tempo (tabela própria)
@@ -476,13 +476,13 @@ export default function Institucional() {
 
                 {/* CARROSSEIS — dados 100% do banco (admin → Equipe), via getImageUrl */}
                 {teamGroups.map((g) => (
-                    <GalleryCarousel key={g.key} title={g.label} data={teamFromApi[g.key]} />
+                    <GalleryCarousel key={g.key} title={g.label || g.key} data={teamFromApi[g.key]} />
                 ))}
             </div>
         </div>
         
         {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
-        <div id="areas-atuacao" className="bg-transparent py-32 border-t border-gray-50 overflow-hidden">
+        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-32 border-t border-gray-50 overflow-hidden`}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                     <div className="w-full max-w-2xl text-left">

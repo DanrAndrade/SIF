@@ -4,6 +4,7 @@ import { ItemActions, moveItem, ImageField, useConfirm } from '../kit';
 import { uploadImageNow, toastError } from '../../../utils/adminApi';
 import { BLOCK_ICONS } from '../../sections/SectionBlocks';
 import QuillEditor from '../QuillEditor';
+import { useUploadTracker, useLatest } from './uploadTracker';
 
 // Editores dos blocos novos (cards, números, pessoas, galeria, vídeo,
 // citação, chamada, texto + imagem). Os antigos (texto, abas, PDFs, logos)
@@ -27,7 +28,8 @@ export function Field({ label, value, onChange, placeholder, textarea, rows = 3 
 function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = false }) {
   const confirm = useConfirm();
   const list = items || [];
-  const set = (i, patch) => onChange(list.map((it, j) => (j === i ? { ...it, ...patch } : it)));
+  const latest = useLatest(list);
+  const set = (i, patch) => onChange(latest.current.map((it, j) => (j === i ? { ...it, ...patch } : it)));
   const remove = async (i) => {
     if (!(await confirm({ title: 'Remover este item?', confirmLabel: 'Remover', danger: true }))) return;
     onChange(list.filter((_, j) => j !== i));
@@ -54,14 +56,16 @@ function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = fa
   );
 }
 
-const upload = (file, done) => uploadImageNow(file).then(url => url && done(url)).catch(toastError);
+// Envia a imagem e chama done(url); o ContentSections trava o Salvar enquanto isso
+const upload = (track, file, done) => track(uploadImageNow(file)).then(url => url && done(url)).catch(toastError);
 
 export function TextImageEditor({ sec, onUpdate }) {
+  const track = useUploadTracker();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-5">
       <QuillEditor value={sec.content || ''} onChange={(v) => onUpdate({ content: v })} height="h-[300px]" />
       <div className="space-y-3">
-        <ImageField label="Imagem" value={sec.image} onFile={(f) => upload(f, (url) => onUpdate({ image: url }))} onRemove={() => onUpdate({ image: '' })} aspect="h-44" hint="Envia na hora; Salvar publica." />
+        <ImageField label="Imagem" value={sec.image} onFile={(f) => upload(track, f, (url) => onUpdate({ image: url }))} onRemove={() => onUpdate({ image: '' })} aspect="h-44" hint="Envia na hora; Salvar publica." />
         <button type="button" onClick={() => onUpdate({ image_side: sec.image_side === 'left' ? 'right' : 'left' })}
           className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]">
           <ArrowLeftRight size={14} /> Imagem à {sec.image_side === 'left' ? 'esquerda' : 'direita'}
@@ -124,12 +128,13 @@ export function StatsEditor({ sec, onUpdate }) {
 }
 
 export function PeopleEditor({ sec, onUpdate }) {
+  const track = useUploadTracker();
   return (
     <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} grid addLabel="Adicionar pessoa"
       empty="Nenhuma pessoa." newItem={() => ({ name: '', role: '', photo: '', link: '' })}
       render={(it, set) => (
         <div className="grid grid-cols-[110px_1fr] gap-3">
-          <ImageField label="Foto" value={it.photo} onFile={(f) => upload(f, (photo) => set({ photo }))} onRemove={() => set({ photo: '' })} aspect="h-28" />
+          <ImageField label="Foto" value={it.photo} onFile={(f) => upload(track, f, (photo) => set({ photo }))} onRemove={() => set({ photo: '' })} aspect="h-28" />
           <div className="space-y-2">
             <Field label="Nome" value={it.name} onChange={(name) => set({ name })} />
             <Field label="Cargo / função" value={it.role} onChange={(role) => set({ role })} />
@@ -142,12 +147,14 @@ export function PeopleEditor({ sec, onUpdate }) {
 
 export function GalleryEditor({ sec, onUpdate }) {
   const images = sec.images || [];
+  const track = useUploadTracker();
   const [busy, setBusy] = useState(false);
   const add = async (files) => {
     setBusy(true);
     const urls = [];
-    for (const f of files) { try { const u = await uploadImageNow(f); if (u) urls.push(u); } catch (e) { toastError(e); } }
-    onUpdate({ images: [...images, ...urls] });
+    for (const f of files) { try { const u = await track(uploadImageNow(f)); if (u) urls.push(u); } catch (e) { toastError(e); } }
+    // aplica sobre as fotos atuais do bloco (pode ter mudado durante o envio)
+    if (urls.length) onUpdate(cur => ({ images: [...(cur.images || []), ...urls] }));
     setBusy(false);
   };
   return (
@@ -155,7 +162,7 @@ export function GalleryEditor({ sec, onUpdate }) {
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
         {images.map((src, i) => (
           <div key={i} className="relative group">
-            <ImageField value={src} onFile={(f) => upload(f, (u) => onUpdate({ images: images.map((x, j) => (j === i ? u : x)) }))} onRemove={() => onUpdate({ images: images.filter((_, j) => j !== i) })} aspect="h-24" />
+            <ImageField value={src} onFile={(f) => upload(track, f, (u) => onUpdate(cur => ({ images: (cur.images || []).map((x) => (x === src ? u : x)) })))} onRemove={() => onUpdate({ images: images.filter((_, j) => j !== i) })} aspect="h-24" />
             <div className="flex justify-center gap-1 mt-1">
               <button type="button" disabled={i === 0} onClick={() => onUpdate({ images: moveItem(images, i, -1) })} className="text-xs px-2 rounded bg-white border border-gray-200 disabled:opacity-30">←</button>
               <button type="button" disabled={i === images.length - 1} onClick={() => onUpdate({ images: moveItem(images, i, 1) })} className="text-xs px-2 rounded bg-white border border-gray-200 disabled:opacity-30">→</button>

@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { UploadTrackerContext, useUploadTracker, useLatest } from './sections/uploadTracker';
 import { useConfirm, ItemActions, moveItem } from './kit';
 import { SECTION_TYPES, BAND_STYLES, createSection, normalizeSections, PAGE_TEMPLATES, createTemplate, typesFor } from '../sections/sectionTypes';
 import { TextImageEditor, CardsEditor, StatsEditor, PeopleEditor, GalleryEditor, VideoEditor, QuoteEditor, CtaEditor, SpecialNote } from './sections/BlockEditors';
@@ -15,6 +16,7 @@ const PDF_UPLOAD_URL = `${API_BASE_URL}/upload_pdf.php`;
 
 function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
   const confirm = useConfirm();
+  const latestPdfs = useLatest(pdfs);
   const [uploading, setUploading] = useState(false);
 
   const setUploadState = useCallback((val) => {
@@ -31,7 +33,7 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.success) {
-        onChange([...pdfs, { url: data.url, title: file.name.replace(/\.pdf$/i, '') }]);
+        onChange([...(latestPdfs.current || []), { url: data.url, title: file.name.replace(/\.pdf$/i, '') }]);
       } else {
         window.showToast('Erro ao enviar PDF: ' + (data.message || 'Erro desconhecido'));
       }
@@ -202,6 +204,16 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
 
   // Sempre no formato atual (ids estáveis; aceita formatos antigos)
   const list = normalizeSections(sections);
+  // Lista mais recente + "ainda aberto?": envios que terminam depois não
+  // desfazem o que foi digitado nem caem num formulário já fechado.
+  const latest = useLatest(list);
+  const alive = useRef(true);
+  useEffect(() => () => { alive.current = false; onUploading?.(false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const trackUpload = useMemo(() => (promise) => {
+    if (!alive.current) return promise;
+    handleUploadingChange(true);
+    return Promise.resolve(promise).finally(() => { if (alive.current) handleUploadingChange(false); });
+  }, [handleUploadingChange]);
 
   const addSection = (type) => onChange([...list, createSection(type)]);
   const hasTemplate = !!(template && PAGE_TEMPLATES[template]);
@@ -219,11 +231,17 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
     if (!(await confirm({ title: 'Remover esta seção?', message: 'O conteúdo dela sai da página ao salvar.', confirmLabel: 'Remover' }))) return;
     onChange(list.filter((_, idx) => idx !== i));
   };
-  const update   = (i, updates) => { const s = [...list]; s[i] = { ...s[i], ...updates }; onChange(s); };
+  // updates pode ser um objeto ou uma função (bloco atual) => objeto
+  const update   = (id, updates) => {
+    if (!alive.current) return;
+    const cur = latest.current;
+    onChange(cur.map(s => (s.id === id ? { ...s, ...(typeof updates === 'function' ? updates(s) : updates) } : s)));
+  };
 
   const isUploading = uploadCount > 0;
 
   return (
+    <UploadTrackerContext.Provider value={trackUpload}>
     <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm space-y-4">
       <div className="border-b pb-4">
         <h3 className="text-lg font-bold text-[#1f2937] tracking-tight">{title}</h3>
@@ -264,7 +282,7 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
             total={list.length}
             onMove={(dir) => move(i, dir)}
             onRemove={() => remove(i)}
-            onUpdate={(updates) => update(i, updates)}
+            onUpdate={(updates) => update(section.id, updates)}
             onUploadingChange={handleUploadingChange}
             bands={bands}
           />
@@ -292,5 +310,6 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
         )}
       </div>
     </div>
+    </UploadTrackerContext.Provider>
   );
 }

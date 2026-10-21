@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
@@ -31,6 +31,7 @@ const segmentsDefault = ['Corporativo', 'Gestão Florestal', 'Segurança', 'Oper
 
 export default function TreinamentosInCompanyAdmin() {
   const confirm = useConfirm();
+  const canLeave = useCanLeave();
   const [trainings, setTrainings] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -67,13 +68,14 @@ export default function TreinamentosInCompanyAdmin() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setTrainings(data);
-        const unique = [...new Set([...segments, ...data.map(t => t.segment).filter(Boolean)])];
-        setSegments(unique);
+
+        setSegments(prev => [...new Set([...prev, ...data.map(t => t.segment).filter(Boolean)])]); // junta com a lista atual (sem corrida com a lista salva)
       }
     } catch (err) { console.error('Erro ao carregar treinamentos in-company:', err); }
   };
 
-  const handleEdit = (training) => {
+  const handleEdit = async (training) => {
+    if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
     let sections = null;
     if (training.extra_data) {
       try { const s = JSON.parse(training.extra_data).sections; sections = Array.isArray(s) && s.length > 0 ? s : null; } catch {}
@@ -93,9 +95,9 @@ export default function TreinamentosInCompanyAdmin() {
   const handleDelete = async (id) => {
     if (!(await confirm({ title: 'Excluir este treinamento?', message: 'A página do treinamento sai do site. Não dá para desfazer.' }))) return;
     try {
-      await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      await apiRequest(`${API_URL}?id=${id}`, { method: "DELETE" }); // erro (ex.: sem permissão) aparece
       fetchTrainings();
-    } catch { window.showToast('Erro ao excluir treinamento.'); }
+    } catch (err) { toastError(err); }
   };
 
   const handleToggleActive = async (training) => {
@@ -112,6 +114,7 @@ export default function TreinamentosInCompanyAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sectionsUploading) { window.showToast?.('Aguarde o envio dos arquivos terminar para salvar.', 'error'); return; }
     setLoading(true);
     const fd = new FormData();
     // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
@@ -170,7 +173,7 @@ export default function TreinamentosInCompanyAdmin() {
       title={view === 'list' ? 'Treinamentos In-Company' : (editingId ? 'Editar Treinamento' : 'Novo Treinamento In-Company')}
       subtitle={view === 'list' ? 'Gerencie os treinamentos corporativos publicados no site' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo treinamento</PrimaryButton>
+        ? <PrimaryButton icon={Plus} onClick={async () => { if (await canLeave()) setView('form'); }}>Novo treinamento</PrimaryButton>
         : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
       save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
     >
@@ -269,7 +272,7 @@ export default function TreinamentosInCompanyAdmin() {
               </div>
               <ImageUploadArea
                 preview={preview}
-                onFileChange={file => { setPreview(URL.createObjectURL(file)); setFormData(f => ({...f, removeImage: false, imageFile: file, image_url: URL.createObjectURL(file)})); }}
+                onFileChange={file => { setPreview(URL.createObjectURL(file)); setFormData(f => ({...f, removeImage: false, imageFile: file})); /* prévia só em 'preview': endereço temporário (blob:) nunca vai para o banco */ }}
                 onClear={() => { setPreview(null); setFormData(f => ({...f, imageFile: null, image_url: '', removeImage: true})); }}
                 height="h-full min-h-[300px]"
                 label="Imagem Ilustrativa"

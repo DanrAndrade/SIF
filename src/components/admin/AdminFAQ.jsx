@@ -42,28 +42,25 @@ export default function AdminFAQ({ pageKey = 'home' }) {
     }
   };
 
-  // Primeira carga: se backend está vazio e há defaults conhecidos, pré-popula.
-  useEffect(() => {
-    (async () => {
-      const data = await fetchItems();
-      if (data.length === 0 && !seeded && pageKey === 'home') {
-        setSeeded(true);
-        try {
-          for (const item of DEFAULT_FAQS_HOME) {
-            const fd = new FormData();
-            fd.append('page_key', pageKey);
-            fd.append('question', item.question);
-            fd.append('answer', item.answer);
-            await axios.post(API_URL, fd);
-          }
-          fetchItems();
-        } catch (err) {
-          console.error('Falha ao popular FAQs iniciais:', err);
-        }
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchItems(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageKey]);
+
+  // Perguntas padrão — só por botão (apagar todas não as traz de volta sozinhas)
+  const importDefaults = async () => {
+    if (seeded) return;
+    setSeeded(true);
+    try {
+      for (const item of DEFAULT_FAQS_HOME) {
+        const fd = new FormData();
+        fd.append('page_key', pageKey);
+        fd.append('question', item.question);
+        fd.append('answer', item.answer);
+        await axios.post(API_URL, fd);
+      }
+    } catch (err) { window.showToast?.(err?.response?.data?.message || 'Não foi possível adicionar as perguntas.', 'error'); }
+    setSeeded(false);
+    fetchItems();
+  };
 
   const resetForm = () => {
     setEditingId(null);
@@ -99,7 +96,7 @@ export default function AdminFAQ({ pageKey = 'home' }) {
       resetForm();
       fetchItems();
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao salvar.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Erro ao salvar.');
     } finally {
       setSaving(false);
     }
@@ -212,6 +209,7 @@ export default function AdminFAQ({ pageKey = 'home' }) {
           <div className="text-center py-10 border-2 border-dashed border-gray-100 rounded-xl">
             <HelpCircle className="w-10 h-10 text-gray-300 mx-auto mb-2" />
             <p className="text-gray-400 text-sm">Nenhuma pergunta cadastrada.</p>
+            {pageKey === 'home' && <button type="button" onClick={importDefaults} disabled={seeded} className="mt-3 px-4 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d] disabled:opacity-50">Usar as perguntas padrão</button>}
           </div>
         )}
       </div>

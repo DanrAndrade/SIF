@@ -101,7 +101,7 @@ export default function AdminBanners() {
         fetchBanners(); 
     } catch (err) {
         console.error(err);
-        const msgReal = err.response?.data?.error || err.message || 'Erro desconhecido.';
+        const msgReal = err.response?.data?.message || err.response?.data?.error || err.message || 'Erro desconhecido.';
         setError(`Erro: ${msgReal}`);
     } finally {
         setUploading(false);

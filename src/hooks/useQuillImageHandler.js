@@ -44,7 +44,7 @@ export function useQuillImageHandler(toolbar = DEFAULT_TOOLBAR) {
         if (data.success && quillRef.current) {
           const quill = quillRef.current.getEditor();
           const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', getImageUrl(data.url));
+          quill.insertEmbed(range.index, 'image', getImageUrl(data.url), 'user'); // 'user': conta como alteração
           quill.setSelection(range.index + 1);
         } else if (!data.success) {
           window.showToast?.(data.message || 'Erro ao fazer upload da imagem.', 'error');

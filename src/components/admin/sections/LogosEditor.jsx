@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { getImageUrl } from '../../../apiConfig';
 import { uploadImageNow, toastError } from '../../../utils/adminApi';
+import { useUploadTracker, useLatest } from './uploadTracker';
 import { useConfirm, moveItem } from '../kit';
 
 // Editor das logos de um carrossel (patrocinadores, apoio, parceiros...).
@@ -10,6 +11,8 @@ export default function LogosEditor({ images = [], onChange, hint }) {
   const confirm = useConfirm();
   const [uploading, setUploading] = useState(false);
   const list = Array.isArray(images) ? images : [];
+  const latest = useLatest(list);
+  const track = useUploadTracker();
 
   const addFiles = async (fileList) => {
     const files = Array.from(fileList || []);
@@ -17,10 +20,10 @@ export default function LogosEditor({ images = [], onChange, hint }) {
     setUploading(true);
     const urls = [];
     for (const file of files) {
-      try { const url = await uploadImageNow(file); if (url) urls.push(url); }
+      try { const url = await track(uploadImageNow(file)); if (url) urls.push(url); }
       catch (err) { toastError(err); }
     }
-    if (urls.length) onChange([...list, ...urls]);
+    if (urls.length) onChange([...latest.current, ...urls]);
     setUploading(false);
   };
 

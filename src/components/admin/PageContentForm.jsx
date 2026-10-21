@@ -16,13 +16,14 @@ const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 export default function PageContentForm({ pageKey, defaults, fields, title = 'Conteúdo da página' }) {
   const [cfg, setCfg] = useState(defaults);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const { dirty, markClean } = useDirty(cfg, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${pageKey}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...defaults };
@@ -31,7 +32,7 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
         }
         setCfg(next);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageKey]);
@@ -69,7 +70,7 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
   return (
     <AdminCard
       title={title}
-      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} label="Salvar" /></>}
+      actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loadError} label="Salvar" /></>}
     >
 
       <div className="space-y-5">

@@ -94,7 +94,7 @@ function mergeCfg(defaults, data) {
     ...defaults,
     ...data,
     // Arrays de seções: usa o banco só se já tiver conteúdo salvo
-    germinar_sections: (data.germinar_sections?.length > 0) ? data.germinar_sections : defaults.germinar_sections,
+    germinar_sections: Array.isArray(data.germinar_sections) ? data.germinar_sections : defaults.germinar_sections,
     comercial_sections: data.comercial_sections || [],
     boletim_sections:   data.boletim_sections   || [],
     boletim_pdfs:       Array.isArray(data.boletim_pdfs) ? data.boletim_pdfs : [],
@@ -110,15 +110,16 @@ export default function ProdutosAdmin() {
   const [savedAt, setSavedAt]       = useState(null);
   const [error, setError]           = useState('');
   const [uploading, setUploading]   = useState(false);
+  const [loadError, setLoadError]   = useState(false); // carregar falhou: Salvar travado
   // O hero tem formulário próprio (PageHeaderForm): fica fora da comparação
   const contentOnly = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_')));
   const { dirty, markClean } = useDirty(contentOnly, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${PAGE_KEY}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => setConfig(mergeCfg(CONTENT_DEFAULTS, data)))
-      .catch(() => {})
+      .catch(() => { setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -165,7 +166,7 @@ export default function ProdutosAdmin() {
       subtitle={activeTab === 'hero'
         ? 'O cabeçalho tem o próprio botão de salvar, logo abaixo.'
         : 'O botão Salvar vale para todas as abas de conteúdo.'}
-      save={activeTab !== 'hero' ? { onSave: handleSave, saving, dirty, savedAt, disabled: uploading } : undefined}
+      save={activeTab !== 'hero' ? { onSave: handleSave, saving, dirty, savedAt, disabled: uploading || loadError } : undefined}
       tabs={SECTION_TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
@@ -176,13 +177,14 @@ export default function ProdutosAdmin() {
       )}
 
       {/* Conteúdo das abas */}
-      {activeTab === 'hero' && (
+      {/* Sempre montado (escondido nas outras abas): trocar de aba não perde a edição */}
+      <div className={activeTab === 'hero' ? '' : 'hidden'}>
         <PageHeaderForm
           pageKey={PAGE_KEY}
           defaults={HERO_DEFAULTS}
           title="Cabeçalho da página /produtos-servicos"
         />
-      )}
+      </div>
 
       {CONTENT_IDS.includes(activeTab) && activeTab !== 'boletim' && (
         <SectionEditor

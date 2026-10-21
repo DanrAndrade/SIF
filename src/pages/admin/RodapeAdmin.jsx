@@ -11,6 +11,7 @@ const PAGE_KEY = 'footer';
 export default function RodapeAdmin() {
   const [cfg, setCfg] = useState(FOOTER_DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const { dirty, markClean } = useDirty(cfg, { ready: !loading });
@@ -18,7 +19,7 @@ export default function RodapeAdmin() {
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/page_content.php?page=${PAGE_KEY}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...FOOTER_DEFAULTS };
@@ -26,7 +27,7 @@ export default function RodapeAdmin() {
         if (!Array.isArray(next.nav_links)) next.nav_links = FOOTER_DEFAULTS.nav_links;
         setCfg(next);
       })
-      .catch(() => {})
+      .catch(() => { setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -57,7 +58,7 @@ export default function RodapeAdmin() {
     <AdminPage
       title="Rodapé"
       subtitle="Textos, links, redes sociais, contato e cor do rodapé que aparece em todas as páginas."
-      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loading, label: 'Salvar rodapé' }}
+      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loading || loadError, label: 'Salvar rodapé' }}
     >
       {loading ? (
         <div className="text-center py-10"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div>

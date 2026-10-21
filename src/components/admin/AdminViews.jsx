@@ -270,8 +270,11 @@ export const JobsManagerView = () => {
 
     useEffect(() => { fetchJobs(); }, []);
 
+    const [savingJob, setSavingJob] = useState(false);
     const handleSave = async (e) => {
         e.preventDefault();
+        if (savingJob) return; // clique duplo não cria duas vagas
+        setSavingJob(true);
         try {
             await apiRequest(`${API_BASE_URL}/jobs.php`, {
                 method: 'POST',
@@ -280,11 +283,15 @@ export const JobsManagerView = () => {
             fetchJobs(); setIsEditing(false);
             window.showToast?.('Vaga salva com sucesso.');
         } catch (err) { toastError(err); } // em erro o formulário continua aberto
+        finally { setSavingJob(false); }
     };
 
     const handleDelete = async (id) => {
         if (!(await confirm({ title: 'Excluir esta vaga?', message: 'Ela sai do site imediatamente.' }))) return;
-        await fetch(`${API_BASE_URL}/jobs.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
+        try {
+            await apiRequest(`${API_BASE_URL}/jobs.php?id=${id}`, { method: 'DELETE' });
+            window.showToast?.('Vaga excluída.');
+        } catch (err) { toastError(err); } // ex.: sem permissão
         fetchJobs();
     };
 
@@ -324,7 +331,7 @@ export const JobsManagerView = () => {
                         <div className="flex gap-2 mb-3"><input className="flex-1 border p-2 rounded" value={tempReq} onChange={e=>setTempReq(e.target.value)} /><button type="button" onClick={addRequirement} className="bg-black text-white px-4 rounded">Add</button></div>
                         <ul className="space-y-2">{currentJob.requirements?.map((r,i)=>(<li key={i} className="flex justify-between bg-white p-2 border rounded"><span>{r}</span><button type="button" onClick={()=>removeRequirement(i)} className="text-red-500"><Trash2 size={14}/></button></li>))}</ul>
                     </div>
-                    <div className="flex justify-end gap-3 pt-4"><Button size="sm" variant="outline" type="button" onClick={()=>setIsEditing(false)}>Cancelar</Button><Button size="sm" variant="primary" type="submit">Salvar</Button></div>
+                    <div className="flex justify-end gap-3 pt-4"><Button size="sm" variant="outline" type="button" onClick={()=>setIsEditing(false)}>Cancelar</Button><Button size="sm" variant="primary" type="submit" disabled={savingJob} isLoading={savingJob}>Salvar</Button></div>
                 </form>
             </div>
         )

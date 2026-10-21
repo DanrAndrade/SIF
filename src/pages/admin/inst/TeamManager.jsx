@@ -50,6 +50,8 @@ function MemberCard({ member, groupList, onDelete, onUpdate, onMove, isFirst, is
   const confirm = useConfirm();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...member });
+  // lista recarregou (ex.: foto nova salva): o formulário fechado acompanha
+  useEffect(() => { if (!editing) setForm({ ...member }); }, [member, editing]);
 
   const handleSave = async () => {
     const fd = new FormData();
@@ -64,6 +66,7 @@ function MemberCard({ member, groupList, onDelete, onUpdate, onMove, isFirst, is
     try {
       await apiRequest(API + '?resource=team', { method: 'POST', body: fd });
       window.showToast?.('Membro atualizado com sucesso.');
+      setForm(p => ({ ...p, _newPhoto: null, _preview: null }));
       setEditing(false);
       onUpdate();
     } catch (err) {
@@ -176,27 +179,31 @@ export default function TeamManager({ groups, onGroupsChange }) {
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
 
-      // Auto-seed: se banco vazio, importa silenciosamente a equipe da página estática
-      if (list.length === 0) {
-        for (const m of STATIC_TEAM) {
-          const fd = new FormData();
-          fd.append('name', m.name);
-          fd.append('role', m.role);
-          fd.append('group_name', m.group);
-          fd.append('photo_url', m.photo_url);
-          await fetch(API + '?resource=team', { method: 'POST', body: fd });
-        }
-        const res2 = await fetch(API + '?resource=team');
-        const data2 = await res2.json();
-        setMembers(Array.isArray(data2) ? data2 : []);
-      } else {
-        setMembers(list);
-      }
+      setMembers(list);
     } catch { setMembers([]); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetch_(); }, []);
+
+  // Importa a equipe que estava fixa no site antigo — só por botão, com a lista vazia
+  const [importing, setImporting] = useState(false);
+  const importStatic = async () => {
+    setImporting(true);
+    try {
+      for (const m of STATIC_TEAM) {
+        const fd = new FormData();
+        fd.append('name', m.name);
+        fd.append('role', m.role);
+        fd.append('group_name', m.group);
+        fd.append('photo_url', m.photo_url);
+        await apiRequest(API + '?resource=team', { method: 'POST', body: fd });
+      }
+      window.showToast?.('Equipe importada.');
+    } catch (err) { toastError(err); }
+    setImporting(false);
+    fetch_();
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -295,7 +302,7 @@ export default function TeamManager({ groups, onGroupsChange }) {
           <p className="text-xs text-gray-500">Altere o nome exibido no site e a ordem dos grupos. As pessoas continuam nos mesmos grupos. Grupos sem ninguém visível não aparecem no site. Clique em <strong>Salvar alterações</strong> no topo para gravar.</p>
           {groupList.map((g, i) => (
             <div key={g.key} className="flex items-center gap-3">
-              <input className="flex-1 p-2 bg-white border rounded-xl text-sm outline-none focus:border-[#007a3d]" value={g.label}
+              <input className="flex-1 p-2 bg-white border rounded-xl text-sm outline-none focus:border-[#007a3d]" value={g.label} placeholder={g.key}
                 onChange={e => updateGroups(groupList.map(x => x.key === g.key ? { ...x, label: e.target.value } : x))} />
               {g.label !== g.key && <span className="hidden md:inline text-[10px] text-gray-400 shrink-0">antes: {g.key}</span>}
               <ItemActions onMove={dir => updateGroups(moveItem(groupList, i, dir))} isFirst={i === 0} isLast={i === groupList.length - 1} />
@@ -339,7 +346,16 @@ export default function TeamManager({ groups, onGroupsChange }) {
       {loading ? (
         <div className="flex justify-center py-8"><div className="w-8 h-8 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin" /></div>
       ) : groupMembers.length === 0 ? (
-        <div className="text-center py-8 text-gray-400 text-sm">Nenhum membro neste grupo ainda.</div>
+        <div className="text-center py-8 text-gray-400 text-sm">
+          Nenhum membro neste grupo ainda.
+          {members.length === 0 && (
+            <div className="mt-4">
+              <button type="button" onClick={importStatic} disabled={importing} className="px-4 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d] disabled:opacity-50">
+                {importing ? 'Importando...' : 'Importar a equipe do site antigo'}
+              </button>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {groupMembers.map((m, i) => (

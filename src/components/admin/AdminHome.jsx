@@ -145,6 +145,7 @@ export default function AdminHome() {
   const [activeTab, setActiveTab] = useState('hero');
   const [config, setConfig] = useState(DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState('');
@@ -161,14 +162,18 @@ export default function AdminHome() {
       } catch (err) {
         console.error(err);
         setConfig(DEFAULTS);
+        setLoadError(true);
+        window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error');
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
+  // patch pode ser objeto ou função (seção atual) => objeto — usado por envios
+  // de imagem que terminam depois (não desfazem o que foi digitado)
   const updateSection = (section, patch) => {
-    setConfig((prev) => ({ ...prev, [section]: { ...prev[section], ...patch } }));
+    setConfig((prev) => ({ ...prev, [section]: { ...prev[section], ...(typeof patch === 'function' ? patch(prev[section] || {}) : patch) } }));
   };
 
   const handleFile = (fieldName, file) => {
@@ -218,7 +223,7 @@ export default function AdminHome() {
     <AdminPage
       title="Página Home"
       subtitle="Os campos já vêm preenchidos com o conteúdo atual do site. Edite e clique em Salvar."
-      save={{ onSave: handleSave, saving, dirty, savedAt }}
+      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loadError }}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
@@ -397,7 +402,7 @@ function NumbersForm({ config = {}, update }) {
               <KitImageField
                 label="Foto de fundo"
                 value={c.image}
-                onFile={(file) => uploadImageNow(file).then(url => url && setCard(i, { image: url })).catch(toastError)}
+                onFile={(file) => uploadImageNow(file).then(url => url && update(cur => ({ cards: (cur.cards || []).map((c, j) => (j === i ? { ...c, image: url } : c)) }))).catch(toastError)}
                 onRemove={() => setCard(i, { image: '' })}
                 aspect="h-40"
                 hint="Envia na hora; Salvar publica."
@@ -590,7 +595,7 @@ function ProcessForm({ config, update, onFile, pendingPreviews }) {
                 {/* Envia na hora e grava o caminho no próprio card: reordenar ou
                     remover antes de salvar não troca a imagem de card */}
                 <ImageField label="Imagem de fundo do card" currentUrl={step.img} fieldName={fieldName}
-                  onFile={(_, file) => uploadImageNow(file).then(url => url && updateStep(idx, { img: url })).catch(toastError)}
+                  onFile={(_, file) => uploadImageNow(file).then(url => url && update(cur => ({ steps: (cur.steps || []).map((s, i) => (i === idx ? { ...s, img: url } : s)) }))).catch(toastError)}
                   hint="Imagem horizontal, 1200×800px. Envia na hora; clique em Salvar para publicar." />
               </div>
             </div>
@@ -650,7 +655,7 @@ function CardsEditor({ section, config, update, onFile, pendingPreviews, hint })
               </div>
               <div className="mt-3">
                 <ImageField label="Imagem do card" currentUrl={card.image} fieldName={fieldName}
-                  onFile={(_, file) => uploadImageNow(file).then(url => url && updateCard(idx, { image: url })).catch(toastError)}
+                  onFile={(_, file) => uploadImageNow(file).then(url => url && update(cur => ({ cards: (cur.cards || []).map((c, i) => (i === idx ? { ...c, image: url } : c)) }))).catch(toastError)}
                   hint="Envia na hora; clique em Salvar para publicar." />
               </div>
             </div>

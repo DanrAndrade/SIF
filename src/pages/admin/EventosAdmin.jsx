@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { apiRequest, toastError } from '../../utils/adminApi';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Play, MapPin, Calendar, Clock, Eye, EyeOff } from 'lucide-react';
 import { projectStatusColor } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
@@ -31,6 +31,7 @@ const emptyForm = {
 
 export default function EventosAdmin() {
   const confirm = useConfirm();
+  const canLeave = useCanLeave();
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -53,7 +54,8 @@ export default function EventosAdmin() {
     }
   };
 
-  const handleEdit = (event) => {
+  const handleEdit = async (event) => {
+    if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
     let extra = {};
     try { extra = JSON.parse(event.extra_data || '{}'); } catch {}
 
@@ -90,10 +92,10 @@ export default function EventosAdmin() {
   const handleDelete = async (id) => {
     if (!(await confirm({ title: 'Excluir este evento?', message: 'A página do evento sai do site. Não dá para desfazer.' }))) return;
     try {
-      await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      await apiRequest(`${API_URL}?id=${id}`, { method: "DELETE" }); // erro (ex.: sem permissão) aparece
       fetchEvents();
-    } catch {
-      window.showToast('Erro ao excluir evento.');
+    } catch (err) {
+      toastError(err);
     }
   };
 
@@ -112,6 +114,7 @@ export default function EventosAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sectionsUploading) { window.showToast?.('Aguarde o envio dos arquivos terminar para salvar.', 'error'); return; }
     setLoading(true);
     const fd = new FormData();
     // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
@@ -162,7 +165,7 @@ export default function EventosAdmin() {
       title={view === 'list' ? 'Eventos' : (editingId ? 'Editar Evento' : 'Novo Evento')}
       subtitle={view === 'list' ? 'Gerencie os eventos e encontros do site' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo evento</PrimaryButton>
+        ? <PrimaryButton icon={Plus} onClick={async () => { if (await canLeave()) setView('form'); }}>Novo evento</PrimaryButton>
         : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) resetForm(); }}>Cancelar</SecondaryButton>}
       save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
     >

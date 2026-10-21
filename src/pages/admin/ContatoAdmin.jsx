@@ -34,13 +34,14 @@ const CONTENT_DEFAULTS = {
 export default function ContatoAdmin() {
   const [cfg, setCfg] = useState(CONTENT_DEFAULTS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false); // carregar falhou: Salvar travado
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const { dirty, markClean } = useDirty(cfg, { ready: !loading });
 
   useEffect(() => {
     fetch(`${PAGE_URL}?page=${PAGE_KEY}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
         const next = { ...CONTENT_DEFAULTS };
@@ -49,7 +50,7 @@ export default function ContatoAdmin() {
         }
         setCfg(next);
       })
-      .catch(() => {})
+      .catch(() => { setLoadError(true); window.showToast?.('Não foi possível carregar os dados desta tela. Recarregue a página antes de salvar (para não apagar o conteúdo).', 'error'); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -78,7 +79,7 @@ export default function ContatoAdmin() {
 
       <AdminCard
         title="Dados de contato exibidos na página"
-        actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loading} label="Salvar dados" /></>}
+        actions={<><SaveStatus dirty={dirty} savedAt={savedAt} /><SaveButton onSave={handleSave} saving={saving} disabled={loading || loadError} label="Salvar dados" /></>}
       >
 
         {loading ? <div className="text-center py-6"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div> : (

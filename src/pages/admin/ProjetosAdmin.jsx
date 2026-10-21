@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton } from '../../components/admin/kit';
+import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Plus, Edit3, Trash2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import QuillEditor from '../../components/admin/QuillEditor';
@@ -31,6 +31,7 @@ const emptyForm = {
 
 export default function ProjetosAdmin() {
   const confirm = useConfirm();
+  const canLeave = useCanLeave();
   const [projetos, setProjetos] = useState([]);
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(false);
@@ -51,7 +52,8 @@ export default function ProjetosAdmin() {
     } catch (err) { console.error('Erro ao carregar projetos:', err); }
   };
 
-  const handleEdit = (p) => {
+  const handleEdit = async (p) => {
+    if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
     let sections = null;
     if (p.extra_data) {
       try { const s = JSON.parse(p.extra_data).sections; sections = Array.isArray(s) && s.length > 0 ? s : null; } catch {}
@@ -77,9 +79,9 @@ export default function ProjetosAdmin() {
   const handleDelete = async (id) => {
     if (!(await confirm({ title: 'Excluir este projeto?', message: 'A página do projeto sai do site. Não dá para desfazer.' }))) return;
     try {
-      await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      await apiRequest(`${API_URL}?id=${id}`, { method: "DELETE" }); // erro (ex.: sem permissão) aparece
       fetchProjetos();
-    } catch { window.showToast('Erro ao excluir projeto.'); }
+    } catch (err) { toastError(err); }
   };
 
   const handleToggleActive = async (p) => {
@@ -96,6 +98,7 @@ export default function ProjetosAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (sectionsUploading) { window.showToast?.('Aguarde o envio dos arquivos terminar para salvar.', 'error'); return; }
     setLoading(true);
     const fd = new FormData();
     // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
@@ -127,7 +130,7 @@ export default function ProjetosAdmin() {
       title={view === 'list' ? 'Projetos P&D' : (editingId ? 'Editar Projeto' : 'Novo Projeto')}
       subtitle={view === 'list' ? 'Gerencie os projetos de pesquisa e inovação publicados no site' : 'Preencha os campos e clique em Salvar. Cancelar volta para a lista sem salvar.'}
       actions={view === 'list'
-        ? <PrimaryButton icon={Plus} onClick={() => setView('form')}>Novo projeto</PrimaryButton>
+        ? <PrimaryButton icon={Plus} onClick={async () => { if (await canLeave()) setView('form'); }}>Novo projeto</PrimaryButton>
         : <SecondaryButton icon={X} onClick={async () => { if (!dirty || await confirm({ title: 'Descartar alterações?', message: 'O que foi editado neste formulário será perdido.', confirmLabel: 'Descartar' })) reset(); }}>Cancelar</SecondaryButton>}
       save={view === 'form' ? { onSave: () => formRef.current?.requestSubmit(), saving: loading, dirty, disabled: typeof sectionsUploading !== 'undefined' && sectionsUploading } : undefined}
     >
