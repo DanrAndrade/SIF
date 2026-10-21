@@ -3,7 +3,6 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { Calendar, ArrowRight, ChevronDown, AlertCircle } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toDate } from '../apiConfig';

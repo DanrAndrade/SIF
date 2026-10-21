@@ -17,7 +17,6 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
       {cover && <img src={cover} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" />}
       <div className="absolute inset-0" style={{ background: `linear-gradient(100deg, rgba(5,18,11,.92) 0%, rgba(5,18,11,.72) 45%, ${color}55 100%)` }} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-      <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />
 
       <div className="relative w-full sif-container">
         <nav aria-label="Você está em" className="flex flex-wrap items-center gap-2 text-xs text-white/60 mb-8">

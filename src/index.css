@@ -1,5 +1,4 @@
 @import './styles/pattern.css';
-@import './styles/noise.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,7 +103,6 @@ button { font-family: inherit; cursor: pointer; border: none; }
 .will-change-transform { will-change: transform; }
 .gpu-layer { transform: translateZ(0); backface-visibility: hidden; perspective: 1000px; }
 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.bg-noise { image-rendering: pixelated; }
 
 /* Scrollbar Personalizada */
 ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -330,18 +328,19 @@ iframe.ql-video {
 .prose h5 { font-size: 1.05em; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.4em; color: #1f2937; }
 .prose h6 { font-size: 0.95em; font-weight: 700; margin-top: 1em;   margin-bottom: 0.4em; color: #1f2937; }
 /* ─── FUNDO DAS PÁGINAS: padronagem + destaque no mouse ────────────────
-   A padronagem (pontinhos + folhinha do favicon) fica fixa atrás do site
-   (<BackgroundPattern/>). As páginas usam .sif-page (fundo transparente)
-   para ela aparecer. Perto do mouse a padronagem fica um pouco mais forte. */
+   A padronagem (pontinhos + folhinha do favicon) é o próprio fundo da
+   página: rola junto com o conteúdo. Só vale no site público (a classe
+   .sif-patterned é posta no <body> pelo <BackgroundPattern/>).
+   Perto do mouse a padronagem fica um pouco mais forte. */
 body { background-color: #f6f8f7; }
-.sif-page { background-color: transparent; }
-.sif-bg-pattern {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background-image: var(--sif-pattern);
+body.sif-patterned {
+  background-image: var(--sif-pattern-soft);
   background-size: 360px 360px;
-  opacity: .2;
+  background-attachment: scroll;
 }
-/* Lanterna: círculo pequeno que se move com transform (barato para o navegador) */
+.sif-page { background-color: transparent; }
+/* Destaque: círculo pequeno que se move com transform (barato para o
+   navegador); a padronagem dentro dele é alinhada com a da página. */
 .sif-bg-spot {
   position: fixed; left: 0; top: 0; z-index: -1; pointer-events: none;
   background-image: var(--sif-pattern);
@@ -351,11 +350,8 @@ body { background-color: #f6f8f7; }
   opacity: 0; transition: opacity .4s ease;
   will-change: transform;
 }
-.sif-bg-spot.is-on { opacity: .7; }
+.sif-bg-spot.is-on { opacity: .55; }
 @media (hover: none), (prefers-reduced-motion: reduce) { .sif-bg-spot { display: none; } }
-
-/* Padronagem clara para blocos escuros/verdes */
-.sif-pattern-on-dark { background-image: var(--sif-pattern-light); background-size: 360px 360px; opacity: .07; }
 
 /* ─── SOMBRAS PADRÃO DOS CARDS ─────────────────────────────────────────
    Cards brancos ganham sombra um pouco mais forte para destacar do fundo. */

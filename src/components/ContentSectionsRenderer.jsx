@@ -42,7 +42,6 @@ export default function ContentSectionsRenderer({ sections, layout = 'stack', sp
           const Block = BLOCKS[sec.type];
           return (
             <section key={sec.id} id={sectionAnchor(sec)} className={`relative scroll-mt-28 py-16 md:py-24 ${band.cls}`}>
-              {band.dark && <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />}
               <div className="relative max-w-6xl mx-auto px-6">
                 {node || <Block sec={sec} dark={band.dark} />}
               </div>

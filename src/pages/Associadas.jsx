@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
 // --- LOGOS DE FALLBACK (caso a API esteja offline) ---
@@ -140,7 +139,6 @@ export default function Associadas() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-          <NoiseOverlay opacity={0.4} />
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>

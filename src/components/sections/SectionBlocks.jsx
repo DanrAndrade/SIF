@@ -241,7 +241,6 @@ export function QuoteBlock({ sec, dark }) {
 export function CtaBlock({ sec }) {
   return (
     <div className="relative overflow-hidden rounded-card bg-[#0b3320] text-white px-8 py-12 md:px-16 md:py-16 shadow-[var(--sif-shadow-card-hover)]">
-      <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />
       <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[var(--accent,#007a3d)] blur-[110px] opacity-40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div className="max-w-2xl">

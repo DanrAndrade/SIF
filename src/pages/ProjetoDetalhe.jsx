@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';

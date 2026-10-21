@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, ChevronLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toDate } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
@@ -142,7 +141,6 @@ export default function BlogPost() {
               </>
             : <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-[#1B5E20]/30" />
           }
-          <NoiseOverlay opacity={0.2} />
         </div>
 
         <div className="container mx-auto px-6 relative z-10">

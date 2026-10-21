@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';

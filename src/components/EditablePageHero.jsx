@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import NoiseOverlay from './ui/NoiseOverlay';
 import { getImageUrl } from '../apiConfig';
 import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
@@ -42,7 +41,6 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
       <div className="absolute inset-0 z-0">
         {heroBgUrl && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-        <NoiseOverlay opacity={0.4} />
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-20 rounded-tr-[80px] z-10" style={{ backgroundColor: bgColor }}></div>
       <div className="container mx-auto px-6 md:px-12 relative z-10">

@@ -12,7 +12,6 @@ export const GRADIENT_PRESETS = {
 
 // Texturas desenhadas só com CSS (sem arquivo/serviço externo)
 export const TEXTURES = {
-  ruido:  { label: 'Granulado (atual)' },
   pontos: { label: 'Pontilhado',
             style: { backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.22) 1px, transparent 0)', backgroundSize: '14px 14px' } },
   linhas: { label: 'Linhas diagonais',
@@ -22,7 +21,7 @@ export const TEXTURES = {
   nenhuma: { label: 'Sem textura' },
 };
 
-export const DEFAULT_VISUAL = { gradient: 'atual', from: '', to: '', texture: 'ruido' };
+export const DEFAULT_VISUAL = { gradient: 'atual', from: '', to: '', texture: 'nenhuma' };
 
 // Cores efetivas (preset ou personalizadas)
 export function resolveGradient(visual = {}) {

@@ -6,7 +6,6 @@ import SmartLink from '../components/ui/SmartLink';
 import { Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 
@@ -67,7 +66,6 @@ export default function Eincol() {
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#0f1f11]" />
-          <NoiseOverlay opacity={0.3} />
         </div>
 
         {/* Conteúdo do Hero */}

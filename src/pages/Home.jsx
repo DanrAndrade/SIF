@@ -30,7 +30,7 @@ export default function Home() {
   // Config editável via /admin/home. Tudo tem fallback nos componentes filhos.
   const { config } = usePageConfig('home');
   const grad = resolveGradient(config.visual);
-  const texture = config.visual?.texture || 'ruido';
+  const texture = config.visual?.texture || 'nenhuma';
 
   const heroRef = useRef(null);
   const heroBgRef = useRef(null);
@@ -131,9 +131,6 @@ export default function Home() {
               {/* Degradê e textura editáveis em Painel › Home › Topo */}
               <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 0%, ${grad.from} 0%, ${grad.to} 100%)` }}></div>
 
-              {texture === 'ruido' && (
-                <div className="sif-noise absolute inset-0 opacity-50 z-0" aria-hidden="true"></div>
-              )}
               {TEXTURES[texture]?.style && (
                 <div className="absolute inset-0 z-0 pointer-events-none" style={TEXTURES[texture].style}></div>
               )}

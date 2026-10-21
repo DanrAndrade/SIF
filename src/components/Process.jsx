@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { Newspaper, BookOpen, TreePine, ScrollText, Plus, CheckCircle2, Tent, Award, FlaskConical, FileText, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SectionHeader from './ui/SectionHeader';
-import NoiseOverlay from './ui/NoiseOverlay';
 import { getImageUrl } from '../apiConfig';
 
 const ICON_MAP = { Newspaper, BookOpen, TreePine, ScrollText, Tent, Award, FlaskConical, FileText, Calendar, Users };
@@ -60,7 +59,6 @@ export default function Process({ config = {} }) {
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#007a3d] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
             <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-[#4ADE80] rounded-full blur-[100px] opacity-15 pointer-events-none -translate-x-1/4 translate-y-1/4"></div>
             
-            <NoiseOverlay opacity={0.2} />
 
             <div className="container relative z-10 flex flex-col items-center">
                 <div className="max-w-2xl px-6 w-full text-center mb-10">
@@ -93,7 +91,6 @@ export default function Process({ config = {} }) {
                             <div className="relative w-full h-full bg-[#0a0f16] rounded-card overflow-hidden">
                                 <div className="absolute inset-0 z-0">
                                     {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.45]" />}
-                                    <NoiseOverlay opacity={0.3} />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                                 </div>
 
@@ -150,7 +147,6 @@ export default function Process({ config = {} }) {
                                     <div className="relative rounded-card overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
                                         {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}
-                                        <NoiseOverlay opacity={0.3} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
                                     </div>
                                     <div className="relative z-10 p-6 flex flex-col h-full justify-between text-white">

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Play } from 'lucide-react';
 import VideoModal from './ui/VideoModal';
 import iconLogo from '../assets/sif.svg';
-import NoiseOverlay from './ui/NoiseOverlay';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
 
@@ -32,9 +31,8 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   return (
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
         <div className="absolute bottom-0 left-0 right-0 h-[200px] -z-20 overflow-hidden pointer-events-none">
-            {/* Mantido o gradiente de base verde suave, pode ser útil para transição, mas o NoiseOverlay ajuda */}
+            
             <div className="absolute inset-0 opacity-50" style={{ background: `radial-gradient(circle at 50% 100%, ${gFrom} 0%, ${gTo} 100%)` }}></div>
-            <NoiseOverlay opacity={0.4} />
         </div>
 
         <div ref={bgRef} className="absolute top-16 left-0 right-0 h-full bg-transparent rounded-bl-[40px] md:rounded-bl-[80px] z-0 will-change-transform"></div>

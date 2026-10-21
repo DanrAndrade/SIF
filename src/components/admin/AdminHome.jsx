@@ -70,7 +70,7 @@ const DEFAULTS = {
     ],
   },
   // Fundo do topo (degradê + textura) — ver src/utils/homeVisual.js
-  visual: { gradient: 'atual', from: '#007a3d', to: '#1B5E20', texture: 'ruido' },
+  visual: { gradient: 'atual', from: '#007a3d', to: '#1B5E20', texture: 'nenhuma' },
   // Bloco de números (bento). Começa DESLIGADO: só aparece no site depois de
   // preenchido e ativado aqui no painel.
   numbers: {
@@ -340,7 +340,7 @@ function VisualForm({ config = {}, update }) {
         <div className="flex flex-wrap gap-2">
           {Object.entries(TEXTURES).map(([id, t]) => (
             <button key={id} type="button" onClick={() => update({ texture: id })}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${(config.texture || 'ruido') === id ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#007a3d]'}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${(config.texture || 'nenhuma') === id ? 'bg-[#007a3d] text-white border-[#007a3d]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#007a3d]'}`}>
               {t.label}
             </button>
           ))}

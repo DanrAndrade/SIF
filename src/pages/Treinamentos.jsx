@@ -4,7 +4,6 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import EditablePageHero from '../components/EditablePageHero';
 import { Calendar, MapPin, ArrowRight, BookOpen, Clock, Award, X, MessageSquare, Play, ChevronDown } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -157,7 +156,6 @@ export default function Treinamentos() {
       {/* CTA IN-COMPANY */}
       <section className="py-24 bg-[#1f2937] relative overflow-hidden">
          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <NoiseOverlay opacity={1} />
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
             <h2 className="sif-title sif-h2 text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>

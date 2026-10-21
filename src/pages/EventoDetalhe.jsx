@@ -3,7 +3,6 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';

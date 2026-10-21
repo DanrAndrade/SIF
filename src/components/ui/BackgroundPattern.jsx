@@ -1,13 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 
-// Padronagem fixa atrás das páginas públicas + "lanterna" que deixa a
-// padronagem mais evidente perto do mouse.
-// A lanterna é um círculo pequeno que só se MOVE (transform) — o navegador
-// não redesenha a tela inteira a cada movimento do mouse.
-const R = 240; // raio da lanterna (px)
+// Liga a padronagem no fundo da página (ela rola junto com o conteúdo) e
+// cria um destaque perto do mouse que deixa a padronagem mais evidente.
+// O destaque é um círculo pequeno que só se MOVE (transform); a padronagem
+// dentro dele é deslocada para ficar alinhada com a do fundo, mesmo rolando.
+const R = 240; // raio do destaque (px)
 
 export default function BackgroundPattern() {
   const spot = useRef(null);
+
+  useEffect(() => {
+    document.body.classList.add('sif-patterned');
+    return () => document.body.classList.remove('sif-patterned');
+  }, []);
 
   useEffect(() => {
     const el = spot.current;
@@ -16,28 +21,25 @@ export default function BackgroundPattern() {
     const paint = () => {
       raf = 0;
       el.style.transform = `translate3d(${x - R}px, ${y - R}px, 0)`;
-      // a padronagem do círculo acompanha a da página (fica alinhada)
-      el.style.backgroundPosition = `${-(x - R)}px ${-(y - R)}px`;
+      el.style.backgroundPosition = `${-(x - R + window.scrollX)}px ${-(y - R + window.scrollY)}px`;
     };
+    const queue = () => { if (!raf) raf = requestAnimationFrame(paint); };
     const move = (e) => {
       x = e.clientX; y = e.clientY;
       if (!el.classList.contains('is-on')) el.classList.add('is-on');
-      if (!raf) raf = requestAnimationFrame(paint);
+      queue();
     };
     const leave = () => el.classList.remove('is-on');
     window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('scroll', queue, { passive: true });
     document.documentElement.addEventListener('pointerleave', leave);
     return () => {
       window.removeEventListener('pointermove', move);
+      window.removeEventListener('scroll', queue);
       document.documentElement.removeEventListener('pointerleave', leave);
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
-  return (
-    <>
-      <div className="sif-bg-pattern" aria-hidden="true" />
-      <div ref={spot} className="sif-bg-spot" style={{ width: R * 2, height: R * 2 }} aria-hidden="true" />
-    </>
-  );
+  return <div ref={spot} className="sif-bg-spot" style={{ width: R * 2, height: R * 2 }} aria-hidden="true" />;
 }
