@@ -1,4 +1,3 @@
-@import './styles/pattern.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -327,31 +326,9 @@ iframe.ql-video {
 .prose h4 { font-size: 1.15em; font-weight: 700; margin-top: 1.4em; margin-bottom: 0.5em; }
 .prose h5 { font-size: 1.05em; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.4em; color: #1f2937; }
 .prose h6 { font-size: 0.95em; font-weight: 700; margin-top: 1em;   margin-bottom: 0.4em; color: #1f2937; }
-/* ─── FUNDO DAS PÁGINAS: padronagem + destaque no mouse ────────────────
-   A padronagem (pontinhos + folhinha do favicon) é o próprio fundo da
-   página: rola junto com o conteúdo. Só vale no site público (a classe
-   .sif-patterned é posta no <body> pelo <BackgroundPattern/>).
-   Perto do mouse a padronagem fica um pouco mais forte. */
+/* ─── FUNDO DAS PÁGINAS ─────────────────────────────────────────────── */
 body { background-color: #f6f8f7; }
-body.sif-patterned {
-  background-image: var(--sif-pattern-soft);
-  background-size: 360px 360px;
-  background-attachment: scroll;
-}
 .sif-page { background-color: transparent; }
-/* Destaque: círculo pequeno que se move com transform (barato para o
-   navegador); a padronagem dentro dele é alinhada com a da página. */
-.sif-bg-spot {
-  position: fixed; left: 0; top: 0; z-index: -1; pointer-events: none;
-  background-image: var(--sif-pattern);
-  background-size: 360px 360px;
-  -webkit-mask-image: radial-gradient(circle closest-side, #000 0%, transparent 100%);
-          mask-image: radial-gradient(circle closest-side, #000 0%, transparent 100%);
-  opacity: 0; transition: opacity .4s ease;
-  will-change: transform;
-}
-.sif-bg-spot.is-on { opacity: .55; }
-@media (hover: none), (prefers-reduced-motion: reduce) { .sif-bg-spot { display: none; } }
 
 /* ─── SOMBRAS PADRÃO DOS CARDS ─────────────────────────────────────────
    Cards brancos ganham sombra um pouco mais forte para destacar do fundo. */

@@ -72,7 +72,7 @@ export default function Partners() {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-      <div className="wrapper my-40 border-y border-gray-100 bg-transparent py-16 relative overflow-hidden">
+      <section className="relative overflow-hidden border-y border-gray-200/70 py-16 md:py-20 my-16 md:my-24 px-4 md:px-8">
 
         <div className="text-center mb-14">
             <h3 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-400">
@@ -82,8 +82,8 @@ export default function Partners() {
 
         <div className="relative w-full overflow-hidden group">
 
-            <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-[#f8f9fa] to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-[#f8f9fa] to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute top-0 left-0 h-full w-32 bg-gradient-to-r from-[#f6f8f7] to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 h-full w-32 bg-gradient-to-l from-[#f6f8f7] to-transparent z-10 pointer-events-none"></div>
 
             <div className="flex w-max animate-scroll" style={{ animationDuration: '80s' }}>
                 {duplicatedPartners.map((partner, index) => {
@@ -115,6 +115,6 @@ export default function Partners() {
                 })}
             </div>
         </div>
-      </div>
+      </section>
   );
 }

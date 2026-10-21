@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
-import BackgroundPattern from './components/ui/BackgroundPattern';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './apiConfig';
@@ -94,16 +93,9 @@ function BoundaryByRoute({ children }) {
   return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
 }
 
-// Padronagem de fundo só no site público (o painel tem fundo próprio)
-function PublicBackground() {
-  const { pathname } = useLocation();
-  return pathname.startsWith('/admin') ? null : <BackgroundPattern />;
-}
-
 export default function App() {
   return (
     <AuthProvider>
-      <PublicBackground />
       <BoundaryByRoute>
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
