@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { http } from '../utils/http';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
 
 // --- LOGOS (fallback se a API estiver offline) ---
@@ -55,7 +55,7 @@ export default function Partners() {
   const [partners, setPartners] = useState(fallback);
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
+    http.get(`${API_BASE_URL}/associadas.php?active_only=1`)
       .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPartners(res.data.map(a => ({

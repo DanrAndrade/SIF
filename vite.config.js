@@ -12,14 +12,18 @@ export default defineConfig(({ command }) => ({
   base: command === 'build' ? PROD_BASE : '/',
   plugins: [react()],
   build: {
+    // Imagens viram arquivos próprios (não base64 dentro do JS): o código fica
+    // menor e cada logo só é baixado quando aparece na tela.
+    assetsInlineLimit: 1024,
     rollupOptions: {
       output: {
-        // Separa bibliotecas que raramente mudam em chunks próprios.
-        // Assim o visitante reaproveita o cache delas entre as atualizações
-        // do site (só re-baixa o código da aplicação, que é pequeno).
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'animation': ['gsap', '@studio-freight/lenis'],
+        // Bibliotecas que raramente mudam em arquivos próprios: o visitante
+        // reaproveita o cache delas entre as atualizações do site.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/.test(id)) return 'react-vendor';
+          if (/[\\/]node_modules[\\/](gsap|@studio-freight)[\\/]/.test(id)) return 'animation';
+          return undefined;
         },
       },
     },

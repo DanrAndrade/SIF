@@ -1,17 +1,7 @@
 import React from 'react';
 
-export default function NoiseOverlay({ opacity = 0.4 }) {
-  // Memoizamos o SVG para não ser recriado desnecessariamente
-  const noisePattern = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")`;
-
-  return (
-    <div 
-        className="absolute inset-0 mix-blend-overlay z-0 pointer-events-none"
-        style={{ 
-            backgroundImage: noisePattern, 
-            filter: 'contrast(120%) brightness(100%)',
-            opacity: opacity
-        }}
-    ></div>
-  );
+// Granulado sutil por cima de fundos escuros/verdes. Usa uma imagem pronta
+// (classe .sif-noise em styles/noise.css): leve para o navegador desenhar.
+export default function NoiseOverlay({ opacity = 0.4, className = '' }) {
+  return <div className={`sif-noise absolute inset-0 z-0 ${className}`} style={{ opacity }} aria-hidden="true" />;
 }

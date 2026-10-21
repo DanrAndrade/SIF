@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
-import axios from 'axios';
+import { http } from '../utils/http';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -297,20 +297,20 @@ export default function Institucional() {
 
   useEffect(() => {
     // Config geral + áreas
-    axios.get(`${API_BASE_URL}/institucional.php?resource=config`).then(res => {
+    http.get(`${API_BASE_URL}/institucional.php?resource=config`).then(res => {
       const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
       setCfg(prev => ({ ...prev, ...data }));
       if (Array.isArray(data.areas) && data.areas.length > 0) setAreas(data.areas);
     }).catch(() => {}).finally(() => setHeroReady(true));
 
     // Linha do tempo (tabela própria)
-    axios.get(`${API_BASE_URL}/institucional.php?resource=timeline`).then(res => {
+    http.get(`${API_BASE_URL}/institucional.php?resource=timeline`).then(res => {
       const list = Array.isArray(res.data) ? res.data : [];
       const active = list.filter(t => t.active == 1 || t.active === undefined);
       if (active.length > 0) setTimeline(active);
     }).catch(() => {});
 
-    axios.get(`${API_BASE_URL}/institucional.php?resource=team`)
+    http.get(`${API_BASE_URL}/institucional.php?resource=team`)
       .then((res) => {
         const list = Array.isArray(res.data) ? res.data : [];
         if (list.length === 0) { setTeamFromApi({}); return; }

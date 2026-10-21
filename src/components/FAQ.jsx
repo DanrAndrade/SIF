@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { http } from '../utils/http';
 import { Mail, ChevronDown } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
 import Button from './ui/Button';
@@ -25,7 +25,7 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
   const side = { ...DEFAULT_SIDE, ...sideConfig };
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/faqs.php?page_key=${pageKey}&active_only=1`)
+    http.get(`${API_BASE_URL}/faqs.php?page_key=${pageKey}&active_only=1`)
       .then((res) => {
         if (Array.isArray(res.data) && res.data.length > 0) setItems(res.data);
       })

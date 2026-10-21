@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import '../../utils/axiosAdmin'; // axios do painel: mesmo tratamento de firewall/login
 import { ConfirmProvider, UnsavedGuardProvider, useCanLeave } from '../../components/admin/kit';
 import { Menu, Lock } from 'lucide-react';
 import { AdminUserProvider, useAdminUser } from '../../contexts/AdminUserContext';

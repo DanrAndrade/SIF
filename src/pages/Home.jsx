@@ -47,8 +47,10 @@ export default function Home() {
   useEffect(() => {
     document.title = "SIF | Sociedade de Investigações Florestais";
 
-    const lenis = new Lenis({
-      duration: 1.2,
+    // Quem pediu "menos movimento" no sistema fica com a rolagem normal
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const lenis = reduceMotion ? null : new Lenis({
+      duration: 0.9, // mais curto = rolagem mais leve e responsiva
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
@@ -57,17 +59,21 @@ export default function Home() {
     });
 
     // Mantém o ScrollTrigger sincronizado com a rolagem do Lenis
-    lenis.on('scroll', ({ scroll }) => {
-      ScrollTrigger.update();
-      setScrolled(scroll > 50); // React ignora quando o valor não muda
-    });
-
     let rafId;
-    const raf = (time) => {
-      lenis.raf(time);
+    const onNativeScroll = () => setScrolled(window.scrollY > 50);
+    if (lenis) {
+      lenis.on('scroll', ({ scroll }) => {
+        ScrollTrigger.update();
+        setScrolled(scroll > 50); // React ignora quando o valor não muda
+      });
+      const raf = (time) => {
+        lenis.raf(time);
+        rafId = requestAnimationFrame(raf);
+      };
       rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
+    } else {
+      window.addEventListener('scroll', onNativeScroll, { passive: true });
+    }
 
     // Contexto local: no fim, desfaz SÓ as animações desta página
     const mm = gsap.matchMedia();
@@ -97,10 +103,11 @@ export default function Home() {
     window.addEventListener('load', refresh);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('load', refresh);
+      window.removeEventListener('scroll', onNativeScroll);
       mm.revert();
-      lenis.destroy();
+      lenis?.destroy();
     };
   }, []);
 
@@ -109,9 +116,7 @@ export default function Home() {
   useEffect(() => {
     const id = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => clearTimeout(id);
-  }, [config]);
-
-    const noisePattern = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAABMTExERERmZmYzMzNmZmYAAABVvhyhAAAACHRSTlMAMwAzzP//zMzMzHJLEwAAACVJREFUOMtjYCAJcDEwMDBxMQAJUEGrcQqhqXHBGk200UYbsRoAAGOAAwD314OTAAAAAElFTkSuQmCC")`;
+  }, [config]);
 
     return (
         <div className="sif-app sif-page font-sans text-[#1f2937] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
@@ -127,10 +132,7 @@ export default function Home() {
               <div className="absolute inset-0 z-0" style={{ background: `radial-gradient(circle at 50% 0%, ${grad.from} 0%, ${grad.to} 100%)` }}></div>
 
               {texture === 'ruido' && (
-                <div
-                    className="absolute inset-0 opacity-20 mix-blend-overlay z-0 pointer-events-none bg-noise"
-                    style={{ backgroundImage: noisePattern, filter: 'contrast(120%) brightness(100%)' }}
-                ></div>
+                <div className="sif-noise absolute inset-0 opacity-50 z-0" aria-hidden="true"></div>
               )}
               {TEXTURES[texture]?.style && (
                 <div className="absolute inset-0 z-0 pointer-events-none" style={TEXTURES[texture].style}></div>

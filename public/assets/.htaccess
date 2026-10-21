@@ -1,0 +1,5 @@
+# Arquivos desta pasta mudam de NOME a cada nova versao do site (hash).
+# Por isso o navegador pode guarda-los para sempre.
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</IfModule>

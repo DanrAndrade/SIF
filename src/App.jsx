@@ -4,11 +4,11 @@ import BackgroundPattern from './components/ui/BackgroundPattern';
 import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './apiConfig';
 
-// --- CARREGAMENTO IMEDIATO (páginas leves/críticas) ---
+// --- CARREGAMENTO IMEDIATO: só a Home; o resto carrega quando for aberto ---
 import Home from './pages/Home';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import AdminLogin from './pages/admin/AdminLogin';
+const Blog                = lazy(() => import('./pages/Blog'));
+const BlogPost            = lazy(() => import('./pages/BlogPost'));
+const AdminLogin          = lazy(() => import('./pages/admin/AdminLogin'));
 
 // --- LAZY LOADING (carregamento sob demanda) ---
 const Contact             = lazy(() => import('./pages/Contact'));

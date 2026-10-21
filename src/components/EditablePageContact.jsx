@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { http } from '../utils/http';
 import { Mail, Phone, User, ExternalLink } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../apiConfig';
 
@@ -15,7 +15,7 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
 
   useEffect(() => {
     if (!pageKey || hasOverride) return;
-    axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`)
+    http.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`)
       .then(res => {
         const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
         if (data.contact_name || data.contact_email || data.contact_whatsapp) {

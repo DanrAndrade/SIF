@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { usePageTitle } from '../hooks/usePageTitle';
-import axios from 'axios';
+import { http } from '../utils/http';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
@@ -101,7 +101,7 @@ export default function Associadas() {
   const [heroReady, setHeroReady] = useState(false);
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/associadas.php?active_only=1`)
+    http.get(`${API_BASE_URL}/associadas.php?active_only=1`)
       .then((res) => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPartners(res.data.map(a => ({
@@ -114,7 +114,7 @@ export default function Associadas() {
       })
       .catch(() => { /* mantém fallback */ });
 
-    axios.get(`${API_BASE_URL}/page_content.php?page=associadas`)
+    http.get(`${API_BASE_URL}/page_content.php?page=associadas`)
       .then((res) => {
         const data = res.data && typeof res.data === 'object' && !Array.isArray(res.data) ? res.data : {};
         if (Object.keys(data).length > 0) {

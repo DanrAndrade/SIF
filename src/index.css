@@ -1,4 +1,5 @@
 @import './styles/pattern.css';
+@import './styles/noise.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -334,17 +335,21 @@ iframe.ql-video {
    para ela aparecer. Perto do mouse a padronagem fica um pouco mais forte. */
 body { background-color: #f6f8f7; }
 .sif-page { background-color: transparent; }
-.sif-bg-pattern,
-.sif-bg-spot {
+.sif-bg-pattern {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-image: var(--sif-pattern);
   background-size: 360px 360px;
+  opacity: .2;
 }
-.sif-bg-pattern { opacity: .2; }
+/* Lanterna: círculo pequeno que se move com transform (barato para o navegador) */
 .sif-bg-spot {
+  position: fixed; left: 0; top: 0; z-index: -1; pointer-events: none;
+  background-image: var(--sif-pattern);
+  background-size: 360px 360px;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 0%, transparent 100%);
+          mask-image: radial-gradient(circle closest-side, #000 0%, transparent 100%);
   opacity: 0; transition: opacity .4s ease;
-  -webkit-mask-image: radial-gradient(circle 240px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 100%);
-          mask-image: radial-gradient(circle 240px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 100%);
+  will-change: transform;
 }
 .sif-bg-spot.is-on { opacity: .7; }
 @media (hover: none), (prefers-reduced-motion: reduce) { .sif-bg-spot { display: none; } }

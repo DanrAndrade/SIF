@@ -28,18 +28,27 @@ DirectoryIndex index.php index.html
   RewriteRule ^ index.php [L]
 </IfModule>
 
-# Compressão (melhora performance / SEO)
+# Compressão (texto vai compactado: páginas, CSS, JS, JSON e SVG)
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/xml application/javascript text/javascript application/json image/svg+xml
 </IfModule>
 
-# Cache de assets estáticos (hashes no nome garantem atualização)
+# Cache no navegador
 <IfModule mod_expires.c>
   ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 month"
   ExpiresByType image/png "access plus 1 month"
   ExpiresByType image/jpeg "access plus 1 month"
   ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/avif "access plus 1 month"
+  ExpiresByType video/mp4 "access plus 1 month"
+  ExpiresByType application/xml "access plus 1 hour"
 </IfModule>
+
+# Cache permanente dos arquivos com hash no nome: ver assets/.htaccess

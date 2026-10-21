@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { http } from './http';
 import { API_BASE_URL } from '../apiConfig';
 
 // Camada de dados das páginas editáveis com 3 níveis (do mais rápido ao mais lento):
@@ -41,6 +41,6 @@ export function writeCache(pageKey, data) {
 
 // Busca o conteúdo da página na API (fonte da verdade). Sempre retorna objeto.
 export async function fetchPageContent(pageKey) {
-  const res = await axios.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`);
+  const res = await http.get(`${API_BASE_URL}/page_content.php?page=${pageKey}`);
   return (res.data && typeof res.data === 'object' && !Array.isArray(res.data)) ? res.data : {};
 }

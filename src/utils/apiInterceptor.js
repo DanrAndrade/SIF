@@ -13,10 +13,9 @@
 //
 // 2) Login: envia o cookie da sessão do painel em toda chamada (o PHP exige
 //    login para gravar) e avisa quando a sessão expirou.
-import axios from 'axios';
 import { API_BASE_URL } from '../apiConfig';
 
-const MARK = '__sifb64:';
+export const MARK = '__sifb64:';
 
 const toB64Url = (str) => {
   const bytes = new TextEncoder().encode(str);
@@ -27,9 +26,9 @@ const toB64Url = (str) => {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
-const isApiUrl = (url) => typeof url === 'string' && url.startsWith(API_BASE_URL);
+export const isApiUrl = (url) => typeof url === 'string' && url.startsWith(API_BASE_URL);
 
-const encodeFormData = (fd) => {
+export const encodeFormData = (fd) => {
   const out = new FormData();
   for (const [key, value] of fd.entries()) {
     out.append(key, typeof value === 'string' && value !== '' ? MARK + toB64Url(value) : value);
@@ -37,11 +36,11 @@ const encodeFormData = (fd) => {
   return out;
 };
 
-const wrapJson = (json) => JSON.stringify({ __sif_b64: toB64Url(json) });
+export const wrapJson = (json) => JSON.stringify({ __sif_b64: toB64Url(json) });
 
 // Sessão expirada: avisa uma vez (evita vários toasts seguidos)
 let lastSessionWarning = 0;
-const warnSessionExpired = (message) => {
+export const warnSessionExpired = (message) => {
   if (Date.now() - lastSessionWarning < 5000) return;
   lastSessionWarning = Date.now();
   window.showToast?.(message || 'Sua sessão do painel expirou. Faça login novamente para salvar.');
@@ -64,24 +63,3 @@ window.fetch = async (input, init) => {
   return res;
 };
 
-// axios: usado em Banners, FAQ e algumas páginas públicas
-axios.interceptors.request.use((config) => {
-  if (!isApiUrl(config.url)) return config;
-  config.withCredentials = true;
-  const { data } = config;
-  if (data == null) return config;
-  if (data instanceof FormData) {
-    config.data = encodeFormData(data);
-  } else if (typeof data === 'object' || typeof data === 'string') {
-    config.data = wrapJson(typeof data === 'string' ? data : JSON.stringify(data));
-    config.headers.set('Content-Type', 'application/json');
-  }
-  return config;
-});
-
-axios.interceptors.response.use(undefined, (error) => {
-  if (error?.response?.status === 401 && error.response.data?.error === 'nao_autorizado') {
-    warnSessionExpired(error.response.data.message);
-  }
-  return Promise.reject(error);
-});

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SmartLink from './ui/SmartLink';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import { http } from '../utils/http';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 
 export default function BannerCarousel() {
@@ -46,7 +46,7 @@ export default function BannerCarousel() {
 
   const fetchBanners = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await http.get(API_URL);
       if (Array.isArray(response.data)) {
         const activeBanners = response.data.filter(b => b.active == 1 || b.active === true);
         setBanners(activeBanners);

@@ -36,3 +36,20 @@ Options -Indexes
         Deny from all
     </IfModule>
 </FilesMatch>
+
+
+# Fotos, PDFs e vídeos enviados pelo painel: o nome do arquivo é único
+# (data + código), então o navegador pode guardar por bastante tempo.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/gif "access plus 6 months"
+  ExpiresByType video/mp4 "access plus 6 months"
+  ExpiresByType video/webm "access plus 6 months"
+  ExpiresByType application/pdf "access plus 1 month"
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE application/json text/html
+</IfModule>
