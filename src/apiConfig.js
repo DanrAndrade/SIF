@@ -84,7 +84,7 @@ export const cleanRichHtml = (html) => {
 // Remove o que pode executar código (o servidor já limpa ao gravar; aqui
 // protege também o conteúdo antigo): <script>, eventos "on...", links
 // javascript: e iframes que não sejam de YouTube/Vimeo.
-const SAFE_IFRAME = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//i;
+const SAFE_IFRAME = /^(https?:)?\/\/((www|m)\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be|player\.vimeo\.com|vimeo\.com)\//i;
 export const sanitizeHtml = (html) => {
   if (!html || typeof html !== 'string' || html.indexOf('<') === -1 || typeof DOMParser === 'undefined') return html;
   const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');

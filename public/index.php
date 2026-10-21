@@ -21,6 +21,11 @@
 
 $INDEX = __DIR__ . '/index.html';
 
+// Troca a 1ª ocorrência sem interpretar "$1" ou "\1" do texto novo (ex.: "R$150,00")
+function sif_rep1(string $re, string $new, string $html): string {
+    return preg_replace_callback($re, function () use ($new) { return $new; }, $html, 1);
+}
+
 try {
     $html = @file_get_contents($INDEX);
     if ($html === false || $html === '') { @readfile($INDEX); exit; }
@@ -114,11 +119,11 @@ try {
             $url = $site . $path;
             $image = $img($e['image'] ?? '');
 
-            $html = preg_replace('#<title>.*?</title>#is', '<title>' . $h($title) . '</title>', $html, 1);
+            $html = sif_rep1('#<title>.*?</title>#is', '<title>' . $h($title) . '</title>', $html);
             $set = function ($attr, $key, $val) use (&$html, $h) {
                 $tag = '<meta ' . $attr . '="' . $key . '" content="' . $h($val) . '" />';
                 $re = '#<meta\s+' . $attr . '="' . preg_quote($key, '#') . '"[^>]*>#i';
-                $html = preg_match($re, $html) ? preg_replace($re, $tag, $html, 1) : preg_replace('#</head>#i', $tag . '</head>', $html, 1);
+                $html = preg_match($re, $html) ? sif_rep1($re, $tag, $html) : sif_rep1('#</head>#i', $tag . '</head>', $html);
             };
             $set('name', 'description', $desc);
             $set('name', 'robots', $indexavel ? 'index, follow' : 'noindex, nofollow');
@@ -130,7 +135,7 @@ try {
             $set('name', 'twitter:title', $title);
             $set('name', 'twitter:description', $desc);
             $set('name', 'twitter:image', $image);
-            $html = preg_replace('#<link\s+rel="canonical"[^>]*>#i', '<link rel="canonical" href="' . $h($url) . '" />', $html, 1);
+            $html = sif_rep1('#<link\s+rel="canonical"[^>]*>#i', '<link rel="canonical" href="' . $h($url) . '" />', $html);
 
             // Dados estruturados (JSON-LD)
             $org = ['@type' => 'Organization', 'name' => 'SIF - Sociedade de Investigações Florestais', 'url' => $site,
@@ -184,14 +189,14 @@ try {
             $ssr = '<header><a href="' . $h($base) . '">SIF - Sociedade de Investigações Florestais</a><nav><ul>' . $links . '</ul></nav></header>'
                  . '<main><h1>' . $h($e['heading'] ?? $e['title']) . '</h1><p>' . $h($desc) . '</p>'
                  . ($children ? '<ul>' . $children . '</ul>' : '') . '</main>';
-            $html = preg_replace('#<div id="root"></div>#', '<div id="root"><div class="sif-ssr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">' . $ssr . '</div></div>', $html, 1);
+            $html = sif_rep1('#<div id="root"></div>#', '<div id="root"><div class="sif-ssr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">' . $ssr . '</div></div>', $html);
         } elseif (!$indexavel) {
-            $html = preg_replace('#<meta\s+name="robots"[^>]*>#i', '<meta name="robots" content="noindex, nofollow" />', $html, 1);
+            $html = sif_rep1('#<meta\s+name="robots"[^>]*>#i', '<meta name="robots" content="noindex, nofollow" />', $html);
         }
     }
 
     if ($inject !== '') {
-        $html = preg_replace('#</head>#i', $inject . '</head>', $html, 1);
+        $html = sif_rep1('#</head>#i', $inject . '</head>', $html);
     }
 
     header('Content-Type: text/html; charset=UTF-8');

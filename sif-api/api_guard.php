@@ -250,7 +250,7 @@ function sif_safe_unlink(?string $path): bool {
 // links javascript: e iframes que não sejam de YouTube/Vimeo.
 function sif_clean_html(?string $html): string {
     $html = (string)$html;
-    if ($html === '' || strpos($html, '<') === false) return $html;
+    if ($html === '' || !preg_match('#<\s*/?[a-z!][^>]*>#i', $html)) return $html; // texto sem tag fica como está
     if (!class_exists('DOMDocument')) {
         // Sem a extensão DOM: limpeza básica por expressão regular
         $html = preg_replace('#<(script|style|object|embed|form|meta|link|base)\b[^>]*>.*?</\1\s*>#is', '', $html);
@@ -266,7 +266,7 @@ function sif_clean_html(?string $html): string {
     foreach (iterator_to_array($xp->query('//script|//style|//object|//embed|//form|//meta|//link|//base|//svg|//math')) as $n) $n->parentNode->removeChild($n);
     foreach (iterator_to_array($xp->query('//iframe')) as $n) {
         $src = $n->getAttribute('src');
-        if (!preg_match('#^https://(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)/#i', $src)) $n->parentNode->removeChild($n);
+        if (!preg_match('#^(https?:)?//((www|m)\.)?(youtube\.com|youtube-nocookie\.com|youtu\.be|player\.vimeo\.com|vimeo\.com)/#i', $src)) $n->parentNode->removeChild($n);
     }
     foreach (iterator_to_array($xp->query('//@*')) as $attr) {
         $name = strtolower($attr->nodeName);
@@ -285,7 +285,7 @@ function sif_clean_html(?string $html): string {
 // Aplica sif_clean_html em todos os textos com HTML de uma estrutura (JSON das seções)
 function sif_clean_deep($v) {
     if (is_array($v)) { foreach ($v as $k => $x) $v[$k] = sif_clean_deep($x); return $v; }
-    return (is_string($v) && strpos($v, '<') !== false) ? sif_clean_html($v) : $v;
+    return (is_string($v) && preg_match('#<\s*/?[a-z!][^>]*>#i', $v)) ? sif_clean_html($v) : $v;
 }
 
 // Mesmo, para um JSON em texto (extra_data, content_json)
@@ -306,6 +306,9 @@ function sif_attempts(PDO $pdo, string $kind, string $ident, int $minutes): int 
     } catch (Throwable $e) { return 0; } // tabela ainda não existe: não bloqueia
 }
 function sif_attempt_add(PDO $pdo, string $kind, string $ident): void {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS login_attempts (id INT AUTO_INCREMENT PRIMARY KEY, kind VARCHAR(20) NOT NULL, ident VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, INDEX idx_login_attempts (kind, ident, created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } catch (Throwable $e) {}
     try {
         $pdo->prepare("INSERT INTO login_attempts (kind, ident, created_at) VALUES (?, ?, NOW())")->execute([$kind, substr($ident, 0, 190)]);
         if (random_int(1, 50) === 1) $pdo->exec("DELETE FROM login_attempts WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 DAY)");

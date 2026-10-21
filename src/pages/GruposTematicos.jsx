@@ -91,7 +91,7 @@ export default function GruposTematicos() {
                     className="group bg-white rounded-panel border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all block relative overflow-hidden h-full flex flex-col"
                   >
                     {/* Banner (foto ou cor com ícone) */}
-                    <div className="relative h-44 overflow-hidden rounded-t-[48px] flex-shrink-0">
+                    <div className="relative h-44 overflow-hidden rounded-t-panel flex-shrink-0">
                       {gt.image_url
                         ? <img
                             src={getImageUrl(gt.image_url)}

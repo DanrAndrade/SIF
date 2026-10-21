@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
@@ -24,8 +24,17 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
   // Ao abrir, o editor "arruma" o HTML (ex.: põe <p>) e avisaria mudança sem
   // ninguém mexer — aparecia "Alterações não salvas" à toa. Só repassamos
   // mudanças feitas pela pessoa (digitação, colar, botões, imagem).
+  // O valor arrumado pelo editor fica guardado aqui (não volta a ser
+  // reaplicado a cada nova renderização do formulário).
+  const [local, setLocal] = useState(value || '');
+  const sent = useRef(value || '');
+  useEffect(() => {
+    if ((value || '') !== sent.current) { sent.current = value || ''; setLocal(value || ''); }
+  }, [value]);
   const handleChange = useCallback((html, _delta, source) => {
+    setLocal(html);
     if (source !== 'user') return;
+    sent.current = html;
     onChange?.(html);
   }, [onChange]);
 
@@ -66,7 +75,7 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
         ref={quillRef}
         theme="snow"
         modules={modules}
-        value={value}
+        value={local}
         onChange={handleChange}
         useSemanticHTML={false}
         className="flex-1 min-h-0 flex flex-col"

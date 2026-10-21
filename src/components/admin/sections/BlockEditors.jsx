@@ -57,6 +57,7 @@ function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = fa
 }
 
 // Envia a imagem e chama done(url); o ContentSections trava o Salvar enquanto isso
+const newItemId = () => `i-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const upload = (track, file, done) => track(uploadImageNow(file)).then(url => url && done(url)).catch(toastError);
 
 export function TextImageEditor({ sec, onUpdate }) {
@@ -131,10 +132,15 @@ export function PeopleEditor({ sec, onUpdate }) {
   const track = useUploadTracker();
   return (
     <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} grid addLabel="Adicionar pessoa"
-      empty="Nenhuma pessoa." newItem={() => ({ name: '', role: '', photo: '', link: '' })}
+      empty="Nenhuma pessoa." newItem={() => ({ _id: newItemId(), name: '', role: '', photo: '', link: '' })}
       render={(it, set) => (
         <div className="grid grid-cols-[110px_1fr] gap-3">
-          <ImageField label="Foto" value={it.photo} onFile={(f) => upload(track, f, (photo) => set({ photo }))} onRemove={() => set({ photo: '' })} aspect="h-28" />
+          <ImageField label="Foto" value={it.photo} onFile={(f) => {
+            // id estável: a foto vai para esta pessoa mesmo se a lista mudar durante o envio
+            const id = it._id || newItemId();
+            if (!it._id) set({ _id: id });
+            upload(track, f, (photo) => onUpdate(cur => ({ items: (cur.items || []).map(p => (p._id === id ? { ...p, photo } : p)) })));
+          }} onRemove={() => set({ photo: '' })} aspect="h-28" />
           <div className="space-y-2">
             <Field label="Nome" value={it.name} onChange={(name) => set({ name })} />
             <Field label="Cargo / função" value={it.role} onChange={(role) => set({ role })} />

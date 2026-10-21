@@ -117,7 +117,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
           <span className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-[#007a3d]"><TIcon size={14} /></span>
           {def.label}
         </button>
-        <div className="flex-1 min-w-[180px]">
+        <div className="flex-1 min-w-[180px] flex items-center gap-2">
           <TitleField sec={section} onUpdate={setField} placeholder="Título do bloco (opcional)" defaultSize={section.type === 'logos' ? 'md' : 'lg'} defaultAlign={section.type === 'logos' || section.type === 'stats' ? 'center' : 'left'} />
         </div>
         {hidden && <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0">Oculto</span>}
@@ -208,7 +208,7 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
   // desfazem o que foi digitado nem caem num formulário já fechado.
   const latest = useLatest(list);
   const alive = useRef(true);
-  useEffect(() => () => { alive.current = false; onUploading?.(false); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { alive.current = true; return () => { alive.current = false; onUploading?.(false); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const trackUpload = useMemo(() => (promise) => {
     if (!alive.current) return promise;
     handleUploadingChange(true);
