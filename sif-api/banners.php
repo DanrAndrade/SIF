@@ -91,7 +91,8 @@ elseif ($method === 'POST') {
 
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Erro no Banco: ' . $e->getMessage()]);
+        error_log('[sif-api] banners: ' . $e->getMessage());
+        echo json_encode(['error' => 'Erro ao gravar no banco de dados.']);
     }
 }
 
@@ -121,7 +122,7 @@ elseif ($method === 'DELETE') {
         
         // Tenta apagar o arquivo físico
         if ($banner && file_exists($banner['image_url'])) {
-            @unlink($banner['image_url']);
+            sif_safe_unlink($banner['image_url']);
         }
         
         $pdo->prepare("DELETE FROM banners WHERE id = ?")->execute([$id]);

@@ -5,13 +5,7 @@ require_once 'image_utils.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// --- Auto-migração: garante a coluna do site da empresa (idempotente) ---
-// A produção ganha o campo automaticamente ao subir este arquivo.
-try {
-    if (!$pdo->query("SHOW COLUMNS FROM associadas LIKE 'website'")->fetch()) {
-        $pdo->exec("ALTER TABLE associadas ADD COLUMN website VARCHAR(500) NULL AFTER address");
-    }
-} catch (Exception $e) { /* segue sem a coluna se algo falhar */ }
+// (coluna "website": criada pela migração do api_guard.php, versão 4)
 
 // ─────────────────────────────────────────────────────────
 // HELPER — Upload organizado para a pasta de associadas
@@ -182,7 +176,7 @@ if ($method === 'DELETE') {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($row && $row['logo_url'] && file_exists($row['logo_url'])) {
-        @unlink($row['logo_url']);
+        sif_safe_unlink($row['logo_url']);
     }
 
     $stmt = $pdo->prepare("DELETE FROM associadas WHERE id = ?");

@@ -22,13 +22,29 @@ elseif ($method === 'POST') {
     // Verificamos se é um upload de arquivo (Candidatura do Site)
     if (isset($_FILES['cv']) || isset($_POST['job_title'])) {
         // ... Lógica de Upload (CÓDIGO ORIGINAL MANTIDO ABAIXO) ...
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $linkedin = $_POST['linkedin'] ?? '';
-        $jobTitle = $_POST['job_title'] ?? 'Banco de Talentos';
-        $jobId = $_POST['job_id'] ?? null;
-        if ($jobId === 'banco') $jobId = null;
+        $str = fn($k, $max) => is_scalar($_POST[$k] ?? null) ? mb_substr(trim((string)$_POST[$k]), 0, $max) : '';
+        $name = $str('name', 120);
+        $email = $str('email', 150);
+        $phone = $str('phone', 40);
+        $linkedin = $str('linkedin', 300);
+        $jobTitle = $str('job_title', 200) ?: 'Banco de Talentos';
+        $jobId = isset($_POST['job_id']) && ctype_digit((string)$_POST['job_id']) ? (int)$_POST['job_id'] : null;
+
+        // Robôs: campo escondido preenchido = finge que deu certo e descarta
+        if ($str('website', 10) !== '') { echo json_encode(['success' => true]); exit; }
+        if (mb_strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Preencha nome e um e-mail válido.']);
+            exit;
+        }
+        // Limite por IP: até 6 candidaturas por hora
+        $ip = sif_client_ip();
+        if (sif_attempts($pdo, 'cv', $ip, 60) >= 6) {
+            http_response_code(429);
+            echo json_encode(['success' => false, 'error' => 'Muitos envios seguidos. Tente novamente mais tarde.']);
+            exit;
+        }
+        sif_attempt_add($pdo, 'cv', $ip);
 
         $cvFilename = null;
         if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
@@ -57,8 +73,9 @@ elseif ($method === 'POST') {
                 echo json_encode(['success' => false, 'message' => 'Envie o currículo em PDF ou Word (.doc/.docx).']);
                 exit;
             }
-            $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
-            $newFilename = time() . "_" . $cleanName . "." . $ext;
+            // Nome único (nunca sobrescreve) + nome do candidato para facilitar no painel
+            $cleanName = substr(preg_replace('/[^a-zA-Z0-9]/', '', $name), 0, 40);
+            $newFilename = time() . '_' . bin2hex(random_bytes(4)) . ($cleanName ? '_' . $cleanName : '') . '.' . $ext;
             if (move_uploaded_file($_FILES['cv']['tmp_name'], $uploadDir . $newFilename)) {
                 $cvFilename = $newFilename;
             }
@@ -72,7 +89,8 @@ elseif ($method === 'POST') {
             echo json_encode(['success' => true]);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            error_log('[sif-api] candidates: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Não foi possível enviar a candidatura. Tente de novo.']);
         }
     } 
     // Se não for upload, é o Admin atualizando o STATUS (JSON)

@@ -10,6 +10,14 @@ if ($method === 'POST') {
     $email = trim($data['email'] ?? '');
     $password = $data['password'] ?? '';
 
+    // Força bruta: 5 erros por e-mail ou 20 por IP em 15 min → espera
+    $ip = sif_client_ip();
+    if (sif_attempts($pdo, 'login', 'e:' . strtolower($email), 15) >= 5 || sif_attempts($pdo, 'login', 'ip:' . $ip, 15) >= 20) {
+        http_response_code(429);
+        echo json_encode(['success' => false, 'message' => 'Muitas tentativas de login. Aguarde 15 minutos e tente de novo.']);
+        exit;
+    }
+
     $stmt = $pdo->prepare("SELECT * FROM admins WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -20,6 +28,7 @@ if ($method === 'POST') {
     if ($user && !$inactive && password_verify($password, $user['password'])) {
         // Novo ID de sessão (evita reaproveitar sessão antiga)
         session_regenerate_id(true);
+        sif_attempts_clear($pdo, 'login', 'e:' . strtolower($email));
 
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_id'] = $user['id'];
@@ -34,8 +43,10 @@ if ($method === 'POST') {
             'user' => $me ?: ['id' => (int)$user['id'], 'email' => $user['email']],
         ]);
     } else {
-        // Senha errada: espera 2 s (deixa ataques de robô muito lentos)
-        sleep(2);
+        // Senha errada: registra a tentativa (bloqueio acima) e espera pouco
+        sif_attempt_add($pdo, 'login', 'e:' . strtolower($email));
+        sif_attempt_add($pdo, 'login', 'ip:' . $ip);
+        usleep(400000);
         echo json_encode(['success' => false, 'message' => 'E-mail ou senha incorretos.']);
     }
 }

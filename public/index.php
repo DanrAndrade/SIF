@@ -62,8 +62,10 @@ try {
             $json = @file_get_contents($cacheFile);
             $data = $json ? json_decode($json, true) : null;
             if (is_array($data)) {
+                // Recodifica com HEX_TAG/AMP: texto do painel não consegue quebrar o <script>
+                $safeJson = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
                 $inject .= '<script>window.__BOOT_PAGE__=' . json_encode($pageKey)
-                         . ';window.__BOOT__=' . $json . ';</script>';
+                         . ';window.__BOOT__=' . $safeJson . ';</script>';
 
                 // Imagem do hero (hero_image nas páginas; hero_bg na home)
                 $img = '';

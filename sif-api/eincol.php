@@ -89,7 +89,8 @@ if ($method === 'POST') {
         } catch (Exception $e) {
             // Sempre responde JSON, para o painel mostrar o motivo real
             http_response_code(500);
-            echo json_encode(["success" => false, "message" => "Erro ao gravar no banco: " . $e->getMessage()]);
+            error_log('[sif-api] eincol: ' . $e->getMessage());
+            echo json_encode(["success" => false, "message" => "Erro ao gravar no banco de dados."]);
             exit;
         }
     }

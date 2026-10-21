@@ -50,7 +50,11 @@ function writeBootCache(string $page, array $data): void {
         if (!is_dir($dir)) @mkdir($dir, 0755, true);
         $safe = preg_replace('/[^a-z0-9_]/i', '', $page);
         if ($safe === '') return;
-        @file_put_contents($dir . '/boot_' . $safe . '.json', json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+        // HEX_TAG/AMP: o JSON vai dentro de <script> no index.php — "<" e "&" não quebram o HTML
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
+        $file = $dir . '/boot_' . $safe . '.json';
+        // Só grava quando mudou (antes gravava a cada visita)
+        if (!is_file($file) || @file_get_contents($file) !== $json) @file_put_contents($file, $json, LOCK_EX);
     } catch (\Throwable $e) { /* cache é opcional */ }
 }
 
@@ -60,7 +64,7 @@ function writeBootCache(string $page, array $data): void {
 // ─────────────────────────────────────────────────────────
 if ($method === 'GET') {
     $page = trim($_GET['page'] ?? '');
-    if (!preg_match('/^[a-z0-9_]{1,64}$/i', $page)) {
+    if (!preg_match('/^[a-z0-9][a-z0-9_]{0,63}$/i', $page)) {
         http_response_code(400);
         echo json_encode(['error' => 'Parâmetro "page" obrigatório.']);
         exit;
@@ -103,7 +107,7 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $page = trim($_POST['page'] ?? '');
     // Só letras, números e "_": o nome entra no caminho da pasta de upload
-    if (!preg_match('/^[a-z0-9_]{1,64}$/i', $page)) {
+    if (!preg_match('/^[a-z0-9][a-z0-9_]{0,63}$/i', $page)) {
         http_response_code(400);
         echo json_encode(['error' => 'Campo "page" obrigatório.']);
         exit;
@@ -122,6 +126,7 @@ if ($method === 'POST') {
     if (!empty($_POST['content_json'])) {
         $incoming = json_decode($_POST['content_json'], true);
         if (is_array($incoming)) {
+            $incoming = sif_clean_deep($incoming); // textos com HTML: sem scripts/eventos
             $current = array_merge($current, $incoming);
         }
     }

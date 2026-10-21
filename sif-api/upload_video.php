@@ -35,7 +35,7 @@ if (!$ext) {
 }
 if ($file['size'] > 40 * 1024 * 1024) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Vídeo muito grande. Máximo: 40 MB.']);
+    echo json_encode(['success' => false, 'message' => 'Vídeo muito grande. Máximo: 40 MB (ideal: menos de 10 MB).']);
     exit;
 }
 

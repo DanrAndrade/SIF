@@ -13,7 +13,7 @@ require 'db.php';
 require_once 'api_guard.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-sif_ensure_schema($pdo);
+if (sif_is_admin()) sif_ensure_schema($pdo);
 
 function sif_user_row(array $u): array {
     return [
@@ -21,7 +21,7 @@ function sif_user_row(array $u): array {
         'name'       => $u['name'] ?? '',
         'cargo'      => $u['cargo'] ?? '',
         'email'      => $u['email'],
-        'role'       => ($u['role'] ?? 'admin') === 'editor' ? 'editor' : 'admin',
+        'role'       => ($u['role'] ?? 'editor') === 'admin' ? 'admin' : 'editor',
         'modules'    => array_values(array_intersect(sif_json_list($u['modules'] ?? null), SIF_MODULES)),
         'gt_ids'     => array_map('intval', sif_json_list($u['gt_ids'] ?? null)),
         'active'     => (int)($u['active'] ?? 1),
@@ -39,9 +39,9 @@ if ($method === 'GET') {
     if (!sif_is_admin()) { http_response_code(401); echo json_encode(['success' => false, 'error' => 'nao_autorizado', 'message' => 'Faça login.']); exit; }
 
     if (isset($_GET['responsaveis'])) {
-        $rows = $pdo->query("SELECT id, name, cargo, email FROM admins WHERE COALESCE(active,1) = 1 ORDER BY name, email")->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $pdo->query("SELECT id, name, cargo FROM admins WHERE COALESCE(active,1) = 1 ORDER BY name, id")->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(array_map(fn($r) => [
-            'id' => (int)$r['id'], 'name' => $r['name'] ?: $r['email'], 'cargo' => $r['cargo'] ?? '',
+            'id' => (int)$r['id'], 'name' => $r['name'] ?: ('Usuário #' . $r['id']), 'cargo' => $r['cargo'] ?? '',
         ], $rows));
         exit;
     }
@@ -62,10 +62,13 @@ $me = sif_user();
 if ($action === 'my_password') {
     $new = (string)($data['new'] ?? '');
     if (strlen($new) < 8) { http_response_code(400); echo json_encode(['success' => false, 'message' => 'A nova senha precisa ter pelo menos 8 caracteres.']); exit; }
+    if (sif_attempts($pdo, 'senha', 'u' . $me['id'], 15) >= 5) {
+        http_response_code(429); echo json_encode(['success' => false, 'message' => 'Muitas tentativas. Aguarde 15 minutos.']); exit;
+    }
     $st = $pdo->prepare("SELECT password FROM admins WHERE id = ?");
     $st->execute([$me['id']]);
     if (!password_verify((string)($data['current'] ?? ''), (string)$st->fetchColumn())) {
-        sleep(1);
+        sif_attempt_add($pdo, 'senha', 'u' . $me['id']);
         http_response_code(400); echo json_encode(['success' => false, 'message' => 'A senha atual não confere.']); exit;
     }
     $pdo->prepare("UPDATE admins SET password = ? WHERE id = ?")->execute([password_hash($new, PASSWORD_DEFAULT), $me['id']]);

@@ -18,9 +18,7 @@ function ensureColumn($pdo, $table, $col, $definition) {
         }
     } catch (Exception $e) { /* segue sem a coluna se algo falhar */ }
 }
-ensureColumn($pdo, 'treinamentos', 'date', 'VARCHAR(100) NULL');
-ensureColumn($pdo, 'treinamentos', 'start_date', 'DATE NULL');
-ensureColumn($pdo, 'treinamentos', 'end_date', 'DATE NULL');
+// (colunas date/start_date/end_date: criadas pela migração do api_guard.php, versão 4)
 
 // Formata uma data AAAA-MM-DD como "15 Mar 2025".
 function formatBrDate($d) {
@@ -33,9 +31,11 @@ function formatBrDate($d) {
 
 if ($method == 'GET') {
     if (isset($_GET['slug'])) {
-        $stmt = $pdo->prepare("SELECT * FROM treinamentos WHERE slug = ?");
+        $stmt = $pdo->prepare("SELECT * FROM treinamentos WHERE slug = ?" . (sif_is_admin() ? '' : ' AND active = 1'));
         $stmt->execute([$_GET['slug']]);
-        echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
+        $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$item) { http_response_code(404); echo json_encode(['error' => 'Não encontrado']); exit; }
+        echo json_encode($item);
     } else {
         $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
@@ -52,7 +52,7 @@ if ($method == 'POST') {
 
     if (isset($_POST['toggle_active'])) {
         $id     = $_POST['id']     ?? null;
-        $active = $_POST['active'] ?? 1;
+        $active = ((int)($_POST['active'] ?? 1)) ? 1 : 0;
         if (!$id) {
             echo json_encode(["status" => "error", "message" => "ID não informado."]);
             exit;
@@ -82,7 +82,7 @@ if ($method == 'POST') {
     $id          = $_POST['id']          ?? null;
     $slug        = $_POST['slug']        ?? '';
     $title       = $_POST['title']       ?? '';
-    $description = $_POST['description'] ?? '';
+    $description = sif_clean_html($_POST['description'] ?? '');
     $segment     = $_POST['segment']     ?? '';
     $hours       = $_POST['hours']       ?? '';
     $location    = $_POST['location']    ?? '';
@@ -104,7 +104,7 @@ if ($method == 'POST') {
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
     // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
     $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
-    $extra_data  = $_POST['extra_data']  ?? null;
+    $extra_data  = sif_clean_json($_POST['extra_data']  ?? null);
     $image_url_fallback = $_POST['image_url'] ?? '';
 
     if (empty($title) && empty($description)) {

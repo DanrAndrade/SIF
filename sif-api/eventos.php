@@ -8,13 +8,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 // ─── GET ────────────────────────────────────────────────────
 if ($method == 'GET') {
     if (isset($_GET['slug'])) {
-        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE slug = ?");
+        $stmt = $pdo->prepare("SELECT * FROM eventos WHERE slug = ?" . (sif_is_admin() ? '' : ' AND active = 1'));
         $stmt->execute([$_GET['slug']]);
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$event) { http_response_code(404); echo json_encode(['error' => 'Não encontrado']); exit; }
         if ($event && $event['extra_data']) {
             $extra = json_decode($event['extra_data'], true);
             if (is_array($extra)) {
-                $event = array_merge($event, $extra);
+                // extra_data não pode sobrescrever colunas (id, slug, active...)
+                $event = array_merge(array_diff_key($extra, $event), $event);
             }
         }
         echo json_encode($event);
@@ -37,7 +39,7 @@ if ($method == 'POST') {
     // Quick toggle: active/inactive without full form
     if (isset($_POST['toggle_active'])) {
         $id     = $_POST['id']     ?? null;
-        $active = $_POST['active'] ?? 1;
+        $active = ((int)($_POST['active'] ?? 1)) ? 1 : 0;
         if (!$id) {
             echo json_encode(["status" => "error", "message" => "ID não informado."]);
             exit;
@@ -65,7 +67,7 @@ if ($method == 'POST') {
     $id          = $_POST['id']          ?? null;
     $slug        = $_POST['slug']        ?? '';
     $title       = $_POST['title']       ?? '';
-    $description = $_POST['description'] ?? '';
+    $description = sif_clean_html($_POST['description'] ?? '');
     $event_date  = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
     // Gera o texto exibido (campo 'date') automaticamente a partir do event_date.
     // Mantemos o campo 'date' por compatibilidade com leitura antiga.
@@ -83,7 +85,7 @@ if ($method == 'POST') {
     $time        = $_POST['time']        ?? '';
     $location    = $_POST['location']    ?? '';
     $video_url   = $_POST['video_url']   ?? '';
-    $extra_data  = $_POST['extra_data']  ?? null;
+    $extra_data  = sif_clean_json($_POST['extra_data']  ?? null);
     $active      = isset($_POST['active']) ? (int)$_POST['active'] : 1;
     // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
     $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;

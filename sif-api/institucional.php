@@ -65,7 +65,7 @@ if ($resource === 'config') {
 
         if (!empty($_POST['content_json'])) {
             $incoming = json_decode($_POST['content_json'], true);
-            if (is_array($incoming)) $current = array_merge($current, $incoming);
+            if (is_array($incoming)) $current = array_merge($current, sif_clean_deep($incoming));
         }
 
         // Imagem do hero
@@ -206,7 +206,7 @@ if ($resource === 'team') {
                 $old->execute([$id]);
                 $oldRow = $old->fetch(PDO::FETCH_ASSOC);
                 if ($oldRow && $oldRow['photo_url'] && strpos($oldRow['photo_url'], 'uploads/') === 0 && file_exists($oldRow['photo_url'])) {
-                    @unlink($oldRow['photo_url']);
+                    sif_safe_unlink($oldRow['photo_url']);
                 }
                 $fields[] = 'photo_url = ?';
                 $values[] = $url;
@@ -245,7 +245,7 @@ if ($resource === 'team') {
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row && $row['photo_url'] && file_exists($row['photo_url'])) {
-            @unlink($row['photo_url']);
+            sif_safe_unlink($row['photo_url']);
         }
 
         $stmt = $pdo->prepare("DELETE FROM team_members WHERE id = ?");
@@ -451,7 +451,7 @@ if ($resource === 'documents') {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         // Só remove arquivo se for do uploads (não links externos ou /docs)
         if ($row && $row['pdf_url'] && str_starts_with($row['pdf_url'], 'uploads/') && file_exists($row['pdf_url'])) {
-            @unlink($row['pdf_url']);
+            sif_safe_unlink($row['pdf_url']);
         }
 
         $stmt = $pdo->prepare("DELETE FROM documents WHERE id = ?");

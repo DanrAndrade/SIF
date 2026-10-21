@@ -54,7 +54,7 @@ if ($method === 'GET') {
                 exit;
             }
             
-            $stmt = $pdo->prepare("SELECT * FROM blog_posts WHERE slug = ?");
+            $stmt = $pdo->prepare("SELECT * FROM blog_posts WHERE slug = ?" . (sif_is_admin() ? '' : ' AND active = 1'));
             $stmt->execute([$slug]);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -85,7 +85,8 @@ if ($method === 'GET') {
         }
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["error" => "Erro ao buscar posts: " . $e->getMessage()]);
+        error_log('[sif-api] blog: ' . $e->getMessage());
+        echo json_encode(["error" => "Erro ao buscar posts."]);
     }
     exit;
 }
@@ -136,7 +137,7 @@ if ($method === 'POST') {
 
     if (isset($_POST['toggle_active'])) {
         $id     = $_POST['id']     ?? null;
-        $active = $_POST['active'] ?? 1;
+        $active = ((int)($_POST['active'] ?? 1)) ? 1 : 0;
         if (!$id) {
             echo json_encode(["success" => false, "error" => "ID não informado."]);
             exit;
@@ -151,11 +152,18 @@ if ($method === 'POST') {
         $id         = $_POST['id']         ?? null;
         $title      = trim($_POST['title'] ?? '');
         $active     = isset($_POST['active']) ? (int)$_POST['active'] : 1;
-        $content    = $_POST['content']    ?? '';
+        $content    = sif_clean_html($_POST['content'] ?? ''); // sem scripts/eventos (XSS)
         $tags       = trim($_POST['tags']  ?? '');
-        $extra_data = $_POST['extra_data'] ?? null;
+        $extra_data = sif_clean_json($_POST['extra_data'] ?? null);
         $gt_id      = (int)($_POST['gt_id'] ?? 0) ?: null;
         $resp_ids   = json_encode(array_values(array_unique(array_filter(array_map('intval', sif_json_list($_POST['responsavel_ids'] ?? '[]'))))));
+        if ($id) {
+            $prev = sif_blog_load($pdo, $id);
+            // Sem gt_id no envio: mantém o grupo atual
+            if (!isset($_POST['gt_id']) && $prev) $gt_id = (int)($prev['gt_id'] ?? 0) ?: null;
+            // Só quem gerencia o blog (ou é responsável pelo grupo do post) muda a lista de responsáveis
+            if ($prev && !sif_blog_full() && !sif_blog_gt_allowed($prev['gt_id'] ?? null)) $resp_ids = $prev['responsavel_ids'] ?: '[]';
+        }
 
         // Permissão: post novo → precisa poder publicar no grupo escolhido;
         // edição → precisa poder editar o post (e, se mudar o grupo, o novo também)
@@ -249,7 +257,7 @@ if ($method === 'POST') {
                 
                 // Delete old image file if it exists
                 if ($oldPost && !empty($oldPost['image_url']) && file_exists($oldPost['image_url'])) {
-                    @unlink($oldPost['image_url']);
+                    sif_safe_unlink($oldPost['image_url']);
                 }
                 
                 $stmt = $pdo->prepare("UPDATE blog_posts SET title=?, content=?, tags=?, slug=?, image_url=?, extra_data=?, gt_id=?, responsavel_ids=?, updated_at=NOW() WHERE id=?");
@@ -270,7 +278,8 @@ if ($method === 'POST') {
         echo json_encode(["success" => true, "slug" => $slug]);
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Erro ao salvar post: " . $e->getMessage()]);
+        error_log('[sif-api] blog: ' . $e->getMessage());
+        echo json_encode(["success" => false, "error" => "Erro ao salvar o post."]);
     }
     exit;
 }
@@ -302,7 +311,7 @@ if ($method === 'DELETE') {
             
             // Remove a imagem de capa
             if (!empty($post['image_url']) && file_exists($post['image_url'])) {
-                @unlink($post['image_url']);
+                sif_safe_unlink($post['image_url']);
             }
 
             // Remove as imagens do conteúdo (imagens do editor)
@@ -312,7 +321,7 @@ if ($method === 'DELETE') {
                     foreach ($matches[1] as $imgUrl) {
                         // Only delete if it's a local upload (starts with uploads/)
                         if (strpos($imgUrl, 'uploads/') === 0 && file_exists($imgUrl)) {
-                            @unlink($imgUrl);
+                            sif_safe_unlink($imgUrl);
                         }
                     }
                 }
@@ -331,7 +340,8 @@ if ($method === 'DELETE') {
         }
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Erro ao excluir post: " . $e->getMessage()]);
+        error_log('[sif-api] blog: ' . $e->getMessage());
+        echo json_encode(["success" => false, "error" => "Erro ao excluir o post."]);
     }
     exit;
 }

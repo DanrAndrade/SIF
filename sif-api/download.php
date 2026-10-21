@@ -11,17 +11,23 @@ if (!sif_can('candidates')) {
 
 // 2. SEGURANÇA: Limpa o nome do arquivo para evitar invasão (Path Traversal)
 // O basename impede que alguém tente baixar "../db.php"
-$file = basename($_GET['file']);
+$file = basename((string)($_GET['file'] ?? ''));
+if ($file === '' || !preg_match('/^[A-Za-z0-9._-]+\.(pdf|docx?)$/i', $file)) {
+    http_response_code(400);
+    header('Content-Type: text/plain; charset=utf-8');
+    die('Arquivo inválido.');
+}
 
 // Currículos novos ficam em uploads/cvs/ (protegida). Fallback para uploads/
-// raiz cobre currículos antigos cadastrados antes da mudança.
+// raiz cobre currículos antigos cadastrados antes da mudança (o .htaccess
+// bloqueia o acesso direto a eles).
 $filepath = 'uploads/cvs/' . $file;
-if (!file_exists($filepath)) {
+if (!is_file($filepath)) {
     $filepath = 'uploads/' . $file;
 }
 
 // 3. Verifica se o arquivo existe e entrega
-if (file_exists($filepath)) {
+if (is_file($filepath)) {
     // Define os cabeçalhos para forçar o download
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream'); // Tipo genérico binário

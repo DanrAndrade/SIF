@@ -7,9 +7,11 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     if (isset($_GET['slug'])) {
-        $stmt = $pdo->prepare("SELECT * FROM gt WHERE slug = ?");
+        $stmt = $pdo->prepare("SELECT * FROM gt WHERE slug = ?" . (sif_is_admin() ? '' : ' AND active = 1'));
         $stmt->execute([$_GET['slug']]);
-        echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
+        $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$item) { http_response_code(404); echo json_encode(['error' => 'Não encontrado']); exit; }
+        echo json_encode($item);
     } else {
         $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin(); // itens ocultos só com login
         if ($adminMode) {
@@ -26,7 +28,7 @@ if ($method === 'POST') {
 
     if (isset($_POST['toggle_active'])) {
         $id     = $_POST['id']     ?? null;
-        $active = $_POST['active'] ?? 1;
+        $active = ((int)($_POST['active'] ?? 1)) ? 1 : 0;
         if (!$id) {
             echo json_encode(["success" => false, "error" => "ID não informado."]);
             exit;
@@ -54,7 +56,7 @@ if ($method === 'POST') {
     $id               = $_POST['id']               ?? null;
     $slug             = $_POST['slug']             ?? '';
     $title            = $_POST['title']            ?? '';
-    $description      = $_POST['description']      ?? '';
+    $description      = sif_clean_html($_POST['description']      ?? '');
     $icon             = $_POST['icon']             ?? 'Target';
     $color            = $_POST['color']            ?? '#059669';
     $bg_color         = $_POST['bg_color']         ?? '#ECFDF5';
@@ -63,7 +65,7 @@ if ($method === 'POST') {
     $active           = isset($_POST['active']) ? (int)$_POST['active'] : 1;
     // Na edição, se o formulário não mandar 'active', mantém o estado atual (não republica item oculto)
     $activeUpd  = isset($_POST['active']) ? (int)$_POST['active'] : null;
-    $extra_data       = $_POST['extra_data']       ?? null;
+    $extra_data       = sif_clean_json($_POST['extra_data']       ?? null);
 
     $image_url = uploadGtImage($_FILES['image'] ?? null);
 

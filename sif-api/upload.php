@@ -1,6 +1,8 @@
 <?php
 require_once 'db.php';
-require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
+require_once 'api_guard.php';
+// Envio de arquivos: só quem tem alguma área do painel liberada
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !sif_is_superadmin() && !(sif_user()['modules'] ?? []) && !(sif_user()['gt_ids'] ?? [])) sif_deny(); // decodifica envios do front + exige login para gravar
 require_once 'image_utils.php';
 
 // Endpoint dedicado para upload de imagens de dentro do editor de texto (Quill)
@@ -103,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         http_response_code(500);
         echo json_encode([
             "success" => false, 
-            "message" => "Erro no servidor: " . $e->getMessage()
+            "message" => "Erro no servidor ao salvar a imagem."
         ]);
     }
     exit;

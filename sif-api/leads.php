@@ -27,6 +27,13 @@ elseif ($method === 'POST') {
     } 
     // PÚBLICO: Enviar nova mensagem (formulário do site)
     else {
+        // Limite por IP: até 8 mensagens por hora (evita spam em massa)
+        if (sif_attempts($pdo, 'lead', sif_client_ip(), 60) >= 8) {
+            http_response_code(429);
+            echo json_encode(['success' => false, 'message' => 'Muitas mensagens seguidas. Tente novamente mais tarde.']);
+            exit;
+        }
+        sif_attempt_add($pdo, 'lead', sif_client_ip());
         // Valida e limita o tamanho dos campos (evita lead vazio e erro de
         // "campo grande demais" no banco)
         $f = fn($k, $max) => mb_substr(trim((string)($data[$k] ?? '')), 0, $max);

@@ -1,6 +1,8 @@
 <?php
 require_once 'db.php';
-require_once 'api_guard.php'; // decodifica envios do front + exige login para gravar
+require_once 'api_guard.php';
+// Envio de arquivos: só quem tem alguma área do painel liberada
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && !sif_is_superadmin() && !(sif_user()['modules'] ?? []) && !(sif_user()['gt_ids'] ?? [])) sif_deny(); // decodifica envios do front + exige login para gravar
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
