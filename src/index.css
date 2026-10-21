@@ -394,3 +394,20 @@ body { background-color: #f6f8f7; }
   .sif-section { @apply py-20 md:py-28; }
   .sif-container { @apply max-w-7xl mx-auto px-6 md:px-10; }
 }
+
+/* ─── PAINEL: visual 2ª etapa ──────────────────────────────────────────
+   Rótulos, etiquetas e títulos do painel sem CAIXA-ALTA e sem letras
+   minúsculas demais (antes: 9–10px espaçados), mais fáceis de ler.
+   Exceção: elementos com data-keep-style (ex.: prévia do estilo do título). */
+.sif-admin .uppercase:not([data-keep-style]) { text-transform: none; letter-spacing: normal; }
+.sif-admin .text-\[9px\]:not([data-keep-style])  { font-size: 11px; }
+.sif-admin .text-\[10px\]:not([data-keep-style]) { font-size: 12px; }
+.sif-admin .font-black:not([data-keep-style]) { font-weight: 700; }
+.sif-admin input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):focus,
+.sif-admin textarea:focus,
+.sif-admin select:focus { outline: none; border-color: #007a3d; box-shadow: 0 0 0 3px rgba(0, 122, 61, .12); }
+.sif-admin-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; }
+
+/* Editor de texto do painel com a mesma fonte do site */
+.sif-admin .ql-editor { font-family: var(--sif-font-sans); font-size: 15px; line-height: 1.65; color: #1f2937; }
+.sif-admin .ql-toolbar.ql-snow, .sif-admin .ql-container.ql-snow { border-color: #e5e7eb; }

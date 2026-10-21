@@ -6,6 +6,7 @@ import ContentSections from '../../components/admin/ContentSections';
 import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../../utils/embrapiiDefaults';
+import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 
 const PAGE_KEY = 'embrapii';
 const TABS = [
@@ -138,14 +139,3 @@ export default function EmbrapiiAdmin() {
   );
 }
 
-function Field({ label, type = 'text', value, onChange, rows = 2 }) {
-  const cls = 'w-full p-2.5 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600';
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      {type === 'textarea'
-        ? <textarea className={`${cls} resize-y`} rows={rows} value={value || ''} onChange={e => onChange(e.target.value)} />
-        : <input className={cls} type="text" value={value || ''} onChange={e => onChange(e.target.value)} />}
-    </div>
-  );
-}

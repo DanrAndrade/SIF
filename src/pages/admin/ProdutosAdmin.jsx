@@ -6,6 +6,7 @@ import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
+import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 
 const PAGE_KEY = 'produtos';
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -443,16 +444,3 @@ function SectionEditor({ prefix, config, set, onUploading }) {
   );
 }
 
-// ─── Campo genérico ────────────────────────────────────────────
-function Field({ label, type = 'text', value, onChange, rows = 3 }) {
-  const cls = 'w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#007a3d] focus:ring-2 focus:ring-emerald-200';
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      {type === 'textarea'
-        ? <textarea className={`${cls} resize-y`} rows={rows} value={value} onChange={e => onChange(e.target.value)} />
-        : <input className={cls} type="text" value={value} onChange={e => onChange(e.target.value)} />
-      }
-    </div>
-  );
-}

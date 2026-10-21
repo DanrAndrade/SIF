@@ -18,11 +18,11 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
           negativo + margem negativa + padding de mesmo valor faz a barra colar
           na borda de cima de verdade, cobrindo essa margem (sem frestinha de
           conteúdo aparecendo por cima) e sem mudar a posição inicial. */}
-      <div className="sticky -top-4 lg:-top-12 z-30 -mt-4 lg:-mt-12 -mx-4 lg:-mx-12 px-4 lg:px-12 pt-4 lg:pt-12 pb-4 bg-[#f3f4f6] border-b border-gray-200/70">
+      <div className="sticky -top-4 lg:-top-10 z-30 -mt-4 lg:-mt-10 -mx-4 lg:-mx-10 px-4 lg:px-10 pt-4 lg:pt-8 pb-4 bg-[#f4f6f5]/95 backdrop-blur border-b border-gray-200/70">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">{title}</h2>
               {subtitle && <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>}
             </div>
             {(actions || save) && (
@@ -45,7 +45,7 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
                       key={t.id}
                       type="button"
                       onClick={() => onTabChange?.(t.id)}
-                      className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${active ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
+                      className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all border-b-2 ${active ? 'border-[#007a3d] text-[#007a3d]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
                     >
                       {Icon && <Icon size={14} />} {t.label}
                     </button>
@@ -66,14 +66,14 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
 export function SaveStatus({ dirty, savedAt }) {
   if (dirty) {
     return (
-      <span className="text-xs font-bold text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-        <CircleDot size={12} className="text-emerald-600" /> Alterações não salvas
+      <span className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+        <CircleDot size={12} className="text-amber-500" /> Alterações não salvas
       </span>
     );
   }
   if (savedAt) {
     return (
-      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full flex items-center gap-1.5">
         <Check size={14} /> Salvo
       </span>
     );
@@ -88,7 +88,7 @@ export function SaveButton({ onSave, saving, disabled, label = 'Salvar alteraç�
       type={type}
       onClick={onSave}
       disabled={saving || disabled}
-      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#007a3d] text-white text-xs font-bold uppercase tracking-wider shadow-sm hover:bg-[#1B5E20] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#007a3d] text-white text-sm font-semibold shadow-sm hover:bg-[#1B5E20] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
     >
       {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
       {saving ? 'Salvando...' : label}
@@ -101,7 +101,7 @@ export function SecondaryButton({ children, icon: Icon, className = '', ...props
   return (
     <button
       type="button"
-      className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider hover:border-[#007a3d] hover:text-[#007a3d] transition-colors ${className}`}
+      className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-semibold hover:border-[#007a3d] hover:text-[#007a3d] transition-colors ${className}`}
       {...props}
     >
       {Icon && <Icon size={16} />} {children}
@@ -114,7 +114,7 @@ export function PrimaryButton({ children, icon: Icon, className = '', ...props }
   return (
     <button
       type="button"
-      className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#007a3d] text-white text-xs font-bold uppercase tracking-wider shadow-sm hover:bg-[#1B5E20] disabled:opacity-60 transition-colors ${className}`}
+      className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#007a3d] text-white text-sm font-semibold shadow-sm hover:bg-[#1B5E20] disabled:opacity-60 transition-colors ${className}`}
       {...props}
     >
       {Icon && <Icon size={16} />} {children}
@@ -125,12 +125,12 @@ export function PrimaryButton({ children, icon: Icon, className = '', ...props }
 // Card branco padrão para agrupar campos
 export function AdminCard({ title, subtitle, actions, children, className = '' }) {
   return (
-    <section className={`bg-white rounded-xl border border-gray-200 p-6 ${className}`}>
+    <section className={`bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6 md:p-7 ${className}`}>
       {(title || actions) && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <div>
-            {title && <h3 className="text-base font-bold text-gray-800">{title}</h3>}
-            {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+            {title && <h3 className="text-base font-semibold text-gray-900">{title}</h3>}
+            {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>

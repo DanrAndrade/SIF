@@ -4,6 +4,7 @@ import { Save, UploadCloud, Check, Loader2, User } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
+import Field from './kit/Field'; // campo padrão do painel
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 
@@ -127,17 +128,3 @@ export default function PageContactForm({ pageKey, title = 'Contato responsável
   );
 }
 
-function Field({ label, value, onChange, placeholder }) {
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      <input
-        type="text"
-        className="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600"
-        value={value || ''}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}

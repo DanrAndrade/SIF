@@ -7,3 +7,4 @@ export { default as ImageField } from './ImageField';
 export { ConfirmProvider, useConfirm } from './ConfirmDialog';
 export { UnsavedGuardProvider, useUnsavedGuard, useCanLeave } from './UnsavedGuard';
 export { default as useDirty } from './useDirty';
+export { default as Field } from './Field';

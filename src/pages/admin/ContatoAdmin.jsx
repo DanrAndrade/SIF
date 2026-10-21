@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
+import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 const PAGE_KEY = 'contato';
@@ -124,15 +125,3 @@ export default function ContatoAdmin() {
   );
 }
 
-function Field({ label, type = 'text', value, onChange, rows = 2 }) {
-  const cls = "w-full p-2.5 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600";
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      {type === 'textarea'
-        ? <textarea className={`${cls} resize-y`} rows={rows} value={value || ''} onChange={e => onChange(e.target.value)} />
-        : <input className={cls} type="text" value={value || ''} onChange={e => onChange(e.target.value)} />
-      }
-    </div>
-  );
-}

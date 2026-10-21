@@ -1,42 +1,52 @@
-// Módulos do painel = telas do menu lateral. A chave é a mesma da aba
-// (AdminDashboard/TAB_PATHS) e a mesma que o PHP confere (SIF_MODULES no
-// api_guard.php). "usuarios" é só para administradores.
+// Mapa do painel: telas, grupos do menu, endereço no painel e página no site.
+// A chave (tab) é a mesma que o PHP confere (SIF_MODULES no api_guard.php).
+// "inicio" é o resumo (todos veem); "usuarios" é só para administradores.
 export const ADMIN_GROUPS = [
-  { title: 'Gestão', items: [
-    { tab: 'leads',      label: 'Leads / Contato' },
-    { tab: 'candidates', label: 'Candidatos' },
-    { tab: 'usuarios',   label: 'Usuários', adminOnly: true },
+  { title: 'Visão geral', items: [
+    { tab: 'inicio', label: 'Início', path: '/admin/dashboard', always: true },
   ] },
-  { title: 'Site & Institucional', items: [
-    { tab: 'banners',      label: 'Banners Home' },
-    { tab: 'jobs',         label: 'Gerenciar Vagas' },
-    { tab: 'blog',         label: 'Gerenciar Blog' },
-    { tab: 'eventos',      label: 'Eventos' },
-    { tab: 'treinamentos', label: 'Treinamentos' },
-    { tab: 'gt',           label: 'Grupos Temáticos' },
-    { tab: 'projetos',     label: 'Projetos P&D' },
-    { tab: 'embrapii',     label: 'Projetos SIF e EMBRAPII' },
+  { title: 'Atendimento', items: [
+    { tab: 'leads',      label: 'Mensagens de contato', path: '/admin/leads' },
+    { tab: 'candidates', label: 'Candidatos',           path: '/admin/candidatos' },
+    { tab: 'jobs',       label: 'Vagas',                path: '/admin/jobs', site: '/trabalhe-conosco' },
   ] },
-  { title: 'Páginas', items: [
-    { tab: 'home',          label: 'Página Home' },
-    { tab: 'institucional', label: 'Institucional' },
-    { tab: 'associadas',    label: 'Associadas' },
-    { tab: 'produtos',      label: 'Produtos & Serviços' },
-    { tab: 'in_company',    label: 'Trein. In-Company' },
-    { tab: 'contato',       label: 'Página Contato' },
-    { tab: 'rodape',        label: 'Rodapé' },
+  { title: 'Conteúdo', items: [
+    { tab: 'blog',         label: 'Blog',                  path: '/admin/blog', site: '/blog' },
+    { tab: 'eventos',      label: 'Eventos',               path: '/admin/eventos', site: '/eventos' },
+    { tab: 'treinamentos', label: 'Treinamentos',          path: '/admin/treinamentos', site: '/treinamentos' },
+    { tab: 'in_company',   label: 'Treinamentos In-Company', path: '/admin/in-company', site: '/treinamentos-in-company' },
+    { tab: 'gt',           label: 'Grupos Temáticos',      path: '/admin/gt', site: '/grupos-tematicos' },
+    { tab: 'projetos',     label: 'Projetos P&D',          path: '/admin/projetos', site: '/projetos' },
   ] },
-  { title: 'Evento Especial', items: [
-    { tab: 'eincol', label: 'EINCOL' },
+  { title: 'Páginas do site', items: [
+    { tab: 'home',          label: 'Página inicial',         path: '/admin/home', site: '/' },
+    { tab: 'banners',       label: 'Banners da página inicial', path: '/admin/banners', site: '/' },
+    { tab: 'institucional', label: 'Institucional',          path: '/admin/institucional', site: '/institucional' },
+    { tab: 'associadas',    label: 'Empresas associadas',    path: '/admin/associadas', site: '/associadas' },
+    { tab: 'produtos',      label: 'Produtos e serviços',    path: '/admin/produtos', site: '/produtos-servicos' },
+    { tab: 'embrapii',      label: 'Projetos SIF e EMBRAPII', path: '/admin/embrapii', site: '/projetos-sif-embrapii' },
+    { tab: 'contato',       label: 'Contato',                path: '/admin/contato', site: '/contato' },
+    { tab: 'rodape',        label: 'Rodapé',                 path: '/admin/rodape', site: '/' },
+  ] },
+  { title: 'Evento especial', items: [
+    { tab: 'eincol', label: 'EINCOL', path: '/admin/eincol', site: '/eincol' },
+  ] },
+  { title: 'Administração', items: [
+    { tab: 'usuarios', label: 'Usuários e permissões', path: '/admin/usuarios', adminOnly: true },
   ] },
 ];
 
-// Módulos que podem ser liberados para um editor (tudo menos "usuarios")
-export const MODULE_OPTIONS = ADMIN_GROUPS.flatMap(g => g.items.filter(i => !i.adminOnly).map(i => ({ ...i, group: g.title })));
+export const ALL_ITEMS = ADMIN_GROUPS.flatMap(g => g.items.map(i => ({ ...i, group: g.title })));
+export const TAB_PATHS = Object.fromEntries(ALL_ITEMS.map(i => [i.tab, i.path]));
+export const findItem = (tab) => ALL_ITEMS.find(i => i.tab === tab);
+
+// Módulos que podem ser liberados para um editor (tudo menos início e usuários)
+export const MODULE_OPTIONS = ALL_ITEMS.filter(i => !i.adminOnly && !i.always);
 
 // O usuário pode abrir esta tela?
 export function canOpenTab(user, tab) {
   if (!user) return false;
+  if (tab === 'inicio') return true;
   if (user.role === 'admin') return true;
   if (tab === 'usuarios') return false;
   if (tab === 'blog') return user.modules?.includes('blog') || (user.gt_ids?.length > 0) || !!user.blog_author;
@@ -44,6 +54,6 @@ export function canOpenTab(user, tab) {
 }
 
 export function firstAllowedTab(user) {
-  for (const g of ADMIN_GROUPS) for (const i of g.items) if (canOpenTab(user, i.tab)) return i.tab;
+  for (const i of ALL_ITEMS) if (canOpenTab(user, i.tab)) return i.tab;
   return null;
 }

@@ -148,7 +148,8 @@ export default function App() {
           <Route path="/admin"                 element={<AdminLogin />} />
 
           {/* Dashboard → redireciona para leads por padrão */}
-          <Route path="/admin/dashboard"       element={<AdminTab tab="leads" />} />
+          <Route path="/admin/dashboard"       element={<AdminTab tab="inicio" />} />
+          <Route path="/admin/leads"           element={<AdminTab tab="leads" />} />
 
           {/* Módulos específicos */}
           <Route path="/admin/candidatos"      element={<AdminTab tab="candidates" />} />

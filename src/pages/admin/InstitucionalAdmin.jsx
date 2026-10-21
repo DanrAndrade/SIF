@@ -9,6 +9,7 @@ import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
 import TeamManager from './inst/TeamManager';
 import TimelineManager from './inst/TimelineManager';
+import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -580,19 +581,6 @@ function SectionHeader({ cfg, set, prefix }) {
   );
 }
 
-function Field({ label, type = 'text', value, onChange, rows = 2 }) {
-  const cls = "w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#007a3d] focus:ring-2 focus:ring-emerald-200";
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      {type === 'textarea' ? (
-        <textarea className={`${cls} resize-y`} rows={rows} value={value || ''} onChange={e => onChange(e.target.value)} />
-      ) : (
-        <input className={cls} type="text" value={value || ''} onChange={e => onChange(e.target.value)} />
-      )}
-    </div>
-  );
-}
 
 function ImageField({ label, currentUrl, previewUrl, fieldName, onFile, hint }) {
   const displayUrl = previewUrl || (currentUrl ? (currentUrl.startsWith('http') ? currentUrl : getImageUrl(currentUrl)) : '');

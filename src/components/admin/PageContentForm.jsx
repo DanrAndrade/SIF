@@ -4,6 +4,7 @@ import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
+import Field from './kit/Field'; // campo padrão do painel
 
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
 
@@ -99,15 +100,3 @@ export default function PageContentForm({ pageKey, defaults, fields, title = 'Co
   );
 }
 
-function Field({ label, type, value, onChange, rows }) {
-  const cls = "w-full p-2.5 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600";
-  return (
-    <div>
-      <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">{label}</label>
-      {type === 'textarea'
-        ? <textarea className={`${cls} resize-y`} rows={rows} value={value || ''} onChange={e => onChange(e.target.value)} />
-        : <input className={cls} type="text" value={value || ''} onChange={e => onChange(e.target.value)} />
-      }
-    </div>
-  );
-}
