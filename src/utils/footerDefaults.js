@@ -2,8 +2,8 @@
 // Editável em Painel › Páginas › Rodapé (page_configs, chave "footer").
 
 export const FOOTER_COLORS = {
-  verde:    { label: 'Verde SIF escuro (novo)', bg: '#0f3d24' },
-  floresta: { label: 'Floresta',                bg: '#123524' },
+  verde:    { label: 'Verde SIF escuro (novo)', bg: '#092416' },
+  floresta: { label: 'Floresta',                bg: '#0f2e1f' },
   musgo:    { label: 'Verde-musgo',             bg: '#1f3a12' },
   grafite:  { label: 'Grafite (antigo)',        bg: '#1f2937' },
 };

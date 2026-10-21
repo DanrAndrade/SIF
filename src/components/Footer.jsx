@@ -25,8 +25,8 @@ export default function Footer() {
       <div className="w-[95%] max-w-[1600px] rounded-[40px] relative overflow-hidden text-white shadow-2xl" style={{ backgroundColor: footerBg(c) }}>
 
         {/* Brilhos verdes */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#7FBA00] rounded-full blur-[120px] opacity-15 pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-[0.12] pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#7FBA00] rounded-full blur-[120px] opacity-[0.06] pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
 
         <div className="relative z-10 p-8 md:p-16">
 
@@ -36,7 +36,7 @@ export default function Footer() {
             <div className="md:col-span-5 space-y-6">
               <div className="flex items-center gap-2">
                 <Link to="/">
-                    <img src={logoSif} alt="SIF - Sociedade de Investigações Florestais" className="h-12 w-auto object-contain" />
+                    <img src={logoSif} alt="SIF - Sociedade de Investigações Florestais" className="h-12 w-auto object-contain [filter:brightness(1.7)_saturate(1.1)]" />
                 </Link>
               </div>
               {c.about && <p className="text-white/70 leading-relaxed max-w-sm">{c.about}</p>}

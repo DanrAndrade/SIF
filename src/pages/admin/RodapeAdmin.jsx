@@ -72,7 +72,7 @@ export default function RodapeAdmin() {
             </div>
             {cfg.color === 'custom' && (
               <div className="mt-4 flex items-center gap-3">
-                <input type="color" value={/^#[0-9a-f]{6}$/i.test(cfg.custom_bg) ? cfg.custom_bg : '#0f3d24'} onChange={e => set('custom_bg', e.target.value)} className="w-12 h-10 rounded-lg border border-gray-200 cursor-pointer" />
+                <input type="color" value={/^#[0-9a-f]{6}$/i.test(cfg.custom_bg) ? cfg.custom_bg : '#092416'} onChange={e => set('custom_bg', e.target.value)} className="w-12 h-10 rounded-lg border border-gray-200 cursor-pointer" />
                 <Field label="Código da cor (ex.: #0f3d24)" value={cfg.custom_bg} onChange={v => set('custom_bg', v.trim())} />
               </div>
             )}
