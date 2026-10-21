@@ -321,3 +321,13 @@ if ($sif_is_write && sif_is_admin() && isset($sif_script_module[$sif_script])) {
 if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)) {
     sif_ensure_schema($pdo);
 }
+
+// SEO: depois de qualquer gravação de conteúdo no painel, atualiza o índice
+// usado nas metatags, no sitemap.xml e no llms.txt (roda no fim do pedido).
+if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)
+    && !in_array($sif_script, ['upload.php', 'upload_pdf.php', 'upload_video.php', 'session.php', 'login_admin.php', 'users.php'], true)) {
+    register_shutdown_function(function () use ($pdo) {
+        require_once __DIR__ . '/seo_lib.php';
+        sif_seo_write_cache($pdo);
+    });
+}

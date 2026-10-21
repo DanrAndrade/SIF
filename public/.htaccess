@@ -20,6 +20,11 @@ DirectoryIndex index.php index.html
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
+  # SEO gerado do banco: sitemap, robots e resumo para IA (llms.txt)
+  RewriteRule ^sitemap\.xml$ sif-api/sitemap.php [L]
+  RewriteRule ^robots\.txt$ sif-api/robots.php [L]
+  RewriteRule ^llms\.txt$ sif-api/llms.php [L]
+
   # Nunca reescreve chamadas para a API PHP
   RewriteRule ^sif-api/ - [L]
 

@@ -14,10 +14,9 @@
     <meta name="author" content="Sociedade de Investigações Florestais (SIF)" />
     <meta name="theme-color" content="#007a3d" />
 
-    <!-- ⚠️ HOMOLOGAÇÃO: o site está numa subpasta de teste. NÃO deve ser
-         indexado pelo Google enquanto o site antigo estiver no ar (evita
-         conteúdo duplicado). QUANDO MOVER PARA A RAIZ DO DOMÍNIO, troque a
-         linha abaixo por:  <meta name="robots" content="index, follow" /> -->
+    <!-- Robôs de busca: o public/index.php decide sozinho. Na subpasta de
+         homologação fica "noindex"; na raiz do domínio vira "index, follow".
+         Esta linha só vale se o index.php falhar (segurança: não indexa). -->
     <meta name="robots" content="noindex, nofollow" />
 
     <link rel="canonical" href="https://sif.org.br/" />

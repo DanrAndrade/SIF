@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import NoiseOverlay from '../components/ui/NoiseOverlay';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
@@ -27,6 +28,7 @@ export default function BlogPost() {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   usePageTitle(post?.title); // título da aba do navegador / Google
+  useSeo({ description: post?.content, image: post?.image_url ? getImageUrl(post.image_url) : undefined, type: 'article' });
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

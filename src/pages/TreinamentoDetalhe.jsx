@@ -8,12 +8,14 @@ import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, Mes
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import { useSeo } from '../hooks/useSeo';
 import EditablePageContact from '../components/EditablePageContact';
 
 export default function TreinamentoDetalhe() {
   const { slug } = useParams();
   const [training, setTraining] = useState(null);
   usePageTitle(training?.title); // título da aba do navegador / Google
+  useSeo({ description: training?.description, image: training?.image_url ? getImageUrl(training.image_url) : undefined });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 

@@ -8,12 +8,14 @@ import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
+import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
 export default function EventoDetalhe() {
   const { slug } = useParams();
   const [event, setEvent] = useState(null);
   usePageTitle(event?.title); // título da aba do navegador / Google
+  useSeo({ description: event?.description, image: event?.image_url ? getImageUrl(event.image_url) : undefined });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 

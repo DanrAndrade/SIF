@@ -27,7 +27,7 @@ Options -Indexes
 </FilesMatch>
 
 # Arquivos internos incluídos pelos endpoints (não são endpoints)
-<FilesMatch "^(db|api_guard|image_utils)\.php$">
+<FilesMatch "^(db|api_guard|image_utils|seo_lib)\.php$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

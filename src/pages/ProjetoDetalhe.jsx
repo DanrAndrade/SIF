@@ -7,6 +7,8 @@ import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, Chevro
 import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
+import { useSeo } from '../hooks/useSeo';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
@@ -21,6 +23,8 @@ export default function ProjetoDetalhe() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [projeto, setProjeto] = useState(null);
+  usePageTitle(projeto?.title);
+  useSeo({ description: projeto?.description, image: projeto?.image_url ? getImageUrl(projeto.image_url) : undefined });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [projSections, setProjSections] = useState(null);
@@ -34,7 +38,7 @@ export default function ProjetoDetalhe() {
           navigate('/projetos');
         } else {
           setProjeto(data);
-          document.title = `SIF | ${data.title}`;
+
           try {
             const extra = data.extra_data ? JSON.parse(data.extra_data) : {};
             const s = extra.sections;
