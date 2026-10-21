@@ -18,8 +18,6 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const cta2Link    = config.cta2_link   || '/projetos';
   const scrollLabel = config.scroll_label|| 'Conheça';
   // 3º botão (2ª etapa): "Trabalhe Conosco". Texto vazio no painel = sem botão.
-  const cta3Label   = config.cta3_label ?? 'Trabalhe Conosco';
-  const cta3Link    = config.cta3_link  || '/trabalhe-conosco';
   const gFrom = gradient?.from || '#007a3d';
   const gTo   = gradient?.to   || '#1B5E20';
   // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
@@ -66,11 +64,6 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                         <Button href={cta2Link} variant="glass" className="w-full sm:w-auto">
                             {cta2Label}
                         </Button>
-                        {cta3Label && (
-                          <Button href={cta3Link} variant="glass" className="w-full sm:w-auto">
-                              {cta3Label}
-                          </Button>
-                        )}
                     </div>
                 </div>
 

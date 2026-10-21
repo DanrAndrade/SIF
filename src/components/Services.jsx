@@ -55,8 +55,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
   const sectionTitle = config.section_title || 'Nossos Serviços';
 
   return (
-    <section ref={sectionRef} className="relative w-full py-16 md:py-0 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-[#f8f9fa] z-20">
-        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+    <section ref={sectionRef} className="relative w-full py-16 md:py-0 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-transparent z-20">
         
         <div className="container mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
             <div className="max-w-xl">

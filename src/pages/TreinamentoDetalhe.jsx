@@ -48,7 +48,7 @@ export default function TreinamentoDetalhe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -56,7 +56,7 @@ export default function TreinamentoDetalhe() {
 
   if (!training) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Treinamento não encontrado</h2>
         <Button href="/treinamentos" variant="primary" className="rounded-xl">Voltar para Treinamentos</Button>
       </div>
@@ -64,7 +64,7 @@ export default function TreinamentoDetalhe() {
   }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO PREMIUM COM CONTRASTE */}
@@ -210,7 +210,7 @@ export default function TreinamentoDetalhe() {
       </section>
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/treinamentos */}
-      <section className="py-16 bg-[#f8f9fa]">
+      <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="treinamentos" fallbackTitle="Fale com o responsável" />
         </div>

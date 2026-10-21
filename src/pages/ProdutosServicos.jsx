@@ -158,7 +158,7 @@ export default function ProdutosServicos() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} scrollTargetId="produtos-content" />
@@ -220,7 +220,7 @@ export default function ProdutosServicos() {
       </main>
 
       {/* ── CARD GERMINAR: sempre visível no final, leva para Trabalhe Conosco ── */}
-      <section className="pb-24 bg-[#f8f9fa]">
+      <section className="pb-24 bg-transparent">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#007a3d] via-[#1a3d20] to-[#0f1f11] p-10 md:p-16 shadow-xl">
             <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />

@@ -115,7 +115,7 @@ export default function Projetos() {
   const concluidos = projetos.filter(p => !isProjetoAtivo(p));
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       <EditablePageHero pageKey="projetos" defaults={HERO_DEFAULTS} scrollTargetId="projetos-lista" />
@@ -123,7 +123,7 @@ export default function Projetos() {
       <main className="flex-grow">
 
         {/* ── PROJETOS EM ANDAMENTO ── */}
-        <section id="projetos-lista" className="py-24 bg-[#f8f9fa] scroll-mt-24">
+        <section id="projetos-lista" className="py-24 bg-transparent scroll-mt-24">
           <div className="container mx-auto px-6 max-w-7xl">
             <SectionTitle title="Projetos em" accent="Andamento" />
 

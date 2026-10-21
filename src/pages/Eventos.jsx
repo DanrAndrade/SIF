@@ -139,7 +139,7 @@ export default function Eventos() {
   const concluidos = events.filter(ev => !isEventoAtivo(ev));
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       <EditablePageHero pageKey="eventos" defaults={HERO_DEFAULTS} scrollTargetId="eventos-content" />
@@ -148,7 +148,7 @@ export default function Eventos() {
 
         {/* ── CARD DESTAQUE EINCOL (some quando desativado no admin) ── */}
         {eincolActive && (
-          <section className="pt-24 pb-12 bg-[#f8f9fa] scroll-mt-24">
+          <section className="pt-24 pb-12 bg-transparent scroll-mt-24">
             <div className="container mx-auto px-6 max-w-4xl">
               <Link
                 to="/eincol"
@@ -181,7 +181,7 @@ export default function Eventos() {
         )}
 
         {/* ── EVENTOS EM ANDAMENTO / PRÓXIMOS ── */}
-        <section className={`${eincolActive ? 'pt-12 pb-24' : 'py-24'} bg-[#f8f9fa] scroll-mt-24`}>
+        <section className={`${eincolActive ? 'pt-12 pb-24' : 'py-24'} bg-transparent scroll-mt-24`}>
           <div className="container mx-auto px-6 max-w-7xl">
             <SectionTitle title="Eventos em" accent="Andamento" />
 

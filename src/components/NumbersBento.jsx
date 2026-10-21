@@ -122,10 +122,11 @@ export default function NumbersBento({ config }) {
   return (
     <section ref={ref} className="py-16 md:py-24 px-4">
       <div className="max-w-[1280px] mx-auto">
-        {(config.tag || config.title) && (
+        {(config.tag || config.title || config.subtitle) && (
           <div className="mb-10 md:mb-14 max-w-3xl">
             {config.tag && <span className="text-[#007a3d] font-bold uppercase tracking-widest text-xs mb-3 block">{config.tag}</span>}
             {config.title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] leading-tight">{config.title}</h2>}
+            {config.subtitle && <p className="mt-4 text-gray-500 text-base md:text-lg leading-relaxed">{config.subtitle}</p>}
           </div>
         )}
         {(() => {

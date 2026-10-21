@@ -34,7 +34,7 @@ export default function ProjetosEmbrapii() {
   const shownProjects = projetos.slice(0, Number(c.projects_limit) || 6);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       <EditablePageHero pageKey="embrapii" defaults={EMBRAPII_HERO_DEFAULTS} scrollTargetId="embrapii-intro" />
 

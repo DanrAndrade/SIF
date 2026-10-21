@@ -72,7 +72,7 @@ export default function Partners() {
   const duplicatedPartners = [...partners, ...partners];
 
   return (
-      <div className="wrapper my-40 border-y border-gray-100 bg-[#f8f9fa] py-16 relative overflow-hidden">
+      <div className="wrapper my-40 border-y border-gray-100 bg-transparent py-16 relative overflow-hidden">
 
         <div className="text-center mb-14">
             <h3 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-400">

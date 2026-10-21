@@ -54,7 +54,7 @@ export default function GrupoTematicoDetalhe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function GrupoTematicoDetalhe() {
 
   if (!gt || !gt.title) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Grupo Temático não encontrado</h2>
         <Button href="/grupos-tematicos" variant="primary" className="rounded-xl">Ver todos os Grupos</Button>
       </div>
@@ -73,7 +73,7 @@ export default function GrupoTematicoDetalhe() {
   const gtColor = gt.color || '#007a3d';
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO — foto se houver, senão degradê escuro */}
@@ -164,7 +164,7 @@ export default function GrupoTematicoDetalhe() {
       <GtBlogPosts gtId={gt.id} />
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/gt */}
-      <section className="py-16 bg-[#f8f9fa]">
+      <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="gt" fallbackTitle="Fale com o responsável" override={gtResponsavel(gt)} />
         </div>

@@ -97,7 +97,7 @@ export default function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -105,7 +105,7 @@ export default function BlogPost() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 text-center">
+      <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4 text-center">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Artigo não encontrado</h2>
         <p className="text-gray-500 mb-6 max-w-md">{error || 'Este artigo não está mais disponível.'}</p>
         <Button href="/blog" variant="primary" className="rounded-xl">Voltar ao Blog</Button>
@@ -120,7 +120,7 @@ export default function BlogPost() {
   } catch { /* extra_data inválido — ignora */ }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO — foto da matéria se houver, senão degradê escuro */}

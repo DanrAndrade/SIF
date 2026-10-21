@@ -55,7 +55,7 @@ export default function GruposTematicos() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       
       <EditablePageHero pageKey="gt" defaults={HERO_DEFAULTS} scrollTargetId="gt-content" />

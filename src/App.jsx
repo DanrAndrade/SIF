@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import BackgroundPattern from './components/ui/BackgroundPattern';
 import { AuthProvider } from './contexts/AuthContext';
 import { API_BASE_URL } from './apiConfig';
 
@@ -79,9 +80,16 @@ const AdminTab = ({ tab }) => (
 );
 
 // =============================================================
+// Padronagem de fundo só no site público (o painel tem fundo próprio)
+function PublicBackground() {
+  const { pathname } = useLocation();
+  return pathname.startsWith('/admin') ? null : <BackgroundPattern />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <PublicBackground />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
 

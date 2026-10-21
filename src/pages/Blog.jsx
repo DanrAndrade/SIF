@@ -52,7 +52,7 @@ export default function Blog() {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       <EditablePageHero pageKey="blog" defaults={HERO_DEFAULTS} scrollTargetId="blog-posts" />

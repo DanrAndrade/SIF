@@ -38,7 +38,7 @@ export default function TreinamentoInCompanyDetalhe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -46,7 +46,7 @@ export default function TreinamentoInCompanyDetalhe() {
 
   if (!training) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Treinamento não encontrado</h2>
         <Button href="/treinamentos-in-company" variant="primary" className="rounded-xl">Voltar para Treinamentos In-Company</Button>
       </div>
@@ -54,7 +54,7 @@ export default function TreinamentoInCompanyDetalhe() {
   }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO */}
@@ -138,7 +138,7 @@ export default function TreinamentoInCompanyDetalhe() {
         </div>
       </section>
 
-      <section className="py-16 bg-[#f8f9fa]">
+      <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="treinamentos_in_company" fallbackTitle="Fale com o responsável" />
         </div>

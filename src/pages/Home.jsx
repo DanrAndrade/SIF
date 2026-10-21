@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { resolveGradient, TEXTURES } from '../utils/homeVisual';
 import NumbersBento from '../components/NumbersBento';
+import JobsCtaSection from '../components/JobsCtaSection';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
@@ -113,7 +114,7 @@ export default function Home() {
     const noisePattern = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAGFBMVEUAAAA5OTkAAABMTExERERmZmYzMzNmZmYAAABVvhyhAAAACHRSTlMAMwAzzP//zMzMzHJLEwAAACVJREFUOMtjYCAJcDEwMDBxMQAJUEGrcQqhqXHBGk200UYbsRoAAGOAAwD314OTAAAAAElFTkSuQmCC")`;
 
     return (
-        <div className="sif-app font-sans text-[#1f2937] bg-[#f8f9fa] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
+        <div className="sif-app sif-page font-sans text-[#1f2937] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
           <Navbar 
             scrolled={scrolled} 
             mobileMenuOpen={mobileMenuOpen} 
@@ -167,6 +168,9 @@ export default function Home() {
 
           {/* --- PARCEIROS --- */}
           <Partners />
+
+          {/* --- TRABALHE CONOSCO (card para a página de vagas) --- */}
+          <JobsCtaSection config={config.jobs_cta} />
 
           {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
       <div className="py-14 px-0 md:py-24 md:px-6 bg-white">

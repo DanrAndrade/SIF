@@ -49,7 +49,7 @@ export default function EventoDetalhe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -57,7 +57,7 @@ export default function EventoDetalhe() {
 
   if (!event || !event.title) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Evento não encontrado</h2>
         <Button href="/eventos" variant="primary" className="rounded-xl font-bold tracking-tight">Voltar para Eventos</Button>
       </div>
@@ -65,7 +65,7 @@ export default function EventoDetalhe() {
   }
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* HERO PREMIUM COM CONTRASTE */}
@@ -207,7 +207,7 @@ export default function EventoDetalhe() {
       </section>
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/eventos */}
-      <section className="py-16 bg-[#f8f9fa]">
+      <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="eventos" fallbackTitle="Fale com o responsável" />
         </div>

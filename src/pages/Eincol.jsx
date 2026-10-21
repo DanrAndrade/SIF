@@ -50,7 +50,7 @@ export default function Eincol() {
   ].filter(p => p.url);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       {/* ═══════════════════════════════════════
@@ -168,7 +168,7 @@ export default function Eincol() {
 
         {/* SEÇÃO: PDFs PARA DOWNLOAD */}
         {pdfs.length > 0 && (
-          <section className="py-16 bg-[#f8f9fa] border-t border-gray-100">
+          <section className="py-16 bg-transparent border-t border-gray-100">
             <div className="container mx-auto px-6 max-w-4xl">
               <h2 className="sif-title sif-title-strong text-2xl tracking-tighter text-[#1f2937] mb-8">
                 Downloads

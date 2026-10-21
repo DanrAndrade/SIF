@@ -21,7 +21,7 @@ export default function GtBlogPosts({ gtId, limit = 6 }) {
   const fmt = (d) => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
   return (
-    <section className="py-16 bg-[#f8f9fa]">
+    <section className="py-16 bg-transparent">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>

@@ -102,7 +102,7 @@ export default function Jobs() {
   };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
       
       {/* DEFINIÇÃO DE GRADIENTES SIF */}
@@ -152,7 +152,7 @@ export default function Jobs() {
           </div>
 
           {/* LISTA VAGAS */}
-          <div id="jobs-section" className="py-24 bg-[#f8f9fa] scroll-mt-32">
+          <div id="jobs-section" className="py-24 bg-transparent scroll-mt-32">
              <div className="container mx-auto px-6 max-w-6xl">
                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-gray-100 pb-10 gap-8">
                     <div>

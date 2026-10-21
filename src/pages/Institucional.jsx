@@ -388,7 +388,7 @@ export default function Institucional() {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
@@ -464,7 +464,7 @@ export default function Institucional() {
         </div>
       </div>
 
-      <div className="bg-[#f8f9fa] pt-20">
+      <div className="bg-transparent pt-20">
         {/* NOSSA GENTE — some inteira quando não há ninguém visível */}
         <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
@@ -482,7 +482,7 @@ export default function Institucional() {
         </div>
         
         {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
-        <div id="areas-atuacao" className="bg-[#f8f9fa] py-32 border-t border-gray-50 overflow-hidden">
+        <div id="areas-atuacao" className="bg-transparent py-32 border-t border-gray-50 overflow-hidden">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
                     <div className="w-full max-w-2xl text-left">
@@ -535,7 +535,7 @@ export default function Institucional() {
         </div>
 
         {/* ESTATUTO E NORMAS */}
-        <div id="estatutos-normas" className="bg-[#f8f9fa] py-24 md:py-32 border-t border-gray-100">
+        <div id="estatutos-normas" className="bg-transparent py-24 md:py-32 border-t border-gray-100">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
 
                 {/* Cabeçalho */}

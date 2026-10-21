@@ -19,7 +19,7 @@ export default function Footer() {
   ].filter(([k]) => c[k]);
 
   return (
-    <footer className="bg-[#f8f9fa] pt-0 pb-8 flex justify-center w-full">
+    <footer className="bg-transparent pt-0 pb-8 flex justify-center w-full">
 
       {/* Container Principal */}
       <div className="w-[95%] max-w-[1600px] rounded-[40px] relative overflow-hidden text-white shadow-2xl" style={{ backgroundColor: footerBg(c) }}>

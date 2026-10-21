@@ -4,7 +4,7 @@ import { GRADIENT_PRESETS, TEXTURES, resolveGradient } from '../../utils/homeVis
 import axios from 'axios';
 import {
   Save, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3,
+  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase,
 } from 'lucide-react';
 import { Input, TextArea } from '../ui/FormElements';
 import Button from '../ui/Button';
@@ -27,8 +27,6 @@ const DEFAULTS = {
     cta1_link: '/contato',
     cta2_label: 'Nossos Projetos',
     cta2_link: '/projetos',
-    cta3_label: 'Trabalhe Conosco',
-    cta3_link: '/trabalhe-conosco',
     scroll_label: 'Conheça',
   },
   performance: {
@@ -79,12 +77,23 @@ const DEFAULTS = {
     enabled: false,
     tag: 'A SIF em números',
     title: 'Ciência florestal que gera resultado',
+    subtitle: '',
     cards: [
       { prefix: '+', number: '50', unit: 'anos', label: 'de pesquisa florestal aplicada, desde 1974', image: '', link: '/institucional' },
       { prefix: '+', number: '28', unit: 'empresas', label: 'associadas', image: '', link: '/associadas' },
       { prefix: '', number: '', unit: '', label: '', image: '', link: '' },
       { prefix: '', number: '', unit: '', label: '', image: '', link: '' },
     ],
+  },
+  // Seção "Trabalhe Conosco" (abaixo das empresas associadas)
+  jobs_cta: {
+    enabled: true,
+    tag: 'Trabalhe Conosco',
+    title: 'Faça parte da SIF',
+    text: 'Vagas na SIF, nas empresas associadas e no programa Germinar.',
+    btn_label: 'Ver vagas abertas',
+    link: '/trabalhe-conosco',
+    image: '',
   },
   faq_side: {
     title: 'Ainda tem<br/>Dúvidas?',
@@ -128,6 +137,7 @@ const TABS = [
   { id: 'about',       label: 'Sobre Nós',    icon: FileText },
   { id: 'services',    label: 'Serviços',     icon: LayoutGrid },
   { id: 'process',     label: 'Explore Recursos', icon: Compass },
+  { id: 'jobs_cta',    label: 'Trabalhe Conosco', icon: Briefcase },
   { id: 'faq',         label: 'FAQ',          icon: HelpCircle },
 ];
 
@@ -237,6 +247,9 @@ export default function AdminHome() {
       {activeTab === 'process' && (
         <ProcessForm config={config.process} update={(p) => updateSection('process', p)} onFile={handleFile} pendingPreviews={pendingPreviews} />
       )}
+      {activeTab === 'jobs_cta' && (
+        <JobsCtaForm config={config.jobs_cta} update={(p) => updateSection('jobs_cta', p)} />
+      )}
       {activeTab === 'faq' && (
         <div>
           <p className="text-xs text-gray-500 mb-4">O bloco lateral é salvo pelo botão <strong>Salvar alterações</strong> do topo. Cada pergunta tem o próprio botão de salvar.</p>
@@ -267,8 +280,6 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
         <Input label="Link Botão 1" value={config.cta1_link} onChange={(e) => update({ cta1_link: e.target.value })} />
         <Input label="Texto Botão 2" value={config.cta2_label} onChange={(e) => update({ cta2_label: e.target.value })} />
         <Input label="Link Botão 2" value={config.cta2_link} onChange={(e) => update({ cta2_link: e.target.value })} />
-        <Input label="Texto Botão 3 (vazio = sem botão)" value={config.cta3_label} onChange={(e) => update({ cta3_label: e.target.value })} />
-        <Input label="Link Botão 3" value={config.cta3_link} onChange={(e) => update({ cta3_link: e.target.value })} />
       </div>
 
       <ImageField
@@ -358,6 +369,7 @@ function NumbersForm({ config = {}, update }) {
         <Input label="Etiqueta (acima do título)" value={config.tag || ''} onChange={(e) => update({ tag: e.target.value })} />
         <Input label="Título do bloco" value={config.title || ''} onChange={(e) => update({ title: e.target.value })} />
       </div>
+      <Input label="Frase abaixo do título (opcional)" value={config.subtitle || ''} onChange={(e) => update({ subtitle: e.target.value })} />
       <p className="text-xs text-gray-500">
         Os 4 primeiros cards formam o mosaico (grande, dois empilhados e um alto). O número conta do zero até o valor quando o visitante chega na seção —
         use vírgula para decimais (ex.: <strong>10,73</strong>). Card sem número não aparece.
@@ -394,6 +406,37 @@ function NumbersForm({ config = {}, update }) {
         <button type="button" onClick={addCard} className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-700 text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2">
           <Plus size={18} /> Adicionar card
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── TRABALHE CONOSCO (seção da Home) ─────────────────────────
+function JobsCtaForm({ config = {}, update }) {
+  return (
+    <div className="space-y-6">
+      <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer ${config.enabled !== false ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`}>
+        <input type="checkbox" checked={config.enabled !== false} onChange={(e) => update({ enabled: e.target.checked })} className="w-5 h-5 accent-[#007a3d]" />
+        <span>
+          <span className="block text-sm font-bold text-gray-800">{config.enabled !== false ? 'Seção visível na Home' : 'Seção desligada'}</span>
+          <span className="block text-xs text-gray-500">Card abaixo das empresas associadas que leva para a página de vagas. Mostra sozinho quantas vagas estão abertas.</span>
+        </span>
+      </label>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Etiqueta" value={config.tag || ''} onChange={(e) => update({ tag: e.target.value })} />
+            <Input label="Título" value={config.title || ''} onChange={(e) => update({ title: e.target.value })} />
+          </div>
+          <Input label="Texto" value={config.text || ''} onChange={(e) => update({ text: e.target.value })} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Texto do botão" value={config.btn_label || ''} onChange={(e) => update({ btn_label: e.target.value })} />
+            <Input label="Link" value={config.link || ''} onChange={(e) => update({ link: e.target.value })} placeholder="/trabalhe-conosco" />
+          </div>
+        </div>
+        <KitImageField label="Foto (opcional)" value={config.image}
+          onFile={(file) => uploadImageNow(file).then(url => url && update({ image: url })).catch(toastError)}
+          onRemove={() => update({ image: '' })} aspect="h-48" hint="Envia na hora; Salvar publica." />
       </div>
     </div>
   );

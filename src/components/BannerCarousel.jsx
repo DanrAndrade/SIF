@@ -102,7 +102,7 @@ export default function BannerCarousel() {
     // mt-16: Adiciona espaço em cima (descola da sessão anterior)
     // mb-8: Reduz o espaço em baixo (aproxima do Quem Somos)
     // py-10: Padding interno equilibrado
-    <section className="w-full mt-16 mb-8 py-10 bg-[#f8f9fa] relative z-20"> 
+    <section className="w-full mt-16 mb-8 py-10 bg-transparent relative z-20"> 
       
       {/* TÍTULO PADRÃO PARTNERS */}
       <div className="text-center mb-10">

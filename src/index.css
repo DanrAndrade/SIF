@@ -1,3 +1,4 @@
+@import './styles/pattern.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -327,3 +328,40 @@ iframe.ql-video {
 .prose h4 { font-size: 1.15em; font-weight: 700; margin-top: 1.4em; margin-bottom: 0.5em; }
 .prose h5 { font-size: 1.05em; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.4em; color: #1f2937; }
 .prose h6 { font-size: 0.95em; font-weight: 700; margin-top: 1em;   margin-bottom: 0.4em; color: #1f2937; }
+/* ─── FUNDO DAS PÁGINAS: padronagem + destaque no mouse ────────────────
+   A padronagem (pontinhos + folhinha do favicon) fica fixa atrás do site
+   (<BackgroundPattern/>). As páginas usam .sif-page (fundo transparente)
+   para ela aparecer. Perto do mouse a padronagem fica um pouco mais forte. */
+body { background-color: #f6f8f7; }
+.sif-page { background-color: transparent; }
+.sif-bg-pattern,
+.sif-bg-spot {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--sif-pattern);
+  background-size: 360px 360px;
+}
+.sif-bg-pattern { opacity: .2; }
+.sif-bg-spot {
+  opacity: 0; transition: opacity .4s ease;
+  -webkit-mask-image: radial-gradient(circle 240px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 100%);
+          mask-image: radial-gradient(circle 240px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 100%);
+}
+.sif-bg-spot.is-on { opacity: .7; }
+@media (hover: none), (prefers-reduced-motion: reduce) { .sif-bg-spot { display: none; } }
+
+/* Padronagem clara para blocos escuros/verdes */
+.sif-pattern-on-dark { background-image: var(--sif-pattern-light); background-size: 360px 360px; opacity: .07; }
+
+/* ─── SOMBRAS PADRÃO DOS CARDS ─────────────────────────────────────────
+   Cards brancos ganham sombra um pouco mais forte para destacar do fundo. */
+:root {
+  --sif-shadow-card: 0 1px 2px rgba(16, 42, 28, .06), 0 10px 28px -12px rgba(16, 42, 28, .18);
+  --sif-shadow-card-hover: 0 2px 6px rgba(16, 42, 28, .08), 0 22px 44px -16px rgba(16, 42, 28, .28);
+}
+.sif-card { background: #fff; box-shadow: var(--sif-shadow-card); transition: box-shadow .3s ease, transform .3s ease; }
+.sif-card-hover:hover { box-shadow: var(--sif-shadow-card-hover); }
+/* Cards brancos já existentes nas páginas públicas: mesma sombra padrão */
+.sif-page .bg-white.shadow-sm,
+.sif-page .bg-white[class*="rounded-"][class*="border-gray-100"]:not(.shadow-xl):not(.shadow-2xl) { box-shadow: var(--sif-shadow-card); }
+.sif-page .bg-white.shadow-sm:hover,
+.sif-page .bg-white.hover\:shadow-xl:hover { box-shadow: var(--sif-shadow-card-hover); }

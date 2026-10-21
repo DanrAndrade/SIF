@@ -51,7 +51,7 @@ export default function ProjetoDetalhe() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+      <div className="min-h-screen sif-page flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-[#007a3d] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -60,7 +60,7 @@ export default function ProjetoDetalhe() {
   if (!projeto) return null;
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* HEADER SECTION */}
@@ -187,7 +187,7 @@ export default function ProjetoDetalhe() {
       </main>
 
       {/* CONTATO RESPONSÁVEL — configurado em /admin/projetos */}
-      <section className="py-16 bg-[#f8f9fa]">
+      <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
           <EditablePageContact pageKey="projetos" fallbackTitle="Fale com o responsável" />
         </div>

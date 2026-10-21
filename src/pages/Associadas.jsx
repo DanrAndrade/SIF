@@ -132,7 +132,7 @@ export default function Associadas() {
   const heroBgUrl = cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image) : cfg.hero_image;
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* HERO */}
