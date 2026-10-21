@@ -215,3 +215,24 @@ Tudo commitado localmente; **ainda não publicado** na HostGator nem enviado ao 
 
 **Para publicar** (quando o Dan pedir): build + copiar `sif-api/*.php` novos/alterados **sem** `db.php`, `uploads/`, `nossa-gente/`.
 Arquivos PHP novos: `users.php`. Alterados: api_guard, blog, page_content, login_admin, session, leads, candidates, banners, download, jobs, institucional.
+
+## 9. Rodada de ajustes do Dan (21/10/2026) — 13 itens
+
+Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
+
+- **Bento** (`components/NumbersBento.jsx`): mosaico sempre fechado (posição fixa por quantidade), frase abaixo do título, número aceita sufixo ("2,5 mil").
+- **Trabalhe Conosco na Home**: virou seção abaixo das associadas (`components/JobsCtaSection.jsx`, aba "Trabalhe Conosco" no painel da Home). O 3º botão do topo saiu.
+- **Padronagem de fundo**: `styles/pattern.css` (gerado por script a partir do favicon: pontinhos + folhinha) + `components/ui/BackgroundPattern.jsx` (lanterna no mouse, só move um círculo com transform). Páginas usam `.sif-page` (fundo transparente).
+- **Sombras**: `--sif-shadow-card`/`-hover`, classes `.sif-card`, `shadow-card`.
+- **Vídeo no topo da Home**: `sif-api/upload_video.php` (MP4/WebM até 40 MB; `.user.ini` subiu para 45M/50M), `HeroSection` (loop mudo, pausa fora da tela, respeita "menos movimento") + `components/ui/VideoModal.jsx` (YouTube/Vimeo/MP4).
+- **Rodapé** mais escuro (`#092416`).
+- **Páginas de GT montadas por blocos**: `components/sections/sectionTypes.js` (tipos + `PAGE_TEMPLATES` + `withGtDefaults`), `SectionBlocks.jsx` (desenho), `ContentSectionsRenderer.jsx` (layout `page` com faixas e âncoras), `admin/sections/BlockEditors.jsx`. Blocos especiais `gt_intro`/`gt_blog`/`gt_contact`. GT antigo: o texto vira o bloco "Apresentação" ao abrir no painel.
+- **Topo padrão** de detalhe: `components/DetailHero.jsx` (GT, Evento, Treinamento, In-Company, Projeto).
+- **Performance**: axios só no painel (`utils/axiosAdmin.js`; site usa `utils/http.js`), Blog/Post/Login sob demanda, GSAP em arquivo próprio, logos fora do JS, ruído como imagem (`styles/noise.css`), 4 pesos de fonte, cache/compressão (`public/.htaccess`, `public/assets/.htaccess`, `sif-api/.htaccess`).
+- **SEO/GEO**: `sif-api/seo_lib.php` gera `cache/seo_index.json` a cada gravação no painel; `public/index.php` injeta título/descrição/OG/canonical/robots/JSON-LD e um resumo em texto no `#root`; `sitemap.xml`, `robots.txt`, `llms.txt` gerados do banco (rewrites no `public/.htaccess`). Na subpasta de homologação tudo sai como **noindex**; na raiz vira indexável sozinho. No front: `hooks/useSeo.js`.
+- **Segurança/bugs (3 revisões)**: `sif_safe_unlink`, `sif_clean_html`/`sif_clean_json` (HTML limpo ao gravar; no navegador `sanitizeHtml` em `cleanRichHtml`), bloqueio de força bruta (`login_attempts`, migração **v4**), limite em contato/candidatura, item oculto = 404, gravação só da própria origem, `ErrorBoundary`, páginas de detalhe recomeçam ao trocar de slug (`BySlug` no `App.jsx`), uploads do editor de blocos rastreados (`admin/sections/uploadTracker.js`), Quill só repassa mudanças do usuário, importações (equipe/empresas/FAQ) só por botão, falha ao carregar trava o Salvar.
+- **Padrão visual**: tokens no `tailwind.config.js` (`sif-*`, `rounded-card/panel`, `shadow-card`), classes `.sif-eyebrow/.sif-h1/.sif-h2/.sif-section/.sif-container` (index.css), `buttonClass()` no `ui/Button.jsx`. Títulos sem caixa-alta/negrito.
+- **Painel novo**: `utils/adminModules.js` é o mapa único (grupos, rótulos, endereços `TAB_PATHS`, página no site). `/admin/dashboard` agora é o **Início** (`pages/admin/PainelInicio.jsx`); mensagens foram para `/admin/leads`. Sidebar verde por tarefa, barra do topo com "Ver no site", campo único `kit/Field.jsx`.
+
+**Para publicar** (quando o Dan pedir): build + PHP novos `upload_video.php`, `seo_lib.php`, `sitemap.php`, `robots.php`, `llms.php` + todos os PHP alterados (nunca `db.php`, `uploads/`, `nossa-gente/`) + `sif-api/.htaccess`, `sif-api/.user.ini`. O `public/.htaccess` e `public/assets/.htaccess` vão dentro do build.
+**No `db.php` de produção (manual, não é entregue):** liberar origens `localhost` só em ambiente local e, se possível, `ini_set('session.gc_maxlifetime', 86400)` antes do `session_start()`.
