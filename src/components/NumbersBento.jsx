@@ -50,31 +50,37 @@ function CountUp({ number, start }) {
   return <>{shown}</>;
 }
 
-const POS = [
-  'md:col-span-2 md:row-span-2 min-h-[320px] md:min-h-[460px]', // 1: grande
-  'min-h-[200px]',                                               // 2
-  'min-h-[200px]',                                               // 3
-  'md:row-span-2 min-h-[260px] md:min-h-[460px]',               // 4: alto
-];
+// Mosaico SEMPRE fechado (sem buraco), com posição explícita de cada card
+// conforme a quantidade. 4 cards (modelo IBÁ):
+//   [ 1 1 | 2 | 4 ]
+//   [ 1 1 | 3 | 4 ]
+// 3 cards: [1 1 | 2 2] / [1 1 | 3 3]   ·   2 cards: [1 1 | 2 2]   ·   1: largura toda.
+// Do 5º em diante: linhas extras em que os cards dividem a largura igualmente.
+const LAYOUTS = {
+  1: ['md:col-span-4 md:row-span-2'],
+  2: ['md:col-span-2 md:row-span-2', 'md:col-span-2 md:row-span-2'],
+  3: ['md:col-span-2 md:row-span-2', 'md:col-start-3 md:col-span-2 md:row-start-1', 'md:col-start-3 md:col-span-2 md:row-start-2'],
+  4: ['md:col-span-2 md:row-span-2', 'md:col-start-3 md:row-start-1', 'md:col-start-3 md:row-start-2', 'md:col-start-4 md:row-start-1 md:row-span-2'],
+};
+const SIZE = { big: 'min-h-[300px]', small: 'min-h-[200px]' };
+const EXTRA_COLS = { 1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-4' };
 
-function Card({ card, index, start }) {
-  const big = index === 0;
-  const tall = index === 3;
+function Card({ card, index, start, cls: posCls = '', big = false, tall = false }) {
   const content = (
     <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 text-white">
-      <div className={`flex ${big || tall ? 'flex-col items-start' : 'items-end gap-3'} leading-none`}>
-        <span className={`font-bold tracking-tight ${big ? 'text-6xl md:text-8xl' : tall ? 'text-6xl md:text-7xl' : 'text-5xl md:text-6xl'}`}>
+      <div className={`flex ${big || tall ? 'flex-col items-start' : 'flex-wrap items-end gap-x-3 gap-y-1'} leading-none`}>
+        <span className={`font-bold tracking-tight ${big ? 'text-6xl md:text-8xl' : tall ? 'text-6xl md:text-7xl' : 'text-4xl md:text-5xl'}`}>
           {card.prefix}<CountUp number={card.number} start={start} />
         </span>
         {card.unit && (
-          <span className={`font-bold uppercase ${big || tall ? 'text-2xl md:text-4xl mt-2' : 'text-lg md:text-2xl pb-1'}`}>{card.unit}</span>
+          <span className={`font-bold uppercase ${big || tall ? 'text-2xl md:text-4xl mt-2' : 'text-base md:text-xl pb-1'}`}>{card.unit}</span>
         )}
       </div>
       {card.label && <p className={`mt-3 font-medium text-white/90 ${big ? 'text-base md:text-xl max-w-md' : 'text-sm md:text-base'}`}>{card.label}</p>}
     </div>
   );
 
-  const cls = `group relative overflow-hidden rounded-3xl bg-[#1B5E20] ${POS[index] || 'min-h-[220px]'}`;
+  const cls = `group relative overflow-hidden rounded-3xl bg-[#1B5E20] ${posCls} ${big || tall ? SIZE.big : SIZE.small}`;
   const bg = card.image ? (
     <img src={getImageUrl(card.image)} alt="" loading="lazy" decoding="async"
       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -122,14 +128,31 @@ export default function NumbersBento({ config }) {
             {config.title && <h2 className="sif-title text-3xl md:text-5xl text-[#1f2937] leading-tight">{config.title}</h2>}
           </div>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4">
-          {cards.slice(0, 4).map((c, i) => <Card key={i} card={c} index={i} start={start} />)}
-        </div>
-        {cards.length > 4 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {cards.slice(4).map((c, i) => <Card key={i + 4} card={c} index={-1} start={start} />)}
-          </div>
-        )}
+        {(() => {
+          const head = cards.slice(0, 4);
+          const layout = LAYOUTS[head.length];
+          // celular/tablet (2 colunas): o último card ocupa a linha toda se sobrar sozinho
+          const oddSm = (n, i) => (n % 2 === 1 && i === n - 1 ? 'sm:col-span-2' : '');
+          const rest = cards.slice(4);
+          const rows = [];
+          for (let i = 0; i < rest.length; i += 4) rows.push(rest.slice(i, i + 4));
+          return (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-[repeat(2,minmax(220px,auto))] gap-4">
+                {head.map((c, i) => (
+                  <Card key={i} card={c} index={i} start={start}
+                    cls={`${layout[i]} ${oddSm(head.length, i)}`}
+                    big={i === 0} tall={head.length === 4 && i === 3} />
+                ))}
+              </div>
+              {rows.map((row, r) => (
+                <div key={r} className={`grid grid-cols-1 sm:grid-cols-2 ${EXTRA_COLS[row.length]} gap-4 mt-4`}>
+                  {row.map((c, i) => <Card key={i} card={c} index={-1} start={start} cls={oddSm(row.length, i)} />)}
+                </div>
+              ))}
+            </>
+          );
+        })()}
       </div>
     </section>
   );
