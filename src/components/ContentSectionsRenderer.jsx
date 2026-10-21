@@ -1,123 +1,64 @@
-import { useState } from 'react';
-import { FileText } from 'lucide-react';
-import { getImageUrl, cleanRichHtml } from '../apiConfig';
+import React from 'react';
 import { visibleSections, isSectionEmpty } from './sections/sectionTypes';
-import SectionTitle from './sections/SectionTitle';
-import LogoCarousel from './sections/LogoCarousel';
+import { BLOCKS } from './sections/SectionBlocks';
 
-// Carrossel de logos (patrocinadores, apoio, parceiros...)
-function LogosSection({ section }) {
-  const imgs = Array.isArray(section.images) ? section.images.filter(Boolean) : [];
-  if (!imgs.length) return null;
-  return (
-    <div>
-      <SectionTitle sec={section} defaultSize="md" defaultAlign="center" className="mb-8" as="h3" />
-      <LogoCarousel images={imgs} />
-    </div>
-  );
+// Desenha os blocos de uma página (modelo único em sections/sectionTypes.js).
+//
+// layout="stack" (padrão): blocos empilhados dentro do card da página
+//   (Eventos, Treinamentos, Projetos, Blog...).
+// layout="page": cada bloco vira uma faixa de largura total, com fundo
+//   alternado (ou o escolhido no painel) e âncora para o menu da página (GT).
+//
+// special: { tipo: (bloco) => ReactNode } para blocos especiais da página
+//   (ex.: gt_blog e gt_contact no Grupo Temático). Se devolver null, some.
+export const sectionAnchor = (sec) => `secao-${sec.id}`;
+
+const BAND = {
+  plain:  { cls: 'bg-transparent', dark: false },
+  white:  { cls: 'bg-white', dark: false },
+  tinted: { cls: 'bg-[var(--accent-tint,#eef5f0)]', dark: false },
+  dark:   { cls: 'bg-[#0b3320] text-white', dark: true },
+};
+
+export function renderableSections(sections, special = {}) {
+  return visibleSections(sections).filter(s =>
+    special[s.type] ? true : (BLOCKS[s.type] && !isSectionEmpty(s)));
 }
 
-function EditorSection({ section }) {
-  if (!section.content || section.content === '<p><br></p>') return null;
-  return (
-    <div>
-      {section.title && (
-        <h3 className="text-xl font-bold uppercase tracking-tighter text-[#007a3d] mb-6">{section.title}</h3>
-      )}
-      <div
-        className="prose prose-lg max-w-none text-gray-600 prose-headings:text-gray-900 prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-        dangerouslySetInnerHTML={{ __html: cleanRichHtml(section.content) }}
-      />
-    </div>
-  );
-}
-
-function TabsSection({ section, index, activeTabs, setActiveTab }) {
-  const tabs = section.tabs || [];
-  if (!tabs.length) return null;
-  const key = section.id || `tabs-${index}`; // duas seções de abas com o mesmo título não dividem mais o estado
-  const activeIdx = activeTabs[key] ?? 0;
-  return (
-    <div>
-      {section.title && (
-        <h3 className="text-xl font-bold uppercase tracking-tighter text-[#007a3d] mb-6">{section.title}</h3>
-      )}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {tabs.map((tab, i) => (
-          <button key={i} onClick={() => setActiveTab(key, i)}
-            className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
-              activeIdx === i
-                ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-md'
-                : 'bg-white text-gray-400 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'
-            }`}>
-            {tab.title}
-          </button>
-        ))}
-      </div>
-      {tabs[activeIdx] && (
-        <div className="bg-gray-50 rounded-[24px] p-5 md:p-8 border border-gray-100">
-          <h4 className="text-base font-bold uppercase tracking-tight text-[#007a3d] mb-6">
-            {tabs[activeIdx].title}
-          </h4>
-          <div
-            className="prose prose-sm max-w-none text-gray-700 prose-headings:text-[#1f2937] prose-headings:uppercase prose-strong:text-[#007a3d] prose-a:text-[#007a3d] prose-li:marker:text-[#007a3d] prose-img:rounded-2xl prose-img:shadow-lg"
-            dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeIdx].content) }}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PdfsSection({ section }) {
-  const pdfs = section.pdfs || [];
-  if (!pdfs.length) return null;
-  return (
-    <div>
-      {section.title && (
-        <h3 className="text-xl font-bold uppercase tracking-tighter text-[#007a3d] mb-6 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-            <FileText size={16} className="text-[#007a3d]" />
-          </div>
-          {section.title}
-        </h3>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {pdfs.map((pdf, i) => (
-          <a key={i} href={getImageUrl(pdf.url)} target="_blank" rel="noreferrer"
-            className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-[#007a3d] hover:shadow-lg transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 group-hover:text-[#007a3d] shadow-sm flex-shrink-0">
-              <FileText size={18}/>
-            </div>
-            <span className="font-bold text-sm text-gray-700 group-hover:text-[#007a3d] truncate">
-              {pdf.title || `Documento ${i + 1}`}
-            </span>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// Renderiza as seções de uma página no modelo único (components/sections/sectionTypes.js).
-// Aceita formatos antigos (normaliza) e pula as seções ocultas no painel.
-export default function ContentSectionsRenderer({ sections }) {
-  const [activeTabs, setActiveTabs] = useState({});
-  const setActiveTab = (key, idx) => setActiveTabs(prev => ({ ...prev, [key]: idx }));
-
-  // Ocultas no painel e blocos vazios (ex.: do modelo, não preenchidos) não aparecem
-  const list = visibleSections(sections).filter(s => !isSectionEmpty(s));
+export default function ContentSectionsRenderer({ sections, layout = 'stack', special = {} }) {
+  const list = renderableSections(sections, special);
   if (!list.length) return null;
 
+  if (layout === 'page') {
+    let alt = 0;
+    return (
+      <>
+        {list.map((sec) => {
+          const node = special[sec.type] ? special[sec.type](sec) : null;
+          if (special[sec.type] && !node) return null;
+          // Chamada (cta) fica sobre o fundo da página; o resto alterna claro/branco
+          const key = sec.bg && sec.bg !== 'auto' ? sec.bg : (sec.type === 'cta' ? 'plain' : (alt++ % 2 === 0 ? 'plain' : 'white'));
+          const band = BAND[key] || BAND.plain;
+          const Block = BLOCKS[sec.type];
+          return (
+            <section key={sec.id} id={sectionAnchor(sec)} className={`relative scroll-mt-28 py-16 md:py-24 ${band.cls}`}>
+              {band.dark && <div className="sif-pattern-on-dark absolute inset-0 pointer-events-none" aria-hidden="true" />}
+              <div className="relative max-w-6xl mx-auto px-6">
+                {node || <Block sec={sec} dark={band.dark} />}
+              </div>
+            </section>
+          );
+        })}
+      </>
+    );
+  }
+
   return (
-    <div className="space-y-12">
-      {list.map((section, i) => {
-        if (!section?.type) return null;
-        if (section.type === 'editor') return <EditorSection key={section.id || i} section={section} />;
-        if (section.type === 'tabs')   return <TabsSection   key={section.id || i} index={i} section={section} activeTabs={activeTabs} setActiveTab={setActiveTab} />;
-        if (section.type === 'pdfs')   return <PdfsSection   key={section.id || i} section={section} />;
-        if (section.type === 'logos')  return <LogosSection  key={section.id || i} section={section} />;
-        return null;
+    <div className="space-y-14">
+      {list.map((sec) => {
+        if (special[sec.type]) return <React.Fragment key={sec.id}>{special[sec.type](sec)}</React.Fragment>;
+        const Block = BLOCKS[sec.type];
+        return <div key={sec.id} id={sectionAnchor(sec)} className="scroll-mt-28"><Block sec={sec} dark={false} /></div>;
       })}
     </div>
   );

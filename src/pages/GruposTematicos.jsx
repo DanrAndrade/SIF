@@ -29,6 +29,9 @@ const iconMap = {
   Activity: Activity
 };
 
+// Resumo do grupo (painel › GT › Resumo); sem ele, usa o começo do texto
+const gtSummary = (gt) => { try { return (JSON.parse(gt.extra_data || '{}') || {}).summary || ''; } catch { return ''; } };
+
 export default function GruposTematicos() {
   const [loadError, setLoadError] = useState(false);
   usePageTitle('Grupos Temáticos'); // título da aba do navegador / Google
@@ -114,9 +117,9 @@ export default function GruposTematicos() {
 
                     {/* Conteúdo do card */}
                     <div className="p-8 flex flex-col flex-grow">
-                      <h3 className="text-xl font-bold font-heading uppercase text-[#1f2937] mb-3 group-hover:text-[#007a3d] transition-colors">{gt.title}</h3>
+                      <h3 className="text-xl font-semibold text-[#1f2937] mb-3 group-hover:text-[#007a3d] transition-colors">{gt.title}</h3>
                       <p className="text-gray-400 font-medium leading-relaxed mb-6 line-clamp-3 text-sm flex-grow">
-                        {htmlToText(gt.description, 180)}
+                        {gtSummary(gt) || htmlToText(gt.description, 180)}
                       </p>
                       <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#1f2937] group-hover:gap-5 transition-all pt-4 border-t border-gray-50">
                         Saiba Mais <ArrowRight size={16} className="text-[#007a3d]" />

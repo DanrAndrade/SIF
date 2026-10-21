@@ -48,10 +48,10 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
         )}
         <div className="flex-1 min-w-0">
           {cfg.contact_name && (
-            <p className="text-lg font-bold uppercase text-[#1f2937] tracking-tight leading-tight">{cfg.contact_name}</p>
+            <p className="text-lg font-semibold text-[#1f2937] tracking-tight leading-tight">{cfg.contact_name}</p>
           )}
           {cfg.contact_role && (
-            <p className="text-xs font-bold uppercase tracking-widest text-[#007a3d] mt-1">{cfg.contact_role}</p>
+            <p className="text-sm text-[var(--accent,#007a3d)] mt-1">{cfg.contact_role}</p>
           )}
           <div className="mt-3 space-y-1">
             {cfg.contact_email && (

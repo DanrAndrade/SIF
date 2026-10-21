@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useConfirm, AdminPage, AdminCard, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, ImageField } from '../../components/admin/kit';
 import { Target, Trash2, Edit3, X, Plus, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/ui/Button';
-import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import { withGtDefaults, normalizeSections, htmlExcerpt } from '../../components/sections/sectionTypes';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
@@ -25,8 +25,9 @@ const HERO_DEFAULTS = {
 const emptyForm = {
   title: '', description: '', color: '#007a3d',
   imageFile: null, image_url: '',
-  content_title: 'Objetivos do Cluster',
-  content_subtitle: 'Linhas de Pesquisa e Inovação',
+  content_title: '',
+  content_subtitle: '',
+  summary: '', // resumo curto: topo da página e card da lista
   sections: [],
   responsavel: { name: '', role: '', email: '', whatsapp: '', link: '', link_label: '', photo: '' },
   extraRest: {}, // outras chaves do extra_data que esta tela não edita
@@ -60,20 +61,26 @@ export default function GTAdmin() {
     let extraRest = {};
     if (gt.extra_data) {
       try {
-        const { sections: s, responsavel: r, ...rest } = JSON.parse(gt.extra_data) || {};
+        const { sections: s, responsavel: r, summary: sm, ...rest } = JSON.parse(gt.extra_data) || {};
         sections = s || [];
+        if (sm) extraRest.__summary = sm;
         responsavel = { ...responsavel, ...(r || {}) };
         extraRest = rest;
       } catch {}
     }
+    const summary = extraRest.__summary || '';
+    delete extraRest.__summary;
     setEditingId(gt.id);
     setFormData({
       title: gt.title, description: gt.description,
       color: gt.color || '#007a3d', imageFile: null,
       image_url: gt.image_url || '',
-      content_title: gt.content_title || 'Objetivos do Cluster',
-      content_subtitle: gt.content_subtitle || 'Linhas de Pesquisa e Inovação',
-      sections, responsavel, extraRest,
+      content_title: gt.content_title || '',
+      content_subtitle: gt.content_subtitle || '',
+      summary,
+      // Páginas antigas: o texto principal vira o bloco "Apresentação"; blog e responsável entram no fim
+      sections: withGtDefaults(sections, gt.description || ''),
+      responsavel, extraRest,
     });
     setPreview(gt.image_url || null);
     setView('form');
@@ -106,13 +113,15 @@ export default function GTAdmin() {
     // Na edição mantém o link (slug) já publicado — corrigir o título não quebra links divulgados
     fd.append('slug', (editingId && gts.find(x => x.id == editingId)?.slug) || generateSlug(formData.title));
     fd.append('title', formData.title);
-    fd.append('description', formData.description);
+    // O texto do bloco "Apresentação" também vai para description (busca, lista e compatibilidade)
+    const intro = normalizeSections(formData.sections).find(s => s.type === 'gt_intro');
+    fd.append('description', intro ? (intro.content || '') : (formData.description || ''));
     fd.append('icon', 'Target');
     fd.append('color', formData.color);
     fd.append('bg_color', formData.color + '22');
-    fd.append('content_title', formData.content_title);
-    fd.append('content_subtitle', formData.content_subtitle);
-    fd.append('extra_data', JSON.stringify({ ...formData.extraRest, sections: formData.sections, responsavel: formData.responsavel }));
+    fd.append('content_title', intro?.title || formData.content_title || '');
+    fd.append('content_subtitle', formData.content_subtitle || '');
+    fd.append('extra_data', JSON.stringify({ ...formData.extraRest, summary: formData.summary || '', sections: formData.sections, responsavel: formData.responsavel }));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     if (editingId && formData.removeImage && !formData.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
@@ -205,26 +214,18 @@ export default function GTAdmin() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Título da Seção de Conteúdo</label>
-                <input className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Objetivos do Cluster" value={formData.content_title} onChange={e => setFormData(f => ({...f, content_title: e.target.value}))} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Subtítulo da Seção de Conteúdo</label>
-                <input className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Linhas de Pesquisa e Inovação" value={formData.content_subtitle} onChange={e => setFormData(f => ({...f, content_subtitle: e.target.value}))} />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Descrição Principal (História, Objetivos, Empresas Participantes)</label>
-              <QuillEditor value={formData.description} onChange={val => setFormData(f => ({...f, description: val}))} height="h-[500px]" />
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Resumo (aparece no topo da página e no card da lista de grupos)</label>
+              <textarea rows={3} maxLength={320} className="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none border focus:border-[#007a3d] resize-y"
+                placeholder={htmlExcerpt(formData.description, 200) || 'Uma ou duas frases sobre o grupo.'}
+                value={formData.summary || ''} onChange={e => setFormData(f => ({ ...f, summary: e.target.value }))} />
+              <p className="text-xs text-gray-400 ml-1">{(formData.summary || '').length}/320 · Vazio: usa o começo do texto de apresentação.</p>
             </div>
 
             <ResponsavelForm value={formData.responsavel} onChange={r => setFormData(f => ({ ...f, responsavel: r }))} onUploading={setSectionsUploading} />
 
             <ContentSections
-              template="gt" autoTemplate={!editingId}
+              template="gt" autoTemplate={!editingId} bands title="Blocos da página do grupo"
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}
