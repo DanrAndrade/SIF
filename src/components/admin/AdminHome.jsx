@@ -9,7 +9,7 @@ import {
 import { Input, TextArea } from '../ui/FormElements';
 import Button from '../ui/Button';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
-import { uploadImageNow, toastError } from '../../utils/adminApi';
+import { uploadImageNow, toastError, apiRequest } from '../../utils/adminApi';
 import AdminFAQ from './AdminFAQ';
 
 const PAGE_KEY = 'home';
@@ -282,6 +282,8 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
         <Input label="Link Botão 2" value={config.cta2_link} onChange={(e) => update({ cta2_link: e.target.value })} />
       </div>
 
+      <HeroVideoFields config={config} update={update} />
+
       <ImageField
         label="Imagem de fundo do Hero"
         currentUrl={currentImage || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop'}
@@ -407,6 +409,50 @@ function NumbersForm({ config = {}, update }) {
           <Plus size={18} /> Adicionar card
         </button>
       </div>
+    </div>
+  );
+}
+
+// ─── VÍDEO DO TOPO ──────────────────────────────────────────────
+function HeroVideoFields({ config, update }) {
+  const [busy, setBusy] = React.useState(false);
+  const send = async (file) => {
+    if (!file) return;
+    if (file.size > 40 * 1024 * 1024) { window.showToast?.('Vídeo muito grande. Máximo 40 MB.', 'error'); return; }
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const data = await apiRequest(`${API_BASE_URL}/upload_video.php`, { method: 'POST', body: fd });
+      update({ video_loop: data.url });
+      window.showToast?.('Vídeo enviado. Clique em Salvar para publicar.');
+    } catch (err) { toastError(err); }
+    finally { setBusy(false); }
+  };
+  return (
+    <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+      <div>
+        <p className="text-sm font-bold text-gray-800">Vídeo de fundo (opcional)</p>
+        <p className="text-xs text-gray-500">Toca sem som, em loop, atrás do texto. Use um trecho curto (10 a 20 s), MP4, sem áudio, até 40 MB (ideal: menos de 8 MB). A imagem de fundo abaixo aparece enquanto o vídeo carrega.</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider cursor-pointer ${busy ? 'opacity-50 pointer-events-none' : 'bg-white border-gray-200 text-gray-700 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+          <UploadCloud size={16} /> {busy ? 'Enviando...' : (config.video_loop ? 'Trocar vídeo' : 'Enviar vídeo')}
+          <input type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={(e) => { send(e.target.files?.[0]); e.target.value = ''; }} />
+        </label>
+        {config.video_loop && (
+          <>
+            <span className="text-xs text-gray-500 truncate max-w-[260px]">{config.video_loop.split('/').pop()}</span>
+            <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '' })}>Remover vídeo</button>
+          </>
+        )}
+      </div>
+      {config.video_loop && <video src={getImageUrl(config.video_loop)} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input label="Vídeo completo (link do YouTube, Vimeo ou MP4)" value={config.video_full_url || ''} onChange={(e) => update({ video_full_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..." />
+        <Input label="Texto do botão (discreto, no canto)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo completo" />
+      </div>
+      <p className="text-xs text-gray-500">Sem link do vídeo completo, o botão não aparece.</p>
     </div>
   );
 }

@@ -81,7 +81,7 @@ function sif_raw_input(): string {
 // nome que veio do computador do usuário). Assim ninguém consegue gravar
 // um ".php" ou um SVG com script disfarçado de imagem. Retorna null se o
 // tipo não for permitido.
-//   $kinds: 'image', 'pdf', 'doc' ou combinação ('image,pdf')
+//   $kinds: 'image', 'pdf', 'doc', 'video' ou combinação ('image,pdf')
 function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = ''): ?string {
     if (!is_file($tmpPath)) return null;
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -96,6 +96,7 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
             'image/heic' => 'heic', 'image/heif' => 'heif',
         ],
         'pdf' => ['application/pdf' => 'pdf'],
+        'video' => ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov'],
         'doc' => [
             'application/msword' => 'doc',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',

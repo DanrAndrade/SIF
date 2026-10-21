@@ -1,5 +1,6 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown, Play } from 'lucide-react';
+import VideoModal from './ui/VideoModal';
 import iconLogo from '../assets/sif.svg';
 import NoiseOverlay from './ui/NoiseOverlay';
 import Button from './ui/Button';
@@ -22,6 +23,11 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const gTo   = gradient?.to   || '#1B5E20';
   // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
   const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : '';
+  // Vídeo de fundo (mudo, em loop) + botão discreto para o vídeo completo
+  const loopSrc   = config.video_loop ? getImageUrl(config.video_loop) : '';
+  const fullUrl   = config.video_full_url || '';
+  const fullLabel = config.video_full_label || 'Assistir vídeo completo';
+  const [showFull, setShowFull] = useState(false);
 
   return (
     <div className="relative z-20 gpu-layer" ref={wrapperRef}> 
@@ -36,11 +42,21 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
         <section className="relative z-10 min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
             style={resolvedBg ? { backgroundImage: `url('${resolvedBg}')` } : undefined}>
             
+            {loopSrc && <HeroVideo src={loopSrc} poster={resolvedBg} />}
+
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
             {/* Gradiente lateral escuro (preto/cinza escuro) */}
             <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/90 via-black/60 via-40% to-transparent opacity-95"></div>
             {/* Gradiente inferior escuro */}
             <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+
+            {fullUrl && (
+              <button type="button" onClick={() => setShowFull(true)}
+                className="absolute z-20 bottom-6 right-6 md:bottom-10 md:right-10 inline-flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm text-white/90 text-[11px] font-semibold tracking-wide transition-colors">
+                <span className="w-7 h-7 rounded-full bg-white/90 text-[#0b3320] flex items-center justify-center"><Play size={13} className="ml-0.5" fill="currentColor" /></span>
+                {fullLabel}
+              </button>
+            )}
 
             <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full grid grid-cols-1 md:grid-cols-12 items-center gap-12 pt-0 will-change-transform">
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
@@ -82,6 +98,33 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                 <ChevronDown className="text-white w-6 h-6" />
             </div>
         </section>
+        {showFull && <VideoModal url={fullUrl} title={fullLabel} onClose={() => setShowFull(false)} />}
     </div>
+  );
+}
+
+// Vídeo de fundo: mudo, em loop, sem controles. Não toca se o visitante pediu
+// "menos movimento" ou "economia de dados"; pausa quando o topo sai da tela.
+function HeroVideo({ src, poster }) {
+  const ref = useRef(null);
+  const [allowed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const saveData = navigator.connection?.saveData;
+    return !reduce && !saveData;
+  });
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || !allowed || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); }, { threshold: 0.1 });
+    io.observe(v);
+    return () => io.disconnect();
+  }, [allowed]);
+
+  if (!allowed) return null;
+  return (
+    <video ref={ref} className="absolute inset-0 w-full h-full object-cover z-0" src={src} poster={poster || undefined}
+      autoPlay muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1} />
   );
 }
