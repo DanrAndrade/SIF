@@ -38,6 +38,7 @@ export const BAND_STYLES = {
   white:  'Branco',
   tinted: 'Verde bem claro',
   glow:   'Degradê verde suave',
+  photo:  'Foto desfocada (escuro)',
   dark:   'Verde escuro',
 };
 

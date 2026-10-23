@@ -60,24 +60,30 @@ export function TextImageBlock({ sec, dark }) {
   );
 }
 
+// Cards lado a lado (até 4): filete na cor do grupo, número grande e, ao
+// passar o mouse, o card cresce e escurece. Com 5 ou mais, vira grade.
 export function CardsBlock({ sec, dark }) {
   const items = (sec.items || []).filter(i => i && (i.title || i.text));
-  const cols = items.length === 4 ? 'md:grid-cols-2 xl:grid-cols-4' : items.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
+  const row = items.length <= 4;
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className={`grid grid-cols-1 ${cols} gap-5 md:gap-6`}>
+      <div className={row ? 'flex flex-col md:flex-row gap-4 md:gap-5' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}>
         {items.map((it, i) => {
           const Icon = BLOCK_ICONS[it.icon] || Target;
           return (
-            <div key={i} className={`group relative rounded-card p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.1]' : 'sif-card sif-card-hover border border-gray-100'}`}>
-              <span className={`absolute top-6 right-7 text-sm font-bold tabular-nums ${dark ? 'text-white/25' : 'text-gray-200'}`} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)] group-hover:bg-[var(--accent,#007a3d)] group-hover:text-white'}`}>
-                <Icon size={22} />
+            <article key={i} tabIndex={0}
+              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden border-t-[3px] border-[var(--accent,#007a3d)] p-7 md:p-9 md:min-h-[340px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              <div className="flex items-center justify-between">
+                <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
+                <span className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-colors duration-500 ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)] group-hover:bg-white/10 group-hover:text-[#b5e05c] group-focus:bg-white/10 group-focus:text-[#b5e05c]'}`}>
+                  <Icon size={20} />
+                </span>
               </div>
-              {it.title && <h3 className={`text-lg md:text-xl font-semibold leading-snug mb-3 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{it.title}</h3>}
-              {it.text && <p className={`leading-relaxed whitespace-pre-line ${dark ? 'text-white/70' : 'text-gray-500'}`}>{it.text}</p>}
-            </div>
+              <div className="flex-1 min-h-[40px]" />
+              {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight mb-3 max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
+              {it.text && <p className={`leading-relaxed whitespace-pre-line max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white/70' : 'text-gray-500 group-hover:text-white/75 group-focus:text-white/75'}`}>{it.text}</p>}
+            </article>
           );
         })}
       </div>

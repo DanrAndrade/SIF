@@ -430,3 +430,36 @@ body { background-color: #f6f8f7; }
 }
 .sif-reveal.is-in { opacity: 1; translate: 0 0; }
 @media (prefers-reduced-motion: reduce) { .sif-reveal { opacity: 1; translate: none; transition: none !important; } }
+
+/* ─── FAIXA COM FOTO DESFOCADA (components/ui/PhotoBand.jsx) ───────── */
+.sif-photo-band { position: relative; isolation: isolate; overflow: hidden; background-color: #0b3320; }
+.sif-photo-band__bg {
+  position: absolute; left: -40px; right: -40px; top: -120px; bottom: -120px; z-index: -3;
+  transform: translate3d(0, calc((var(--p, .5) - .5) * 180px), 0);
+  will-change: transform;
+}
+.sif-photo-band__bg img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: blur(9px) brightness(.62) saturate(.9);
+  transform: scale(1.08);
+}
+/* véu verde da SIF por cima da foto */
+.sif-photo-band::before {
+  content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(60% 80% at 15% 20%, rgba(127,186,0,.16) 0%, transparent 70%),
+    linear-gradient(160deg, rgba(11,51,32,.42) 0%, rgba(6,25,15,.72) 100%);
+}
+/* granulado fino */
+.sif-photo-band::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: .12;
+}
+@media (prefers-reduced-motion: reduce) { .sif-photo-band__bg { transform: none; } }
+
+/* Pilha de cards (Associadas › Benefícios): o card de trás recua */
+.sif-stack-card { transform-origin: 50% 0; transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
+.sif-stack-card[data-covered="1"] { transform: scale(.95); filter: brightness(.7); }
+@media (prefers-reduced-motion: reduce) { .sif-stack-card { transition: none; } }

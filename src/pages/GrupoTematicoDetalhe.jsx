@@ -118,6 +118,9 @@ export default function GrupoTematicoDetalhe() {
     '--accent-tint': `color-mix(in srgb, ${color} 6%, #ffffff)`,
   };
   const cover = gt.image_url ? getImageUrl(gt.image_url, 1920) : '';
+  // Fundo das faixas escuras: capa do grupo; sem capa, a 1ª foto da página
+  const pagePhotos = (sections || []).flatMap(s => [s.image, ...(s.images || [])]).filter(Boolean);
+  const bandPhoto = [gt.image_url, ...pagePhotos].filter(Boolean).slice(0, 6).map(p => getImageUrl(p, 640));
   const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const contactSec = visible.find(s => s.type === 'gt_contact');
   const blogSec = visible.find(s => s.type === 'gt_blog');
@@ -172,7 +175,7 @@ export default function GrupoTematicoDetalhe() {
 
       {/* BLOCOS */}
       <main className="flex-grow">
-        <ContentSectionsRenderer sections={sections} layout="page" special={special} />
+        <ContentSectionsRenderer sections={sections} layout="page" special={special} bgPhoto={bandPhoto} />
       </main>
 
       <Footer />

@@ -274,6 +274,24 @@ function BenefitsScroller({ cfg }) {
     return () => io.disconnect();
   }, [items.length]);
 
+  // Card coberto pelo próximo encolhe e escurece (fica claro que é uma pilha)
+  useEffect(() => {
+    let raf = 0;
+    const paint = () => {
+      raf = 0;
+      const els = refs.current.filter(Boolean);
+      els.forEach((el, i) => {
+        const next = els[i + 1];
+        const covered = !!next && next.getBoundingClientRect().top - el.getBoundingClientRect().top < 90;
+        if ((el.dataset.covered === '1') !== covered) el.dataset.covered = covered ? '1' : '0';
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    paint();
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [items.length]);
+
   if (!items.length) return null;
   const go = (i) => {
     const el = refs.current[i];
@@ -308,7 +326,7 @@ function BenefitsScroller({ cfg }) {
         <div className="lg:col-span-7 space-y-4">
           {items.map((b, i) => (
             <article key={i} ref={el => (refs.current[i] = el)} data-i={i}
-              className="sticky rounded-card bg-gradient-to-br from-[#0f4a2b] to-[#0b3320] p-7 md:p-10 shadow-[0_24px_50px_-24px_rgba(11,51,32,0.7)] text-white"
+              className="sif-stack-card sticky rounded-card bg-gradient-to-br from-[#0f4a2b] to-[#0b3320] p-7 md:p-10 shadow-[0_24px_50px_-24px_rgba(11,51,32,0.7)] text-white"
               style={{ top: `calc(7rem + ${i * 0.9}rem)` }}>
               <div className="flex items-start gap-5 md:gap-7">
                 <span className="text-4xl md:text-5xl font-semibold leading-none text-sif-lime/90 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
