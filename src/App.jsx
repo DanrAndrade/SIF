@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
+import AutoReveal from './components/ui/AutoReveal';
 import { API_BASE_URL } from './apiConfig';
 
 // --- CARREGAMENTO IMEDIATO: só a Home; o resto carrega quando for aberto ---
@@ -97,6 +98,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BoundaryByRoute>
+      <AutoReveal />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
 

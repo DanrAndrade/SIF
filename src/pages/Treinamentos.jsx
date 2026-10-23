@@ -72,7 +72,7 @@ export default function Treinamentos() {
                    onClick={() => setSelectedSegment(segment)}
                    className={`px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
                      selectedSegment === segment 
-                       ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-xl' 
+                       ? 'bg-sif-dark text-white border-sif-dark shadow-xl' 
                        : 'bg-white text-gray-400 border-gray-100 hover:border-[#007a3d] hover:text-[#007a3d]'
                    }`}
                  >
@@ -102,7 +102,7 @@ export default function Treinamentos() {
                   >
                     <div className="h-64 relative overflow-hidden bg-gray-100">
                       <img
-                        src={getImageUrl(training.image_url)}
+                        src={getImageUrl(training.image_url, 800)}
                         alt={training.title}
                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                         loading="lazy"
@@ -154,7 +154,7 @@ export default function Treinamentos() {
       </main>
 
       {/* CTA IN-COMPANY */}
-      <section className="py-24 bg-[#1f2937] relative overflow-hidden">
+      <section className="py-24 bg-sif-dark relative overflow-hidden">
          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">

@@ -29,7 +29,7 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
   if (!cfg) return null;
 
   const photoUrl = cfg.contact_photo
-    ? (cfg.contact_photo.startsWith('http') ? cfg.contact_photo : getImageUrl(cfg.contact_photo))
+    ? (cfg.contact_photo.startsWith('http') ? cfg.contact_photo : getImageUrl(cfg.contact_photo, 640))
     : null;
   const whatsappDigits = (cfg.contact_whatsapp || '').replace(/\D/g, '');
 

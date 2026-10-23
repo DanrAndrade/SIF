@@ -274,7 +274,7 @@ function HeroForm({ config, update, onFile, preview, currentImage }) {
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Input label="Tag (etiqueta verde acima do título)" value={config.tag} onChange={(e) => update({ tag: e.target.value })} />
-        <Input label="Texto da seta de scroll" value={config.scroll_label} onChange={(e) => update({ scroll_label: e.target.value })} />
+        <Input label="Texto da seta de rolar (só aparece sem vídeo completo)" value={config.scroll_label} onChange={(e) => update({ scroll_label: e.target.value })} />
         <Input label="Título — linha 1" value={config.title_line1} onChange={(e) => update({ title_line1: e.target.value })} />
         <Input label="Título — linha 2 (destaque em verde)" value={config.title_line2} onChange={(e) => update({ title_line2: e.target.value })} />
       </div>
@@ -434,12 +434,26 @@ function HeroVideoFields({ config, update }) {
     } catch (err) { toastError(err); }
     finally { setBusy(false); }
   };
+  const hasVideo = !!(config.video_loop || (config.video_loop_url || '').trim());
+  const mode = config.bg_mode || (hasVideo ? 'video' : 'image');
   return (
     <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
       <div>
-        <p className="text-sm font-bold text-gray-800">Vídeo de fundo (opcional)</p>
-        <p className="text-xs text-gray-500">Toca sem som, em loop, atrás do texto. Use um trecho curto (10 a 20 s), MP4, sem áudio, até 40 MB (ideal: menos de 8 MB). A imagem de fundo abaixo aparece enquanto o vídeo carrega.</p>
+        <p className="text-sm font-bold text-gray-800">Fundo do topo</p>
+        <p className="text-xs text-gray-500">Escolha se o fundo do topo é uma imagem ou um vídeo. A imagem cadastrada abaixo também aparece enquanto o vídeo carrega.</p>
       </div>
+      <div className="inline-flex p-1 bg-white border border-gray-200 rounded-xl" role="radiogroup" aria-label="Fundo do topo">
+        {[['image', 'Imagem'], ['video', 'Vídeo']].map(([id, label]) => (
+          <button key={id} type="button" role="radio" aria-checked={mode === id} onClick={() => update({ bg_mode: id })}
+            className={`px-5 py-2 rounded-lg text-xs font-bold transition-colors ${mode === id ? 'bg-[#007a3d] text-white' : 'text-gray-600 hover:text-[#007a3d]'}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {mode === 'video' && (<>
+      <Input label="Link do vídeo de fundo (YouTube ou Vimeo)" value={config.video_loop_url || ''} onChange={(e) => update({ video_loop_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..."
+        hint="Toca sem som e em loop atrás do texto. Ou, em vez do link, envie um arquivo MP4 abaixo." />
+      <p className="text-xs text-gray-500">Arquivo MP4 (opcional): trecho curto (10 a 20 s), sem áudio, até 40 MB (ideal: menos de 8 MB). Se houver link e arquivo, vale o link.</p>
       <div className="flex flex-wrap items-center gap-3">
         <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider cursor-pointer ${busy ? 'opacity-50 pointer-events-none' : 'bg-white border-gray-200 text-gray-700 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
           <UploadCloud size={16} /> {busy ? 'Enviando...' : (config.video_loop ? 'Trocar vídeo' : 'Enviar vídeo')}
@@ -453,11 +467,13 @@ function HeroVideoFields({ config, update }) {
         )}
       </div>
       {config.video_loop && <video src={getImageUrl(config.video_loop)} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
+      </>)}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input label="Vídeo completo (link do YouTube, Vimeo ou MP4)" value={config.video_full_url || ''} onChange={(e) => update({ video_full_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..." />
-        <Input label="Texto do botão (discreto, no canto)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo completo" />
+        <Input label="Vídeo completo do botão (opcional)" value={config.video_full_url || ''} onChange={(e) => update({ video_full_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..."
+          hint="Vazio: o botão abre o próprio vídeo de fundo, com som." />
+        <Input label="Texto do botão de vídeo (embaixo, no centro)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo" />
       </div>
-      <p className="text-xs text-gray-500">Sem link do vídeo completo, o botão não aparece.</p>
+      <p className="text-xs text-gray-500">Com vídeo, o botão "Assistir vídeo" fica no lugar da seta de rolar. Com fundo de imagem e sem link de vídeo completo, a seta continua.</p>
     </div>
   );
 }

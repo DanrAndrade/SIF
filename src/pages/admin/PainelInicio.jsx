@@ -21,7 +21,7 @@ export default function PainelInicio() {
     const add = (key, tab, url) => { if (can(tab)) jobs.push(getJson(url).then(v => [key, v])); };
     add('leads', 'leads', `${API_BASE_URL}/leads.php`);
     add('candidates', 'candidates', `${API_BASE_URL}/candidates.php`);
-    add('jobs', 'jobs', `${API_BASE_URL}/jobs.php`);
+    add('jobs', 'jobs', `${API_BASE_URL}/jobs.php?admin=1`);
     add('blog', 'blog', `${API_BASE_URL}/blog.php?admin=1`);
     add('eventos', 'eventos', `${API_BASE_URL}/eventos.php?admin=1`);
     add('treinamentos', 'treinamentos', `${API_BASE_URL}/treinamentos.php?admin=1`);

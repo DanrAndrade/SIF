@@ -15,7 +15,7 @@ export default function LogoCarousel({ images = [], altPrefix = 'Logo' }) {
 
   const Logo = ({ item, i }) => {
     const img = (
-      <img src={getImageUrl(item.url)} alt={item.alt || `${altPrefix} ${i + 1}`} loading="lazy" decoding="async"
+      <img src={getImageUrl(item.url, 320)} alt={item.alt || `${altPrefix} ${i + 1}`} loading="lazy" decoding="async"
         className="max-h-full max-w-[180px] object-contain" />
     );
     return (

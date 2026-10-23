@@ -134,7 +134,7 @@ export default function TreinamentosInCompanyAdmin() {
     try {
       const res = await fetch(API_URL, { method: 'POST', body: fd });
       const result = await res.json();
-      if (result.status === 'success') { resetForm(); fetchTrainings(); }
+      if (result.status === 'success') { window.showToast?.(editingId ? 'Treinamento salvo.' : 'Treinamento publicado.'); resetForm(); fetchTrainings(); }
       else window.showToast('Erro: ' + result.message);
     } catch { window.showToast('Erro ao salvar treinamento.'); }
     finally { setLoading(false); }

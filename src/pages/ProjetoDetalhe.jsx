@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl, htmlToText } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import { useSeo } from '../hooks/useSeo';
@@ -73,7 +73,7 @@ export default function ProjetoDetalhe() {
         const es = getEffectiveProjectStatus(projeto);
         return (
           <DetailHero
-            cover={projeto.image_url ? getImageUrl(projeto.image_url) : ''}
+            cover={projeto.image_url ? getImageUrl(projeto.image_url, 1920) : ''}
             crumbs={[{ label: 'Projetos', to: '/projetos' }]}
             eyebrow="Projeto de P&D" icon={FlaskConical}
             title={projeto.title}
@@ -92,14 +92,14 @@ export default function ProjetoDetalhe() {
         <div className="bg-white rounded-card md:rounded-panel shadow-sm border border-gray-100 p-5 md:p-16">
           {projeto.image_url && (
             <div className="w-full h-[300px] md:h-[400px] rounded-3xl overflow-hidden mb-12 shadow-sm">
-              <img src={getImageUrl(projeto.image_url)} alt={projeto.title} className="w-full h-full object-cover" />
+              <img src={getImageUrl(projeto.image_url, 1280)} alt={projeto.title} className="w-full h-full object-cover" />
             </div>
           )}
 
           {/* Renderização do Rich Text */}
           <div 
             className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-            dangerouslySetInnerHTML={{ __html: cleanRichHtml(projeto.description) || '<p class="text-gray-400 italic text-center">Nenhuma descrição disponível para este projeto.</p>' }}
+            dangerouslySetInnerHTML={{ __html: htmlToText(projeto.description || '').trim() ? cleanRichHtml(projeto.description) : (projSections ? '' : '<p class="text-gray-400 italic text-center">Nenhuma descrição disponível para este projeto.</p>') }}
           />
 
           {projSections ? (
@@ -125,7 +125,7 @@ export default function ProjetoDetalhe() {
                     <div className="flex flex-wrap gap-2 justify-center">
                       {tabs.map((tab, idx) => (
                         <button key={idx} onClick={() => setActiveTab(idx)}
-                          className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === idx ? 'bg-[#1f2937] text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:text-[#1f2937] hover:bg-gray-100'}`}>
+                          className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === idx ? 'bg-sif-dark text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:text-[#1f2937] hover:bg-gray-100'}`}>
                           {tab.title}
                         </button>
                       ))}
@@ -146,7 +146,7 @@ export default function ProjetoDetalhe() {
                 href={toExternalUrl(projeto.link_url) || undefined} 
                 target="_blank" 
                 rel="noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-[#1f2937] text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-[#007a3d] hover:shadow-lg transition-all hover:-translate-y-1"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-sif-dark text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-[#007a3d] hover:shadow-lg transition-all hover:-translate-y-1"
               >
                 Visitar Página Externa do Projeto <ExternalLink size={16} />
               </a>

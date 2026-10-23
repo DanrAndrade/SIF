@@ -17,7 +17,8 @@ const BAND = {
   plain:  { cls: 'bg-transparent', dark: false },
   white:  { cls: 'bg-white', dark: false },
   tinted: { cls: 'bg-[var(--accent-tint,#eef5f0)]', dark: false },
-  dark:   { cls: 'bg-[#0b3320] text-white', dark: true },
+  dark:   { cls: 'sif-glow-dark text-white', dark: true },
+  glow:   { cls: 'sif-glow', dark: false },
 };
 
 export function renderableSections(sections, special = {}) {
@@ -30,14 +31,18 @@ export default function ContentSectionsRenderer({ sections, layout = 'stack', sp
   if (!list.length) return null;
 
   if (layout === 'page') {
-    let alt = 0;
     return (
       <>
         {list.map((sec) => {
           const node = special[sec.type] ? special[sec.type](sec) : null;
           if (special[sec.type] && !node) return null;
-          // Chamada (cta) fica sobre o fundo da página; o resto alterna claro/branco
-          const key = sec.bg && sec.bg !== 'auto' ? sec.bg : (sec.type === 'cta' ? 'plain' : (alt++ % 2 === 0 ? 'plain' : 'white'));
+          // Automático (sem dois fundos iguais seguidos de verde):
+          //  - números e depoimento: degradê verde (destaque)
+          //  - galeria, pessoas e logos: faixa branca (sem cards brancos)
+          //  - textos e cards: fundo da página (cards brancos com sombra)
+          const auto = (sec.type === 'stats' || sec.type === 'quote') ? 'glow'
+            : (['gallery', 'people', 'logos', 'video'].includes(sec.type) ? 'white' : 'plain');
+          const key = sec.bg && sec.bg !== 'auto' ? sec.bg : auto;
           const band = BAND[key] || BAND.plain;
           const Block = BLOCKS[sec.type];
           return (

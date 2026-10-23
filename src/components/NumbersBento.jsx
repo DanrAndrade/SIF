@@ -84,7 +84,7 @@ function Card({ card, index, start, cls: posCls = '', big = false, tall = false 
 
   const cls = `group relative overflow-hidden rounded-3xl bg-[#1B5E20] ${posCls} ${big || tall ? SIZE.big : SIZE.small}`;
   const bg = card.image ? (
-    <img src={getImageUrl(card.image)} alt="" loading="lazy" decoding="async"
+    <img src={getImageUrl(card.image, 1024)} alt="" loading="lazy" decoding="async"
       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
   ) : (
     <div className="absolute inset-0 bg-gradient-to-br from-[#007a3d] to-[#1B5E20]" />

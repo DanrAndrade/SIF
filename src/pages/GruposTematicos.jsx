@@ -65,86 +65,73 @@ export default function GruposTematicos() {
       <main className="flex-grow py-24" id="gt-content">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
-          <div className="max-w-3xl mb-24">
-            <h2 className="sif-title sif-h2 text-[#1f2937] leading-[0.9] tracking-tighter mb-8">Onde a <br/><span className="text-[#007a3d]">ciência</span> encontra o campo.</h2>
-            <p className="text-gray-500 text-xl font-medium leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 md:mb-20">
+            <h2 className="lg:col-span-7 sif-title sif-h2 text-[#1f2937] leading-[0.95] tracking-tight">Onde a <span className="text-[#007a3d]">ciência</span><br/>encontra o campo.</h2>
+            <p className="lg:col-span-5 text-gray-500 text-lg leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
           </div>
 
-          {/* GRID DE GTS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {/* GRADE DE GTS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {loading ? (
               Array(6).fill(0).map((_, i) => (
-                <div key={i} className="bg-white h-80 rounded-panel animate-pulse shadow-sm"></div>
+                <div key={i} className="bg-white h-[380px] rounded-panel animate-pulse shadow-card"></div>
               ))
             ) : loadError ? (
               <LoadError onRetry={() => { setLoading(true); fetchGts(); }} />
             ) : gts.length === 0 ? (
               <p className="col-span-full py-16 text-center text-gray-400 font-bold uppercase tracking-widest italic">Nenhum grupo temático publicado no momento.</p>
             ) : (
-              gts.map((gt) => {
-                const IconComponent = iconMap[gt.icon] || Target;
-                return (
-                  <Link 
-                    key={gt.id} 
-                    to={`/grupos-tematicos/${gt.slug}`}
-                    className="group bg-white rounded-panel border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all block relative overflow-hidden h-full flex flex-col"
-                  >
-                    {/* Banner (foto ou cor com ícone) */}
-                    <div className="relative h-44 overflow-hidden rounded-t-panel flex-shrink-0">
-                      {gt.image_url
-                        ? <img
-                            src={getImageUrl(gt.image_url)}
-                            alt={gt.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            loading="lazy"
-                          />
-                        : <div
-                            className="w-full h-full flex items-center justify-center"
-                            style={{ backgroundColor: gt.color || '#007a3d' }}
-                          >
-                            <IconComponent size={64} className="text-white/40" />
-                          </div>
-                      }
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                      <div
-                        className="absolute bottom-4 left-6 w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-lg"
-                        style={{ backgroundColor: gt.color || '#007a3d' }}
-                      >
-                        <IconComponent size={16} />
-                      </div>
-                    </div>
-
-                    {/* Conteúdo do card */}
-                    <div className="p-8 flex flex-col flex-grow">
-                      <h3 className="text-xl font-semibold text-[#1f2937] mb-3 group-hover:text-[#007a3d] transition-colors">{gt.title}</h3>
-                      <p className="text-gray-400 font-medium leading-relaxed mb-6 line-clamp-3 text-sm flex-grow">
-                        {gtSummary(gt) || htmlToText(gt.description, 180)}
-                      </p>
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#1f2937] group-hover:gap-5 transition-all pt-4 border-t border-gray-50">
-                        Saiba Mais <ArrowRight size={16} className="text-[#007a3d]" />
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })
+              gts.map((gt) => <GtCard key={gt.id} gt={gt} Icon={iconMap[gt.icon] || Target} />)
             )}
           </div>
 
-          {/* CTAs EXTRAS */}
-          <div className="mt-24 p-12 md:p-20 bg-[#1f2937] rounded-panel text-white relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.35)_1px,transparent_0)] bg-[length:10px_10px] opacity-20"></div>
-             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-               <div className="max-w-xl">
-                 <h3 className="text-3xl md:text-5xl font-medium font-heading mb-6 leading-tight">Quer tornar sua empresa <span className="text-[#007a3d]">parceira de um GT?</span></h3>
-                 <p className="text-gray-400 font-medium text-base">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
-               </div>
-               <Button href="/associadas" variant="primary" className="bg-white text-[#1f2937] hover:bg-emerald-50 border-0 uppercase font-black tracking-widest text-[10px]">Quero ser Associado</Button>
-             </div>
+          {/* CHAMADA */}
+          <div className="sif-glow-dark mt-20 md:mt-24 p-10 md:p-16 rounded-panel text-white overflow-hidden">
+            <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-12">
+              <div className="max-w-2xl">
+                <h3 className="sif-title text-3xl md:text-5xl leading-tight mb-4">Quer tornar sua empresa <span className="text-sif-lime">parceira de um GT?</span></h3>
+                <p className="text-white/70 text-base md:text-lg">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
+              </div>
+              <Button href="/associadas" variant="light" icon={ArrowRight} className="shrink-0">Quero ser associado</Button>
+            </div>
           </div>
         </div>
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+// Card do grupo: foto (ou a cor do grupo) ocupando o card todo, com o texto
+// por cima. Foto quebrada cai na versão com a cor do grupo.
+function GtCard({ gt, Icon }) {
+  const [imgOk, setImgOk] = useState(!!gt.image_url);
+  const color = gt.color || '#007a3d';
+  return (
+    <Link to={`/grupos-tematicos/${gt.slug}`}
+      className="group relative block h-[380px] md:h-[420px] rounded-panel overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00]">
+      {imgOk ? (
+        <img src={getImageUrl(gt.image_url, 800)} alt="" loading="lazy" decoding="async" onError={() => setImgOk(false)}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      ) : (
+        <div className="absolute inset-0" style={{ background: `linear-gradient(150deg, ${color} 0%, #0b3320 85%)` }}>
+          <Icon size={220} strokeWidth={1} className="absolute -right-10 -top-6 text-white/10" aria-hidden="true" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/45 to-transparent" />
+
+      <span className="absolute top-6 left-6 w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: color }}>
+        <Icon size={20} />
+      </span>
+
+      <div className="absolute inset-x-0 bottom-0 p-7 md:p-8 text-white">
+        <h3 className="text-2xl font-semibold leading-tight mb-2">{gt.title}</h3>
+        <p className="text-white/75 text-sm leading-relaxed line-clamp-2 mb-5">{gtSummary(gt) || htmlToText(gt.description, 160)}</p>
+        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-sif-lime">
+          Saiba mais <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+        </span>
+      </div>
+    </Link>
   );
 }

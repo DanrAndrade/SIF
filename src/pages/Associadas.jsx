@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { http } from '../utils/http';
 import Navbar from '../components/Navbar';
@@ -107,7 +107,7 @@ export default function Associadas() {
             name: a.name,
             address: a.address || '',
             website: toExternalUrl(a.website),
-            src: a.logo_url ? getImageUrl(a.logo_url) : null,
+            src: a.logo_url ? getImageUrl(a.logo_url, 320) : null,
           })));
         }
       })
@@ -128,10 +128,10 @@ export default function Associadas() {
       .finally(() => setHeroReady(true));
   }, []);
 
-  const heroBgUrl = cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image) : cfg.hero_image;
+  const heroBgUrl = cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image, 1920) : cfg.hero_image;
 
   return (
-    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-clip selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* HERO */}
@@ -140,7 +140,7 @@ export default function Associadas() {
           <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f8f9fa] rounded-tr-[80px] z-10"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f6f8f7] rounded-tr-[80px] z-10"></div>
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
@@ -186,31 +186,11 @@ export default function Associadas() {
         </section>
       )}
 
-      {/* BENEFÍCIOS — só texto, sem ícones */}
-      <div id="beneficios" className="py-24 bg-[#1f2937] text-white relative overflow-hidden scroll-mt-32">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2"></div>
-        <div className="container mx-auto px-6 md:px-12 lg:px-24 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="sif-title sif-h2 mb-6">
-              {cfg.beneficios_title_line1} <br/>
-              <span className="text-[#007a3d]">{cfg.beneficios_title_highlight}</span>
-            </h2>
-            <div className="w-20 h-1 bg-[#007a3d] mx-auto mt-6"></div>
-          </div>
-
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${cfg.benefits.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-8`}>
-            {(cfg.benefits || []).map((benefit, index) => (
-              <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-panel hover:bg-white/10 transition-all duration-300">
-                <h3 className="text-xl font-semibold font-heading mb-4 text-emerald-400">{benefit.title}</h3>
-                <p className="text-gray-400 leading-relaxed font-medium">{benefit.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* BENEFÍCIOS: título fixo à esquerda + cards que passam com a rolagem */}
+      <BenefitsScroller cfg={cfg} />
 
       {/* GRID DE LOGOS */}
-      <div className="py-24 bg-white">
+      <div className="py-24">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <div className="text-center mb-20">
             <span className="sif-eyebrow mb-4">{cfg.logos_tag}</span>
@@ -229,13 +209,14 @@ export default function Associadas() {
               <Card
                 key={index}
                 {...linkProps}
-                className="bg-[#f8f9fa] rounded-3xl p-6 flex flex-col border border-gray-100 hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
+                className="bg-white rounded-3xl p-6 flex flex-col border border-white shadow-card hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
               >
                 <div className="flex-1 flex items-center justify-center h-32 mb-4">
                   {partner.src ? (
                     <img
                       src={partner.src}
                       alt={partner.name}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       loading="lazy"
                       decoding="async"
                       className="max-h-full max-w-[80%] object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
@@ -260,7 +241,7 @@ export default function Associadas() {
             })}
           </div>
 
-          <div className="mt-24 bg-[#f8f9fa] rounded-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border border-gray-100 italic">
+          <div className="mt-24 bg-white shadow-card rounded-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="max-w-xl">
               <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
               <p className="text-gray-500 text-lg">{cfg.cta_text}</p>
@@ -274,5 +255,72 @@ export default function Associadas() {
 
       <Footer />
     </div>
+  );
+}
+
+// Benefícios: à esquerda o título fica parado e a lista acende o benefício
+// da vez; à direita os cards sobem e se empilham conforme a rolagem.
+function BenefitsScroller({ cfg }) {
+  const items = (cfg.benefits || []).filter(b => b && (b.title || b.description));
+  const [active, setActive] = useState(0);
+  const refs = useRef([]);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) setActive(Number(e.target.dataset.i)); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    refs.current.forEach(el => el && io.observe(el));
+    return () => io.disconnect();
+  }, [items.length]);
+
+  if (!items.length) return null;
+  const go = (i) => {
+    const el = refs.current[i];
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+  };
+
+  return (
+    <section id="beneficios" className="scroll-mt-32 py-20 md:py-28">
+      <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-32">
+            <span className="sif-eyebrow mb-5">Benefícios</span>
+            <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight">
+              {cfg.beneficios_title_line1} <br/>
+              <span className="text-[#007a3d]">{cfg.beneficios_title_highlight}</span>
+            </h2>
+            <ol className="mt-10 hidden lg:block space-y-1" data-no-reveal>
+              {items.map((b, i) => (
+                <li key={i}>
+                  <button type="button" onClick={() => go(i)}
+                    className={`w-full flex items-center gap-4 py-2.5 text-left transition-colors duration-300 ${active === i ? 'text-[#0b3320]' : 'text-gray-400 hover:text-gray-600'}`}>
+                    <span className={`text-xs font-bold tabular-nums ${active === i ? 'text-[#007a3d]' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
+                    <span className={`h-px transition-all duration-500 ${active === i ? 'w-12 bg-[#007a3d]' : 'w-6 bg-gray-300'}`} />
+                    <span className="text-sm font-semibold">{b.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <div className="lg:col-span-7 space-y-4">
+          {items.map((b, i) => (
+            <article key={i} ref={el => (refs.current[i] = el)} data-i={i}
+              className="sticky rounded-card bg-gradient-to-br from-[#0f4a2b] to-[#0b3320] p-7 md:p-10 shadow-[0_24px_50px_-24px_rgba(11,51,32,0.7)] text-white"
+              style={{ top: `calc(7rem + ${i * 0.9}rem)` }}>
+              <div className="flex items-start gap-5 md:gap-7">
+                <span className="text-4xl md:text-5xl font-semibold leading-none text-sif-lime/90 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3 className="text-xl md:text-2xl font-semibold font-heading leading-tight mb-3">{b.title}</h3>
+                  <p className="text-white/75 leading-relaxed">{b.description}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

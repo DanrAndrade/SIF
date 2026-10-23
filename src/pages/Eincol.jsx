@@ -60,7 +60,7 @@ export default function Eincol() {
         <div className="absolute inset-0 bg-[#0f1f11]">
           {config?.hero_image && (
             <img
-              src={getImageUrl(config.hero_image)}
+              src={getImageUrl(config.hero_image, 1920)}
               alt={title}
               className="w-full h-full object-cover opacity-70"
             />
@@ -119,26 +119,26 @@ export default function Eincol() {
 
         {/* SEÇÃO: RENDER DO EVENTO */}
         {config?.render_image && (
-          <section className="py-0 bg-[#1f2937] relative overflow-hidden">
+          <section className="py-0 bg-sif-dark relative overflow-hidden">
             <img
-              src={getImageUrl(config.render_image)}
+              src={getImageUrl(config.render_image, 1280)}
               alt="Render do Evento"
               className="w-full max-h-[70vh] object-cover opacity-90"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1f2937] via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-sif-dark via-transparent to-transparent pointer-events-none" />
           </section>
         )}
 
         {/* SEÇÃO: PLANTA BAIXA */}
         {(config?.planta_image || config?.planta_url) && (
-          <section className="py-24 bg-[#1f2937]">
+          <section className="py-24 bg-sif-dark">
             <div className="container mx-auto px-6 max-w-6xl">
               <div className="flex flex-col md:flex-row items-center gap-12">
                 {config.planta_image && (
                   <div className="flex-1">
                     <div className="rounded-card overflow-hidden shadow-2xl border border-white/10">
                       <img
-                        src={getImageUrl(config.planta_image)}
+                        src={getImageUrl(config.planta_image, 1280)}
                         alt="Planta do Evento"
                         className="w-full h-auto object-contain"
                       />
@@ -197,7 +197,7 @@ export default function Eincol() {
 
         {/* SEÇÃO: ABAS DE PROGRAMAÇÃO */}
         {tabs.length > 0 && (
-          <section className="py-24 bg-white">
+          <section className="py-24">
             <div className="container mx-auto px-6 max-w-5xl">
               <h2 className="sif-title sif-title-strong text-4xl tracking-tighter text-[#1f2937] mb-12">
                 Programação
@@ -211,7 +211,7 @@ export default function Eincol() {
                     onClick={() => setActiveTab(i)}
                     className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
                       activeTab === i
-                        ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-lg'
+                        ? 'bg-sif-dark text-white border-sif-dark shadow-lg'
                         : 'bg-white text-gray-400 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'
                     }`}
                   >

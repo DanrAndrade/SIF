@@ -123,7 +123,7 @@ export default function Jobs() {
           <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" bgColor="white" />
 
           {/* --- MISSÃO, VISÃO E VALORES --- */}
-          <div className="py-24 bg-white">
+          <div className="py-24">
               <div className="container mx-auto px-6 max-w-6xl">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
                         <div className="flex flex-col items-center text-center group">
@@ -207,7 +207,7 @@ export default function Jobs() {
                                 </div>
                                 <div className="flex items-center justify-between pt-8 border-t border-gray-50">
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-[#007a3d] transition-colors">Detalhes da Oportunidade</span>
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#1f2937] group-hover:text-white transition-all shadow-sm"><ChevronRight size={18} /></div>
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-sif-dark group-hover:text-white transition-all shadow-sm"><ChevronRight size={18} /></div>
                                 </div>
                             </div>
                         ))}
@@ -216,9 +216,9 @@ export default function Jobs() {
 
                  {totalPages > 1 && (
                      <div className="mt-20 flex justify-center items-center gap-4 text-[#1f2937]">
-                         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-[#1f2937] hover:text-white hover:border-[#1f2937] transition-all disabled:opacity-20"><ChevronLeft size={24} /></button>
+                         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-sif-dark hover:text-white hover:border-sif-dark transition-all disabled:opacity-20"><ChevronLeft size={24} /></button>
                          <span className="text-xs font-black px-8 uppercase tracking-[0.3em]">Página {currentPage} de {totalPages}</span>
-                         <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-[#1f2937] hover:text-white hover:border-[#1f2937] transition-all disabled:opacity-20"><ChevronRight size={24} /></button>
+                         <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-sif-dark hover:text-white hover:border-sif-dark transition-all disabled:opacity-20"><ChevronRight size={24} /></button>
                      </div>
                  )}
              </div>
@@ -227,7 +227,7 @@ export default function Jobs() {
           {/* BANCO DE TALENTOS */}
           <div className="py-24 bg-white">
              <div className="container mx-auto px-6 max-w-6xl">
-                 <div className="bg-[#1f2937] border border-gray-800 rounded-panel p-10 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden group">
+                 <div className="bg-sif-dark border border-sif-dark rounded-panel p-10 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-125"></div>
                      <div className="relative z-10 text-center md:text-left">
                          <span className="sif-eyebrow mb-4">{cfg.banco_tag}</span>
@@ -311,7 +311,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
     if (submitStatus === 'success') {
         return (
             <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                <div className="absolute inset-0 bg-[#1f2937]/95 backdrop-blur-xl" onClick={onClose}></div>
+                <div className="absolute inset-0 bg-sif-dark/95 backdrop-blur-xl" onClick={onClose}></div>
                 <div className="bg-white w-full max-w-md rounded-panel p-12 relative z-10 text-center shadow-2xl overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 bg-[#007a3d]"></div>
                     <div className="w-24 h-24 bg-emerald-50 text-[#007a3d] rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
@@ -319,7 +319,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
                     </div>
                     <h3 className="text-3xl font-medium text-[#1f2937] mb-4 font-heading tracking-tight leading-none">Recebido!</h3>
                     <p className="text-gray-500 mb-12 text-base font-medium leading-relaxed">Sua candidatura para <strong>{job.title}</strong> foi registrada com sucesso.</p>
-                    <button onClick={onClose} className="w-full bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#007a3d] transition-all">Fechar Janela</button>
+                    <button onClick={onClose} className="w-full bg-sif-dark text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#007a3d] transition-all">Fechar Janela</button>
                 </div>
             </div>
         );
@@ -327,7 +327,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
 
     return (
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 animate-in fade-in duration-500">
-            <div className="absolute inset-0 bg-[#1f2937]/80 backdrop-blur-md" onClick={onClose}></div>
+            <div className="absolute inset-0 bg-sif-dark/80 backdrop-blur-md" onClick={onClose}></div>
             <div className="bg-white w-full max-w-2xl rounded-panel shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh] border border-white">
                 
                 {/* HEAD PROGRESS BAR */}
@@ -385,7 +385,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
                             <div className="pt-12 border-t border-gray-50">
                                 <button 
                                     onClick={() => setStep(2)} 
-                                    className="w-full bg-[#1f2937] hover:bg-[#007a3d] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-4"
+                                    className="w-full bg-sif-dark hover:bg-[#007a3d] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-4"
                                 >
                                     Ir para Formulário <ArrowRight size={20} />
                                 </button>
@@ -455,7 +455,7 @@ function ApplicationModal({ job, catLabel, onClose }) {
                                 <button 
                                     type="submit" 
                                     disabled={submitStatus === 'loading'}
-                                    className="flex-[2] bg-[#1f2937] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#007a3d] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
+                                    className="flex-[2] bg-sif-dark text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#007a3d] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
                                 >
                                     {submitStatus === 'loading' ? (
                                       <>

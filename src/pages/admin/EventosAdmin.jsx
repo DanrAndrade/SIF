@@ -22,7 +22,9 @@ import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
 const API_URL = `${API_BASE_URL}/eventos.php`;
-const STATUS_OPTIONS = ['Automático (por data)', 'Em Andamento', 'Concluído'];
+// value '' = automático pela data (antes gravava o texto "Automático (por data)" e ele aparecia no site)
+const STATUS_OPTIONS = [{ value: '', label: 'Automático (por data)' }, { value: 'Em Andamento', label: 'Em Andamento' }, { value: 'Concluído', label: 'Concluído' }];
+const normStatus = (s) => (!s || s === 'Automático (por data)' ? '' : s);
 
 const emptyForm = {
   title: '', description: '', date: '', event_date: '', time: '', location: '', video_url: '',
@@ -82,7 +84,7 @@ export default function EventosAdmin() {
       date: event.date || '', event_date: event.event_date || '',
       time: extra.time || event.time || '',
       location: event.location || '', video_url: event.video_url || '',
-      status: event.status || '',
+      status: normStatus(event.status),
       image_url: event.image_url || '', imageFile: null, sections,
     });
     setPreview(event.image_url || null);
@@ -136,6 +138,7 @@ export default function EventosAdmin() {
       const res = await fetch(API_URL, { method: 'POST', body: fd });
       const result = await res.json();
       if (res.ok && result.status === 'success') {
+        window.showToast?.(editingId ? 'Evento salvo.' : 'Evento publicado.');
         resetForm();
         fetchEvents();
       } else {
@@ -196,7 +199,7 @@ export default function EventosAdmin() {
                       <Calendar size={12} className="text-[#007a3d]"/> {event.date || 'Sem data'}
                       {event.time && <><Clock size={12} className="text-[#007a3d]"/> {event.time}</>}
                       <MapPin size={12} className="text-[#007a3d]"/> {event.location || 'Sem local'}
-                      {event.status && <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${projectStatusColor(event.status)}`}>{event.status}</span>}
+                      {normStatus(event.status) && <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${projectStatusColor(event.status)}`}>{event.status}</span>}
                     </div>
                   </div>
                 </div>
@@ -240,7 +243,7 @@ export default function EventosAdmin() {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Status</label>
                     <select className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.status} onChange={e => setFormData(f => ({...f, status: e.target.value}))}>
-                      {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">

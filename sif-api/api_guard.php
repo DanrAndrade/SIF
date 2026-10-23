@@ -232,13 +232,15 @@ function sif_ensure_schema(PDO $pdo): void {
 }
 
 // ---------------------------------------------------------------- 1d) segurança de arquivos e HTML
-// Apaga um arquivo SÓ se ele estiver dentro de sif-api/uploads/ (caminhos
+// Apaga um arquivo SÓ se ele estiver dentro de sif-api/uploads/ ou banners/ (caminhos
 // vindos do banco/formulário nunca apagam código ou configuração).
 function sif_safe_unlink(?string $path): bool {
     if (!is_string($path) || $path === '' || strpos($path, '..') !== false) return false;
     $path = ltrim(str_replace('\\', '/', $path), '/');
-    if (strpos($path, 'uploads/') !== 0) return false;
-    $root = realpath(__DIR__ . '/uploads');
+    // Só dentro de uploads/ ou banners/ (imagens dos banners da Home)
+    $base = strpos($path, 'uploads/') === 0 ? 'uploads' : (strpos($path, 'banners/') === 0 ? 'banners' : null);
+    if ($base === null) return false;
+    $root = realpath(__DIR__ . '/' . $base);
     $real = realpath(__DIR__ . '/' . $path);
     if (!$root || !$real || !is_file($real)) return false;
     $root = rtrim(str_replace('\\', '/', $root), '/') . '/';

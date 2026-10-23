@@ -7,7 +7,7 @@ import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot
 // pageKey -> chave em page_content.php (eventos, treinamentos, gt, projetos, blog)
 // defaults -> { hero_image, hero_badge, hero_title_line1, hero_title_highlight, hero_subtitle, hero_scroll_label }
 // scrollTargetId -> id do elemento abaixo para o botão de scroll
-export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bgColor = '#f8f9fa' }) {
+export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bgColor = '#f6f8f7' }) {
   // Boot (HTML) ou cache local -> renderiza na hora, com a imagem real (já pré-carregada).
   const initial = readBootOrCache(pageKey);
   const [cfg, setCfg] = useState(initial);
@@ -34,7 +34,7 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
   // A imagem vem SOMENTE do banco (imagem enviada pelo admin). Nunca usa
   // imagem de exemplo dos defaults — se o banco não tiver, fica o fundo escuro.
   const bancoImg = cfg && cfg.hero_image ? cfg.hero_image : '';
-  const heroBgUrl = bancoImg ? (bancoImg.startsWith('http') ? bancoImg : getImageUrl(bancoImg)) : '';
+  const heroBgUrl = bancoImg ? (bancoImg.startsWith('http') ? bancoImg : getImageUrl(bancoImg, 1920)) : '';
 
   return (
     <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, Plus, X, ShieldCheck, PenLine } from 'lucide-react';
-import { AdminPage, AdminCard, PrimaryButton, SecondaryButton, SaveButton, ItemActions, useConfirm } from '../../components/admin/kit';
+import { AdminPage, AdminCard, PrimaryButton, SecondaryButton, SaveButton, ItemActions, useConfirm, useDirty, useCanLeave } from '../../components/admin/kit';
 import { API_BASE_URL } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
 import { MODULE_OPTIONS } from '../../utils/adminModules';
@@ -89,13 +89,26 @@ export default function UsuariosAdmin() {
 function UserForm({ initial, gts, isSelf, onCancel, onSaved }) {
   const [f, setF] = useState(initial);
   const [saving, setSaving] = useState(false);
+  const confirm = useConfirm();
+  const canLeave = useCanLeave();
+  const { dirty, markClean } = useDirty(f);
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
   const toggle = (k, v) => setF(p => ({ ...p, [k]: p[k].includes(v) ? p[k].filter(x => x !== v) : [...p[k], v] }));
 
+  // Cancelar com alterações: pergunta antes de descartar
+  const cancel = async () => { if (await canLeave()) onCancel(); };
+
   const save = async () => {
+    // Administrador tirando o próprio acesso total: confirma (perde a tela de usuários na hora)
+    if (isSelf && initial.role === 'admin' && f.role !== 'admin' && !(await confirm({
+      title: 'Deixar de ser administrador?',
+      message: 'Você vai perder o acesso a esta tela e às áreas não marcadas assim que salvar. Só outro administrador poderá desfazer.',
+      confirmLabel: 'Sim, mudar meu perfil', danger: true,
+    }))) return;
     setSaving(true);
     try {
       await post({ action: 'save', ...f });
+      markClean();
       window.showToast?.(f.id ? 'Usuário atualizado.' : 'Usuário criado. Passe o e-mail e a senha para a pessoa.');
       onSaved();
     } catch (err) { toastError(err); }
@@ -108,8 +121,8 @@ function UserForm({ initial, gts, isSelf, onCancel, onSaved }) {
 
   return (
     <AdminPage title={f.id ? 'Editar usuário' : 'Novo usuário'} subtitle={f.id ? (f.name || f.email) : 'Cadastre a pessoa e escolha o que ela pode alterar.'}
-      actions={<SecondaryButton icon={X} onClick={onCancel}>Cancelar</SecondaryButton>}
-      save={{ onSave: save, saving, label: f.id ? 'Salvar usuário' : 'Criar usuário' }}>
+      actions={<SecondaryButton icon={X} onClick={cancel}>Cancelar</SecondaryButton>}
+      save={{ onSave: save, saving, dirty, label: f.id ? 'Salvar usuário' : 'Criar usuário' }}>
 
       <AdminCard title="Dados de acesso">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -158,7 +171,7 @@ function UserForm({ initial, gts, isSelf, onCancel, onSaved }) {
         </AdminCard>
       )}
 
-      <AdminCard title="Responsável por Grupos Temáticos" subtitle="Pode publicar e editar posts no blog destes grupos (mesmo sem a área “Gerenciar Blog”).">
+      <AdminCard title="Responsável por Grupos Temáticos" subtitle="Pode publicar e editar posts no blog destes grupos (mesmo sem a área “Blog” marcada).">
         {gts.length === 0 ? <p className="text-sm text-gray-400">Nenhum grupo temático cadastrado.</p> : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {gts.map(g => (

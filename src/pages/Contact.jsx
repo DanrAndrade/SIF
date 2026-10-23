@@ -222,7 +222,7 @@ export default function Contact() {
                                 <button 
                                     type="submit" 
                                     disabled={loading}
-                                    className="w-full md:w-auto bg-[#1f2937] hover:bg-[#007a3d] text-white font-black uppercase tracking-[0.2em] text-[10px] py-6 px-16 rounded-2xl transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-4 disabled:opacity-50"
+                                    className="w-full md:w-auto bg-sif-dark hover:bg-[#007a3d] text-white font-black uppercase tracking-[0.2em] text-[10px] py-6 px-16 rounded-2xl transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-4 disabled:opacity-50"
                                 >
                                     {loading ? 'Processando envio...' : (
                                         <>

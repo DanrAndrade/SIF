@@ -21,7 +21,9 @@ const HERO_DEFAULTS = {
   hero_subtitle: 'Transformando desafios em soluções aplicadas através de pesquisas de vanguarda e inovação florestal.',
   hero_scroll_label: 'Ver Projetos',
 };
-const STATUS_OPTIONS = ['Automático (por data)', 'Em Andamento', 'Concluído'];
+// value '' = automático pela data (antes gravava o texto "Automático (por data)" e ele aparecia no site)
+const STATUS_OPTIONS = [{ value: '', label: 'Automático (por data)' }, { value: 'Em Andamento', label: 'Em Andamento' }, { value: 'Concluído', label: 'Concluído' }];
+const normStatus = (s) => (!s || s === 'Automático (por data)' ? '' : s);
 
 const emptyForm = {
   title: '', description: '', tag: '', lab: '',
@@ -68,7 +70,7 @@ export default function ProjetosAdmin() {
     setEditingId(p.id);
     setForm({
       title: p.title, description: p.description || '', tag: p.tag || '',
-      lab: p.lab || '', status: p.status || '',
+      lab: p.lab || '', status: normStatus(p.status),
       data_limite: p.data_limite || '', link_url: p.link_url || '',
       image_url: p.image_url || '', imageFile: null, sections,
     });
@@ -118,6 +120,7 @@ export default function ProjetosAdmin() {
 
     try {
       await apiRequest(API_URL, { method: 'POST', body: fd });
+      window.showToast?.(editingId ? 'Projeto salvo.' : 'Projeto publicado.');
       reset(); fetchProjetos();
     } catch (err) { toastError(err); } // em erro o formulário continua aberto, com o que foi digitado
     finally { setLoading(false); }
@@ -202,7 +205,7 @@ export default function ProjetosAdmin() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Status</label>
                 <select className="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={form.status} onChange={e => setForm(f => ({...f, status: e.target.value}))}>
-                  {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                  {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
               <div className="space-y-2">

@@ -117,7 +117,7 @@ export default function GrupoTematicoDetalhe() {
     '--accent-soft': `color-mix(in srgb, ${color} 12%, #ffffff)`,
     '--accent-tint': `color-mix(in srgb, ${color} 6%, #ffffff)`,
   };
-  const cover = gt.image_url ? getImageUrl(gt.image_url) : '';
+  const cover = gt.image_url ? getImageUrl(gt.image_url, 1920) : '';
   const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const contactSec = visible.find(s => s.type === 'gt_contact');
   const blogSec = visible.find(s => s.type === 'gt_blog');
@@ -146,7 +146,7 @@ export default function GrupoTematicoDetalhe() {
           {responsavel?.contact_name && (
             <span className="inline-flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-white/85 text-sm">
               {responsavel.contact_photo
-                ? <img src={getImageUrl(responsavel.contact_photo)} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ? <img src={getImageUrl(responsavel.contact_photo, 160)} alt="" className="w-8 h-8 rounded-full object-cover" />
                 : <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">{responsavel.contact_name.charAt(0)}</span>}
               <span>Responsável: <strong className="font-semibold text-white">{responsavel.contact_name}</strong></span>
             </span>

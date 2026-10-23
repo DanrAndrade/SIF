@@ -2,7 +2,35 @@ import React, { useEffect, useCallback, useRef, useState } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
-import { API_BASE_URL, getImageUrl } from '../../apiConfig';
+import { API_BASE_URL, getImageUrl, fixUploadUrls } from '../../apiConfig';
+import { quillListsToSemantic } from '../../utils/quillHtml';
+
+// Formatos aceitos = os botões da barra. Texto colado do Word/Google Docs
+// trazia cor, fundo, fonte e tamanho (ex.: texto preto com fundo branco, que
+// some na faixa verde escura do site). Com esta lista, só fica o que a barra
+// oferece (negrito, títulos, listas, links, imagens, vídeo...).
+const FORMATS = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'align', 'list', 'indent', 'link', 'image', 'video', 'imageAlign'];
+
+// Listas coladas do Word chegam como parágrafos "·  item". Aqui viram lista de verdade.
+const Delta = Quill.import('delta');
+const wordListLevel = (node) => {
+  const st = node.getAttribute?.('style') || '';
+  if (!/MsoListParagraph/i.test(node.className || '') && !/mso-list:\s*l\d/i.test(st)) return null;
+  const m = st.match(/level(\d+)/i);
+  return m ? Math.max(0, Number(m[1]) - 1) : 0;
+};
+const isWordMarker = (el) => /mso-list:\s*ignore/i.test(el.getAttribute('style') || '');
+const WORD_MATCHERS = [
+  // marcador do Word (·, o, §, 1.) fica num span "mso-list:Ignore": descarta
+  ['span', (node, delta) => (isWordMarker(node) ? new Delta() : delta)],
+  ['p', (node, delta) => {
+    const level = wordListLevel(node);
+    if (level === null || delta.length() < 1) return delta;
+    const marker = [...node.querySelectorAll('span')].find(isWordMarker)?.textContent || '';
+    const ordered = /^\s*\(?[0-9a-zA-Z]{1,4}[.)]/.test(marker);
+    return delta.compose(new Delta().retain(delta.length() - 1).retain(1, { list: ordered ? 'ordered' : 'bullet', ...(level ? { indent: level } : {}) }));
+  }],
+];
 
 // Imagem colada (Ctrl+V de print/Word) ou arrastada entra no Quill como
 // base64 dentro do HTML — deixa o conteúdo gigante (centenas de KB) e a
@@ -20,22 +48,25 @@ async function uploadDataImage(dataUrl) {
 }
 
 export default function QuillEditor({ value, onChange, height = 'h-[550px]', className = '' }) {
-  const { quillRef, modules } = useQuillImageHandler();
+  const { quillRef, modules: baseModules } = useQuillImageHandler();
+  const modules = React.useMemo(() => ({ ...baseModules, clipboard: { ...(baseModules.clipboard || {}), matchers: WORD_MATCHERS } }), [baseModules]);
   // Ao abrir, o editor "arruma" o HTML (ex.: põe <p>) e avisaria mudança sem
   // ninguém mexer — aparecia "Alterações não salvas" à toa. Só repassamos
   // mudanças feitas pela pessoa (digitação, colar, botões, imagem).
   // O valor arrumado pelo editor fica guardado aqui (não volta a ser
   // reaplicado a cada nova renderização do formulário).
-  const [local, setLocal] = useState(value || '');
+  const [local, setLocal] = useState(() => fixUploadUrls(value || '')); // imagens antigas apontam para a API atual
   const sent = useRef(value || '');
   useEffect(() => {
-    if ((value || '') !== sent.current) { sent.current = value || ''; setLocal(value || ''); }
+    if ((value || '') !== sent.current) { sent.current = value || ''; setLocal(fixUploadUrls(value || '')); }
   }, [value]);
   const handleChange = useCallback((html, _delta, source) => {
     setLocal(html);
     if (source !== 'user') return;
-    sent.current = html;
-    onChange?.(html);
+    // Listas do Quill 2 (<ol data-list="bullet">) viram <ul>/<ol> normais para o site
+    const out = quillListsToSemantic(html);
+    sent.current = out;
+    onChange?.(out);
   }, [onChange]);
 
   useEffect(() => {
@@ -77,6 +108,7 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
         modules={modules}
         value={local}
         onChange={handleChange}
+        formats={FORMATS}
         useSemanticHTML={false}
         className="flex-1 min-h-0 flex flex-col"
       />

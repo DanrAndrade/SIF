@@ -44,7 +44,7 @@ export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null,
               <Link key={p.id} to={`/blog/${p.slug}`} className="group sif-card sif-card-hover rounded-card overflow-hidden border border-gray-100 flex">
                 {p.image_url && (
                   <div className="w-32 md:w-44 shrink-0 overflow-hidden bg-gray-100">
-                    <img src={getImageUrl(p.image_url)} alt={p.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={getImageUrl(p.image_url, 640)} alt={p.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                 )}
                 <div className="p-5 md:p-6 flex flex-col justify-center min-w-0">
@@ -67,7 +67,7 @@ function BigCard({ post: first }) {
     <Link to={`/blog/${first.slug}`} className="group sif-card sif-card-hover rounded-card overflow-hidden border border-gray-100 flex flex-col">
       {first.image_url && (
         <div className="aspect-[16/9] overflow-hidden bg-gray-100">
-          <img src={getImageUrl(first.image_url)} alt={first.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+          <img src={getImageUrl(first.image_url, 1024)} alt={first.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
         </div>
       )}
       <div className="p-7 md:p-9 flex flex-col flex-grow">

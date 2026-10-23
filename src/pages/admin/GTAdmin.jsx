@@ -131,6 +131,7 @@ export default function GTAdmin() {
 
     try {
       await apiRequest(API_URL, { method: 'POST', body: fd });
+      window.showToast?.(editingId ? 'Grupo temático salvo.' : 'Grupo temático publicado.');
       resetForm(); fetchGts();
     } catch (err) { toastError(err); } // em erro o formulário continua aberto
     finally { setLoading(false); }

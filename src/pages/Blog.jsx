@@ -90,7 +90,7 @@ export default function Blog() {
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   <img 
-                    src={post.image_url ? getImageUrl(post.image_url) : null}
+                    src={post.image_url ? getImageUrl(post.image_url, 800) : null}
                     alt={post.title}
                     className={`w-full h-full object-cover transition-transform group-hover:scale-105 ${!post.image_url ? 'hidden' : ''}`}
                     loading="lazy"

@@ -31,8 +31,14 @@ function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = fa
   const latest = useLatest(list);
   const set = (i, patch) => onChange(latest.current.map((it, j) => (j === i ? { ...it, ...patch } : it)));
   const remove = async (i) => {
+    const target = list[i];
     if (!(await confirm({ title: 'Remover este item?', confirmLabel: 'Remover', danger: true }))) return;
-    onChange(list.filter((_, j) => j !== i));
+    // sobre a lista atual (foto enviada durante a confirmação não se perde)
+    const cur = latest.current;
+    let j = cur.indexOf(target);
+    if (j < 0 && target?._id) j = cur.findIndex(x => x?._id === target._id);
+    if (j < 0) j = i;
+    onChange(cur.filter((_, k) => k !== j));
   };
   return (
     <div className="space-y-3">

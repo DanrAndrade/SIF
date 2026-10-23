@@ -50,8 +50,11 @@ function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
     onChange(p);
   };
   const remove = async (i) => {
-    if (!(await confirm({ title: 'Remover este PDF?', message: pdfs[i]?.title || '', confirmLabel: 'Remover' }))) return;
-    onChange(pdfs.filter((_, idx) => idx !== i));
+    const target = pdfs[i];
+    if (!(await confirm({ title: 'Remover este PDF?', message: target?.title || '', confirmLabel: 'Remover' }))) return;
+    const cur = latestPdfs.current || [];
+    const j = cur.indexOf(target) >= 0 ? cur.indexOf(target) : i;
+    onChange(cur.filter((_, idx) => idx !== j));
   };
 
   return (
@@ -227,15 +230,24 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const move     = (i, dir) => onChange(moveItem(list, i, dir));
-  const remove   = async (i) => {
+  // Remove pelo id e sobre a lista ATUAL: um envio que termine enquanto a
+  // confirmação está aberta não é desfeito.
+  const remove   = async (id) => {
     if (!(await confirm({ title: 'Remover esta seção?', message: 'O conteúdo dela sai da página ao salvar.', confirmLabel: 'Remover' }))) return;
-    onChange(list.filter((_, idx) => idx !== i));
+    if (!alive.current) return;
+    const next = latest.current.filter(s => s.id !== id);
+    latest.current = next;
+    onChange(next);
   };
   // updates pode ser um objeto ou uma função (bloco atual) => objeto
   const update   = (id, updates) => {
     if (!alive.current) return;
     const cur = latest.current;
-    onChange(cur.map(s => (s.id === id ? { ...s, ...(typeof updates === 'function' ? updates(s) : updates) } : s)));
+    const next = cur.map(s => (s.id === id ? { ...s, ...(typeof updates === 'function' ? updates(s) : updates) } : s));
+    // Já guarda a lista nova: dois envios que terminam juntos (ex.: fotos de
+    // duas pessoas) não se sobrescrevem antes de a tela redesenhar.
+    latest.current = next;
+    onChange(next);
   };
 
   const isUploading = uploadCount > 0;
@@ -281,7 +293,7 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
             index={i}
             total={list.length}
             onMove={(dir) => move(i, dir)}
-            onRemove={() => remove(i)}
+            onRemove={() => remove(section.id)}
             onUpdate={(updates) => update(section.id, updates)}
             onUploadingChange={handleUploadingChange}
             bands={bands}

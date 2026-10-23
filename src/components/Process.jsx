@@ -32,7 +32,7 @@ export default function Process({ config = {} }) {
       id: s.id || '',
       title: s.title || '',
       icon: Icon,
-      img: s.img ? (s.img.startsWith('http') ? s.img : getImageUrl(s.img)) : '',
+      img: s.img ? (getImageUrl(s.img, 1024)) : '',
       shortDesc: s.shortDesc || '',
       fullDesc: s.fullDesc || '',
       benefits: benefitsArr,
@@ -54,7 +54,7 @@ export default function Process({ config = {} }) {
 
   return (
       <div className="wrapper mb-4">
-        <section className="relative w-full rounded-card overflow-hidden bg-[#1f2937] py-12 lg:py-16 shadow-2xl">
+        <section className="relative w-full rounded-card overflow-hidden bg-sif-dark py-12 lg:py-16 shadow-2xl">
             
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#007a3d] rounded-full blur-[120px] opacity-25 pointer-events-none translate-x-1/4 -translate-y-1/4"></div>
             <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-[#4ADE80] rounded-full blur-[100px] opacity-15 pointer-events-none -translate-x-1/4 translate-y-1/4"></div>

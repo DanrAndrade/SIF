@@ -55,7 +55,7 @@ function EventoCard({ ev, faded = false }) {
       {ev.image_url && (
         <div className="h-48 overflow-hidden bg-gray-100">
           <img
-            src={getImageUrl(ev.image_url)}
+            src={getImageUrl(ev.image_url, 800)}
             alt={ev.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
@@ -69,7 +69,7 @@ function EventoCard({ ev, faded = false }) {
               <MapPin size={10} /> {ev.location}
             </span>
           )}
-          {ev.status && (
+          {ev.status && ev.status !== 'Automático (por data)' && (
             <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-500">
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[ev.status] || 'bg-gray-400'}`}></span>
               {ev.status}
@@ -207,7 +207,7 @@ export default function Eventos() {
 
         {/* ── EVENTOS CONCLUÍDOS ── */}
         {!loading && concluidos.length > 0 && (
-          <section className="py-24 pb-32 bg-white border-t border-gray-100">
+          <section className="py-24 pb-32">
             <div className="container mx-auto px-6 max-w-7xl">
               <SectionTitle title="Eventos" accent="Concluídos" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

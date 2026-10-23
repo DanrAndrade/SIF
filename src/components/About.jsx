@@ -40,7 +40,7 @@ export default function About({ config = {} }) {
                     <div className="flex flex-col sm:flex-row gap-6">
                         <Link
                             to={c.cta_link}
-                            className="inline-flex items-center justify-center gap-3 bg-[#1f2937] hover:bg-[#007a3d] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all hover:scale-105 shadow-xl shadow-gray-900/10"
+                            className="inline-flex items-center justify-center gap-3 bg-sif-dark hover:bg-[#007a3d] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all hover:scale-105 shadow-xl shadow-sif-dark/10"
                         >
                             {c.cta_label} <ArrowRight size={18} />
                         </Link>

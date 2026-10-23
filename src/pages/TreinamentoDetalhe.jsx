@@ -72,7 +72,7 @@ export default function TreinamentoDetalhe() {
 
       {/* TOPO (padrão das páginas de detalhe) */}
       <DetailHero
-        cover={training.image_url ? getImageUrl(training.image_url) : ''}
+        cover={training.image_url ? getImageUrl(training.image_url, 1920) : ''}
         crumbs={[{ label: 'Treinamentos', to: '/treinamentos' }]}
         eyebrow="Treinamento" icon={BookOpen}
         title={training.title}
@@ -138,7 +138,7 @@ export default function TreinamentoDetalhe() {
                           <div className="flex flex-wrap gap-3 mb-8">
                             {tabs.map((tab, i) => (
                               <button key={i} onClick={() => setActiveTab(i)}
-                                className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${activeTab === i ? 'bg-[#1f2937] text-white border-[#1f2937] shadow-md' : 'bg-white text-gray-400 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+                                className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${activeTab === i ? 'bg-sif-dark text-white border-sif-dark shadow-md' : 'bg-white text-gray-400 border-gray-200 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
                                 {tab.title}
                               </button>
                             ))}
@@ -160,7 +160,7 @@ export default function TreinamentoDetalhe() {
               )}
 
               {training.video_url && (
-                <div className="mt-16 bg-gray-900 rounded-card overflow-hidden aspect-video shadow-2xl relative group">
+                <div className="mt-16 bg-sif-dark rounded-card overflow-hidden aspect-video shadow-2xl relative group">
                   <iframe 
                     className="w-full h-full"
                     src={toVideoEmbed(training.video_url) || training.video_url} 

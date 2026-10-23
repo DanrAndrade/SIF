@@ -92,7 +92,7 @@ export default function ProjetosEmbrapii() {
                   <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col">
                     {p.image_url && (
                       <div className="h-44 overflow-hidden bg-gray-100">
-                        <img src={getImageUrl(p.image_url)} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <img src={getImageUrl(p.image_url, 800)} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                       </div>
                     )}
                     <div className="p-7 flex-grow flex flex-col">

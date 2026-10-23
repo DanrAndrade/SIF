@@ -29,7 +29,10 @@ export default function LogosEditor({ images = [], onChange, hint }) {
 
   const remove = async (i) => {
     if (!(await confirm({ title: 'Remover esta logo do carrossel?', confirmLabel: 'Remover' }))) return;
-    onChange(list.filter((_, idx) => idx !== i));
+    // lista atual: logos enviadas durante a confirmação não se perdem
+    const cur = latest.current;
+    const j = cur[i] === list[i] ? i : cur.indexOf(list[i]);
+    if (j >= 0) onChange(cur.filter((_, idx) => idx !== j));
   };
 
   return (

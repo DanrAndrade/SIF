@@ -32,7 +32,7 @@ export default function AdminBanners() {
 
   const fetchBanners = async () => {
     try {
-      const response = await axios.get(API_URL, { withCredentials: true });
+      const response = await axios.get(`${API_URL}?admin=1`, { withCredentials: true });
       if (Array.isArray(response.data)) {
         setBanners(response.data);
       } else {

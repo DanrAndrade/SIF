@@ -37,6 +37,7 @@ export const BAND_STYLES = {
   plain:  'Fundo da página',
   white:  'Branco',
   tinted: 'Verde bem claro',
+  glow:   'Degradê verde suave',
   dark:   'Verde escuro',
 };
 

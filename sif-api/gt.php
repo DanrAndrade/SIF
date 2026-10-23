@@ -68,6 +68,11 @@ if ($method === 'POST') {
     $extra_data       = sif_clean_json($_POST['extra_data']       ?? null);
 
     $image_url = uploadGtImage($_FILES['image'] ?? null);
+    // Arquivo enviado mas recusado (tipo/tamanho): avisa em vez de salvar sem a imagem
+    if (!$image_url && isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        echo json_encode(["status" => "error", "success" => false, "message" => "A imagem não foi aceita. Use JPG, PNG, WebP ou GIF de até 10 MB."]);
+        exit;
+    }
 
     if ($id) {
         if ($image_url) {

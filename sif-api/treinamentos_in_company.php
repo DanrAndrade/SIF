@@ -75,6 +75,11 @@ if ($method == 'POST') {
     }
 
     $image_url = uploadFile($_FILES['image'] ?? null, 'images');
+    // Arquivo enviado mas recusado (tipo/tamanho): avisa em vez de salvar sem a imagem
+    if (!$image_url && isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        echo json_encode(["status" => "error", "success" => false, "message" => "A imagem não foi aceita. Use JPG, PNG, WebP ou GIF de até 10 MB."]);
+        exit;
+    }
     if (!$image_url && $image_url_fallback) {
         $image_url = $image_url_fallback;
     }

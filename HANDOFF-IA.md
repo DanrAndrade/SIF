@@ -236,3 +236,23 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
 
 **Para publicar** (quando o Dan pedir): build + PHP novos `upload_video.php`, `seo_lib.php`, `sitemap.php`, `robots.php`, `llms.php` + todos os PHP alterados (nunca `db.php`, `uploads/`, `nossa-gente/`) + `sif-api/.htaccess`, `sif-api/.user.ini`. O `public/.htaccess` e `public/assets/.htaccess` vão dentro do build.
 **No `db.php` de produção (manual, não é entregue):** liberar origens `localhost` só em ambiente local e, se possível, `ini_set('session.gc_maxlifetime', 86400)` antes do `session_start()`.
+
+## 10. Desempenho, vídeo do topo e ambiente local (out/2026)
+
+- **Imagens redimensionadas no servidor:** `sif-api/img.php?src=uploads/...&w=800`
+  reduz a largura, converte para WebP e guarda em `sif-api/cache/img/`. No
+  front, `getImageUrl(caminho, largura)` (apiConfig.js) já monta esse link.
+  Precisa da extensão **GD** no PHP (na HostGator vem ligada; no XAMPP local
+  foi ligada em `php.ini`). Sem GD, o img.php redireciona para a imagem
+  original (nada quebra, só fica mais pesado). A Home caiu de ~13 MB para
+  ~1,4 MB de imagens.
+- **Sem Lenis:** a rolagem suave foi removida (rodava um laço o tempo todo e
+  engasgava). O pacote ainda está no package.json, mas não é usado.
+- **Topo da Home:** no painel, "Fundo do topo" = Imagem ou Vídeo. O vídeo pode
+  ser link do YouTube/Vimeo (`video_loop_url`) ou MP4 enviado (`video_loop`).
+  O botão "Assistir vídeo" usa `video_full_url` ou, vazio, o próprio vídeo.
+- **CSS `.container`:** agora fica em `@layer components` e só define as
+  laterais (antes zerava o espaço de cima/baixo de várias seções).
+- **Ambiente local:** o Vite do SIF roda em **http://localhost:3000**
+  (`.claude/launch.json`). A porta 5173 está ocupada por outro projeto (G3
+  Clinic) e o login do painel não funciona por 127.0.0.1 (cookie).

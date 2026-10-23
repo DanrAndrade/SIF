@@ -124,7 +124,8 @@ export default function ProdutosAdmin() {
       .finally(() => setLoading(false));
   }, []);
 
-  const set = (k, v) => setConfig(p => ({ ...p, [k]: v }));
+  // v pode ser função (valor atual => novo): envios que terminam depois não desfazem o que foi digitado
+  const set = (k, v) => setConfig(p => ({ ...p, [k]: typeof v === 'function' ? v(p[k]) : v }));
 
   const handleSave = async () => {
     if (uploading) { window.showToast('Aguarde o upload de arquivo terminar antes de salvar.'); return; }
@@ -258,6 +259,9 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
   const updateEntry = (i, patch) => {
     const next = [...pdfs]; next[i] = { ...next[i], ...patch }; onChange(next);
   };
+  // Atualiza pela identidade do boletim, a partir da lista MAIS RECENTE (usado ao terminar um envio:
+  // reordenar ou editar outro campo no meio do envio não perde nada nem troca de boletim)
+  const patchById = (id, patch) => onChange(cur => (Array.isArray(cur) ? cur : []).map(e => (e.id === id ? { ...e, ...patch } : e)));
   const move = (i, dir) => {
     const j = i + dir; if (j < 0 || j >= pdfs.length) return;
     const next = [...pdfs]; [next[i], next[j]] = [next[j], next[i]]; onChange(next);
@@ -310,6 +314,7 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
             onMoveDown={() => move(i, +1)}
             onRemove={() => removeEntry(i)}
             onUpdate={patch => updateEntry(i, patch)}
+            onUploaded={patch => (item.id ? patchById(item.id, patch) : updateEntry(i, patch))}
             uploadPdf={uploadPdf}
             uploadImage={uploadImage}
           />
@@ -319,7 +324,7 @@ function BoletimPdfManager({ pdfs, onChange, onUploading }) {
   );
 }
 
-function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, onUpdate, uploadPdf, uploadImage }) {
+function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, onUpdate, onUploaded, uploadPdf, uploadImage }) {
   const [busy, setBusy] = useState(false);
 
   const handlePdfFile = async (file) => {
@@ -327,7 +332,7 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     setBusy(true);
     try {
       const url = await uploadPdf(file);
-      onUpdate({ pdf_url: url, ...(item.title ? {} : { title: file.name.replace(/\.pdf$/i, '') }) });
+      onUploaded({ pdf_url: url, ...(item.title ? {} : { title: file.name.replace(/\.pdf$/i, '') }) });
     } catch (e) { toastError(e); }
     finally { setBusy(false); }
   };
@@ -337,7 +342,7 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
     setBusy(true);
     try {
       const url = await uploadImage(file);
-      onUpdate({ cover_url: url });
+      onUploaded({ cover_url: url });
     } catch (e) { toastError(e); }
     finally { setBusy(false); }
   };

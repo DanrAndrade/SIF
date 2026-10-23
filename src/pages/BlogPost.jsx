@@ -127,19 +127,19 @@ export default function BlogPost() {
       <Navbar />
 
       {/* HERO — foto da matéria se houver, senão degradê escuro */}
-      <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-[#1f2937]">
+      <div className="relative h-[65vh] flex items-center pt-20 overflow-hidden bg-sif-dark">
         <div className="absolute inset-0 z-0">
           {post.image_url
             ? <>
                 <img
-                  src={getImageUrl(post.image_url)}
+                  src={getImageUrl(post.image_url, 1280)}
                   alt={post.title}
                   className="w-full h-full object-cover opacity-60"
                   loading="eager"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
               </>
-            : <div className="absolute inset-0 bg-gradient-to-br from-black via-slate-900 to-[#1B5E20]/30" />
+            : <div className="absolute inset-0 bg-gradient-to-br from-black via-sif-dark to-[#1B5E20]/30" />
           }
         </div>
 
@@ -238,7 +238,7 @@ export default function BlogPost() {
                   <div className="relative h-40 overflow-hidden flex-shrink-0 bg-gray-50">
                     {relPost.image_url && (
                       <img
-                        src={getImageUrl(relPost.image_url)}
+                        src={getImageUrl(relPost.image_url, 640)}
                         alt={relPost.title}
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         loading="lazy"

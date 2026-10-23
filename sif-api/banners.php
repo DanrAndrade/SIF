@@ -10,7 +10,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // --- GET: Listar Banners ---
 if ($method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM banners ORDER BY created_at DESC");
+    // Banner oculto só aparece no painel (?admin=1 com login)
+    $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin();
+    $stmt = $pdo->query("SELECT * FROM banners" . ($adminMode ? '' : ' WHERE active = 1') . " ORDER BY created_at DESC");
     $banners = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($banners, JSON_UNESCAPED_SLASHES);
 }

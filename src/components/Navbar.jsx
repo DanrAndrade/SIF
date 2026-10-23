@@ -90,7 +90,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
   ];
 
   const headerBg = scrolled 
-    ? 'bg-white/90 backdrop-blur-md shadow-sm py-4 border-gray-100' 
+    ? 'bg-white/[0.97] shadow-sm py-4 border-gray-100' 
     : 'bg-transparent py-4 border-transparent';
 
   const commonTextColor = scrolled ? 'text-[#1f2937]' : 'text-white';

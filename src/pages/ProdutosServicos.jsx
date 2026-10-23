@@ -112,7 +112,7 @@ function BoletimGrid({ pdfs, legacySections }) {
           {p.cover_url ? (
             <div className="h-48 bg-gray-100 overflow-hidden">
               <img
-                src={getImageUrl(p.cover_url)}
+                src={getImageUrl(p.cover_url, 640)}
                 alt={p.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 loading="lazy"
@@ -174,7 +174,7 @@ export default function ProdutosServicos() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
                   activeTab === tab.id
-                    ? 'bg-[#1f2937] text-white shadow-xl'
+                    ? 'bg-sif-dark text-white shadow-xl'
                     : 'bg-white text-gray-400 hover:text-[#007a3d] border border-gray-100'
                 }`}
               >

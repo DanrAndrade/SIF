@@ -61,7 +61,7 @@ export default function Partners() {
           setPartners(res.data.map(a => ({
             name: a.name,
             website: toExternalUrl(a.website),
-            src: a.logo_url ? getImageUrl(a.logo_url) : null,
+            src: a.logo_url ? getImageUrl(a.logo_url, 320) : null,
           })));
         }
       })
@@ -96,13 +96,14 @@ export default function Partners() {
                     <Item
                         key={index}
                         {...linkProps}
-                        className="flex items-center justify-center mx-8 w-[180px] h-[100px] opacity-100 grayscale-0 hover:scale-105 transition-all duration-300 cursor-pointer"
+                        className={`flex items-center justify-center mx-8 w-[180px] h-[100px] transition-transform duration-300 ${partner.website ? 'hover:scale-105 cursor-pointer' : 'cursor-default'}`}
                         title={partner.name}
                     >
                         {partner.src ? (
                           <img
                               src={partner.src}
                               alt={partner.name}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                               loading="lazy"
                               decoding="async"
                               className="max-h-16 max-w-full object-contain mix-blend-multiply"

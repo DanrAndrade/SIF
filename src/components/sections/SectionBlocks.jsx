@@ -4,7 +4,7 @@ import {
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
   Factory, FlaskConical, HeartHandshake, Rocket, Droplets, Flame, Recycle, Truck, Settings, Map,
 } from 'lucide-react';
-import { getImageUrl, cleanRichHtml } from '../../apiConfig';
+import { getImageUrl, cleanRichHtml, htmlToText } from '../../apiConfig';
 import SectionTitle from './SectionTitle';
 import LogoCarousel from './LogoCarousel';
 import SmartLink from '../ui/SmartLink';
@@ -17,7 +17,7 @@ export const BLOCK_ICONS = {
   Factory, FlaskConical, HeartHandshake, Rocket, Droplets, Flame, Recycle, Truck, Settings, Map,
 };
 
-const img = (p) => (p ? getImageUrl(p) : '');
+const img = (p) => (p ? getImageUrl(p, 1280) : '');
 
 // Cabeçalho padrão dos blocos: etiqueta pequena + título com o estilo do painel
 export function BlockHeader({ sec, dark, align = 'left', size = 'xl', className = 'mb-10' }) {
@@ -71,6 +71,7 @@ export function CardsBlock({ sec, dark }) {
           const Icon = BLOCK_ICONS[it.icon] || Target;
           return (
             <div key={i} className={`group relative rounded-card p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.1]' : 'sif-card sif-card-hover border border-gray-100'}`}>
+              <span className={`absolute top-6 right-7 text-sm font-bold tabular-nums ${dark ? 'text-white/25' : 'text-gray-200'}`} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-colors ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)] group-hover:bg-[var(--accent,#007a3d)] group-hover:text-white'}`}>
                 <Icon size={22} />
               </div>
@@ -90,9 +91,9 @@ export function StatsBlock({ sec, dark }) {
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} align="center" />
-      <div className={`grid grid-cols-2 ${cols} gap-y-10`}>
+      <div className={`grid grid-cols-2 ${cols} gap-3 md:gap-5`}>
         {items.map((it, i) => (
-          <div key={i} className={`text-center px-4 ${i > 0 ? `md:border-l ${dark ? 'md:border-white/15' : 'md:border-gray-200'}` : ''}`}>
+          <div key={i} className={`text-center rounded-card px-4 py-7 md:py-9 ${dark ? 'bg-white/[0.07] border border-white/10' : 'bg-white shadow-card'}`}>
             <div className={`text-4xl md:text-6xl font-semibold tracking-tight ${dark ? 'text-white' : 'text-[var(--accent,#007a3d)]'}`}>{it.value}</div>
             {it.label && <div className={`mt-2 text-sm md:text-base ${dark ? 'text-white/70' : 'text-gray-500'}`}>{it.label}</div>}
           </div>
@@ -164,7 +165,9 @@ export function GalleryBlock({ sec, dark }) {
       if (e.key === 'ArrowLeft') setOpen(i => (i - 1 + imgs.length) % imgs.length);
     };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [open, imgs.length]);
   return (
     <div>
@@ -173,7 +176,7 @@ export function GalleryBlock({ sec, dark }) {
         {imgs.map((src, i) => (
           <button key={i} type="button" onClick={() => setOpen(i)}
             className={`group relative overflow-hidden rounded-2xl md:rounded-3xl bg-gray-100 ${gal.span(i)}`}>
-            <img src={img(src)} alt="" loading="lazy" decoding="async" className="w-full h-full min-h-[160px] md:min-h-[220px] aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105" />
+            <img src={img(src)} alt="" loading="lazy" decoding="async" onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} className="w-full h-full min-h-[160px] md:min-h-[220px] aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105" />
           </button>
         ))}
       </div>
@@ -196,6 +199,7 @@ export function VideoBlock({ sec, dark }) {
   const embed = videoEmbedUrl(url);
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
   const thumb = yt ? `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg` : '';
+  if (!embed && !/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url)) return null;
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
@@ -258,7 +262,7 @@ export function CtaBlock({ sec }) {
 }
 
 export function TabsBlock({ sec, dark }) {
-  const tabs = (sec.tabs || []).filter(t => t && (t.title || t.content));
+  const tabs = (sec.tabs || []).filter(t => t && (t.title || htmlToText(t.content || '').trim()));
   const [active, setActive] = useState(0);
   const cur = tabs[Math.min(active, tabs.length - 1)];
   return (

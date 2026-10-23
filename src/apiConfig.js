@@ -1,3 +1,5 @@
+import { quillListsToSemantic } from './utils/quillHtml';
+
 // URL do backend PHP.
 //   - Desenvolvimento (vite dev): aponta para o XAMPP local.
 //   - Produção (vite build): caminho RELATIVO derivado do base do Vite
@@ -73,12 +75,23 @@ const embedVideos = (html) => {
   return out;
 };
 
+// Imagens/arquivos inseridos no editor ficam gravados com o endereço completo
+// da API do momento (ex.: "http://localhost/sif-api/uploads/..." no ambiente
+// local ou "/sif-novo-xxx/sif-api/uploads/..." na homologação). Ao mudar o site
+// de pasta/domínio esses links quebrariam: aqui apontam sempre para a API atual.
+export const fixUploadUrls = (html) => (typeof html !== 'string' ? html : html.replace(
+  /(\s(?:src|href)=["'])(?:https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?)?\/(?:[A-Za-z0-9._-]+\/)*sif-api\/(uploads\/)/gi,
+  (_, attr, up) => `${attr}${API_BASE_URL}/${up}`
+));
+
 // Prepara HTML de conteúdo rico para exibição:
 //  - troca &nbsp; por espaço normal (evita cortar palavra no meio);
 //  - transforma links de YouTube/Vimeo em players incorporados.
 export const cleanRichHtml = (html) => {
   if (!html || typeof html !== 'string') return html;
-  return embedVideos(stripNbsp(sanitizeHtml(html)));
+  // Listas salvas pelo Quill 2 (<ol><li data-list="bullet">) viram <ul>/<ol> normais
+  // (antes apareciam numeradas no site mesmo sendo de marcadores).
+  return embedVideos(stripNbsp(quillListsToSemantic(sanitizeHtml(fixUploadUrls(html)))));
 };
 
 // Remove o que pode executar código (o servidor já limpa ao gravar; aqui
@@ -90,7 +103,8 @@ export const sanitizeHtml = (html) => {
   const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html');
   const root = doc.body.firstElementChild;
   if (!root) return html;
-  root.querySelectorAll('script,style,object,embed,form,meta,link,base,svg,math').forEach(n => n.remove());
+  // noscript/template/textarea/title/xmp...: conteúdo "cru" que pode virar HTML ativo ao ser reinserido (mXSS)
+  root.querySelectorAll('script,style,object,embed,form,meta,link,base,svg,math,noscript,template,textarea,title,xmp,noembed,noframes,plaintext').forEach(n => n.remove());
   root.querySelectorAll('iframe').forEach(n => { if (!SAFE_IFRAME.test(n.getAttribute('src') || '')) n.remove(); });
   root.querySelectorAll('*').forEach(el => {
     for (const a of [...el.attributes]) {
@@ -142,8 +156,15 @@ export const toDate = (v) => {
   return isNaN(d.getTime()) ? null : d;
 };
 
-export const getImageUrl = (path) => {
+// Com "w" (largura em px), fotos enviadas pelo painel passam pelo
+// sif-api/img.php, que entrega uma versão reduzida em WebP (bem mais leve).
+// Fotos do Unsplash recebem a largura no próprio link.
+const RESIZABLE = /^\/?(uploads|banners)\/[^?#]+\.(jpe?g|png|webp|gif)$/i;
+const UNSPLASH = /^https:\/\/images\.unsplash\.com\//;
+export const getImageUrl = (path, w) => {
   if (!path) return null;
+  if (w && UNSPLASH.test(path)) return /[?&]w=\d+/.test(path) ? path.replace(/([?&])w=\d+/, `$1w=${w}`) : path;
+  if (w && RESIZABLE.test(path)) return `${API_BASE_URL}/img.php?src=${encodeURIComponent(path.replace(/^\/+/, ''))}&w=${w}`;
 
   // Ignora links externos, base64 e previews locais
   if (path.startsWith('http') || path.startsWith('data:image') || path.startsWith('blob:')) return path;

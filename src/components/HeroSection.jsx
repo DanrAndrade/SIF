@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Play } from 'lucide-react';
-import VideoModal from './ui/VideoModal';
+import VideoModal, { videoBackgroundUrl } from './ui/VideoModal';
 import iconLogo from '../assets/sif.svg';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
@@ -21,11 +21,19 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const gFrom = gradient?.from || '#007a3d';
   const gTo   = gradient?.to   || '#1B5E20';
   // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
-  const resolvedBg  = bgImage ? (bgImage.startsWith('http') ? bgImage : getImageUrl(bgImage)) : '';
-  // Vídeo de fundo (mudo, em loop) + botão discreto para o vídeo completo
-  const loopSrc   = config.video_loop ? getImageUrl(config.video_loop) : '';
-  const fullUrl   = config.video_full_url || '';
-  const fullLabel = config.video_full_label || 'Assistir vídeo completo';
+  const resolvedBg  = bgImage ? (getImageUrl(bgImage, 1920)) : '';
+  // Fundo do topo: "image" ou "video" (escolhido no painel). Painéis antigos
+  // sem a escolha: vídeo se houver vídeo cadastrado.
+  const loopLink  = (config.video_loop_url || '').trim();       // YouTube/Vimeo
+  const loopFile  = config.video_loop || '';                     // MP4 enviado
+  const hasVideo  = !!(loopLink || loopFile);
+  const bgMode    = config.bg_mode || (hasVideo ? 'video' : 'image');
+  const useVideo  = bgMode === 'video' && hasVideo;
+  const loopEmbed = useVideo && loopLink ? videoBackgroundUrl(loopLink) : null;
+  const loopSrc   = useVideo && !loopEmbed && (loopFile || loopLink) ? getImageUrl(loopFile || loopLink) : '';
+  // Botão "Assistir vídeo": link próprio ou, sem ele, o mesmo vídeo do fundo (com som)
+  const fullUrl   = (config.video_full_url || '').trim() || (useVideo ? (loopLink || loopFile) : '');
+  const fullLabel = config.video_full_label || 'Assistir vídeo';
   const [showFull, setShowFull] = useState(false);
 
   return (
@@ -40,6 +48,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
         <section className="relative z-10 min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
             style={resolvedBg ? { backgroundImage: `url('${resolvedBg}')` } : undefined}>
             
+            {loopEmbed && <HeroEmbed src={loopEmbed} />}
             {loopSrc && <HeroVideo src={loopSrc} poster={resolvedBg} />}
 
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
@@ -48,13 +57,6 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
             {/* Gradiente inferior escuro */}
             <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
 
-            {fullUrl && (
-              <button type="button" onClick={() => setShowFull(true)}
-                className="absolute z-20 bottom-6 right-6 md:bottom-10 md:right-10 inline-flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm text-white/90 text-[11px] font-semibold tracking-wide transition-colors">
-                <span className="w-7 h-7 rounded-full bg-white/90 text-[#0b3320] flex items-center justify-center"><Play size={13} className="ml-0.5" fill="currentColor" /></span>
-                {fullLabel}
-              </button>
-            )}
 
             <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full grid grid-cols-1 md:grid-cols-12 items-center gap-12 pt-0 will-change-transform">
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
@@ -91,10 +93,20 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                 </div>
             </div>
             
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-100 animate-bounce cursor-pointer z-20" onClick={scrollToExplore}>
+            {/* Botão central de baixo: com vídeo completo configurado vira "Assistir vídeo";
+                sem vídeo, continua a seta para rolar a página. */}
+            {fullUrl ? (
+              <button type="button" onClick={() => setShowFull(true)}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 text-white/80 hover:text-white text-[10px] font-bold uppercase tracking-[0.3em] transition-colors">
+                <Play size={12} fill="currentColor" />
+                {fullLabel}
+              </button>
+            ) : (
+              <button type="button" className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce cursor-pointer z-20" onClick={scrollToExplore}>
                 <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-white">{scrollLabel}</span>
                 <ChevronDown className="text-white w-6 h-6" />
-            </div>
+              </button>
+            )}
         </section>
         {showFull && <VideoModal url={fullUrl} title={fullLabel} onClose={() => setShowFull(false)} />}
     </div>
@@ -124,5 +136,25 @@ function HeroVideo({ src, poster }) {
   return (
     <video ref={ref} className="absolute inset-0 w-full h-full object-cover z-0" src={src} poster={poster || undefined}
       autoPlay muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1} />
+  );
+}
+
+// Vídeo do YouTube/Vimeo como fundo: ocupa a área toda (corta as sobras,
+// como uma foto), sem cliques. Só carrega se o visitante não pediu "menos
+// movimento"/"economia de dados".
+function HeroEmbed({ src }) {
+  const [allowed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    return !reduce && !navigator.connection?.saveData;
+  });
+  const [ready, setReady] = useState(false);
+  if (!allowed) return null;
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <iframe src={src} title="" tabIndex={-1} allow="autoplay; encrypted-media; picture-in-picture" onLoad={() => setTimeout(() => setReady(true), 600)}
+        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`}
+        style={{ width: 'max(100%, calc(100vh * 16 / 9))', height: 'max(100%, calc(100vw * 9 / 16))' }} />
+    </div>
   );
 }

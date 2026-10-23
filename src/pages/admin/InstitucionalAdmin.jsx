@@ -155,6 +155,12 @@ export default function InstitucionalAdmin() {
   }, []);
 
   const set = (k, v) => setConfig(p => ({ ...p, [k]: v }));
+  // Atualiza a partir do valor MAIS RECENTE (envios que terminam depois não desfazem o que foi digitado)
+  const updateKey = (k, fn) => setConfig(p => ({ ...p, [k]: fn(p[k]) }));
+  const dropPending = (field) => {
+    setPendingFiles(p => { const n = { ...p }; delete n[field]; return n; });
+    setPendingPreviews(p => { const n = { ...p }; delete n[field]; return n; });
+  };
 
   const handleFile = (fieldName, file) => {
     if (!file) return;
@@ -165,6 +171,10 @@ export default function InstitucionalAdmin() {
   };
 
   const handleSave = async () => {
+    if (JSON.stringify(config.estatuto_blocks || []).includes('"_up"')) {
+      window.showToast?.('Aguarde o envio do PDF terminar para salvar.', 'error');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -228,7 +238,7 @@ export default function InstitucionalAdmin() {
       )}
       {activeTab === 'estatuto' && (
         <div>
-          <EstatutoForm cfg={config} set={set} />
+          <EstatutoForm cfg={config} set={set} upd={updateKey} />
         </div>
       )}
       {activeTab === 'timeline' && (
@@ -243,7 +253,7 @@ export default function InstitucionalAdmin() {
         </div>
       )}
       {activeTab === 'cta' && (
-        <CtaForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.cta_card_image} />
+        <CtaForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.cta_card_image} onRemoveImage={() => { set('cta_card_image', ''); dropPending('cta_card_image'); }} />
       )}
      </AdminCard>
     </AdminPage>
@@ -337,7 +347,7 @@ function AreasForm({ cfg, set }) {
 // Editor visual dos BLOCOS de documentos. Cada bloco tem:
 //   - ícone, título, subtítulo (opcional), parágrafos (textos do lado esquerdo)
 //   - lista de PDFs (cada um com label, ícone, arquivo enviado ou URL direta)
-function EstatutoForm({ cfg, set }) {
+function EstatutoForm({ cfg, set, upd }) {
   const confirm = useConfirm();
   const blocks = Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : [];
 
@@ -368,6 +378,10 @@ function EstatutoForm({ cfg, set }) {
             isFirst={idx === 0}
             isLast={idx === blocks.length - 1}
             onUpdate={(patch) => updateBlock(idx, patch)}
+            onPdfDone={(tok, patch) => upd('estatuto_blocks', bl => (Array.isArray(bl) ? bl : []).map(b => (
+              Array.isArray(b.pdfs) && b.pdfs.some(p => p._up === tok)
+                ? { ...b, pdfs: b.pdfs.map(p => { if (p._up !== tok) return p; const { _up, ...rest } = p; return { ...rest, ...patch }; }) }
+                : b)))}
             onRemove={() => removeBlock(idx)}
             onMoveUp={() => moveBlock(idx, -1)}
             onMoveDown={() => moveBlock(idx, 1)}
@@ -392,7 +406,7 @@ function EstatutoForm({ cfg, set }) {
   );
 }
 
-function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp, onMoveDown }) {
+function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onPdfDone, onRemove, onMoveUp, onMoveDown }) {
   const confirm = useConfirm();
   const paragraphs = Array.isArray(block.paragraphs) ? block.paragraphs : [];
   const pdfs = Array.isArray(block.pdfs) ? block.pdfs : [];
@@ -412,20 +426,23 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp
     onUpdate({ pdfs: next });
   };
 
+  // O PDF é marcado com um código (_up) enquanto envia: quando termina, o
+  // endereço vai para ESSE item, mesmo que a lista tenha sido reordenada ou
+  // editada no meio do envio (antes usava a posição e uma cópia antiga da lista).
   const handlePdfUpload = async (pdfIdx, file) => {
     if (!file) return;
+    if (file.size > 20 * 1024 * 1024) { window.showToast?.('PDF muito grande. Máximo 20 MB.', 'error'); return; }
+    const tok = 'up' + Date.now() + Math.random().toString(36).slice(2, 7);
+    updatePdf(pdfIdx, { _up: tok });
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const res = await fetch(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.success && data.url) {
-        updatePdf(pdfIdx, { url: '/' + data.url.replace(/^\/+/, '') });
-      } else {
-        window.showToast('Erro ao enviar PDF: ' + (data.message || ''));
-      }
+      const data = await apiRequest(`${API_BASE_URL}/upload_pdf.php`, { method: 'POST', body: fd });
+      onPdfDone(tok, { url: '/' + String(data.url || '').replace(/^\/+/, '') });
+      window.showToast?.('PDF enviado. Clique em Salvar para publicar.');
     } catch (err) {
-      window.showToast('Erro ao enviar PDF.');
+      onPdfDone(tok, {});
+      toastError(err);
     }
   };
 
@@ -497,8 +514,8 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onRemove, onMoveUp
                   </div>
                 )}
                 <label className="flex items-center gap-2 p-2 bg-emerald-50 border-2 border-dashed border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-500 text-xs font-bold text-emerald-700">
-                  <Upload size={14} /> {pdf.url ? 'Trocar PDF' : 'Enviar PDF'}
-                  <input type="file" accept="application/pdf" className="hidden" onChange={e => handlePdfUpload(i, e.target.files[0])} />
+                  <Upload size={14} /> {pdf._up ? 'Enviando...' : (pdf.url ? 'Trocar PDF' : 'Enviar PDF')}
+                  <input type="file" accept="application/pdf" className="hidden" disabled={!!pdf._up} onChange={e => { const file = e.target.files[0]; e.target.value = ''; handlePdfUpload(i, file); }} />
                 </label>
               </div>
             </div>
@@ -527,7 +544,7 @@ function TimelineHeaderForm({ cfg, set }) {
 }
 
 // ─── CTA FINAL ────────────────────────────────────────────────
-function CtaForm({ cfg, set, onFile, preview }) {
+function CtaForm({ cfg, set, onFile, preview, onRemoveImage }) {
   return (
     <div className="space-y-5">
       <p className="text-xs font-bold uppercase text-gray-500 tracking-widest">Título final e botões</p>
@@ -559,7 +576,7 @@ function CtaForm({ cfg, set, onFile, preview }) {
           <Field label="Botão — link" value={cfg.cta_card_btn_link} onChange={v => set('cta_card_btn_link', v)} />
         </div>
         <ImageField label="Foto do card (opcional)" currentUrl={cfg.cta_card_image} previewUrl={preview} fieldName="cta_card_image" onFile={onFile} hint="Sem foto, o card ocupa a largura toda só com texto." />
-        {cfg.cta_card_image && <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => set('cta_card_image', '')}>Remover foto</button>}
+        {(cfg.cta_card_image || preview) && <button type="button" className="text-xs text-red-600 hover:underline" onClick={onRemoveImage}>Remover foto</button>}
       </div>
     </div>
   );

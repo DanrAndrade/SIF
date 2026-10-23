@@ -49,13 +49,13 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
     title: c.title || '',
     desc: c.desc || '',
     link: c.link || '#',
-    image: c.image ? (c.image.startsWith('http') ? c.image : getImageUrl(c.image)) : (DEFAULT_CARDS[i % DEFAULT_CARDS.length]?.image || ''),
+    image: c.image ? (getImageUrl(c.image, 1024)) : (DEFAULT_CARDS[i % DEFAULT_CARDS.length]?.image || ''),
   }));
   const sectionTag = config.section_tag || 'Áreas de Atuação';
   const sectionTitle = config.section_title || 'Nossos Serviços';
 
   return (
-    <section ref={sectionRef} className="relative w-full py-16 md:py-0 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-transparent z-20">
+    <section ref={sectionRef} data-no-reveal className="relative w-full mt-12 md:mt-20 py-16 md:pt-28 md:pb-10 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-transparent z-20">
         
         <div className="container mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
             <div className="max-w-xl">
@@ -63,11 +63,11 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
             </div>
         </div>
 
-        <div className="w-full h-8 md:h-10"></div>
+        <div className="w-full h-4 md:h-6"></div>
         
         <div ref={trackRef} className="flex gap-4 md:gap-8 pb-4 relative z-10 pl-6 md:pl-12 lg:pl-[max(48px,calc((100vw-1280px)/2+48px))] pr-6 md:pr-24 w-full md:w-max overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar">
             {categories.map((item) => (
-                <div key={item.id} className="w-[85vw] sm:w-[60vw] md:w-[760px] min-h-[450px] md:min-h-[420px] shrink-0 snap-center relative flex items-end md:items-center group">
+                <div key={item.id} className="w-[85vw] sm:w-[60vw] md:w-[760px] min-h-[450px] md:min-h-[min(420px,55vh)] shrink-0 snap-center relative flex items-end md:items-center group">
                     <div className="w-full md:w-[84%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-card overflow-hidden shadow-lg bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
                         {item.image && <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />}
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
@@ -78,7 +78,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
                             <h3 className="text-3xl md:text-3xl font-medium section-heading leading-none mb-3 md:mb-4">{item.title}</h3>
                             <p className="text-xs md:text-[11px] text-gray-600 leading-relaxed font-medium">{item.desc}</p>
                         </div>
-                        <SmartLink href={item.link || '#'} aria-label={`Saiba mais: ${item.title}`} className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center self-end mt-4 border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-[#1f2937] text-[#7FBA00] group-hover:bg-[#007a3d] group-hover:text-white">
+                        <SmartLink href={item.link || '#'} aria-label={`Saiba mais: ${item.title}`} className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center self-end mt-4 border border-white/5 shadow-xl cursor-pointer transition-all duration-500 ease-in-out hover:scale-110 active:scale-95 bg-sif-dark text-[#7FBA00] group-hover:bg-[#007a3d] group-hover:text-white">
                             <ArrowUpRight size={20} />
                         </SmartLink>
                     </div>

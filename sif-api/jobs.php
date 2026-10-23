@@ -7,7 +7,9 @@ header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM jobs ORDER BY id DESC");
+    // Vaga oculta não sai na leitura pública (só no painel, com ?admin=1 e login)
+    $adminMode = isset($_GET['admin']) && $_GET['admin'] === '1' && sif_is_admin();
+    $stmt = $pdo->query("SELECT * FROM jobs" . ($adminMode ? '' : ' WHERE active = 1') . " ORDER BY id DESC");
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     exit;
 }

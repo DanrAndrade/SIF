@@ -260,7 +260,7 @@ export const JobsManagerView = () => {
 
     const fetchJobs = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/jobs.php`);
+            const res = await fetch(`${API_BASE_URL}/jobs.php?admin=1`);
             const data = await res.json();
             if (!Array.isArray(data)) return;
             const parsed = data.map(j => ({ ...j, requirements: typeof j.requirements === 'string' ? JSON.parse(j.requirements || '[]') : (j.requirements || []) }));

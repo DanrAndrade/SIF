@@ -135,7 +135,7 @@ export default function BannerCarousel() {
                         {banner.link_url ? (
                             <SmartLink href={banner.link_url} className="block w-full h-full cursor-pointer">
                                 <img
-                                    src={getImageUrl(banner.image_url)}
+                                    src={getImageUrl(banner.image_url, 1600)}
                                     alt="Banner"
                                     className="w-full h-full object-cover pointer-events-none align-top"
                                     onLoad={(e) => handleRatio(idx, e)}
@@ -145,7 +145,7 @@ export default function BannerCarousel() {
                         ) : (
                             <div className="w-full h-full">
                                 <img
-                                    src={getImageUrl(banner.image_url)}
+                                    src={getImageUrl(banner.image_url, 1600)}
                                     alt="Banner"
                                     className="w-full h-full object-cover pointer-events-none align-top"
                                     onLoad={(e) => handleRatio(idx, e)}

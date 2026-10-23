@@ -14,6 +14,16 @@ export function videoEmbedUrl(url = '') {
   return null;
 }
 
+// Mesmo link, mas como FUNDO: mudo, em loop, sem controles nem logo.
+export function videoBackgroundUrl(url = '') {
+  const u = url.trim();
+  const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&iv_load_policy=3`;
+  const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}?background=1&autoplay=1&loop=1&muted=1`;
+  return null;
+}
+
 // Janela com o vídeo completo (com som e controles). Fecha no X, no fundo ou no Esc.
 export default function VideoModal({ url, title = 'Vídeo', onClose }) {
   const closeRef = useRef(null);

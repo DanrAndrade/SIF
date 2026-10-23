@@ -4,7 +4,6 @@ import NumbersBento from '../components/NumbersBento';
 import JobsCtaSection from '../components/JobsCtaSection';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from '@studio-freight/lenis';
 
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -40,40 +39,22 @@ export default function Home() {
   const servicesSectionRef = useRef(null);
   const servicesTrackRef = useRef(null);
 
-  // Rolagem suave (Lenis) + "pin" horizontal dos Serviços.
+  // "Pin" horizontal dos Serviços.
   // Roda UMA vez por visita à Home (antes dependia de [scrolled] e era
   // destruída/recriada toda vez que a rolagem passava de 50px, deixando
   // laços de animação acumulados mesmo depois de sair da página).
   useEffect(() => {
     document.title = "SIF | Sociedade de Investigações Florestais";
 
-    // Quem pediu "menos movimento" no sistema fica com a rolagem normal
-    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const lenis = reduceMotion ? null : new Lenis({
-      duration: 0.9, // mais curto = rolagem mais leve e responsiva
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 2,
-    });
-
-    // Mantém o ScrollTrigger sincronizado com a rolagem do Lenis
-    let rafId;
-    const onNativeScroll = () => setScrolled(window.scrollY > 50);
-    if (lenis) {
-      lenis.on('scroll', ({ scroll }) => {
-        ScrollTrigger.update();
-        setScrolled(scroll > 50); // React ignora quando o valor não muda
-      });
-      const raf = (time) => {
-        lenis.raf(time);
-        rafId = requestAnimationFrame(raf);
-      };
-      rafId = requestAnimationFrame(raf);
-    } else {
-      window.addEventListener('scroll', onNativeScroll, { passive: true });
-    }
+    // Rolagem nativa do navegador (a "rolagem suave" com Lenis rodava um laço
+    // de animação o tempo todo e deixava o site engasgando em máquinas mais
+    // simples). O aviso de "rolou" é lido no máximo 1x por quadro.
+    let rafId = 0;
+    const onNativeScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => { rafId = 0; setScrolled(window.scrollY > 50); });
+    };
+    window.addEventListener('scroll', onNativeScroll, { passive: true });
 
     // Contexto local: no fim, desfaz SÓ as animações desta página
     const mm = gsap.matchMedia();
@@ -91,7 +72,8 @@ export default function Home() {
           start: "top top",
           end: () => `+=${distance()}`,
           pin: true,
-          scrub: 1,
+          scrub: 0.6,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
@@ -107,7 +89,6 @@ export default function Home() {
       window.removeEventListener('load', refresh);
       window.removeEventListener('scroll', onNativeScroll);
       mm.revert();
-      lenis?.destroy();
     };
   }, []);
 
@@ -116,7 +97,7 @@ export default function Home() {
   useEffect(() => {
     const id = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => clearTimeout(id);
-  }, [config]);
+  }, [config]);
 
     return (
         <div className="sif-app sif-page font-sans text-[#1f2937] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
@@ -172,7 +153,7 @@ export default function Home() {
           <JobsCtaSection config={config.jobs_cta} />
 
           {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
-      <div className="py-14 px-0 md:py-24 md:px-6 bg-white">
+      <div className="py-14 px-0 md:py-24 md:px-6">
         <div className="w-full max-w-[1280px] mx-auto px-0">
             <Process config={config.process} />
         </div>

@@ -77,17 +77,21 @@ img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; border: none; }
 
 /* Classes de Layout */
-.container { 
-  max-width: var(--container); 
-  margin: 0 auto; 
-  padding: 0 24px; 
+/* Dentro de @layer e só nas laterais: assim py-*, pt-*, mt-*... das páginas
+   funcionam (antes "padding: 0 24px" zerava o espaço de cima/baixo e as
+   seções ficavam coladas). */
+@layer components {
+  .container {
+    max-width: var(--container);
+    margin-left: auto; margin-right: auto;
+    padding-left: 24px; padding-right: 24px;
+  }
+  @media (min-width: 1024px) {
+    .container { padding-left: 48px; padding-right: 48px; }
+  }
+  .wrapper { padding-left: 16px; padding-right: 16px; margin-top: 16px; }
 }
-@media (min-width: 1024px) {
-  .container { padding: 0 48px; }
-}
-
-.wrapper { padding: 0 16px; margin-top: 16px; }
-@media(min-width: 768px) { .wrapper { padding: 0 32px; } }
+@media(min-width: 768px) { .wrapper { padding-left: 32px; padding-right: 32px; } }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -330,6 +334,38 @@ iframe.ql-video {
 body { background-color: #f6f8f7; }
 .sif-page { background-color: transparent; }
 
+/* ─── FAIXAS COM DEGRADÊ VERDE (destaque e contraste) ─────────────────
+   .sif-glow       → verde médio-claro com manchas verdes e granulado discreto
+   .sif-glow-dark  → mesma ideia sobre verde escuro
+   Só gradientes, sem filtro de desfoque nem "blend": leve para o navegador.
+   Use com moderação (uma faixa de destaque por vez). */
+:root {
+  --sif-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 .18 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.sif-glow, .sif-glow-dark { position: relative; isolation: isolate; }
+.sif-glow {
+  background-color: #d9ecdc;
+  background-image:
+    radial-gradient(45% 75% at 12% 30%, rgba(127,186,0,.42) 0%, transparent 70%),
+    radial-gradient(40% 80% at 88% 65%, rgba(0,122,61,.38) 0%, transparent 70%),
+    radial-gradient(60% 55% at 50% 0%, rgba(255,255,255,.55) 0%, transparent 70%),
+    linear-gradient(135deg, #e4f1e0 0%, #cfe6d4 100%);
+}
+.sif-glow-dark {
+  background-color: #0b3320;
+  color: #fff;
+  background-image:
+    radial-gradient(45% 60% at 10% 10%, rgba(127,186,0,.28) 0%, transparent 70%),
+    radial-gradient(40% 60% at 90% 35%, rgba(0,122,61,.55) 0%, transparent 70%),
+    linear-gradient(160deg, #0d3b24 0%, #082a1a 100%);
+}
+.sif-glow::after, .sif-glow-dark::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--sif-grain); background-size: 180px 180px;
+  opacity: .28;
+}
+.sif-glow-dark::after { opacity: .18; }
+
 /* ─── SOMBRAS PADRÃO DOS CARDS ─────────────────────────────────────────
    Cards brancos ganham sombra um pouco mais forte para destacar do fundo. */
 :root {
@@ -384,3 +420,13 @@ body { background-color: #f6f8f7; }
 /* Editor de texto do painel com a mesma fonte do site */
 .sif-admin .ql-editor { font-family: var(--sif-font-sans); font-size: 15px; line-height: 1.65; color: #1f2937; }
 .sif-admin .ql-toolbar.ql-snow, .sif-admin .ql-container.ql-snow { border-color: #e5e7eb; }
+
+/* ─── ANIMAÇÃO DE ENTRADA (components/ui/AutoReveal.jsx) ────────────── */
+.sif-reveal {
+  opacity: 0;
+  translate: 0 26px;
+  transition: opacity .8s cubic-bezier(.2,.7,.2,1), translate .8s cubic-bezier(.2,.7,.2,1) !important;
+  transition-delay: var(--sif-reveal-delay, 0ms) !important;
+}
+.sif-reveal.is-in { opacity: 1; translate: 0 0; }
+@media (prefers-reduced-motion: reduce) { .sif-reveal { opacity: 1; translate: none; transition: none !important; } }

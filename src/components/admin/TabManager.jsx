@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { useConfirm, ItemActions } from './kit';
 import QuillEditor from './QuillEditor';
@@ -38,10 +38,18 @@ export default function TabManager({
   hint = '',
 }) {
   const confirm = useConfirm();
+  const latest = useRef(tabs);
+  latest.current = tabs;
   const addTab = () => onChange([...tabs, { _uid: `tab-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, title: '', content: '' }]);
   const removeTab = async (i) => {
-    if (!(await confirm({ title: 'Remover esta aba?', message: tabs[i]?.title || '', confirmLabel: 'Remover' }))) return;
-    onChange(tabs.filter((_, idx) => idx !== i));
+    const target = tabs[i];
+    if (!(await confirm({ title: 'Remover esta aba?', message: target?.title || '', confirmLabel: 'Remover' }))) return;
+    // sobre a lista atual (imagem colada que terminou de subir durante a confirmação não se perde)
+    const cur = latest.current;
+    let j = cur.indexOf(target);
+    if (j < 0 && target?._uid) j = cur.findIndex(t => t?._uid === target._uid);
+    if (j < 0) j = i;
+    onChange(cur.filter((_, idx) => idx !== j));
   };
   const updateTab = (i, field, val) => {
     const next = [...tabs];

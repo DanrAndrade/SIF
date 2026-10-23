@@ -140,7 +140,7 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                     <div className="absolute inset-0 bg-emerald-50 rounded-panel translate-x-4 translate-y-4 -z-10 group-hover/item:translate-x-6 group-hover/item:translate-y-6 transition-transform"></div>
                     <div className="rounded-panel overflow-hidden shadow-2xl aspect-[4/3] relative bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
                         {imgSrc && <img src={imgSrc} alt={year} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-1000 group-hover/item:scale-110" />}
-                        <div className="absolute inset-0 bg-[#1f2937]/20"></div>
+                        <div className="absolute inset-0 bg-sif-dark/20"></div>
                         <div className="absolute top-8 left-8 bg-white/90 backdrop-blur-sm px-6 py-2 rounded-2xl font-black text-2xl text-[#1f2937] shadow-xl">{year}</div>
                     </div>
                 </div>
@@ -322,7 +322,7 @@ export default function Institucional() {
             id: m.id,
             name: m.name,
             role: m.role,
-            image: m.photo_url ? getImageUrl(m.photo_url) : null,
+            image: m.photo_url ? getImageUrl(m.photo_url, 480) : null,
             link_email: m.link_email,
             link_whatsapp: m.link_whatsapp,
           });
@@ -393,7 +393,7 @@ export default function Institucional() {
 
       <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image)}')` : 'none' }}></div>
+          <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image, 1920)}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
@@ -446,14 +446,14 @@ export default function Institucional() {
                     <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
                         {cfg.quem_somos_image ? (
                           <img
-                              src={getImageUrl(cfg.quem_somos_image)}
+                              src={getImageUrl(cfg.quem_somos_image, 1280)}
                               alt="Quem Somos"
                               className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d]" />
                         )}
-                        <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-[#1f2937] via-transparent to-transparent">
+                        <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-sif-dark via-transparent to-transparent">
                             <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
                             <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
                         </div>
@@ -627,7 +627,7 @@ export default function Institucional() {
                             key={item.id ?? i}
                             year={item.year}
                             title={item.title}
-                            imgSrc={item.image_url && !item.image_url.startsWith('http') ? getImageUrl(item.image_url) : item.image_url}
+                            imgSrc={item.image_url && !item.image_url.startsWith('http') ? getImageUrl(item.image_url, 1024) : item.image_url}
                             layout={item.layout || 'image-left'}
                         >
                             {item.content}
@@ -675,7 +675,7 @@ export default function Institucional() {
                       </div>
                       {cfg.cta_card_image && (
                         <div className="relative min-h-[260px]">
-                          <img src={cfg.cta_card_image.startsWith('http') ? cfg.cta_card_image : getImageUrl(cfg.cta_card_image)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+                          <img src={cfg.cta_card_image.startsWith('http') ? cfg.cta_card_image : getImageUrl(cfg.cta_card_image, 1024)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
                         </div>
                       )}
                     </div>

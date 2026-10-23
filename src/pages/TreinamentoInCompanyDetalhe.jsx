@@ -61,7 +61,7 @@ export default function TreinamentoInCompanyDetalhe() {
 
       {/* TOPO (padrão das páginas de detalhe) */}
       <DetailHero
-        cover={training.image_url ? getImageUrl(training.image_url) : ''}
+        cover={training.image_url ? getImageUrl(training.image_url, 1920) : ''}
         crumbs={[{ label: 'Treinamentos In-Company', to: '/treinamentos-in-company' }]}
         eyebrow="Treinamento In-Company" icon={Award}
         title={training.title}
@@ -104,7 +104,7 @@ export default function TreinamentoInCompanyDetalhe() {
               )}
 
               {training.video_url && (
-                <div className="mt-16 bg-gray-900 rounded-card overflow-hidden aspect-video shadow-2xl">
+                <div className="mt-16 bg-sif-dark rounded-card overflow-hidden aspect-video shadow-2xl">
                   <iframe
                     className="w-full h-full"
                     src={toVideoEmbed(training.video_url) || training.video_url}

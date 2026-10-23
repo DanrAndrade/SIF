@@ -64,7 +64,7 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
                             <h4 className={`text-lg font-semibold transition-colors ${openFaq === index ? 'text-[#007a3d]' : 'text-[#1f2937] group-hover:text-[#007a3d]'}`}>
                                 {item.question}
                             </h4>
-                            <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-[#1f2937] border-[#1f2937] text-[#7FBA00] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#007a3d] group-hover:text-[#007a3d]'}`}>
+                            <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-sif-dark border-sif-dark text-[#7FBA00] rotate-180' : 'border-gray-300 text-gray-400 group-hover:border-[#007a3d] group-hover:text-[#007a3d]'}`}>
                                 <ChevronDown size={16} />
                             </div>
                         </button>
