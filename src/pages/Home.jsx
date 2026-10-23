@@ -134,14 +134,13 @@ export default function Home() {
 
           <BannerCarousel />
 
-          {/* --- NÚMEROS (bento com contagem animada) --- */}
-          <NumbersBento config={config.numbers} />
-
-
           {/* --- SOBRE NÓS --- */}
           <div id="quem-somos" className="py-12">
             <About config={config.about} />
           </div>
+
+          {/* --- NÚMEROS (bento com contagem animada), abaixo de Quem Somos --- */}
+          <NumbersBento config={config.numbers} />
 
           {/* --- PRODUTOS E SERVIÇOS --- */}
           <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
