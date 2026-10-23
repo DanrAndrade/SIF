@@ -149,12 +149,27 @@ function HeroEmbed({ src }) {
     return !reduce && !navigator.connection?.saveData;
   });
   const [ready, setReady] = useState(false);
+  const frame = useRef(null);
+  // YouTube às vezes liga a legenda sozinho quando o vídeo toca mudo: pede
+  // ao player para desligar o módulo de legendas (algumas vezes, porque ele
+  // pode carregar depois do vídeo). No player completo a legenda fica a
+  // critério de quem assiste (botão CC).
+  const hideCaptions = () => {
+    if (!/youtube/.test(src)) return;
+    const send = () => {
+      const w = frame.current?.contentWindow;
+      if (!w) return;
+      ['captions', 'cc'].forEach(m => w.postMessage(JSON.stringify({ event: 'command', func: 'unloadModule', args: [m] }), '*'));
+    };
+    [300, 1200, 3000, 6000].forEach(t => setTimeout(send, t));
+  };
   if (!allowed) return null;
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <iframe src={src} title="" tabIndex={-1} allow="autoplay; encrypted-media; picture-in-picture" onLoad={() => setTimeout(() => setReady(true), 600)}
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ containerType: 'size' }} aria-hidden="true">
+      <iframe ref={frame} src={src} title="" tabIndex={-1} allow="autoplay; encrypted-media; picture-in-picture" onLoad={() => { hideCaptions(); setTimeout(() => setReady(true), 600); }}
         className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`}
-        style={{ width: 'max(100%, calc(100vh * 16 / 9))', height: 'max(100%, calc(100vw * 9 / 16))' }} />
+        // maior que a área (corta ~120px em cima e embaixo): esconde o título e a marca do YouTube
+        style={{ width: 'max(calc(100cqw + 430px), calc((100cqh + 240px) * 16 / 9))', height: 'max(calc((100cqw + 430px) * 9 / 16), calc(100cqh + 240px))' }} />
     </div>
   );
 }

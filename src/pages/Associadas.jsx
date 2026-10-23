@@ -4,6 +4,7 @@ import { http } from '../utils/http';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
+import PhotoBand from '../components/ui/PhotoBand';
 import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
@@ -140,7 +141,6 @@ export default function Associadas() {
           <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#f6f8f7] rounded-tr-[80px] z-10"></div>
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
@@ -258,87 +258,143 @@ export default function Associadas() {
   );
 }
 
-// Benefícios: à esquerda o título fica parado e a lista acende o benefício
-// da vez; à direita os cards sobem e se empilham conforme a rolagem.
+// Benefícios. No computador a seção TRAVA a rolagem: o título fica à
+// esquerda e os cards sobem um a um e se empilham à direita; depois do
+// último card há uma folga antes de a página voltar a rolar. Fundo com foto
+// desfocada (Painel › Associadas › Benefícios). No celular: lista simples.
+const BENEFITS_BG = 'https://images.unsplash.com/photo-1509414556967-312906f278a0?q=80&w=1600&auto=format&fit=crop';
+const EXIT_SLACK = 0.7;   // folga depois do último card (em "cards")
+const STEP_VH = 70;       // rolagem usada por card (vh)
+
+function BenefitCard({ b, i, style, refFn }) {
+  return (
+    <article ref={refFn} style={style}
+      className="rounded-card bg-[#242b27] border border-white/10 p-7 md:p-10 text-white shadow-[0_30px_60px_-25px_rgba(0,0,0,0.75)] will-change-transform">
+      <div className="flex items-start gap-5 md:gap-7">
+        <span className="text-4xl md:text-5xl font-semibold leading-none text-sif-lime tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+        <div>
+          <h3 className="text-xl md:text-2xl font-semibold font-heading leading-tight mb-3">{b.title}</h3>
+          <p className="text-white/75 leading-relaxed">{b.description}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function BenefitsScroller({ cfg }) {
   const items = (cfg.benefits || []).filter(b => b && (b.title || b.description));
+  const n = items.length;
+  const wrap = useRef(null);
+  const cards = useRef([]);
   const [active, setActive] = useState(0);
-  const refs = useRef([]);
+  const canPin = () => typeof window !== 'undefined'
+    && !!window.matchMedia?.('(min-width: 1024px)').matches
+    && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const [pinned, setPinned] = useState(canPin);
+  const bg = getImageUrl(cfg.beneficios_bg_image || BENEFITS_BG, 1280);
 
   useEffect(() => {
-    if (typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) setActive(Number(e.target.dataset.i)); });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    refs.current.forEach(el => el && io.observe(el));
-    return () => io.disconnect();
-  }, [items.length]);
+    const mq = window.matchMedia?.('(min-width: 1024px)');
+    if (!mq) return;
+    const upd = () => setPinned(canPin());
+    mq.addEventListener?.('change', upd);
+    return () => mq.removeEventListener?.('change', upd);
+  }, []);
 
-  // Card coberto pelo próximo encolhe e escurece (fica claro que é uma pilha)
   useEffect(() => {
-    let raf = 0;
+    if (!pinned || n < 1) return;
+    let raf = 0, last = -1;
     const paint = () => {
       raf = 0;
-      const els = refs.current.filter(Boolean);
-      els.forEach((el, i) => {
-        const next = els[i + 1];
-        const covered = !!next && next.getBoundingClientRect().top - el.getBoundingClientRect().top < 90;
-        if ((el.dataset.covered === '1') !== covered) el.dataset.covered = covered ? '1' : '0';
+      const el = wrap.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const dist = Math.max(1, el.offsetHeight - window.innerHeight);
+      const p = Math.min(1, Math.max(0, -r.top / dist));
+      const u = p * ((n - 1) + EXIT_SLACK); // quantos cards já chegaram
+      const t = items.map((_, i) => (i === 0 ? 1 : Math.min(1, Math.max(0, u - (i - 1)))));
+      cards.current.forEach((c, i) => {
+        if (!c) return;
+        const over = t.slice(i + 1).reduce((s, v) => s + v, 0); // cards por cima deste
+        const y = (1 - t[i]) * 75; // vh
+        c.style.transform = `translate3d(0, calc(${y.toFixed(2)}vh + ${i * 16}px), 0) scale(${(1 - Math.min(over, 3) * 0.045).toFixed(3)})`;
+        c.style.filter = over > 0.05 ? `brightness(${(1 - Math.min(over, 3) * 0.14).toFixed(3)})` : '';
+        c.style.opacity = t[i] > 0 ? '1' : '0';
       });
+      const a = t.reduce((acc, v, i) => (v > 0.5 ? i : acc), 0);
+      if (a !== last) { last = a; setActive(a); }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
-    window.addEventListener('scroll', onScroll, { passive: true });
     paint();
-    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [items.length]);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [pinned, n]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!items.length) return null;
+  if (!n) return null;
+
   const go = (i) => {
-    const el = refs.current[i];
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+    const el = wrap.current;
+    if (!el) return;
+    const dist = el.offsetHeight - window.innerHeight;
+    const u = i === 0 ? 0 : i;
+    const top = el.getBoundingClientRect().top + window.pageYOffset + dist * (u / ((n - 1) + EXIT_SLACK));
+    window.scrollTo({ top, behavior: 'smooth' });
   };
 
+  const title = (
+    <div>
+      <span className="sif-eyebrow !text-sif-lime mb-5">Benefícios</span>
+      <h2 className="sif-title sif-h2 text-white leading-tight">
+        {cfg.beneficios_title_line1} <br/>
+        <span className="text-sif-lime">{cfg.beneficios_title_highlight}</span>
+      </h2>
+    </div>
+  );
+
+  // Celular ou "menos movimento": lista simples sobre a foto
+  if (!pinned) {
+    return (
+      <PhotoBand id="beneficios" photo={bg} className="scroll-mt-32 py-20">
+        <div className="container mx-auto px-6">
+          <div className="mb-10">{title}</div>
+          <div className="space-y-4">
+            {items.map((b, i) => <BenefitCard key={i} b={b} i={i} />)}
+          </div>
+        </div>
+      </PhotoBand>
+    );
+  }
+
   return (
-    <section id="beneficios" className="scroll-mt-32 py-20 md:py-28">
-      <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
-        <div className="lg:col-span-5">
-          <div className="lg:sticky lg:top-32">
-            <span className="sif-eyebrow mb-5">Benefícios</span>
-            <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight">
-              {cfg.beneficios_title_line1} <br/>
-              <span className="text-[#007a3d]">{cfg.beneficios_title_highlight}</span>
-            </h2>
-            <ol className="mt-10 hidden lg:block space-y-1" data-no-reveal>
+    <section id="beneficios" ref={wrap} className="relative"
+      style={{ height: `calc(100vh + ${((n - 1) + EXIT_SLACK) * STEP_VH}vh)` }}>
+      <PhotoBand as="div" photo={bg} className="sticky top-0 h-screen flex items-center">
+        <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-12 gap-16 items-center w-full pt-16">
+          <div className="col-span-5">
+            {title}
+            <ol className="mt-10 space-y-1" data-no-reveal>
               {items.map((b, i) => (
                 <li key={i}>
                   <button type="button" onClick={() => go(i)}
-                    className={`w-full flex items-center gap-4 py-2.5 text-left transition-colors duration-300 ${active === i ? 'text-[#0b3320]' : 'text-gray-400 hover:text-gray-600'}`}>
-                    <span className={`text-xs font-bold tabular-nums ${active === i ? 'text-[#007a3d]' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
-                    <span className={`h-px transition-all duration-500 ${active === i ? 'w-12 bg-[#007a3d]' : 'w-6 bg-gray-300'}`} />
+                    className={`w-full flex items-center gap-4 py-2.5 text-left transition-colors duration-300 ${active === i ? 'text-white' : 'text-white/45 hover:text-white/80'}`}>
+                    <span className={`text-xs font-bold tabular-nums ${active === i ? 'text-sif-lime' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
+                    <span className={`h-px transition-all duration-500 ${active === i ? 'w-12 bg-sif-lime' : 'w-6 bg-white/25'}`} />
                     <span className="text-sm font-semibold">{b.title}</span>
                   </button>
                 </li>
               ))}
             </ol>
           </div>
-        </div>
-
-        <div className="lg:col-span-7 space-y-4">
-          {items.map((b, i) => (
-            <article key={i} ref={el => (refs.current[i] = el)} data-i={i}
-              className="sif-stack-card sticky rounded-card bg-gradient-to-br from-[#0f4a2b] to-[#0b3320] p-7 md:p-10 shadow-[0_24px_50px_-24px_rgba(11,51,32,0.7)] text-white"
-              style={{ top: `calc(7rem + ${i * 0.9}rem)` }}>
-              <div className="flex items-start gap-5 md:gap-7">
-                <span className="text-4xl md:text-5xl font-semibold leading-none text-sif-lime/90 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                <div>
-                  <h3 className="text-xl md:text-2xl font-semibold font-heading leading-tight mb-3">{b.title}</h3>
-                  <p className="text-white/75 leading-relaxed">{b.description}</p>
-                </div>
+          <div className="col-span-7 relative h-[380px]" data-no-reveal>
+            {items.map((b, i) => (
+              <div key={i} className="absolute inset-x-0 top-0" style={{ zIndex: i + 1 }}>
+                <BenefitCard b={b} i={i} refFn={el => (cards.current[i] = el)} style={{ transformOrigin: '50% 0', opacity: i === 0 ? 1 : 0 }} />
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </PhotoBand>
     </section>
   );
 }

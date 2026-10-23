@@ -342,7 +342,8 @@ body { background-color: #f6f8f7; }
 :root {
   --sif-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 .18 0 0 0 0 .08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.sif-glow, .sif-glow-dark { position: relative; isolation: isolate; }
+.sif-glow, .sif-glow-dark { isolation: isolate; }
+.sif-glow:not(.sticky), .sif-glow-dark:not(.sticky) { position: relative; }
 .sif-glow {
   background-color: #d9ecdc;
   background-image:
@@ -432,7 +433,8 @@ body { background-color: #f6f8f7; }
 @media (prefers-reduced-motion: reduce) { .sif-reveal { opacity: 1; translate: none; transition: none !important; } }
 
 /* ─── FAIXA COM FOTO DESFOCADA (components/ui/PhotoBand.jsx) ───────── */
-.sif-photo-band { position: relative; isolation: isolate; overflow: hidden; background-color: #0b3320; }
+.sif-photo-band { isolation: isolate; overflow: hidden; background-color: #0b3320; }
+.sif-photo-band:not(.sticky) { position: relative; }
 .sif-photo-band__bg {
   position: absolute; left: -40px; right: -40px; top: -120px; bottom: -120px; z-index: -3;
   transform: translate3d(0, calc((var(--p, .5) - .5) * 180px), 0);

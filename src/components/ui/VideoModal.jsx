@@ -8,7 +8,7 @@ import { getImageUrl } from '../../apiConfig';
 export function videoEmbedUrl(url = '') {
   const u = url.trim();
   const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
-  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0&cc_load_policy=0`;
   const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
   if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
   return null;
@@ -18,9 +18,9 @@ export function videoEmbedUrl(url = '') {
 export function videoBackgroundUrl(url = '') {
   const u = url.trim();
   const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
-  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&iv_load_policy=3`;
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=0&rel=0&modestbranding=1&playsinline=1&disablekb=1&iv_load_policy=3&cc_load_policy=0&enablejsapi=1`;
   const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-  if (vm) return `https://player.vimeo.com/video/${vm[1]}?background=1&autoplay=1&loop=1&muted=1`;
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}?background=1&autoplay=1&loop=1&muted=1&texttrack=false`;
   return null;
 }
 

@@ -218,7 +218,7 @@ export default function AssociadasAdmin() {
         <TextoForm cfg={config} set={set} />
       )}
       {activeTab === 'beneficios' && (
-        <BeneficiosForm cfg={config} set={set} />
+        <BeneficiosForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.beneficios_bg_image} />
       )}
       {activeTab === 'empresas' && (
         <EmpresasManager partners={partners} loading={loadingPartners} reload={fetchPartners} onImport={importStatic} />
@@ -273,7 +273,7 @@ function TextoForm({ cfg, set }) {
 }
 
 // ─── BENEFÍCIOS (quantidade fixa em 4 — só edição de texto) ───
-function BeneficiosForm({ cfg, set }) {
+function BeneficiosForm({ cfg, set, onFile, preview }) {
   const benefits = Array.isArray(cfg.benefits) ? cfg.benefits : [];
   const updateBenefit = (idx, patch) => set('benefits', benefits.map((b, i) => i === idx ? { ...b, ...patch } : b));
   const move = (idx, dir) => {
@@ -291,7 +291,8 @@ function BeneficiosForm({ cfg, set }) {
         <Field label="Título — destaque em verde" value={cfg.beneficios_title_highlight} onChange={v => set('beneficios_title_highlight', v)} />
       </div>
 
-      <p className="text-xs text-gray-500">Cards exibidos sobre fundo escuro. Cada card tem título + descrição.</p>
+      <ImageField label="Foto de fundo (fica desfocada)" currentUrl={cfg.beneficios_bg_image || 'https://images.unsplash.com/photo-1509414556967-312906f278a0?q=80&w=1200&auto=format&fit=crop'} previewUrl={preview} fieldName="beneficios_bg_image" onFile={onFile} hint="Aparece bem desfocada e escurecida atrás dos cards. Sem foto, usa uma imagem de floresta." />
+      <p className="text-xs text-gray-500">Cards exibidos sobre a foto desfocada. No computador, a rolagem trava enquanto os cards passam. Cada card tem título + descrição.</p>
       <div className="space-y-4">
         {benefits.map((benefit, idx) => (
           <div key={idx} className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
