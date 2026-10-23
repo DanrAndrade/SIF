@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ParallaxLayer from './ui/ParallaxLayer';
 import { ChevronDown } from 'lucide-react';
 import { getImageUrl } from '../apiConfig';
 import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
@@ -39,7 +40,7 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
   return (
     <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
       <div className="absolute inset-0 z-0">
-        {heroBgUrl && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div>}
+        {heroBgUrl && <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div></ParallaxLayer>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-20 rounded-tr-[80px] z-10" style={{ backgroundColor: bgColor }}></div>

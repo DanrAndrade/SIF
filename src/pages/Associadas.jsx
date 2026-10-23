@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import PhotoBand from '../components/ui/PhotoBand';
+import ParallaxLayer from '../components/ui/ParallaxLayer';
 import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
@@ -138,7 +139,7 @@ export default function Associadas() {
       {/* HERO */}
       <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div>
+          <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div></ParallaxLayer>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
         </div>
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>

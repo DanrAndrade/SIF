@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Play } from 'lucide-react';
-import VideoModal, { videoBackgroundUrl } from './ui/VideoModal';
+import VideoModal from './ui/VideoModal';
 import iconLogo from '../assets/sif.svg';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
@@ -24,15 +24,15 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const resolvedBg  = bgImage ? (getImageUrl(bgImage, 1920)) : '';
   // Fundo do topo: "image" ou "video" (escolhido no painel). Painéis antigos
   // sem a escolha: vídeo se houver vídeo cadastrado.
-  const loopLink  = (config.video_loop_url || '').trim();       // YouTube/Vimeo
-  const loopFile  = config.video_loop || '';                     // MP4 enviado
-  const hasVideo  = !!(loopLink || loopFile);
-  const bgMode    = config.bg_mode || (hasVideo ? 'video' : 'image');
-  const useVideo  = bgMode === 'video' && hasVideo;
-  const loopEmbed = useVideo && loopLink ? videoBackgroundUrl(loopLink) : null;
-  const loopSrc   = useVideo && !loopEmbed && (loopFile || loopLink) ? getImageUrl(loopFile || loopLink) : '';
-  // Botão "Assistir vídeo": link próprio ou, sem ele, o mesmo vídeo do fundo (com som)
-  const fullUrl   = (config.video_full_url || '').trim() || (useVideo ? (loopLink || loopFile) : '');
+  // Vídeo do topo: UM arquivo enviado pelo painel (já otimizado no envio).
+  // Toca mudo em loop no fundo; o botão "Assistir vídeo" abre o mesmo
+  // arquivo com som. Sem player do YouTube.
+  const loopFile  = config.video_loop || '';
+  const bgMode    = config.bg_mode || (loopFile ? 'video' : 'image');
+  const useVideo  = bgMode === 'video' && !!loopFile;
+  const loopSrc   = useVideo ? getImageUrl(loopFile) : '';
+  const poster    = config.video_poster ? getImageUrl(config.video_poster) : resolvedBg;
+  const fullUrl   = useVideo ? loopFile : '';
   const fullLabel = config.video_full_label || 'Assistir vídeo';
   const [showFull, setShowFull] = useState(false);
 
@@ -48,8 +48,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
         <section className="relative z-10 min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
             style={resolvedBg ? { backgroundImage: `url('${resolvedBg}')` } : undefined}>
             
-            {loopEmbed && <HeroEmbed src={loopEmbed} />}
-            {loopSrc && <HeroVideo src={loopSrc} poster={resolvedBg} />}
+            {loopSrc && <HeroVideo src={loopSrc} poster={poster} />}
 
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
             {/* Gradiente lateral escuro (preto/cinza escuro) */}
@@ -139,37 +138,3 @@ function HeroVideo({ src, poster }) {
   );
 }
 
-// Vídeo do YouTube/Vimeo como fundo: ocupa a área toda (corta as sobras,
-// como uma foto), sem cliques. Só carrega se o visitante não pediu "menos
-// movimento"/"economia de dados".
-function HeroEmbed({ src }) {
-  const [allowed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    return !reduce && !navigator.connection?.saveData;
-  });
-  const [ready, setReady] = useState(false);
-  const frame = useRef(null);
-  // YouTube às vezes liga a legenda sozinho quando o vídeo toca mudo: pede
-  // ao player para desligar o módulo de legendas (algumas vezes, porque ele
-  // pode carregar depois do vídeo). No player completo a legenda fica a
-  // critério de quem assiste (botão CC).
-  const hideCaptions = () => {
-    if (!/youtube/.test(src)) return;
-    const send = () => {
-      const w = frame.current?.contentWindow;
-      if (!w) return;
-      ['captions', 'cc'].forEach(m => w.postMessage(JSON.stringify({ event: 'command', func: 'unloadModule', args: [m] }), '*'));
-    };
-    [300, 1200, 3000, 6000].forEach(t => setTimeout(send, t));
-  };
-  if (!allowed) return null;
-  return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ containerType: 'size' }} aria-hidden="true">
-      <iframe ref={frame} src={src} title="" tabIndex={-1} allow="autoplay; encrypted-media; picture-in-picture" onLoad={() => { hideCaptions(); setTimeout(() => setReady(true), 600); }}
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-1000 ${ready ? 'opacity-100' : 'opacity-0'}`}
-        // maior que a área (corta ~120px em cima e embaixo): esconde o título e a marca do YouTube
-        style={{ width: 'max(calc(100cqw + 430px), calc((100cqh + 240px) * 16 / 9))', height: 'max(calc((100cqw + 430px) * 9 / 16), calc(100cqh + 240px))' }} />
-    </div>
-  );
-}

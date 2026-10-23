@@ -96,7 +96,7 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
             'image/heic' => 'heic', 'image/heif' => 'heif',
         ],
         'pdf' => ['application/pdf' => 'pdf'],
-        'video' => ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov'],
+        'video' => ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/x-matroska' => 'webm', 'video/quicktime' => 'mov'],
         'doc' => [
             'application/msword' => 'doc',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',

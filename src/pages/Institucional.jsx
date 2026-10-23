@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
+import ParallaxLayer from '../components/ui/ParallaxLayer';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
@@ -393,7 +394,7 @@ export default function Institucional() {
 
       <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image, 1920)}')` : 'none' }}></div>
+          <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image, 1920)}')` : 'none' }}></div></ParallaxLayer>
           <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>

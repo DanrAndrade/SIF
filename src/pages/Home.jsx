@@ -140,10 +140,15 @@ export default function Home() {
           </div>
 
           {/* --- NÚMEROS (bento com contagem animada), abaixo de Quem Somos --- */}
-          <NumbersBento config={config.numbers} />
+          <div>{/* caixa fixa: o bloco aparece/some sem mexer nos vizinhos */}
+            <NumbersBento config={config.numbers} />
+          </div>
 
           {/* --- PRODUTOS E SERVIÇOS --- */}
-          <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
+          {/* caixa fixa: a animação de travar a rolagem (GSAP) mexe só aqui dentro */}
+          <div>
+            <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
+          </div>
 
           {/* --- PARCEIROS --- */}
           <Partners />

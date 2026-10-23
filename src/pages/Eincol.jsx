@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ParallaxLayer from '../components/ui/ParallaxLayer';
 import LogoCarousel from '../components/sections/LogoCarousel';
 import SectionTitle from '../components/sections/SectionTitle';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -57,13 +58,15 @@ export default function Eincol() {
       ═══════════════════════════════════════ */}
       <div className="relative w-full" style={{ height: '100svh' }}>
         {/* Imagem de fundo */}
-        <div className="absolute inset-0 bg-[#0f1f11]">
+        <div className="absolute inset-0 bg-[#0f1f11] overflow-hidden">
           {config?.hero_image && (
-            <img
-              src={getImageUrl(config.hero_image, 1920)}
-              alt={title}
-              className="w-full h-full object-cover opacity-70"
-            />
+            <ParallaxLayer>
+              <img
+                src={getImageUrl(config.hero_image, 1920)}
+                alt={title}
+                className="w-full h-full object-cover opacity-70"
+              />
+            </ParallaxLayer>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#0f1f11]" />
         </div>

@@ -419,28 +419,51 @@ function NumbersForm({ config = {}, update }) {
 }
 
 // ─── VÍDEO DO TOPO ──────────────────────────────────────────────
+// Um vídeo só, enviado pelo painel: toca mudo em loop no fundo e abre com
+// som no botão "Assistir vídeo". Antes de subir, o vídeo é otimizado no
+// próprio navegador (utils/videoOptimize.js).
 function HeroVideoFields({ config, update }) {
-  const [busy, setBusy] = React.useState(false);
+  const [busy, setBusy] = React.useState('');      // '' | 'convert' | 'send'
+  const [progress, setProgress] = React.useState(0);
+  const hasVideo = !!config.video_loop;
+  const mode = config.bg_mode || (hasVideo ? 'video' : 'image');
+
   const send = async (file) => {
     if (!file) return;
-    if (file.size > 40 * 1024 * 1024) { window.showToast?.('Vídeo muito grande. Máximo 40 MB.', 'error'); return; }
-    setBusy(true);
+    if (!/^video\//.test(file.type)) { window.showToast?.('Escolha um arquivo de vídeo.', 'error'); return; }
+    if (file.size > 600 * 1024 * 1024) { window.showToast?.('Vídeo muito grande (máximo 600 MB antes da otimização).', 'error'); return; }
+    let video = file, poster = null;
     try {
+      const { canOptimizeVideo, optimizeVideo } = await import('../../utils/videoOptimize');
+      if (canOptimizeVideo()) {
+        setBusy('convert'); setProgress(0);
+        const out = await optimizeVideo(file, setProgress);
+        video = out.video; poster = out.poster;
+      } else if (file.size > 40 * 1024 * 1024) {
+        window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 40 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
+        return;
+      }
+      if (video.size > 40 * 1024 * 1024) {
+        window.showToast?.('Mesmo otimizado, o vídeo passou de 40 MB. Use um vídeo mais curto.', 'error');
+        return;
+      }
+      setBusy('send');
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', video);
+      if (poster) fd.append('poster', poster);
       const data = await apiRequest(`${API_BASE_URL}/upload_video.php`, { method: 'POST', body: fd });
-      update({ video_loop: data.url });
-      window.showToast?.('Vídeo enviado. Clique em Salvar para publicar.');
+      update({ video_loop: data.url, video_poster: data.poster || '', bg_mode: 'video', video_loop_url: '', video_full_url: '' });
+      const mb = (video.size / 1024 / 1024).toFixed(1);
+      window.showToast?.(`Vídeo otimizado e enviado (${mb} MB). Clique em Salvar para publicar.`);
     } catch (err) { toastError(err); }
-    finally { setBusy(false); }
+    finally { setBusy(''); setProgress(0); }
   };
-  const hasVideo = !!(config.video_loop || (config.video_loop_url || '').trim());
-  const mode = config.bg_mode || (hasVideo ? 'video' : 'image');
+
   return (
     <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
       <div>
         <p className="text-sm font-bold text-gray-800">Fundo do topo</p>
-        <p className="text-xs text-gray-500">Escolha se o fundo do topo é uma imagem ou um vídeo. A imagem cadastrada abaixo também aparece enquanto o vídeo carrega.</p>
+        <p className="text-xs text-gray-500">Escolha se o fundo do topo é uma imagem ou um vídeo. A imagem cadastrada abaixo aparece enquanto o vídeo carrega (e no lugar dele, se o visitante pediu "menos movimento").</p>
       </div>
       <div className="inline-flex p-1 bg-white border border-gray-200 rounded-xl" role="radiogroup" aria-label="Fundo do topo">
         {[['image', 'Imagem'], ['video', 'Vídeo']].map(([id, label]) => (
@@ -450,30 +473,32 @@ function HeroVideoFields({ config, update }) {
           </button>
         ))}
       </div>
+
       {mode === 'video' && (<>
-      <Input label="Link do vídeo de fundo (YouTube ou Vimeo)" value={config.video_loop_url || ''} onChange={(e) => update({ video_loop_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..."
-        hint="Toca sem som e em loop atrás do texto. Ou, em vez do link, envie um arquivo MP4 abaixo." />
-      <p className="text-xs text-gray-500">Arquivo MP4 (opcional): trecho curto (10 a 20 s), sem áudio, até 40 MB (ideal: menos de 8 MB). Se houver link e arquivo, vale o link.</p>
-      <div className="flex flex-wrap items-center gap-3">
-        <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider cursor-pointer ${busy ? 'opacity-50 pointer-events-none' : 'bg-white border-gray-200 text-gray-700 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
-          <UploadCloud size={16} /> {busy ? 'Enviando...' : (config.video_loop ? 'Trocar vídeo' : 'Enviar vídeo')}
-          <input type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={(e) => { send(e.target.files?.[0]); e.target.value = ''; }} />
-        </label>
-        {config.video_loop && (
-          <>
-            <span className="text-xs text-gray-500 truncate max-w-[260px]">{config.video_loop.split('/').pop()}</span>
-            <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '' })}>Remover vídeo</button>
-          </>
+        <p className="text-xs text-gray-500">
+          Envie <strong>um vídeo</strong> (MP4, MOV ou WebM). Antes de subir, o painel reduz o tamanho (até 1280 px de largura) e comprime o arquivo para o site carregar rápido. Isso leva o mesmo tempo do vídeo: mantenha esta aba aberta até terminar.
+          No site, ele toca sem som e em loop no fundo; o botão "Assistir vídeo" abre o mesmo vídeo com som.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider cursor-pointer ${busy ? 'opacity-50 pointer-events-none' : 'bg-white border-gray-200 text-gray-700 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+            <UploadCloud size={16} /> {busy === 'convert' ? `Otimizando... ${Math.round(progress * 100)}%` : busy === 'send' ? 'Enviando...' : (hasVideo ? 'Trocar vídeo' : 'Enviar vídeo')}
+            <input type="file" accept="video/*" className="hidden" disabled={!!busy} onChange={(e) => { send(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
+          {hasVideo && !busy && (
+            <>
+              <span className="text-xs text-gray-500 truncate max-w-[260px]">{config.video_loop.split('/').pop()}</span>
+              <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '', video_poster: '' })}>Remover vídeo</button>
+            </>
+          )}
+        </div>
+        {busy === 'convert' && (
+          <div className="h-2 w-full max-w-md bg-gray-200 rounded-full overflow-hidden" aria-hidden="true">
+            <div className="h-full bg-[#007a3d] transition-[width] duration-300" style={{ width: `${Math.round(progress * 100)}%` }} />
+          </div>
         )}
-      </div>
-      {config.video_loop && <video src={getImageUrl(config.video_loop)} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
-      </>)}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input label="Vídeo completo do botão (opcional)" value={config.video_full_url || ''} onChange={(e) => update({ video_full_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..."
-          hint="Vazio: o botão abre o próprio vídeo de fundo, com som." />
+        {hasVideo && <video src={getImageUrl(config.video_loop)} poster={config.video_poster ? getImageUrl(config.video_poster) : undefined} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
         <Input label="Texto do botão de vídeo (embaixo, no centro)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo" />
-      </div>
-      <p className="text-xs text-gray-500">Com vídeo, o botão "Assistir vídeo" fica no lugar da seta de rolar. Com fundo de imagem e sem link de vídeo completo, a seta continua.</p>
+      </>)}
     </div>
   );
 }

@@ -248,9 +248,11 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
   ~1,4 MB de imagens.
 - **Sem Lenis:** a rolagem suave foi removida (rodava um laço o tempo todo e
   engasgava). O pacote ainda está no package.json, mas não é usado.
-- **Topo da Home:** no painel, "Fundo do topo" = Imagem ou Vídeo. O vídeo pode
-  ser link do YouTube/Vimeo (`video_loop_url`) ou MP4 enviado (`video_loop`).
-  O botão "Assistir vídeo" usa `video_full_url` ou, vazio, o próprio vídeo.
+- **Topo da Home:** no painel, "Fundo do topo" = Imagem ou Vídeo. O vídeo é UM arquivo
+  enviado (`video_loop`); antes de subir, o painel o otimiza no navegador
+  (`src/utils/videoOptimize.js`: até 1280 px, MP4 H.264 ou WebM, ~2,5 Mbps, com
+  capa WebP em `video_poster`). Ele toca mudo em loop e abre com som no botão
+  "Assistir vídeo". Não há mais player do YouTube no topo.
 - **CSS `.container`:** agora fica em `@layer components` e só define as
   laterais (antes zerava o espaço de cima/baixo de várias seções).
 - **Ambiente local:** o Vite do SIF roda em **http://localhost:3000**

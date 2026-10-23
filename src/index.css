@@ -436,8 +436,8 @@ body { background-color: #f6f8f7; }
 .sif-photo-band { isolation: isolate; overflow: hidden; background-color: #0b3320; }
 .sif-photo-band:not(.sticky) { position: relative; }
 .sif-photo-band__bg {
-  position: absolute; left: -40px; right: -40px; top: -120px; bottom: -120px; z-index: -3;
-  transform: translate3d(0, calc((var(--p, .5) - .5) * 180px), 0);
+  position: absolute; left: -40px; right: -40px; top: -150px; bottom: -150px; z-index: -3;
+  transform: translate3d(0, calc((var(--p, .5) - .5) * 240px), 0);
   will-change: transform;
 }
 .sif-photo-band__bg img {

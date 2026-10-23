@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import ParallaxLayer from './ui/ParallaxLayer';
 
 // Topo padrão das páginas de detalhe (Grupo Temático, Evento, Treinamento,
 // In-Company, Projeto): capa com degradê, trilha de navegação, etiqueta,
@@ -14,7 +15,7 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
   const items = chips.filter(c => c && c.text);
   return (
     <header className="relative min-h-[64vh] flex items-end pt-32 pb-14 md:pb-20 overflow-hidden bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]">
-      {cover && <img src={cover} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" />}
+      {cover && <ParallaxLayer><img src={cover} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" /></ParallaxLayer>}
       <div className="absolute inset-0" style={{ background: `linear-gradient(100deg, rgba(5,18,11,.92) 0%, rgba(5,18,11,.72) 45%, ${color}55 100%)` }} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
