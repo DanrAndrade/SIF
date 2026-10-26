@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, Plus, Info, Layers, FolderKanban, Megaphone } from 'lucide-react';
-import { AdminPage, AdminCard, SecondaryButton, ItemActions, moveItem, useDirty, useConfirm } from '../../components/admin/kit';
+import { AdminPage, AdminCard, SecondaryButton, ItemActions, moveItem, useDirty, useConfirm, ImageField } from '../../components/admin/kit';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
 import { API_BASE_URL } from '../../apiConfig';
-import { savePageConfig, toastError } from '../../utils/adminApi';
+import { savePageConfig, toastError, uploadImageNow } from '../../utils/adminApi';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../../utils/embrapiiDefaults';
 import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 
@@ -44,7 +44,14 @@ export default function EmbrapiiAdmin() {
 
   const set = (k, v) => setCfg(p => ({ ...p, [k]: v }));
   const frentes = Array.isArray(cfg.frentes) ? cfg.frentes : [];
-  const setFrente = (i, k, v) => set('frentes', frentes.map((f, j) => j === i ? { ...f, [k]: v } : f));
+  const setFrente = (i, k, v) => setCfg(p => ({ ...p, frentes: (p.frentes || []).map((f, j) => j === i ? { ...f, [k]: v } : f) }));
+  // Envia a foto na hora e grava o caminho no campo (k) ou no card (i)
+  const sendImage = async (file, apply) => {
+    setUploading(true);
+    try { const url = await uploadImageNow(file); if (url) apply(url); }
+    catch (err) { toastError(err); }
+    finally { setUploading(false); }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -80,14 +87,20 @@ export default function EmbrapiiAdmin() {
                     <Field label="Etiqueta" value={cfg.intro_tag} onChange={v => set('intro_tag', v)} />
                     <Field label="Título" value={cfg.intro_title} onChange={v => set('intro_title', v)} />
                   </div>
-                  <Field label="Texto" type="textarea" rows={4} value={cfg.intro_text} onChange={v => set('intro_text', v)} />
+                  <Field label="Texto (deixe uma linha em branco entre parágrafos; o primeiro aparece em destaque)" type="textarea" rows={6} value={cfg.intro_text} onChange={v => set('intro_text', v)} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ImageField label="Foto ao lado da apresentação" value={cfg.intro_image} onFile={f => sendImage(f, u => set('intro_image', u))} onRemove={() => set('intro_image', '')} aspect="h-40" />
+                    <ImageField label="Foto de fundo da faixa do vídeo" value={cfg.band_photo} onFile={f => sendImage(f, u => set('band_photo', u))} onRemove={() => set('band_photo', '')} aspect="h-40" />
+                  </div>
                 </div>
               </AdminCard>
-              <AdminCard title="Frentes de atuação (cards)" actions={<SecondaryButton icon={Plus} onClick={() => set('frentes', [...frentes, { title: '', text: '' }])}>Adicionar card</SecondaryButton>}>
+              <AdminCard title="Frentes de atuação (cards com foto)" actions={<SecondaryButton icon={Plus} onClick={() => set('frentes', [...frentes, { title: '', text: '', image: '' }])}>Adicionar card</SecondaryButton>}>
                 <div className="space-y-3">
+                  <div className="md:w-1/3"><Field label="Etiqueta acima dos cards" value={cfg.frentes_tag} onChange={v => set('frentes_tag', v)} /></div>
                   {frentes.length === 0 && <p className="text-sm text-gray-400">Nenhum card — a faixa não aparece no site.</p>}
                   {frentes.map((f, i) => (
                     <div key={i} className="flex flex-col md:flex-row md:items-end gap-3 p-3 bg-gray-50 rounded-xl">
+                      <div className="md:w-40 shrink-0"><ImageField value={f.image} onFile={file => sendImage(file, u => setFrente(i, 'image', u))} onRemove={() => setFrente(i, 'image', '')} aspect="h-24" /></div>
                       <div className="md:w-1/3"><Field label="Título" value={f.title} onChange={v => setFrente(i, 'title', v)} /></div>
                       <div className="flex-1"><Field label="Texto" value={f.text} onChange={v => setFrente(i, 'text', v)} /></div>
                       <ItemActions onMove={d => set('frentes', moveItem(frentes, i, d))} isFirst={i === 0} isLast={i === frentes.length - 1}
@@ -124,7 +137,10 @@ export default function EmbrapiiAdmin() {
           {tab === 'cta' && (
             <AdminCard title="Chamada final">
               <div className="space-y-4">
-                <Field label="Título" value={cfg.cta_title} onChange={v => set('cta_title', v)} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Field label="Etiqueta" value={cfg.cta_tag} onChange={v => set('cta_tag', v)} />
+                  <div className="md:col-span-2"><Field label="Título" value={cfg.cta_title} onChange={v => set('cta_title', v)} /></div>
+                </div>
                 <Field label="Texto" type="textarea" rows={3} value={cfg.cta_text} onChange={v => set('cta_text', v)} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Field label="Botão — texto (vazio esconde)" value={cfg.cta_btn_label} onChange={v => set('cta_btn_label', v)} />

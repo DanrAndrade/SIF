@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Factory, Sprout } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
-import SmartLink from '../components/ui/SmartLink';
+import GlowCta from '../components/ui/GlowCta';
+import { visibleSections, isSectionEmpty } from '../components/sections/sectionTypes';
+import { EmbIntro, EmbSteps, EmbVideo, EmbTextDoc, EmbTeam, EmbCommittee, EmbLogos, matchBios } from '../components/embrapii/EmbrapiiBlocks';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
@@ -13,7 +14,41 @@ import { getEffectiveProjectStatus } from '../utils/helpers';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../utils/embrapiiDefaults';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 
-const FRENTE_ICONS = [Sprout, Factory, Leaf];
+const namedPeople = (sec) => (sec?.items || []).filter(p => p && p.name);
+
+// Junta os blocos do painel em "cenas" com desenho próprio desta página:
+//   cards                             → linha do tempo de passos
+//   vídeo                             → vídeo em destaque sobre faixa escura com foto
+//   texto + arquivos (sem título)     → texto com o documento em destaque
+//   pessoas (com título)              → grade da equipe
+//   texto + pessoas (sem título) [+ abas com os nomes] → comitê com minibios
+//   logos                             → grade de logos sobre fundo branco (fim da página)
+// Qualquer outro bloco usa o desenho padrão (ContentSectionsRenderer).
+function buildScenes(sections) {
+  const list = visibleSections(sections).filter(s => !isSectionEmpty(s));
+  const scenes = [];
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    const next = list[i + 1];
+    const after = list[i + 2];
+    if (s.type === 'editor' && next?.type === 'pdfs' && !next.title) {
+      scenes.push({ kind: 'textdoc', sec: s, docs: next }); i += 1; continue;
+    }
+    if (s.type === 'editor' && next?.type === 'people' && !next.title) {
+      const bios = after?.type === 'tabs' && matchBios(namedPeople(next), after.tabs).size > 0 ? after : null;
+      scenes.push({ kind: 'committee', intro: s, people: next, bios }); i += bios ? 2 : 1; continue;
+    }
+    if (s.type === 'people' && next?.type === 'tabs' && matchBios(namedPeople(s), next.tabs).size > 0) {
+      scenes.push({ kind: 'committee', people: s, bios: next }); i += 1; continue;
+    }
+    if (s.type === 'cards') { scenes.push({ kind: 'steps', sec: s }); continue; }
+    if (s.type === 'video') { scenes.push({ kind: 'video', sec: s }); continue; }
+    if (s.type === 'people') { scenes.push({ kind: 'team', sec: s }); continue; }
+    if (s.type === 'logos') { scenes.push({ kind: 'logos', sec: s }); continue; }
+    scenes.push({ kind: 'default', sec: s });
+  }
+  return scenes;
+}
 
 // Página "Projetos SIF e EMBRAPII" — editável em Painel › Páginas.
 export default function ProjetosEmbrapii() {
@@ -33,6 +68,23 @@ export default function ProjetosEmbrapii() {
   }, [c.projects_enabled]);
 
   const shownProjects = projetos.slice(0, Number(c.projects_limit) || 6);
+  const bandPhoto = [c.band_photo, c.hero_image, c.intro_image].filter(Boolean).map(p => getImageUrl(p, 1600));
+  const scenes = buildScenes(sections);
+  // Logos ficam no fim (logo antes do rodapé), depois da chamada final
+  const logoScenes = scenes.filter(s => s.kind === 'logos');
+  const bodyScenes = scenes.filter(s => s.kind !== 'logos');
+
+  const renderScene = (s, i) => {
+    switch (s.kind) {
+      case 'steps': return <EmbSteps key={s.sec.id} sec={s.sec} />;
+      case 'video': return <EmbVideo key={s.sec.id} sec={s.sec} photo={bandPhoto} />;
+      case 'textdoc': return <EmbTextDoc key={s.sec.id} sec={s.sec} docs={s.docs} />;
+      case 'team': return <EmbTeam key={s.sec.id} sec={s.sec} />;
+      case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} />;
+      case 'logos': return <EmbLogos key={s.sec.id} sec={s.sec} />;
+      default: return <ContentSectionsRenderer key={s.sec.id || i} sections={[s.sec]} layout="page" bgPhoto={bandPhoto} />;
+    }
+  };
 
   return (
     <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
@@ -40,43 +92,13 @@ export default function ProjetosEmbrapii() {
       <EditablePageHero pageKey="embrapii" defaults={EMBRAPII_HERO_DEFAULTS} scrollTargetId="embrapii-intro" />
 
       <main className="flex-grow">
-        {/* APRESENTAÇÃO + FRENTES */}
-        <section id="embrapii-intro" className="py-24 scroll-mt-24">
-          <div className="container mx-auto px-6 max-w-7xl">
-            <div className="max-w-3xl mb-16">
-              {c.intro_tag && <span className="sif-eyebrow mb-4">{c.intro_tag}</span>}
-              {c.intro_title && <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight mb-6">{c.intro_title}</h2>}
-              {c.intro_text && <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-line">{c.intro_text}</p>}
-            </div>
-            {frentes.length > 0 && (
-              <div className={`grid grid-cols-1 ${['', 'md:grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3'][Math.min(frentes.length, 3)]} gap-6`}>
-                {frentes.map((f, i) => {
-                  const Icon = FRENTE_ICONS[i % FRENTE_ICONS.length];
-                  return (
-                    <div key={i} className="bg-white rounded-card p-8 border border-gray-100 shadow-sm">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#007a3d] flex items-center justify-center mb-6"><Icon size={22} /></div>
-                      <h3 className="text-xl font-semibold text-[#1f2937] mb-3">{f.title}</h3>
-                      {f.text && <p className="text-gray-500 leading-relaxed">{f.text}</p>}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
+        <EmbIntro c={c} frentes={frentes} />
 
-        {/* SEÇÕES LIVRES (texto, abas, PDFs, logos) */}
-        {sections.length > 0 && (
-          <section className="py-20 bg-white border-t border-gray-100">
-            <div className="container mx-auto px-6 max-w-5xl">
-              <ContentSectionsRenderer sections={sections} />
-            </div>
-          </section>
-        )}
+        {bodyScenes.map(renderScene)}
 
         {/* PROJETOS EM ANDAMENTO (vêm do cadastro de Projetos) */}
         {c.projects_enabled !== false && shownProjects.length > 0 && (
-          <section className="py-24">
+          <section className="py-20 md:py-28">
             <div className="container mx-auto px-6 max-w-7xl">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>
@@ -90,10 +112,10 @@ export default function ProjetosEmbrapii() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {shownProjects.map(p => (
-                  <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 flex flex-col">
+                  <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-500 flex flex-col">
                     {p.image_url && (
                       <div className="h-44 overflow-hidden bg-gray-100">
-                        <img src={getImageUrl(p.image_url, 800)} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <img src={getImageUrl(p.image_url, 800)} alt={p.title} loading="lazy" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="p-7 flex-grow flex flex-col">
@@ -109,23 +131,15 @@ export default function ProjetosEmbrapii() {
 
         {/* CHAMADA FINAL */}
         {(c.cta_title || c.cta_text) && (
-          <section className="pb-24 pt-8">
+          <section className="py-20 md:py-24">
             <div className="container mx-auto px-6 max-w-7xl">
-              <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white p-10 md:p-16 text-center">
-                <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
-                <div className="relative max-w-2xl mx-auto">
-                  {c.cta_title && <h2 className="sif-title sif-h2 mb-5">{c.cta_title}</h2>}
-                  {c.cta_text && <p className="text-white/80 text-lg leading-relaxed">{c.cta_text}</p>}
-                  {c.cta_btn_label && (
-                    <SmartLink href={c.cta_btn_link || '/contato'} className={`mt-8 ${buttonClass('light')}`}>
-                      <span className="py-2">{c.cta_btn_label}</span><BtnArrow variant="light" />
-                    </SmartLink>
-                  )}
-                </div>
-              </div>
+              <GlowCta eyebrow={c.cta_tag} title={c.cta_title} text={c.cta_text}
+                btnLabel={c.cta_btn_label} href={c.cta_btn_link || '/contato'} />
             </div>
           </section>
         )}
+
+        {logoScenes.map(renderScene)}
       </main>
 
       <Footer />
