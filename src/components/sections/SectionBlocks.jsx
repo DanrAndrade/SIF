@@ -10,6 +10,7 @@ import LogoCarousel from './LogoCarousel';
 import SmartLink from '../ui/SmartLink';
 import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass } from '../ui/Button';
+import CountUp from '../ui/CountUp';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
@@ -102,7 +103,7 @@ export function StatsBlock({ sec, dark }) {
       <div className={`grid grid-cols-2 ${cols} gap-3 md:gap-5`}>
         {items.map((it, i) => (
           <div key={i} className={`text-center rounded-card px-4 py-7 md:py-9 ${dark ? 'bg-[#2a302d]/[0.88] border border-white/10 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)]' : 'bg-white shadow-card'}`}>
-            <div className={`text-4xl md:text-6xl font-semibold tracking-tight ${dark ? 'text-white' : 'text-[var(--accent,#007a3d)]'}`}>{it.value}</div>
+            <div className={`text-4xl md:text-6xl font-semibold tracking-tight ${dark ? 'text-white' : 'text-[var(--accent,#007a3d)]'}`}><CountUp value={it.value} /></div>
             {it.label && <div className={`mt-2 text-sm md:text-base ${dark ? 'text-white/70' : 'text-gray-500'}`}>{it.label}</div>}
           </div>
         ))}
