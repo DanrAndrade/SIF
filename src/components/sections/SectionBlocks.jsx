@@ -64,7 +64,7 @@ export function TextImageBlock({ sec, dark }) {
 // Cards lado a lado (até 4): filete na cor do grupo, número grande e, ao
 // passar o mouse, o card cresce e escurece. Com 5 ou mais, vira grade.
 export function CardsBlock({ sec, dark }) {
-  const items = (sec.items || []).filter(i => i && (i.title || i.text));
+  const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
   const row = items.length <= 4;
   return (
     <div>
@@ -73,10 +73,11 @@ export function CardsBlock({ sec, dark }) {
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden border-t-[3px] border-[var(--accent,#007a3d)] p-7 md:p-9 md:min-h-[340px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden border-t-[3px] border-[var(--accent,#007a3d)] p-7 md:p-8 md:min-h-[260px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
               <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
-              <div className="flex-1 min-h-[40px]" />
+              <div className="flex-1 min-h-[28px]" />
               {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
+              {it.subtitle && <p className={`mt-2 text-sm md:text-[15px] leading-snug max-w-[22rem] transition-colors duration-500 ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)] group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{it.subtitle}</p>}
               {/* Texto: no computador fica escondido e SOBE ao passar o mouse
                   (ou focar pelo teclado); no celular aparece sempre */}
               {it.text && (

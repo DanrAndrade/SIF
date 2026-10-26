@@ -108,14 +108,12 @@ function IconPicker({ value, onChange }) {
 export function CardsEditor({ sec, onUpdate }) {
   return (
     <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} grid addLabel="Adicionar card"
-      empty="Nenhum card." newItem={() => ({ icon: 'Target', title: '', text: '' })}
+      empty="Nenhum card." newItem={() => ({ title: '', subtitle: '', text: '' })}
       render={(it, set) => (
         <div className="space-y-3">
-          <div className="flex gap-3 items-end">
-            <IconPicker value={it.icon} onChange={(icon) => set({ icon })} />
-            <div className="flex-1"><Field label="Título" value={it.title} onChange={(title) => set({ title })} /></div>
-          </div>
-          <Field label="Texto" textarea rows={3} value={it.text} onChange={(text) => set({ text })} />
+          <Field label="Título" value={it.title} onChange={(title) => set({ title })} />
+          <Field label="Subtítulo (sempre visível)" value={it.subtitle || ''} onChange={(subtitle) => set({ subtitle })} />
+          <Field label="Texto (aparece ao passar o mouse)" textarea rows={3} value={it.text} onChange={(text) => set({ text })} />
         </div>
       )} />
   );

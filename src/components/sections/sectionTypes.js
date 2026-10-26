@@ -15,7 +15,7 @@
 export const SECTION_TYPES = {
   editor:     { label: 'Texto',             icon: 'Type',        desc: 'Texto livre com títulos, listas, links e imagens.', create: () => ({ content: '' }) },
   text_image: { label: 'Texto + imagem',    icon: 'ImageIcon',   desc: 'Texto ao lado de uma foto (esquerda ou direita).', create: () => ({ content: '', image: '', image_side: 'right' }) },
-  cards:      { label: 'Cards de destaque', icon: 'LayoutGrid',  desc: 'Grade de cards com ícone, título e texto (objetivos, linhas de pesquisa...).', create: () => ({ items: [{ icon: 'Target', title: '', text: '' }, { icon: 'Microscope', title: '', text: '' }, { icon: 'Leaf', title: '', text: '' }] }) },
+  cards:      { label: 'Cards de destaque', icon: 'LayoutGrid',  desc: 'Cards com título, subtítulo e um texto que aparece ao passar o mouse (objetivos, linhas de pesquisa...).', create: () => ({ items: [{ title: '', subtitle: '', text: '' }, { title: '', subtitle: '', text: '' }, { title: '', subtitle: '', text: '' }] }) },
   stats:      { label: 'Números',           icon: 'BarChart3',   desc: 'Faixa com números grandes e legendas.', create: () => ({ items: [{ value: '', label: '' }, { value: '', label: '' }, { value: '', label: '' }] }) },
   people:     { label: 'Pessoas',           icon: 'Users',       desc: 'Fotos com nome, cargo e link (coordenação, comitê...).', create: () => ({ items: [] }) },
   gallery:    { label: 'Galeria de fotos',  icon: 'Images',      desc: 'Grade de fotos que abre em tela cheia.', create: () => ({ images: [] }) },
@@ -86,7 +86,7 @@ export function isSectionEmpty(s) {
     case 'editor':
     case 'gt_intro':   return blankHtml(s.content);
     case 'text_image': return blankHtml(s.content) && !s.image;
-    case 'cards':      return !(s.items || []).some(i => i && (i.title || i.text));
+    case 'cards':      return !(s.items || []).some(i => i && (i.title || i.subtitle || i.text));
     case 'stats':      return !(s.items || []).some(i => i && String(i.value || '').trim());
     case 'people':     return !(s.items || []).some(i => i && i.name);
     case 'gallery':    return !(s.images || []).some(Boolean);
