@@ -437,7 +437,7 @@ function HeroVideoFields({ config, update }) {
       const { canOptimizeVideo, optimizeVideo } = await import('../../utils/videoOptimize');
       if (canOptimizeVideo()) {
         setBusy('convert'); setProgress(0);
-        const out = await optimizeVideo(file, setProgress);
+        const out = await optimizeVideo(file, setProgress, { loopStart: Number(config.video_loop_start) || 0 });
         video = out.video; poster = out.poster; loop = out.loop;
       } else if (file.size > 40 * 1024 * 1024) {
         window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 40 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
@@ -491,6 +491,10 @@ function HeroVideoFields({ config, update }) {
               <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '', video_loop_short: '', video_poster: '' })}>Remover vídeo</button>
             </>
           )}
+        </div>
+        <div className="max-w-xs">
+          <Input label="O fundo começa em (segundos)" type="number" min="0" step="1" value={config.video_loop_start ?? ''} onChange={(e) => update({ video_loop_start: e.target.value })} placeholder="0"
+            hint="Use para pular a abertura do vídeo. O fundo usa 20 segundos a partir daqui. Vale para o próximo envio." />
         </div>
         {busy === 'convert' && (
           <div className="h-2 w-full max-w-md bg-gray-200 rounded-full overflow-hidden" aria-hidden="true">

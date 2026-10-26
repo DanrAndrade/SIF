@@ -10,8 +10,9 @@
 const MAX_W = 1280;
 const VIDEO_BPS = 2_500_000; // ~2,5 Mbps: bom para 720p
 const AUDIO_BPS = 128_000;
-const LOOP_SECONDS = 20;     // trecho do fundo (sem áudio, mais leve)
-const LOOP_BPS = 1_200_000;
+const LOOP_SECONDS = 20;     // trecho do fundo (sem áudio)
+const LOOP_MAX_W = 1920;     // fundo em Full HD (fica nítido em telas grandes)
+const LOOP_BPS = 4_500_000;  // ~4,5 Mbps: boa qualidade, ~10 MB para 20 s
 
 const MIME_OPTIONS = [
   'video/mp4;codecs=avc1.42E01F,mp4a.40.2',
@@ -43,7 +44,8 @@ const once = (el, ev) => new Promise((res, rej) => {
  * segundos, sem som e mais leve (fundo do topo). Os dois saem da mesma
  * passada, sem gastar mais tempo.
  */
-export async function optimizeVideo(file, onProgress = () => {}) {
+// opts.loopStart: segundo em que o trecho do fundo começa (pula aberturas)
+export async function optimizeVideo(file, onProgress = () => {}, opts = {}) {
   const url = URL.createObjectURL(file);
   const video = document.createElement('video');
   video.src = url;
@@ -66,6 +68,13 @@ export async function optimizeVideo(file, onProgress = () => {}) {
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
+    // Tela separada, em resolução maior, só para o trecho do fundo
+    const lScale = Math.min(1, LOOP_MAX_W / (video.videoWidth || LOOP_MAX_W));
+    const lw = Math.max(2, Math.round((video.videoWidth * lScale) / 2) * 2);
+    const lh = Math.max(2, Math.round((video.videoHeight * lScale) / 2) * 2);
+    const loopCanvas = document.createElement('canvas');
+    loopCanvas.width = lw; loopCanvas.height = lh;
+    const lctx = loopCanvas.getContext('2d');
 
     // Capa: quadro em ~0,3 s
     video.currentTime = Math.min(0.3, (video.duration || 1) / 2);
@@ -95,27 +104,33 @@ export async function optimizeVideo(file, onProgress = () => {}) {
     const stopped = new Promise(r => { rec.onstop = r; });
 
     // Trecho do fundo: só imagem, primeiros segundos, taxa menor
-    const loopStream = new MediaStream(stream.getVideoTracks().map(t => t.clone()));
+    const loopStream = loopCanvas.captureStream(30);
     const sameFamily = /mp4/.test(mimeType) ? ['video/mp4;codecs=avc1.42E01F', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
     const loopMime = sameFamily.find(m => MediaRecorder.isTypeSupported(m)) || mimeType;
     const loopRec = new MediaRecorder(loopStream, { mimeType: loopMime, videoBitsPerSecond: LOOP_BPS });
     const loopChunks = [];
     loopRec.ondataavailable = (e) => { if (e.data && e.data.size) loopChunks.push(e.data); };
     const loopStopped = new Promise(r => { loopRec.onstop = r; });
-    const loopLimit = Math.min(LOOP_SECONDS, video.duration || LOOP_SECONDS);
+    const dur = video.duration || LOOP_SECONDS;
+    const loopFrom = Math.max(0, Math.min(Number(opts.loopStart) || 0, Math.max(0, dur - 3)));
+    const loopLimit = Math.min(loopFrom + LOOP_SECONDS, dur);
+    let loopStarted = false;
     let loopDone = false;
-    const stopLoop = () => { if (!loopDone) { loopDone = true; try { loopRec.stop(); } catch { /* já parou */ } loopStream.getTracks().forEach(t => t.stop()); } };
+    const stopLoop = () => { if (!loopDone) { loopDone = true; try { if (loopRec.state !== 'inactive') loopRec.stop(); } catch { /* já parou */ } loopStream.getTracks().forEach(t => t.stop()); } };
 
     let raf = 0;
     const draw = () => {
       ctx.drawImage(video, 0, 0, w, h);
       if (video.duration) onProgress(Math.min(0.99, video.currentTime / video.duration));
-      if (!loopDone && video.currentTime >= loopLimit) stopLoop();
+      if (!loopDone) {
+        if (!loopStarted && video.currentTime >= loopFrom) { loopStarted = true; loopRec.start(1000); }
+        if (loopStarted) lctx.drawImage(video, 0, 0, lw, lh);
+        if (loopStarted && video.currentTime >= loopLimit) stopLoop();
+      }
       raf = video.requestVideoFrameCallback ? video.requestVideoFrameCallback(draw) : requestAnimationFrame(draw);
     };
 
     rec.start(1000);
-    loopRec.start(1000);
     await audioCtx?.resume?.();
     // play() pode "falhar" se o vídeo acabar antes da resposta: não é erro
     await video.play().catch((e) => { if (!video.ended) throw e; });
@@ -124,7 +139,7 @@ export async function optimizeVideo(file, onProgress = () => {}) {
     if (video.cancelVideoFrameCallback && raf) video.cancelVideoFrameCallback(raf); else cancelAnimationFrame(raf);
     rec.stop();
     stopLoop();
-    await Promise.all([stopped, loopStopped]);
+    await Promise.all([stopped, loopStarted ? loopStopped : Promise.resolve()]);
     onProgress(1);
 
     const isMp4 = /mp4/.test(mimeType);

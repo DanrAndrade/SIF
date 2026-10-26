@@ -46,6 +46,8 @@ function compressImage(string $filePath, int $maxWidth = 1920, int $quality = 82
     if ($mime === 'image/png') {
         $pngLevel = max(0, min(9, (int) round(9 - ($quality / 11))));
         $result = imagepng($dst, $filePath, $pngLevel);
+    } elseif ($mime === 'image/webp' && function_exists('imagewebp')) {
+        $result = imagewebp($dst, $filePath, $quality);
     } else {
         $result = imagejpeg($dst, $filePath, $quality);
     }
@@ -95,7 +97,13 @@ function convertToWebp(string $filePath, int $maxWidth = 1920, int $quality = 80
         case 'image/jpeg': $src = @imagecreatefromjpeg($filePath); break;
         case 'image/png':  $src = @imagecreatefrompng($filePath);  break;
         case 'image/gif':  $src = @imagecreatefromgif($filePath);  break;
-        case 'image/webp': return str_replace('\\', '/', $filePath); // já é webp
+        case 'image/webp':
+            // Já é WebP: só mantém como está se for pequeno e na largura certa;
+            // senão reduz e recomprime (antes um WebP de 4 MB passava direto).
+            if ($origW <= $maxWidth && @filesize($filePath) <= 700 * 1024) return str_replace('\\', '/', $filePath);
+            if (!function_exists('imagecreatefromwebp')) return str_replace('\\', '/', $filePath);
+            $src = @imagecreatefromwebp($filePath);
+            break;
         case 'image/bmp':
         case 'image/x-ms-bmp':
             if (!function_exists('imagecreatefrombmp')) return null;

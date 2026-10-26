@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 // com "overflow: hidden" e posição relativa/absoluta.
 // Só calcula enquanto o topo está na tela; quem pediu "menos movimento" no
 // sistema vê a foto parada.
-export default function ParallaxLayer({ speed = 0.45, zoom = 0.12, className = '', children }) {
+export default function ParallaxLayer({ speed = 0.45, zoom = 0, className = '', children }) {
   const ref = useRef(null);
 
   useEffect(() => {

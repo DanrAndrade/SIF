@@ -26,8 +26,12 @@ function uploadInstitucionalFile($file, string $subdir, bool $compress = true): 
     // Foto da equipe (subdir 'team'): mantém o arquivo como está (sem WebP),
     // para máxima compatibilidade — são as imagens reais e não podem falhar.
     // Demais imagens da página: comprime se o GD estiver disponível.
-    if ($compress && $subdir !== 'team' && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
-        compressImage($target);
+    if ($compress && in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+        if ($subdir !== 'team') {
+            $webp = convertToWebp($target);       // WebP leve (até 1920 px)
+            if ($webp) return $webp;
+        }
+        compressImage($target);                  // equipe ou servidor sem WebP: reduz no formato original
     }
 
     return str_replace('\\', '/', $target);

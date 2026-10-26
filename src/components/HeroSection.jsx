@@ -52,7 +52,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
             
             {/* Fundo (foto ou vídeo) com profundidade ao rolar */}
             {(resolvedBg || loopSrc) && (
-              <ParallaxLayer speed={0.25} zoom={0.06} className="!-top-[25%] z-0">
+              <ParallaxLayer speed={0.25} className="!-top-[25%] z-0">
                 {resolvedBg && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${resolvedBg}')` }} />}
                 {loopSrc && <HeroVideo src={loopSrc} poster={poster} />}
               </ParallaxLayer>
