@@ -39,7 +39,7 @@ export default function JobsCtaSection({ config: saved }) {
   // verde escuro com brilho que segue o mouse (components/ui/GlowCta.jsx)
   return (
     <section className="py-10 md:py-16 px-4">
-      <div className="max-w-[1280px] mx-auto">
+      <div className="max-w-5xl mx-auto">
         <GlowCta eyebrow={config.tag} title={config.title} text={config.text}
           btnLabel={config.btn_label || 'Ver vagas'} href={link}>
           {counts.length > 0 && (
