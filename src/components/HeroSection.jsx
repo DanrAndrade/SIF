@@ -67,9 +67,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
 
             <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full grid grid-cols-1 md:grid-cols-12 items-center gap-12 pt-0 will-change-transform">
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
-                    <div className="inline-flex items-center px-3 py-1 border border-[#7FBA00]/40 rounded-full bg-[#7FBA00]/10">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7FBA00]">{tag}</span>
-                    </div>
+                    <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{tag}</span>
 
                     <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.1] tracking-tight text-white">
                         {titleLine1} <br/>

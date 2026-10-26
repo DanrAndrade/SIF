@@ -41,7 +41,7 @@ export default function LoginHero() {
             alt="SIF"
             className="h-12 w-auto [filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.5))_drop-shadow(0_4px_14px_rgba(0,0,0,0.55))] sm:h-14 lg:h-16"
           />
-          <span className="hidden rounded-full border border-white/25 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/80 bg-white/5 sm:inline-block">
+          <span className="hidden text-xs font-bold uppercase tracking-[0.25em] text-sif-lime sm:inline-block">
             Área restrita
           </span>
         </div>

@@ -159,10 +159,7 @@ export default function Eventos() {
 
                 <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
                   <div className="flex-1 text-center md:text-left">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4">
-                      <Sparkles size={12} className="text-[#7FBA00]" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Evento Especial</span>
-                    </div>
+                    <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-4">Evento Especial</span>
                     <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-3">
                       EINCOL
                     </h2>

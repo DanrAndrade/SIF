@@ -73,10 +73,7 @@ export default function Eincol() {
 
         {/* Conteúdo do Hero */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-            <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse" />
-            <span className="text-white text-[10px] font-black tracking-[0.25em] uppercase">Evento Especial SIF</span>
-          </div>
+          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">Evento Especial SIF</span>
 
           <h1 className="sif-title sif-title-strong text-6xl sm:text-8xl md:text-[10rem] text-white tracking-tighter leading-none mb-6 drop-shadow-2xl">
             {title}

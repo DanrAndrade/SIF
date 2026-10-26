@@ -385,10 +385,7 @@ export default function Institucional() {
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#007a3d] animate-pulse"></span>
-              <span className="text-white text-[10px] font-black tracking-[0.2em] uppercase">{cfg.hero_badge}</span>
-          </div>
+          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{cfg.hero_badge}</span>
 
           <h1 className="sif-title text-5xl md:text-8xl text-white leading-[0.9] tracking-tighter mb-8">
               {cfg.hero_title_line1} <br/>
