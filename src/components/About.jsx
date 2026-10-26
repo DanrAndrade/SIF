@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Play } from 'lucide-react';
 import Button from './ui/Button';
 import VideoModal from './ui/VideoModal';
-import useParallax from './about/useParallax';
 
 const PENDING = '[aguardando conteúdo da SIF]';
 
@@ -26,7 +25,6 @@ export default function About({ config = {} }) {
   const c = { ...DEFAULTS, ...config };
   const txt = (v) => (v && String(v).trim()) || PENDING;
   const [video, setVideo] = useState(false);
-  const compRef = useParallax();
 
   const ytId = youtubeId(c.video_url);
   const [poster, setPoster] = useState(ytId ? `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg` : null);
@@ -35,94 +33,58 @@ export default function About({ config = {} }) {
     if (ytId && poster && !poster.includes('hqdefault')) setPoster(`https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`);
   };
 
+  const hasBadge = !!(c.badge_value || c.badge_label);
+
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 md:px-12 mt-12">
-      <section className="relative">
-        {/* Cabeçalho: título à esquerda, texto principal à direita */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-end mb-10 md:mb-14">
-          <div className="lg:col-span-7 min-w-0">
+      {/* Um bloco só: texto à esquerda, vídeo à direita, tudo no mesmo cartão */}
+      <section className="relative bg-white shadow-card rounded-card md:rounded-panel px-6 py-10 sm:px-10 md:px-14 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          <div className="lg:col-span-6 min-w-0">
             <span className="sif-eyebrow mb-5">{txt(c.tag)}</span>
             <h2
-              className="sif-title sif-h2 lg:text-6xl leading-[1.05] tracking-tight text-sif-ink"
+              className="sif-title sif-h2 leading-[1.08] tracking-tight text-sif-ink"
               dangerouslySetInnerHTML={{ __html: txt(c.title) }}
             />
+            <p className="mt-7 text-lg leading-relaxed text-sif-ink/80">{txt(c.paragraph_1)}</p>
+            <p className="mt-5 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_2)}</p>
+            <p className="mt-4 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_3)}</p>
+            <div className="mt-9">
+              <Button href={c.cta_link || '/institucional'} variant="primary" size="lg">{txt(c.cta_label)}</Button>
+            </div>
           </div>
-          <div className="lg:col-span-5 min-w-0 lg:pb-2">
-            <p className="text-lg leading-relaxed text-sif-ink/80 mb-7">
-              {txt(c.paragraph_1)}
-            </p>
-            <Button href={c.cta_link || '/institucional'} variant="primary" size="lg">
-              {txt(c.cta_label)}
-            </Button>
-          </div>
-        </div>
 
-        {/* Vídeo institucional em destaque (abre em janela) */}
-        {c.video_url && (
-          <div ref={compRef} className="relative rounded-card md:rounded-panel overflow-hidden bg-sif-dark shadow-card">
-            <button
-              type="button"
-              onClick={() => setVideo(true)}
-              aria-label="Assistir ao vídeo institucional"
-              className="group relative block w-full aspect-[4/3] sm:aspect-video lg:aspect-[21/9] text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-sif-lime"
-            >
-              {poster && (
-                <span data-speed="0.07" className="absolute inset-x-0 -inset-y-12 will-change-transform">
-                  <img
-                    src={poster}
-                    onError={posterFallback}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                  />
-                </span>
-              )}
-              <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/85 via-sif-dark/25 to-sif-dark/10" />
-
-              {/* Play central */}
-              <span className="absolute inset-0 flex items-center justify-center">
-                <span className="relative flex items-center justify-center">
-                  <span className="absolute w-20 h-20 md:w-28 md:h-28 rounded-full bg-white/20 transition-transform duration-500 ease-out group-hover:scale-125" />
-                  <span className="relative w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-sif-dark flex items-center justify-center shadow-card transition-transform duration-500 ease-out group-hover:scale-105">
-                    <Play size={26} className="ml-1" fill="currentColor" />
-                  </span>
-                </span>
-              </span>
-
-              {/* Legenda e selo */}
-              <span className="absolute inset-x-0 bottom-0 p-5 md:p-8 flex items-end justify-between gap-4 text-white">
-                <span className="min-w-0">
-                  <span className="block text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-1.5">Vídeo institucional</span>
-                  <span className="block text-base md:text-xl font-semibold leading-snug">Conheça a SIF em poucos minutos</span>
-                </span>
-                {(c.badge_value || c.badge_label) && (
-                  <span className="hidden sm:flex flex-col items-end text-right shrink-0">
-                    <span className="sif-title text-4xl md:text-5xl leading-none tracking-tight whitespace-nowrap">{c.badge_value}</span>
-                    {c.badge_label && (
-                      <span className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">{c.badge_label}</span>
-                    )}
-                  </span>
+          <div className="lg:col-span-6 min-w-0">
+            {c.video_url && (
+              <button
+                type="button"
+                onClick={() => setVideo(true)}
+                aria-label="Assistir ao vídeo institucional"
+                className="group relative block w-full aspect-video overflow-hidden rounded-card bg-sif-dark shadow-card-hover text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sif-lime"
+              >
+                {poster && (
+                  <img src={poster} onError={posterFallback} alt="" loading="lazy" decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover" />
                 )}
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Selo no celular (no computador ele fica sobre o vídeo) */}
-        {(c.badge_value || c.badge_label) && (
-          <div className="sm:hidden mt-8 flex items-end gap-4">
-            <span className="sif-title text-5xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
-            {c.badge_label && (
-              <span className="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>
+                <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/70 via-sif-dark/10 to-transparent" />
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-white text-sif-dark flex items-center justify-center shadow-card transition-transform duration-500 ease-out group-hover:scale-110">
+                    <Play size={24} className="ml-1" fill="currentColor" />
+                  </span>
+                </span>
+                <span className="absolute left-5 bottom-4 md:left-6 md:bottom-5 text-white">
+                  <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-sif-lime mb-1">Vídeo institucional</span>
+                  <span className="block text-sm md:text-base font-semibold">Conheça a SIF em poucos minutos</span>
+                </span>
+              </button>
+            )}
+            {hasBadge && (
+              <div className="mt-6 flex items-end gap-4 border-t border-gray-100 pt-6">
+                <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
+                {c.badge_label && <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>}
+              </div>
             )}
           </div>
-        )}
-
-        {/* Texto de apoio em duas colunas */}
-        <div className="mt-8 sm:mt-12 md:mt-14 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-14">
-          <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_2)}</p>
-          <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_3)}</p>
         </div>
       </section>
 

@@ -174,7 +174,7 @@ function sif_safe_name(string $ext): string {
 // session.php/login quando o admin entra — não pesa nas visitas do site.
 // Cada comando roda sozinho: se um falhar (ex.: banco antigo), fica no log
 // e os outros continuam — uma falha não trava as versões seguintes.
-const SIF_SCHEMA_VERSION = 5;
+const SIF_SCHEMA_VERSION = 6;
 
 function sif_ensure_schema(PDO $pdo): void {
     static $done = false;
@@ -290,6 +290,14 @@ function sif_ensure_schema(PDO $pdo): void {
             } catch (Throwable $e) { error_log('[sif-api] migração v5: ' . $e->getMessage()); }
         }
 
+        if ($current < 6) {
+            // Mensagens: origem do formulário (site = Contato, embrapii = página EMBRAPII)
+            // e os campos extras do formulário da EMBRAPII.
+            $addCol('leads', 'source', "VARCHAR(20) NOT NULL DEFAULT 'site'");
+            $addCol('leads', 'empresa', 'VARCHAR(120) NULL');
+            $addCol('leads', 'cargo', 'VARCHAR(120) NULL');
+        }
+
         $pdo->prepare("INSERT INTO page_configs (page_key, config_json) VALUES ('_schema', ?)
                        ON DUPLICATE KEY UPDATE config_json = VALUES(config_json)")
             ->execute([json_encode(['version' => SIF_SCHEMA_VERSION, 'applied_at' => date('c')])]);
@@ -395,7 +403,7 @@ function sif_client_ip(): string { return (string)($_SERVER['REMOTE_ADDR'] ?? '0
 // Responsável por GT (coluna gt_ids): pode publicar no blog dos seus grupos,
 // mesmo sem o módulo "blog" completo. Ver sif_blog_* no blog.php.
 const SIF_MODULES = [
-    'leads', 'candidates', 'banners', 'jobs', 'blog', 'eventos', 'treinamentos',
+    'leads', 'leads_embrapii', 'candidates', 'banners', 'jobs', 'blog', 'eventos', 'treinamentos',
     'gt', 'projetos', 'embrapii', 'home', 'institucional', 'associadas',
     'produtos', 'in_company', 'contato', 'rodape', 'eincol',
 ];

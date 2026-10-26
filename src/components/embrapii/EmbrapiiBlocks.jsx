@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Play, Phone, Mail, X, Plus, Sprout, Factory, Leaf, Download } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Play, X, Plus, Download, ArrowLeft, ArrowRight } from 'lucide-react';
 import { getImageUrl, cleanRichHtml, htmlToText } from '../../apiConfig';
-import PhotoBand from '../ui/PhotoBand';
 import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass, BtnArrow } from '../ui/Button';
 import LogoCarousel from '../sections/LogoCarousel';
+import TeamDirectory from '../team/TeamDirectory';
+import EmbrapiiForm from './EmbrapiiForm';
 import { fileExt, fileIcon, fileMetaLabel, fileUrl } from '../sections/fileMeta';
 
 // Blocos com desenho próprio da página "Projetos SIF e EMBRAPII".
 // Todo o conteúdo vem do painel (page_configs "embrapii"); aqui só o visual.
 
 const img = (p, w = 1280) => (p ? getImageUrl(p, w) : '');
-const FRENTE_ICONS = [Sprout, Factory, Leaf];
 const pad = (n) => String(n).padStart(2, '0');
 const paragraphs = (t) => String(t || '').split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const norm = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 function Header({ eyebrow, title, dark, center, className = 'mb-12 md:mb-14' }) {
   if (!eyebrow && !title) return null;
@@ -28,251 +29,257 @@ function Header({ eyebrow, title, dark, center, className = 'mb-12 md:mb-14' }) 
 
 const prose = (dark) => `prose prose-lg max-w-none ${dark ? 'prose-invert text-white/75' : 'text-gray-600'} prose-p:leading-relaxed prose-strong:text-inherit prose-a:text-sif-green prose-li:marker:text-sif-green`;
 
-/* ─── APRESENTAÇÃO + FOCOS ─────────────────────────────────────────── */
-export function EmbIntro({ c, frentes }) {
+/* ─── VÍDEO (card em tamanho médio, toca no próprio lugar) ─────────── */
+function VideoCard({ sec }) {
+  const [play, setPlay] = useState(false);
+  const url = String(sec?.url || '').trim();
+  const embed = videoEmbedUrl(url);
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  const [thumb, setThumb] = useState(yt ? `https://i.ytimg.com/vi/${yt[1]}/maxresdefault.jpg` : '');
+  const isFile = /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url);
+  if (!embed && !isFile) return null;
+  const autoplay = embed && (embed.includes('?') ? `${embed}&autoplay=1` : `${embed}?autoplay=1`);
+  return (
+    <figure>
+      <div className="relative aspect-video rounded-card overflow-hidden bg-sif-dark shadow-card-hover">
+        {!embed ? (
+          <video src={getImageUrl(url)} controls preload="metadata" playsInline className="w-full h-full" />
+        ) : play ? (
+          <iframe src={autoplay} title={sec.title || 'Vídeo'} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
+        ) : (
+          <button type="button" onClick={() => setPlay(true)} className="group absolute inset-0 w-full h-full" aria-label="Assistir ao vídeo">
+            {thumb && <img src={thumb} alt="" loading="lazy" decoding="async" onError={() => setThumb(t => (t.includes('maxres') ? t.replace('maxresdefault', 'hqdefault') : ''))} className="absolute inset-0 w-full h-full object-cover" />}
+            <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/60 via-sif-dark/10 to-transparent" />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="w-16 h-16 md:w-[72px] md:h-[72px] rounded-full bg-white text-sif-dark flex items-center justify-center shadow-card transition-transform duration-500 group-hover:scale-110">
+                <Play size={24} fill="currentColor" className="ml-1" />
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+      {(sec.title || sec.caption) && (
+        <figcaption className="mt-4 flex items-baseline gap-3 text-sm">
+          {sec.eyebrow && <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-sif-green">{sec.eyebrow}</span>}
+          <span className="text-gray-500">{sec.title || sec.caption}</span>
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+/* ─── APRESENTAÇÃO (texto + vídeo, como na página de referência) ───── */
+export function EmbIntro({ c, video }) {
   const [lead, ...rest] = paragraphs(c.intro_text);
   return (
-    <section id="embrapii-intro" className="relative py-20 md:py-28 scroll-mt-24 overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[520px] h-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(127,186,0,.16),transparent)]" aria-hidden="true" />
-      <div className="relative container mx-auto px-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          <div className="lg:col-span-5">
+    <section id="embrapii-intro" className="relative py-20 md:py-28 scroll-mt-24">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          <div className="lg:col-span-6">
             {c.intro_tag && <span className="sif-eyebrow mb-4">{c.intro_tag}</span>}
             {c.intro_title && <h2 className="sif-title sif-h2 text-sif-ink">{c.intro_title}</h2>}
-            {c.intro_image && (
-              <div className="relative mt-10 hidden lg:block">
-                <div className="absolute -inset-3 rounded-panel bg-sif-leaf/15 -rotate-2" aria-hidden="true" />
-                <img src={img(c.intro_image, 900)} alt="" loading="lazy" decoding="async" className="relative w-full aspect-[5/4] object-cover rounded-panel shadow-card-hover" />
-              </div>
-            )}
+            {lead && <p className="mt-8 text-lg md:text-xl leading-relaxed text-sif-ink/85">{lead}</p>}
+            {rest.map((p, i) => <p key={i} className="mt-5 text-base leading-relaxed text-gray-600">{p}</p>)}
           </div>
-          <div className="lg:col-span-7">
-            {lead && <p className="text-xl md:text-2xl leading-relaxed text-sif-ink font-medium" data-reveal>{lead}</p>}
-            {rest.map((p, i) => (
-              <p key={i} className="mt-6 text-base md:text-lg leading-relaxed text-gray-600" data-reveal>{p}</p>
-            ))}
-            {c.intro_image && (
-              <img src={img(c.intro_image, 900)} alt="" loading="lazy" decoding="async" className="lg:hidden mt-10 w-full aspect-[16/10] object-cover rounded-card shadow-card" />
+          <div className="lg:col-span-6">
+            {video ? <VideoCard sec={video} /> : c.intro_image && (
+              <img src={img(c.intro_image, 900)} alt="" loading="lazy" decoding="async" className="w-full aspect-video object-cover rounded-card shadow-card" />
             )}
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {frentes.length > 0 && (
-          <div className="mt-20 md:mt-24">
-            {c.frentes_tag && <span className="sif-eyebrow mb-6">{c.frentes_tag}</span>}
-            <div className={`grid grid-cols-1 ${['', '', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-2 lg:grid-cols-4'][Math.min(frentes.length, 4)]} gap-5`}>
-              {frentes.map((f, i) => {
-                const Icon = FRENTE_ICONS[i % FRENTE_ICONS.length];
-                return (
-                  <article key={i} className="group relative overflow-hidden rounded-card aspect-[16/11] md:aspect-[4/5] sif-glow-dark shadow-card transition-transform duration-500 hover:-translate-y-1">
-                    {f.image
-                      ? <img src={img(f.image, 800)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
-                      : <Icon size={180} strokeWidth={0.8} className="absolute -right-8 -top-6 text-sif-lime/20" aria-hidden="true" />}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#06230f]/95 via-[#0b3320]/45 to-transparent" aria-hidden="true" />
-                    <div className="absolute inset-x-0 bottom-0 p-7 md:p-8 text-white">
-                      <span className="block text-sm font-semibold tracking-[0.2em] text-sif-lime">{pad(i + 1)}</span>
-                      <h3 className="mt-3 text-xl md:text-2xl font-semibold leading-tight">{f.title}</h3>
-                      {f.text && <p className="mt-3 text-sm md:text-base text-white/75 leading-relaxed">{f.text}</p>}
-                    </div>
-                  </article>
-                );
-              })}
+/* ─── ÁREAS DE ATUAÇÃO (foto de fundo + título grande + cards ao lado) ── */
+// A área ativa vira o fundo e o título; os cards mostram as próximas.
+// Troca sozinha a cada 7 s enquanto está na tela (para no mouse/toque).
+export function EmbAreas({ c, frentes }) {
+  const n = frentes.length;
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const go = useCallback((d) => setActive(a => (a + d + n) % n), [n]);
+  useEffect(() => {
+    if (n < 2 || paused || !inView || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setTimeout(() => go(1), 7000);
+    return () => clearTimeout(t);
+  }, [active, paused, inView, n, go]);
+
+  if (!n) return null;
+  const cur = frentes[active];
+  const next = Array.from({ length: n - 1 }, (_, k) => (active + 1 + k) % n);
+  const text = cur.text || c.frentes_text;
+
+  return (
+    <section className="px-4 md:px-6 py-6 md:py-10" data-no-reveal>
+      <div ref={ref} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}
+        className="relative max-w-[1400px] mx-auto rounded-panel overflow-hidden bg-sif-dark text-white shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
+        {/* Fundos: só troca a opacidade (leve) */}
+        {frentes.map((f, i) => (
+          f.image ? (
+            <img key={i} src={img(f.image, 1600)} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1100ms] ease-out ${i === active ? 'opacity-100' : 'opacity-0'}`} />
+          ) : null
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#06190f]/90 via-[#06190f]/60 to-[#06190f]/15" aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#06190f]/80 to-transparent" aria-hidden="true" />
+
+        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 px-6 py-12 sm:px-10 md:px-14 md:py-16 lg:min-h-[clamp(520px,74vh,660px)] items-center">
+          {/* Texto da área ativa */}
+          <div className="lg:col-span-5">
+            <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">
+              <span className="w-8 h-px bg-sif-lime" aria-hidden="true" />{c.frentes_tag || 'Áreas de atuação'}
+            </span>
+            <div key={active} className="sif-area-in">
+              <h2 className="mt-6 sif-title text-4xl sm:text-5xl lg:text-[56px] leading-[1.02] tracking-tight">{cur.title}</h2>
+              {text && <p className="mt-6 max-w-md text-base md:text-[17px] leading-relaxed text-white/75">{text}</p>}
             </div>
           </div>
+
+          {/* Próximas áreas + navegação */}
+          <div className="lg:col-span-7 min-w-0">
+            {next.length > 0 && (
+              <div className="flex gap-4 md:gap-5 overflow-x-auto no-scrollbar lg:justify-end pb-1">
+                {next.map((i, k) => (
+                  <button key={`${active}-${i}`} type="button" onClick={() => setActive(i)} aria-label={`Ver ${frentes[i].title}`}
+                    style={{ animationDelay: `${k * 110}ms` }}
+                    className="sif-card-in group relative shrink-0 w-[170px] sm:w-[200px] lg:w-[clamp(180px,15vw,230px)] aspect-[2/3] rounded-card overflow-hidden text-left shadow-[0_20px_40px_-20px_rgba(0,0,0,.6)] ring-1 ring-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sif-lime">
+                    {frentes[i].image && <img src={img(frentes[i].image, 480)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />}
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#06190f]/90 via-[#06190f]/20 to-transparent transition-opacity duration-500 group-hover:opacity-80" />
+                    <span className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+                      <span className="block text-[11px] font-bold tracking-[0.2em] text-sif-lime">{pad(i + 1)}</span>
+                      <span className="mt-1.5 block text-[15px] md:text-base font-semibold leading-snug">{frentes[i].title}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {n > 1 && (
+              <div className="mt-8 flex items-center gap-4 lg:pl-[8%]">
+                <button type="button" onClick={() => go(-1)} aria-label="Área anterior" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowLeft size={18} /></button>
+                <button type="button" onClick={() => go(1)} aria-label="Próxima área" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowRight size={18} /></button>
+                <span className="relative flex-1 h-px bg-white/20" aria-hidden="true">
+                  <span className="absolute inset-y-0 left-0 bg-sif-lime transition-[width] duration-700 ease-out" style={{ width: `${((active + 1) / n) * 100}%` }} />
+                </span>
+                <span className="shrink-0 sif-title text-3xl md:text-4xl tabular-nums">{pad(active + 1)}<span className="text-base text-white/40"> / {pad(n)}</span></span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── PARCERIA (foto + passos em lista) ────────────────────────────── */
+export function EmbSteps({ sec, photo }) {
+  const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
+  return (
+    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          <div className="lg:col-span-5 lg:sticky lg:top-28">
+            <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-0" />
+            {photo && (
+              <img src={img(photo, 900)} alt="" loading="lazy" decoding="async" className="hidden lg:block mt-10 w-full aspect-[4/3] object-cover rounded-card shadow-card" />
+            )}
+          </div>
+          <ol className="lg:col-span-7 bg-white shadow-card divide-y divide-sif-ink/10">
+            {items.map((it, i) => (
+              <li key={i} className="grid grid-cols-[52px_1fr] md:grid-cols-[88px_1fr] gap-x-4 px-6 py-7 md:px-10 md:py-9">
+                <span className="sif-title text-3xl md:text-[44px] leading-none text-sif-green tabular-nums">{pad(i + 1)}</span>
+                <div className="min-w-0">
+                  {it.title && <h3 className="text-lg md:text-xl font-semibold leading-snug text-sif-ink">{it.title}</h3>}
+                  {it.subtitle && <p className="mt-2 text-[15px] leading-relaxed text-gray-600">{it.subtitle}</p>}
+                  {it.text && <p className="mt-2 text-sm leading-relaxed text-gray-500 whitespace-pre-line">{it.text}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CAPACITAÇÃO (texto em duas colunas + faixa do documento) ─────── */
+export function EmbTextDoc({ sec, docs }) {
+  const files = (docs?.pdfs || []).filter(p => fileUrl(p));
+  const [main, ...others] = files;
+  return (
+    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+          <div className="lg:col-span-5">
+            <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-0" />
+          </div>
+          <div className={`lg:col-span-7 ${prose(false)} prose-base md:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.content || '') }} />
+        </div>
+
+        {main && (
+          <div className="mt-12 md:mt-16 rounded-card sif-glow-dark text-white px-6 py-7 sm:px-10 md:px-12 md:py-9 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+            <div className="min-w-0 flex-1">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.22em] text-sif-lime">{docs.eyebrow || 'Material de apoio'}</span>
+              <p className="mt-2 text-lg md:text-2xl font-semibold leading-snug">{main.title || 'Documento'}</p>
+              {fileMetaLabel(main) && <p className="mt-1 text-sm text-white/55">{fileMetaLabel(main)}</p>}
+            </div>
+            <a href={getImageUrl(fileUrl(main))} target="_blank" rel="noopener noreferrer" className={`shrink-0 self-start md:self-auto ${buttonClass('light')}`}>
+              <span className="py-2">Baixar {(fileExt(main) || 'arquivo').toUpperCase()}</span><BtnArrow variant="light" icon={Download} rotate={false} />
+            </a>
+          </div>
+        )}
+        {others.length > 0 && (
+          <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {others.map((p, i) => {
+              const Icon = fileIcon(fileExt(p));
+              return (
+                <li key={i}>
+                  <a href={getImageUrl(fileUrl(p))} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white shadow-card rounded-card px-5 py-4 text-sm text-sif-ink hover:text-sif-green">
+                    <Icon size={16} className="shrink-0 text-sif-green" aria-hidden="true" /><span className="min-w-0 truncate">{p.title || `Arquivo ${i + 2}`}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
     </section>
   );
 }
 
-/* ─── PASSOS (linha do tempo) ──────────────────────────────────────── */
-const STEP_COLS = { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' };
-export function EmbSteps({ sec }) {
-  const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
-  const timeline = items.length <= 6;
-  return (
-    <section id={`secao-${sec.id}`} className="sif-glow relative py-20 md:py-28 scroll-mt-28">
-      <div className="relative container mx-auto px-6 max-w-7xl">
-        <Header eyebrow={sec.eyebrow} title={sec.title} />
-        <ol className={`relative grid grid-cols-1 gap-5 ${timeline ? STEP_COLS[items.length] || '' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
-          {timeline && (
-            <span aria-hidden="true" className="absolute left-7 top-7 bottom-7 w-px bg-gradient-to-b from-sif-green via-sif-leaf to-sif-green/20 lg:bottom-auto lg:w-auto lg:h-px lg:left-[8%] lg:right-[8%] lg:bg-gradient-to-r" />
-          )}
-          {items.map((it, i) => (
-            <li key={i} className="relative flex lg:flex-col gap-4 lg:gap-7 min-w-0">
-              <span className="relative z-[1] shrink-0 w-14 h-14 lg:mx-auto rounded-full bg-sif-dark text-sif-lime flex items-center justify-center text-base font-semibold tabular-nums shadow-[0_0_0_6px_rgba(255,255,255,.55)]">
-                {pad(i + 1)}
-              </span>
-              <div tabIndex={0} className="group flex-1 min-w-0 rounded-card bg-white shadow-card p-6 md:p-7 outline-none transition-colors duration-500 hover:bg-sif-dark focus:bg-sif-dark lg:min-h-[220px]">
-                {it.title && <h3 className="text-lg md:text-xl font-semibold leading-snug text-sif-ink transition-colors duration-500 group-hover:text-white group-focus:text-white">{it.title}</h3>}
-                {it.subtitle && <p className="mt-3 text-sm md:text-[15px] leading-relaxed text-gray-500 transition-colors duration-500 group-hover:text-white/75 group-focus:text-white/75">{it.subtitle}</p>}
-                {it.text && <p className="mt-3 text-sm leading-relaxed text-gray-500 whitespace-pre-line group-hover:text-white/75 group-focus:text-white/75">{it.text}</p>}
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
-/* ─── VÍDEO em destaque sobre faixa escura ─────────────────────────── */
-export function EmbVideo({ sec, photo }) {
-  const [play, setPlay] = useState(false);
-  const url = String(sec.url || '').trim();
-  const embed = videoEmbedUrl(url);
-  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
-  const [thumb, setThumb] = useState(yt ? `https://i.ytimg.com/vi/${yt[1]}/maxresdefault.jpg` : '');
-  const isFile = /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(url);
-  if (!embed && !isFile) return null;
-  return (
-    <PhotoBand id={`secao-${sec.id}`} photo={photo} className="scroll-mt-28 py-20 md:py-28">
-      <div className="relative container mx-auto px-6 max-w-5xl">
-        <Header eyebrow={sec.eyebrow} title={sec.title} dark center className="mb-10 md:mb-12" />
-        <div className="relative">
-          <div className="absolute -inset-4 md:-inset-6 rounded-[48px] border border-white/10" aria-hidden="true" />
-          <div className="relative aspect-video rounded-card md:rounded-panel overflow-hidden bg-[#06230f] shadow-[0_40px_80px_-30px_rgba(0,0,0,.7)]">
-            {!embed ? (
-              <video src={getImageUrl(url)} controls preload="metadata" playsInline className="w-full h-full" />
-            ) : play ? (
-              <iframe src={embed} title={sec.title || 'Vídeo'} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
-            ) : (
-              <button type="button" onClick={() => setPlay(true)} className="group absolute inset-0 w-full h-full" aria-label="Assistir ao vídeo">
-                {thumb && <img src={thumb} alt="" loading="lazy" onError={() => setThumb(t => (t.includes('maxres') ? t.replace('maxresdefault', 'hqdefault') : ''))} className="absolute inset-0 w-full h-full object-cover scale-[1.04]" />}
-                <span className="absolute inset-0 bg-gradient-to-t from-[#06230f]/70 via-transparent to-transparent" />
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <span className="relative flex items-center justify-center">
-                    <span className="absolute w-24 h-24 md:w-28 md:h-28 rounded-full bg-sif-lime/30 animate-ping [animation-duration:2.2s]" aria-hidden="true" />
-                    <span className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-white text-sif-dark flex items-center justify-center shadow-2xl transition-transform duration-500 group-hover:scale-110">
-                      <Play size={32} fill="currentColor" className="ml-1" />
-                    </span>
-                  </span>
-                </span>
-              </button>
-            )}
-          </div>
-        </div>
-        {sec.caption && <p className="mt-6 text-center text-sm text-white/60">{sec.caption}</p>}
-      </div>
-    </PhotoBand>
-  );
-}
-
-/* ─── TEXTO + DOCUMENTO em destaque (Programa de RH) ───────────────── */
-export function EmbTextDoc({ sec, docs }) {
-  const files = (docs?.pdfs || []).filter(p => fileUrl(p));
-  const main = files[0];
-  const others = files.slice(1);
-  return (
-    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
-      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 rounded-card md:rounded-panel overflow-hidden bg-white shadow-card">
-          <div className="lg:col-span-7 p-6 sm:p-10 md:p-14">
-            <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-8" />
-            <div className={`${prose(false)} prose-base md:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.content || '') }} />
-          </div>
-          {main && (
-            <div className="lg:col-span-5 sif-glow-dark text-white p-6 sm:p-10 md:p-14 flex flex-col">
-              {(docs.eyebrow || docs.title) && (
-                <div className="mb-10">
-                  {docs.eyebrow && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime">{docs.eyebrow}</span>}
-                  {docs.title && <h3 className="mt-3 text-2xl font-semibold leading-snug">{docs.title}</h3>}
-                </div>
-              )}
-              {/* "Folhas" do documento (ilustração leve, só CSS) */}
-              <div className="relative mx-auto w-40 md:w-48 aspect-[3/4] my-4" aria-hidden="true">
-                <div className="absolute inset-0 rounded-2xl bg-white/10 rotate-[8deg] translate-x-3" />
-                <div className="absolute inset-0 rounded-2xl bg-white/20 rotate-[3deg] translate-x-1" />
-                <div className="absolute inset-0 rounded-2xl bg-white shadow-2xl p-5 flex flex-col -rotate-2">
-                  <span className="self-start rounded-md bg-sif-dark text-sif-lime text-[10px] font-bold tracking-widest px-2 py-1">{(fileExt(main) || 'doc').toUpperCase()}</span>
-                  <span className="mt-5 h-2 w-4/5 rounded bg-sif-dark/80" />
-                  <span className="mt-2 h-2 w-3/5 rounded bg-sif-dark/80" />
-                  {[0, 1, 2, 3, 4].map(k => <span key={k} className="mt-3 h-1.5 rounded bg-gray-200" style={{ width: `${92 - k * 9}%` }} />)}
-                  <span className="mt-auto h-8 w-8 rounded-full bg-sif-leaf/25" />
-                </div>
-              </div>
-              <div className="mt-10">
-                <p className="text-lg md:text-xl font-semibold leading-snug">{main.title || 'Documento'}</p>
-                {fileMetaLabel(main) && <p className="mt-1 text-sm text-white/55">{fileMetaLabel(main)}</p>}
-                <a href={getImageUrl(fileUrl(main))} target="_blank" rel="noopener noreferrer" className={`mt-6 ${buttonClass('light')}`}>
-                  <span className="py-2">Baixar documento</span><BtnArrow variant="light" icon={Download} rotate={false} />
-                </a>
-              </div>
-              {others.length > 0 && (
-                <ul className="mt-8 pt-6 border-t border-white/10 space-y-2">
-                  {others.map((p, i) => {
-                    const Icon = fileIcon(fileExt(p));
-                    return (
-                      <li key={i}>
-                        <a href={getImageUrl(fileUrl(p))} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-white/80 hover:text-sif-lime">
-                          <Icon size={16} className="shrink-0" aria-hidden="true" /><span className="min-w-0 truncate">{p.title || `Arquivo ${i + 2}`}</span>
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─── EQUIPE ───────────────────────────────────────────────────────── */
-function Avatar({ p, className = '' }) {
-  return (
-    <div className={`rounded-full overflow-hidden bg-[#e8f3ec] shrink-0 ${className}`}>
-      {p.photo
-        ? <img src={img(p.photo, 320)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
-        : <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-sif-green">{p.name.trim().charAt(0)}</div>}
-    </div>
-  );
-}
-
+/* ─── EQUIPE (mesmo padrão da Nossa Gente do Institucional) ─────────── */
 export function EmbTeam({ sec }) {
   const items = (sec.items || []).filter(i => i && i.name);
+  // Grupos do filtro: campo "Grupo" de cada pessoa (na ordem em que aparecem)
+  const order = [];
+  const byGroup = {};
+  items.forEach((p, i) => {
+    const g = String(p.group || '').trim() || 'Equipe';
+    if (!byGroup[g]) { byGroup[g] = []; order.push(g); }
+    byGroup[g].push({
+      id: p._id || i, name: p.name, role: p.role,
+      image: p.photo ? img(p.photo, 480) : null,
+      link_email: String(p.email || '').trim(), link_phone: String(p.phone || '').trim(),
+    });
+  });
+  const groups = order.map(g => ({ key: g, label: g, data: byGroup[g] }));
   return (
     <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
-      <div className="container mx-auto px-6 max-w-7xl">
-        <Header eyebrow={sec.eyebrow} title={sec.title} />
-        <div className="flex flex-wrap justify-center gap-4 md:gap-5">
-          {items.map((p, i) => {
-            const phone = String(p.phone || '').trim();
-            const email = String(p.email || '').trim();
-            const card = (
-              <>
-                <Avatar p={p} className="w-24 h-24 md:w-28 md:h-28 mx-auto ring-4 ring-[#eef5f0] shadow-card" />
-                <p className="mt-5 font-semibold leading-tight text-sif-ink">{p.name}</p>
-                {p.role && <p className="mt-1.5 text-sm leading-snug text-sif-green">{p.role}</p>}
-              </>
-            );
-            return (
-              <div key={p._id || i} className="group flex flex-col text-center bg-white rounded-card shadow-card px-4 pt-7 pb-5 md:px-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-card-hover w-[calc(50%-8px)] sm:w-[calc(33.333%-11px)] md:w-[calc(33.333%-14px)] lg:w-[calc(25%-15px)]">
-                {p.link ? <a href={p.link} target="_blank" rel="noopener noreferrer">{card}</a> : card}
-                {(phone || email) && (
-                  <div className="mt-auto pt-4">
-                    <div className="mt-1 pt-4 border-t border-gray-100 flex flex-col items-center gap-1.5 text-xs text-gray-500">
-                      {phone && (
-                        <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="inline-flex items-center gap-1.5 hover:text-sif-green" title={phone}>
-                          <Phone size={13} className="shrink-0 text-sif-green" aria-hidden="true" /><span>{phone}</span>
-                        </a>
-                      )}
-                      {email && (
-                        <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 hover:text-sif-green max-w-full" title={email}>
-                          <Mail size={13} className="shrink-0 text-sif-green" aria-hidden="true" />
-                          <span className="hidden sm:inline min-w-0 truncate">{email}</span>
-                          <span className="sm:hidden">E-mail</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+      <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+        <Header eyebrow={sec.eyebrow} title={sec.title} center className="mb-14 md:mb-16" />
+        <TeamDirectory groups={groups} />
       </div>
     </section>
   );
@@ -291,6 +298,18 @@ export function matchBios(people, tabs) {
   return found;
 }
 
+function Avatar({ p, className = '' }) {
+  return (
+    <div className={`rounded-full overflow-hidden bg-[#e8f3ec] shrink-0 ${className}`}>
+      {p.photo
+        ? <img src={img(p.photo, 320)} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+        : <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-sif-green">{p.name.trim().charAt(0)}</div>}
+    </div>
+  );
+}
+
+// Janela da minibio: larga no notebook (foto e nome ao lado, texto rolando
+// à direita). O lado da barra de rolagem fica reto para ela encaixar.
 function BioDialog({ person, bio, onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -299,21 +318,27 @@ function BioDialog({ person, bio, onClose }) {
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  return (
+  // Abre direto no <body>: dentro da seção, animações com transform prendiam a janela
+  return createPortal(
     <div data-lenis-prevent role="dialog" aria-modal="true" aria-label={person.name} onClick={onClose}
-      className="fixed inset-0 z-[100] bg-[#06230f]/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full sm:max-w-2xl max-h-[88vh] overflow-y-auto bg-white rounded-t-panel sm:rounded-panel shadow-2xl">
-        <div className="sif-glow-dark text-white px-7 pt-8 pb-7 sm:px-10 flex items-center gap-5 rounded-t-panel">
-          <Avatar p={person} className="w-20 h-20 ring-4 ring-white/15" />
+      className="fixed inset-0 z-[100] bg-[#06230f]/70 flex items-end sm:items-center justify-center p-0 sm:p-6 lg:p-10">
+      <div onClick={(e) => e.stopPropagation()}
+        className="relative w-full sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[90vh] sm:max-h-[86vh] flex flex-col lg:flex-row overflow-hidden bg-white shadow-2xl rounded-tl-panel sm:rounded-l-panel">
+        <aside className="sif-glow-dark text-white shrink-0 lg:w-[34%] px-7 py-7 sm:px-10 lg:p-12 flex lg:flex-col items-center lg:items-start gap-5 lg:gap-7">
+          <Avatar p={person} className="w-20 h-20 lg:w-36 lg:h-36 ring-4 ring-white/15" />
           <div className="min-w-0">
-            <p className="text-xl font-semibold leading-tight">{person.name}</p>
-            {person.role && <p className="mt-1 text-sm text-sif-lime leading-snug">{person.role}</p>}
+            <p className="text-xl lg:text-2xl font-semibold leading-tight">{person.name}</p>
+            {person.role && <p className="mt-2 text-sm lg:text-base text-sif-lime leading-snug">{person.role}</p>}
           </div>
-          <button type="button" onClick={onClose} aria-label="Fechar" className="ml-auto self-start shrink-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><X size={20} /></button>
-        </div>
-        <div className={`px-7 py-8 sm:px-10 sm:py-10 ${prose(false)} prose-base`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(bio.content || '') }} />
+          <button type="button" onClick={onClose} aria-label="Fechar"
+            className="ml-auto lg:ml-0 lg:mt-auto self-start lg:self-auto shrink-0 inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 w-10 h-10 lg:w-auto lg:h-auto lg:px-5 lg:py-2.5 justify-center text-sm font-semibold transition-colors">
+            <X size={18} /><span className="hidden lg:inline">Fechar</span>
+          </button>
+        </aside>
+        <div className={`flex-1 min-h-0 overflow-y-auto px-7 py-8 sm:px-10 lg:px-14 lg:py-12 ${prose(false)} prose-base lg:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(bio.content || '') }} />
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -405,6 +430,27 @@ export function EmbLogos({ sec }) {
             })}
           </div>
         )}
+      </div>
+    </section>
+  );
+}
+
+/* ─── FALE CONOSCO (texto + formulário próprio) ────────────────────── */
+export function EmbContact({ c }) {
+  return (
+    <section id="fale-conosco" className="relative py-20 md:py-28 scroll-mt-24">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 rounded-card md:rounded-panel overflow-hidden bg-white shadow-card-hover">
+          <div className="lg:col-span-5 sif-glow-dark text-white px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
+            {c.cta_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">{c.cta_tag}</span>}
+            {c.cta_title && <h2 className="sif-title text-3xl md:text-4xl leading-[1.1] tracking-tight">{c.cta_title}</h2>}
+            {c.cta_text && <p className="mt-6 text-base md:text-[17px] leading-relaxed text-white/75">{c.cta_text}</p>}
+            {c.form_note && <p className="mt-10 lg:mt-auto pt-6 border-t border-white/10 text-sm font-semibold text-sif-lime">{c.form_note}</p>}
+          </div>
+          <div className="lg:col-span-7 px-6 py-10 sm:px-10 md:px-14 md:py-14">
+            <EmbrapiiForm buttonLabel={c.form_button || 'Quero uma demonstração'} />
+          </div>
+        </div>
       </div>
     </section>
   );

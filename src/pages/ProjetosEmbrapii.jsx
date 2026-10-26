@@ -4,9 +4,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
-import GlowCta from '../components/ui/GlowCta';
 import { visibleSections, isSectionEmpty } from '../components/sections/sectionTypes';
-import { EmbIntro, EmbSteps, EmbVideo, EmbTextDoc, EmbTeam, EmbCommittee, EmbLogos, matchBios } from '../components/embrapii/EmbrapiiBlocks';
+import { EmbIntro, EmbAreas, EmbSteps, EmbTextDoc, EmbTeam, EmbCommittee, EmbLogos, EmbContact, matchBios } from '../components/embrapii/EmbrapiiBlocks';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
@@ -17,8 +16,8 @@ import { buttonClass, BtnArrow } from '../components/ui/Button';
 const namedPeople = (sec) => (sec?.items || []).filter(p => p && p.name);
 
 // Junta os blocos do painel em "cenas" com desenho próprio desta página:
-//   cards                             → linha do tempo de passos
-//   vídeo                             → vídeo em destaque sobre faixa escura com foto
+//   cards                             → passos da parceria (lista ao lado da foto)
+//   vídeo                             → vai para a apresentação (ao lado do texto)
 //   texto + arquivos (sem título)     → texto com o documento em destaque
 //   pessoas (com título)              → grade da equipe
 //   texto + pessoas (sem título) [+ abas com os nomes] → comitê com minibios
@@ -42,7 +41,6 @@ function buildScenes(sections) {
       scenes.push({ kind: 'committee', people: s, bios: next }); i += 1; continue;
     }
     if (s.type === 'cards') { scenes.push({ kind: 'steps', sec: s }); continue; }
-    if (s.type === 'video') { scenes.push({ kind: 'video', sec: s }); continue; }
     if (s.type === 'people') { scenes.push({ kind: 'team', sec: s }); continue; }
     if (s.type === 'logos') { scenes.push({ kind: 'logos', sec: s }); continue; }
     scenes.push({ kind: 'default', sec: s });
@@ -69,15 +67,16 @@ export default function ProjetosEmbrapii() {
 
   const shownProjects = projetos.slice(0, Number(c.projects_limit) || 6);
   const bandPhoto = [c.band_photo, c.hero_image, c.intro_image].filter(Boolean).map(p => getImageUrl(p, 1600));
-  const scenes = buildScenes(sections);
-  // Logos ficam no fim (logo antes do rodapé), depois da chamada final
+  // O primeiro vídeo fica na apresentação, ao lado do texto (como na página de referência)
+  const video = visibleSections(sections).find(s => s.type === 'video' && !isSectionEmpty(s));
+  const scenes = buildScenes(sections.filter(s => !video || s.id !== video.id));
+  // Logos no fim; o "Fale conosco" (formulário) vem logo abaixo deles
   const logoScenes = scenes.filter(s => s.kind === 'logos');
   const bodyScenes = scenes.filter(s => s.kind !== 'logos');
 
   const renderScene = (s, i) => {
     switch (s.kind) {
-      case 'steps': return <EmbSteps key={s.sec.id} sec={s.sec} />;
-      case 'video': return <EmbVideo key={s.sec.id} sec={s.sec} photo={bandPhoto} />;
+      case 'steps': return <EmbSteps key={s.sec.id} sec={s.sec} photo={c.parceria_image} />;
       case 'textdoc': return <EmbTextDoc key={s.sec.id} sec={s.sec} docs={s.docs} />;
       case 'team': return <EmbTeam key={s.sec.id} sec={s.sec} />;
       case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} />;
@@ -92,7 +91,8 @@ export default function ProjetosEmbrapii() {
       <EditablePageHero pageKey="embrapii" defaults={EMBRAPII_HERO_DEFAULTS} scrollTargetId="embrapii-intro" />
 
       <main className="flex-grow">
-        <EmbIntro c={c} frentes={frentes} />
+        <EmbIntro c={c} video={video} />
+        <EmbAreas c={c} frentes={frentes} />
 
         {bodyScenes.map(renderScene)}
 
@@ -129,17 +129,10 @@ export default function ProjetosEmbrapii() {
           </section>
         )}
 
-        {/* CHAMADA FINAL */}
-        {(c.cta_title || c.cta_text) && (
-          <section className="py-20 md:py-24">
-            <div className="container mx-auto px-6 max-w-7xl">
-              <GlowCta eyebrow={c.cta_tag} title={c.cta_title} text={c.cta_text}
-                btnLabel={c.cta_btn_label} href={c.cta_btn_link || '/contato'} />
-            </div>
-          </section>
-        )}
-
         {logoScenes.map(renderScene)}
+
+        {/* FALE CONOSCO: texto + formulário próprio (mensagens em Painel › Mensagens EMBRAPII) */}
+        {(c.cta_title || c.cta_text) && <EmbContact c={c} />}
       </main>
 
       <Footer />

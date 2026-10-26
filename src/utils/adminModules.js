@@ -13,7 +13,7 @@
 // desc: frase curta exibida na tela de Usuários ao escolher as áreas.
 import {
   LayoutDashboard, MessageSquare, UserCheck, Briefcase, Newspaper, CalendarDays, Tent, BookOpen, GraduationCap,
-  Globe, FlaskConical, Lightbulb, Home, GalleryHorizontal, Landmark, Building2, ShoppingBag, Mail, PanelBottom, UserCog,
+  Globe, FlaskConical, Lightbulb, Inbox, Home, GalleryHorizontal, Landmark, Building2, ShoppingBag, Mail, PanelBottom, UserCog,
 } from 'lucide-react';
 
 export const ADMIN_GROUPS = [
@@ -22,6 +22,7 @@ export const ADMIN_GROUPS = [
   ] },
   { title: 'Atendimento', items: [
     { tab: 'leads',      label: 'Mensagens de contato', icon: MessageSquare, path: '/admin/leads', desc: 'Ler e responder mensagens enviadas pelo formulário de contato.' },
+    { tab: 'leads_embrapii', label: 'Mensagens EMBRAPII', icon: Inbox, path: '/admin/leads-embrapii', desc: 'Ler e responder mensagens do formulário da página EMBRAPII.' },
     { tab: 'candidates', label: 'Candidatos',           icon: UserCheck, path: '/admin/candidatos', desc: 'Ver candidaturas e baixar currículos. Não inclui criar vagas.' },
   ] },
   { title: 'Publicações', items: [

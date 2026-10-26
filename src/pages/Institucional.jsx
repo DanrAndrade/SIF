@@ -16,6 +16,7 @@ import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
+import TeamDirectory from '../components/team/TeamDirectory';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -151,133 +152,6 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
     );
 };
 
-// --- COMPONENTE CARROSSEL DE GALERIA (dinâmico) ---
-const GalleryCarousel = ({ title, data }) => {
-    const scrollRef = useRef(null);
-    // true = precisa de carrossel | false = cabe tudo, centralizado
-    const [needsScroll, setNeedsScroll] = useState(true);
-
-    useEffect(() => {
-        const el = scrollRef.current;
-        if (!el) return;
-
-        const check = () => {
-            // +2 para evitar falso positivo por sub-pixel
-            setNeedsScroll(el.scrollWidth > el.clientWidth + 2);
-        };
-
-        check();
-        const ro = new ResizeObserver(check);
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, [data]);
-
-    const scroll = (direction) => {
-        if (scrollRef.current) {
-            // Rola por 3 cards por vez
-            const cardWidth = scrollRef.current.firstChild?.offsetWidth || 160;
-            const gap = 24;
-            const amount = (cardWidth + gap) * 3;
-            scrollRef.current.scrollTo({
-                left: scrollRef.current.scrollLeft + (direction === 'left' ? -amount : amount),
-                behavior: 'smooth',
-            });
-        }
-    };
-
-    return (
-        <div className="mb-20 last:mb-0">
-            {/* Cabeçalho */}
-            <div className="flex items-center justify-between mb-10">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#1f2937] border-l-4 border-[#007a3d] pl-4">
-                    {title}
-                </h3>
-                {/* Botões de navegação: só aparecem quando o carrossel é necessário */}
-                {needsScroll && (
-                    <div className="flex gap-3 shrink-0 ml-4">
-                        <button
-                            onClick={() => scroll('left')}
-                            aria-label="Anterior"
-                            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full border border-gray-200 bg-white flex items-center justify-center text-[#1f2937] hover:bg-[#007a3d] hover:border-[#007a3d] hover:text-white transition-all shadow-sm active:scale-95"
-                        >
-                            <ArrowLeft size={16} strokeWidth={2.5} />
-                        </button>
-                        <button
-                            onClick={() => scroll('right')}
-                            aria-label="Próximo"
-                            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full border border-gray-200 bg-white flex items-center justify-center text-[#1f2937] hover:bg-[#007a3d] hover:border-[#007a3d] hover:text-white transition-all shadow-sm active:scale-95"
-                        >
-                            <ArrowRight size={16} strokeWidth={2.5} />
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* Track: quando não precisa de carrossel → centralizado; quando precisa → scroll horizontal */}
-            <div
-                ref={scrollRef}
-                className={`flex gap-5 sm:gap-6 md:gap-8 snap-x snap-mandatory ${
-                    needsScroll
-                        ? 'overflow-x-auto no-scrollbar'
-                        : 'flex-wrap justify-start overflow-x-visible'
-                }`}
-            >
-                {data.map((member) => (
-                    <div
-                        key={member.id}
-                        className="w-[130px] sm:w-[155px] md:w-[180px] shrink-0 snap-start group text-center"
-                    >
-                        {/* Foto circular */}
-                        <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden mb-3 ring-4 ring-transparent group-hover:ring-[#007a3d] transition-all duration-500 bg-gray-100">
-                            <img
-                                src={member.image}
-                                alt={member.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                onError={(e) => { e.target.style.display = 'none'; }}
-                            />
-                        </div>
-                        {/* Cargo */}
-                        {member.role && (
-                            <span className="text-[#007a3d] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] mb-1 block leading-snug">
-                                {member.role}
-                            </span>
-                        )}
-                        {/* Nome */}
-                        <h4 className="font-bold text-[#1f2937] text-xs sm:text-sm uppercase tracking-tight leading-tight">
-                            {member.name}
-                        </h4>
-                        {/* Contatos por extenso (só aparece quando preenchido no admin) */}
-                        {(member.link_email || member.link_whatsapp) && (
-                            <div className="mt-2 space-y-0.5">
-                                {member.link_email && (
-                                    <a
-                                        href={`mailto:${member.link_email}`}
-                                        className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] break-all leading-tight"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        {member.link_email}
-                                    </a>
-                                )}
-                                {member.link_whatsapp && (
-                                    <a
-                                        href={whatsappLink(member.link_whatsapp)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        {member.link_whatsapp}
-                                    </a>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-
 export default function Institucional() {
   usePageTitle('Institucional'); // título da aba do navegador / Google
   const mainRef = useRef(null);
@@ -340,16 +214,6 @@ export default function Institucional() {
     ? resolveTeamGroups(cfg.team_groups, Object.keys(teamFromApi))
         .filter((g) => teamFromApi[g.key] && teamFromApi[g.key].length > 0)
     : [];
-  // Filtro de "Nossa Gente": todos os grupos ou só um, e busca por nome
-  const [teamFilter, setTeamFilter] = useState('todos');
-  const [teamQuery, setTeamQuery] = useState('');
-  const norm = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase(); // sem acentos
-  const shownGroups = teamGroups
-    .filter((g) => teamFilter === 'todos' || g.key === teamFilter)
-    .map((g) => ({ ...g, data: teamQuery.trim()
-      ? teamFromApi[g.key].filter((m) => norm(m.name + ' ' + (m.role || '')).includes(norm(teamQuery.trim())))
-      : teamFromApi[g.key] }))
-    .filter((g) => g.data.length > 0);
 
   // Scroll automático para a seção SOMENTE quando há hash explícito na URL
   // (ex: /institucional#nossa-gente). Sem hash (reload normal), vai para o topo
@@ -467,33 +331,8 @@ export default function Institucional() {
                     <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
-                {/* FILTRO: grupo e busca por nome */}
-                {teamGroups.length > 0 && (
-                  <div className="flex flex-col gap-6 mb-14" data-no-reveal>
-                    <div className="flex flex-wrap gap-x-6 gap-y-3 border-b border-gray-200" role="tablist" aria-label="Filtrar por grupo">
-                      {[{ key: 'todos', label: 'Todos' }, ...teamGroups.map((g) => ({ key: g.key, label: g.label || g.key }))].map((t) => (
-                        <button key={t.key} type="button" role="tab" aria-selected={teamFilter === t.key} onClick={() => setTeamFilter(t.key)}
-                          className={`relative shrink-0 pb-3 text-sm font-semibold transition-colors ${teamFilter === t.key ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
-                          {t.label}
-                          <span className={`absolute left-0 right-0 -bottom-px h-[2px] bg-[#007a3d] transition-transform duration-300 origin-left ${teamFilter === t.key ? 'scale-x-100' : 'scale-x-0'}`} />
-                        </button>
-                      ))}
-                    </div>
-                    <label className="relative block w-full md:w-80 md:self-end">
-                      <span className="sr-only">Buscar pessoa</span>
-                      <input type="search" value={teamQuery} onChange={(e) => setTeamQuery(e.target.value)} placeholder="Buscar por nome ou cargo"
-                        className="w-full bg-transparent border-b border-gray-300 focus:border-[#007a3d] outline-none py-2.5 text-sm text-[#1f2937] placeholder:text-gray-400 transition-colors" />
-                    </label>
-                  </div>
-                )}
-
-                {/* CARROSSEIS — dados 100% do banco (admin → Equipe), via getImageUrl */}
-                {shownGroups.map((g) => (
-                    <GalleryCarousel key={g.key + teamQuery} title={g.label || g.key} data={g.data} />
-                ))}
-                {teamGroups.length > 0 && shownGroups.length === 0 && (
-                  <p className="text-center text-gray-400 py-12">Ninguém encontrado com esse nome.</p>
-                )}
+                {/* FILTRO + CARROSSEIS (componente comum: também usado na EMBRAPII) */}
+                <TeamDirectory groups={teamGroups.map((g) => ({ ...g, data: teamFromApi[g.key] }))} />
             </div>
         </div>
         

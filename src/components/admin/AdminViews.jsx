@@ -69,19 +69,22 @@ const Modal = ({ title, onClose, children }) => (
 );
 
 // --- VIEW 1: LEADS ---
-export const LeadsView = () => {
+// source: 'site' (formulário do Contato) ou 'embrapii' (formulário da página EMBRAPII)
+export const LeadsView = ({ source = 'site' }) => {
+    const isEmb = source === 'embrapii';
+    const listUrl = `${API_BASE_URL}/leads.php${isEmb ? '?source=embrapii' : ''}`;
     const [leads, setLeads] = useState([]);
     const [selectedLead, setSelectedLead] = useState(null);
 
     const fetchLeads = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/leads.php`, { credentials: 'include' });
+            const res = await fetch(listUrl, { credentials: 'include' });
             const data = await res.json();
             if(Array.isArray(data)) setLeads(data);
         } catch (error) { console.error(error); }
     };
 
-    useEffect(() => { fetchLeads(); }, []);
+    useEffect(() => { fetchLeads(); }, [source]);
 
     const updateStatus = async (id, newStatus) => {
         try {
@@ -105,20 +108,21 @@ export const LeadsView = () => {
     };
 
     return (
-        <AdminPage title="Leads / Contato" subtitle="Mensagens enviadas pelo formulário de contato do site." actions={<SecondaryButton icon={RefreshCw} onClick={fetchLeads}>Atualizar</SecondaryButton>}>
+        <AdminPage title={isEmb ? 'Mensagens da EMBRAPII' : 'Leads / Contato'} subtitle={isEmb ? 'Mensagens enviadas pelo formulário da página Projetos SIF e EMBRAPII.' : 'Mensagens enviadas pelo formulário de contato do site.'} actions={<SecondaryButton icon={RefreshCw} onClick={fetchLeads}>Atualizar</SecondaryButton>}>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm text-left min-w-[600px]">
-                    <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider"><tr><th className="p-4">Status</th><th className="p-4">Nome / Empresa</th><th className="p-4">Assunto</th><th className="p-4">Data</th><th className="p-4 text-right">Ações</th></tr></thead>
+                    <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider"><tr><th className="p-4">Status</th><th className="p-4">Nome / Empresa</th><th className="p-4">{isEmb ? 'Empresa / Cargo' : 'Assunto'}</th><th className="p-4">Data</th><th className="p-4 text-right">Ações</th></tr></thead>
                     <tbody className="divide-y divide-gray-100">
                         {leads.map(lead => (
                             <tr key={lead.id} className={`hover:bg-gray-50 transition-colors ${lead.status === 'unread' ? 'bg-red-50/10' : ''}`}>
                                 <td className="p-4">{getStatusBadge(lead.status)}</td>
                                 <td className="p-4"><p className="font-bold text-[#1f2937]">{lead.name}</p><p className="text-xs text-gray-500">{lead.email}</p></td>
-                                <td className="p-4"><span className="font-medium text-gray-700">{lead.subject}</span></td>
+                                <td className="p-4">{isEmb ? <><p className="font-medium text-gray-700">{lead.empresa}</p><p className="text-xs text-gray-500">{lead.cargo}</p></> : <span className="font-medium text-gray-700">{lead.subject}</span>}</td>
                                 <td className="p-4 text-xs text-gray-500">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</td>
                                 <td className="p-4 text-right"><Button size="sm" variant="outline" onClick={() => setSelectedLead(lead)}>Ver Detalhes</Button></td>
                             </tr>
                         ))}
+                        {leads.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-gray-400">Nenhuma mensagem por enquanto.</td></tr>}
                     </tbody>
                 </table>
             </div>
@@ -127,7 +131,10 @@ export const LeadsView = () => {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div><label className="text-xs font-bold text-gray-400 uppercase">Email</label><p className="break-words">{selectedLead.email}</p></div>
-                            <div><label className="text-xs font-bold text-gray-400 uppercase">Telefone</label><p>{selectedLead.phone}</p></div>
+                            {isEmb ? (<>
+                                <div><label className="text-xs font-bold text-gray-400 uppercase">Empresa</label><p className="break-words">{selectedLead.empresa}</p></div>
+                                <div><label className="text-xs font-bold text-gray-400 uppercase">Cargo</label><p className="break-words">{selectedLead.cargo}</p></div>
+                            </>) : <div><label className="text-xs font-bold text-gray-400 uppercase">Telefone</label><p>{selectedLead.phone}</p></div>}
                             <div className="md:col-span-2"><label className="text-xs font-bold text-gray-400 uppercase">Mensagem</label><div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-1"><p className="text-gray-700 whitespace-pre-wrap">{selectedLead.message}</p></div></div>
                         </div>
                         <div className="flex gap-3 justify-end border-t border-gray-100 pt-4 flex-wrap">

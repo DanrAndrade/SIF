@@ -134,6 +134,7 @@ function DashboardInner({ currentTab }) {
                 {/* --- RENDERIZAÇÃO CONDICIONAL ATUALIZADA --- */}
                 {activeTab === 'inicio' && <PainelInicio />}
                 {activeTab === 'leads' && <LeadsView />}
+                {activeTab === 'leads_embrapii' && <LeadsView key="embrapii" source="embrapii" />}
                 {activeTab === 'candidates' && <CandidatesView />}
                 {activeTab === 'banners' && <AdminBanners />}
                 {activeTab === 'jobs' && <JobsManagerView />}

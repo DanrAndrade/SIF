@@ -537,3 +537,10 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 .sif-photo-band--still .sif-photo-band__bg img { transform: scale(1.04); filter: brightness(.62) saturate(.95); } /* sem blur calculado: a foto pequena ampliada já fica suave */
 /* "Explore nossos recursos": sem o véu verde (só um escurecimento neutro para o texto) */
 .sif-photo-band--still::before { background: linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.45) 100%); }
+
+/* EMBRAPII › Áreas de atuação: título e cards entram ao trocar de área (só opacity/transform) */
+@keyframes sif-area-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes sif-card-in { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+.sif-area-in { animation: sif-area-in .8s cubic-bezier(.22,1,.36,1) both; }
+.sif-card-in { animation: sif-card-in .8s cubic-bezier(.22,1,.36,1) both; }
+@media (prefers-reduced-motion: reduce) { .sif-area-in, .sif-card-in { animation: none; } }

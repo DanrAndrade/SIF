@@ -13,7 +13,7 @@ const TABS = [
   { id: 'intro',    label: 'Apresentação', icon: Info },
   { id: 'secoes',   label: 'Seções',       icon: Layers },
   { id: 'projetos', label: 'Projetos',     icon: FolderKanban },
-  { id: 'cta',      label: 'Chamada final', icon: Megaphone },
+  { id: 'cta',      label: 'Fale conosco', icon: Megaphone },
 ];
 const KEYS = Object.keys(EMBRAPII_DEFAULTS);
 
@@ -88,15 +88,19 @@ export default function EmbrapiiAdmin() {
                     <Field label="Título" value={cfg.intro_title} onChange={v => set('intro_title', v)} />
                   </div>
                   <Field label="Texto (deixe uma linha em branco entre parágrafos; o primeiro aparece em destaque)" type="textarea" rows={6} value={cfg.intro_text} onChange={v => set('intro_text', v)} />
+                  <p className="text-xs text-gray-500">O vídeo ao lado do texto é o primeiro bloco de vídeo da aba Seções. Sem vídeo, aparece a foto abaixo.</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <ImageField label="Foto ao lado da apresentação" value={cfg.intro_image} onFile={f => sendImage(f, u => set('intro_image', u))} onRemove={() => set('intro_image', '')} aspect="h-40" />
-                    <ImageField label="Foto de fundo da faixa do vídeo" value={cfg.band_photo} onFile={f => sendImage(f, u => set('band_photo', u))} onRemove={() => set('band_photo', '')} aspect="h-40" />
+                    <ImageField label="Foto ao lado da apresentação (sem vídeo)" value={cfg.intro_image} onFile={f => sendImage(f, u => set('intro_image', u))} onRemove={() => set('intro_image', '')} aspect="h-40" />
+                    <ImageField label="Foto ao lado dos passos da parceria" value={cfg.parceria_image} onFile={f => sendImage(f, u => set('parceria_image', u))} onRemove={() => set('parceria_image', '')} aspect="h-40" />
                   </div>
                 </div>
               </AdminCard>
-              <AdminCard title="Frentes de atuação (cards com foto)" actions={<SecondaryButton icon={Plus} onClick={() => set('frentes', [...frentes, { title: '', text: '', image: '' }])}>Adicionar card</SecondaryButton>}>
+              <AdminCard title="Áreas de atuação (faixa com foto de fundo que troca sozinha)" actions={<SecondaryButton icon={Plus} onClick={() => set('frentes', [...frentes, { title: '', text: '', image: '' }])}>Adicionar card</SecondaryButton>}>
                 <div className="space-y-3">
-                  <div className="md:w-1/3"><Field label="Etiqueta acima dos cards" value={cfg.frentes_tag} onChange={v => set('frentes_tag', v)} /></div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Field label="Etiqueta" value={cfg.frentes_tag} onChange={v => set('frentes_tag', v)} />
+                    <div className="md:col-span-2"><Field label="Texto (aparece quando a área não tem texto próprio)" type="textarea" rows={2} value={cfg.frentes_text} onChange={v => set('frentes_text', v)} /></div>
+                  </div>
                   {frentes.length === 0 && <p className="text-sm text-gray-400">Nenhum card — a faixa não aparece no site.</p>}
                   {frentes.map((f, i) => (
                     <div key={i} className="flex flex-col md:flex-row md:items-end gap-3 p-3 bg-gray-50 rounded-xl">
@@ -135,7 +139,7 @@ export default function EmbrapiiAdmin() {
           )}
 
           {tab === 'cta' && (
-            <AdminCard title="Chamada final">
+            <AdminCard title="Fale conosco (texto ao lado do formulário)" subtitle="Fica no fim da página, abaixo de Realização e apoio. As mensagens chegam em Mensagens EMBRAPII.">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Field label="Etiqueta" value={cfg.cta_tag} onChange={v => set('cta_tag', v)} />
@@ -143,8 +147,8 @@ export default function EmbrapiiAdmin() {
                 </div>
                 <Field label="Texto" type="textarea" rows={3} value={cfg.cta_text} onChange={v => set('cta_text', v)} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Botão — texto (vazio esconde)" value={cfg.cta_btn_label} onChange={v => set('cta_btn_label', v)} />
-                  <Field label="Botão — link" value={cfg.cta_btn_link} onChange={v => set('cta_btn_link', v)} />
+                  <Field label="Frase de apoio (abaixo do texto)" value={cfg.form_note} onChange={v => set('form_note', v)} />
+                  <Field label="Texto do botão de enviar" value={cfg.form_button} onChange={v => set('form_button', v)} />
                 </div>
               </div>
             </AdminCard>

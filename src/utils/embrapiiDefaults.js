@@ -20,6 +20,10 @@ export const EMBRAPII_DEFAULTS = {
   intro_text: 'Credenciada pela EMBRAPII e sediada no Departamento de Engenharia Florestal da UFV, a unidade desenvolve projetos de PD&I em parceria com empresas, da silvicultura até o produto final. Conta também com apoio do BNDES em temas como economia circular, bioeconomia florestal e biocombustíveis.',
   intro_image: `${UNSPLASH}/photo-1640125346217-e4bb9313d6bd${UQ}`,
   frentes_tag: 'Áreas de atuação',
+  // Texto da faixa de áreas (aparece quando a área não tem texto próprio)
+  frentes_text: 'As três áreas de trabalho conseguem abarcar praticamente toda a ciência florestal aplicada, desde a silvicultura até a produção de bens que têm as fibras florestais como matéria-prima.',
+  // Foto ao lado dos passos da parceria
+  parceria_image: `${UNSPLASH}/photo-1640125346217-e4bb9313d6bd${UQ}`,
   frentes: [
     { title: 'Produção e qualidade de fibras', text: 'Melhoramento, manejo e qualidade da madeira e das fibras florestais.', image: `${UNSPLASH}/photo-1517962123380-eac440fa8120${UQ}` },
     { title: 'Conversão em produtos e energia', text: 'Transformação das fibras em novos produtos, materiais e energia.', image: `${UNSPLASH}/photo-1615836671441-cc13250c2158${UQ}` },
@@ -52,6 +56,7 @@ export const EMBRAPII_DEFAULTS = {
   cta_tag: 'Parceria com a EMBRAPII',
   cta_title: 'Tem um desafio de inovação?',
   cta_text: 'Fale com a nossa equipe e descubra como desenvolver um projeto em parceria com a SIF e a EMBRAPII.',
-  cta_btn_label: 'Falar com a equipe',
-  cta_btn_link: '/contato',
+  // Fale conosco: frase abaixo do texto e botão do formulário
+  form_note: 'Preencha os campos ao lado e fale conosco.',
+  form_button: 'Quero uma demonstração',
 };
