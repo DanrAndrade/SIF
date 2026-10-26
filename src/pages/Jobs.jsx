@@ -109,10 +109,8 @@ export default function Jobs() {
       <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" />
 
       <main className="flex-grow">
-        <MissionValues cfg={cfg} />
-
         {/* LISTA DE VAGAS */}
-        <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pb-20 md:pb-28 scroll-mt-32">
+        <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28 scroll-mt-32">
           <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
@@ -181,6 +179,9 @@ export default function Jobs() {
             </nav>
           )}
         </section>
+
+        {/* PROPÓSITO (missão, visão e valores) depois das vagas */}
+        <MissionValues cfg={cfg} />
 
         {/* BANCO DE TALENTOS: o card é um link "#"; o clique abre a janela de envio */}
         <section className="sif-container px-4 sm:px-6 md:px-10 pb-24 md:pb-32">
