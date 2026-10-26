@@ -88,7 +88,7 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
 
         <div className="flex md:hidden justify-center items-center gap-3 mt-8 pb-4">
             {categories.map((_, index) => (
-                <button key={index} onClick={() => scrollTOIndex(index)} className={`rounded-full transition-all duration-300 ${activeIndex === index ? 'w-8 h-2 bg-[#007a3d]' : 'w-2 h-2 bg-gray-300 hover:bg-[#007a3d]/50'}`} aria-label={`Ir para slide ${index + 1}`}/>
+                <button key={index} type="button" onClick={() => scrollTOIndex(index)} className="group/dot flex items-center justify-center h-11 px-1" aria-label={`Ir para o item ${index + 1}`}><span className={`block rounded-full transition-all duration-300 ${activeIndex === index ? 'w-8 h-2 bg-[#007a3d]' : 'w-2 h-2 bg-gray-300 group-hover/dot:bg-[#007a3d]/50'}`} /></button>
             ))}
         </div>
     </section>

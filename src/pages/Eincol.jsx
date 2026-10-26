@@ -148,8 +148,8 @@ export default function Eincol() {
                 )}
                 <div className="flex-shrink-0 md:w-72 text-center md:text-left">
                   <span className="text-[#7FBA00] text-[10px] font-black uppercase tracking-[0.25em] block mb-4">Planta do Evento</span>
-                  <h2 className="sif-title sif-title-strong text-3xl md:text-4xl text-white tracking-tighter mb-6">
-                    Conheça o<br /><span className="text-[#007a3d]">Espaço</span>
+                  <h2 className="sif-title sif-title-strong text-3xl md:text-4xl leading-[1.1] text-white tracking-tight mb-8">
+                    Conheça o<br /><span className="text-sif-lime">Espaço</span>
                   </h2>
                   {config.planta_url && (
                     <SmartLink

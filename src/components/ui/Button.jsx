@@ -14,9 +14,10 @@ import SmartLink from './SmartLink';
 //   ghostLight → contorno branco, hover vidro   (ação secundária no escuro)
 // Aliases antigos: accent/solidWhite → light; glass → ghostLight.
 const SIZES = {
-  sm: { box: 'pl-5 pr-1.5 py-1.5 text-[11px] gap-2.5', circle: 'w-8 h-8', icon: 15 },
-  md: { box: 'pl-7 pr-2 py-2 text-[12.5px] gap-3', circle: 'w-10 h-10', icon: 18 },
-  lg: { box: 'pl-8 pr-2 py-2 text-[13px] gap-3.5', circle: 'w-11 h-11', icon: 19 },
+  sm: { box: 'pl-5 pr-1.5 py-1.5 text-[11px] gap-2.5 tracking-[0.14em]', circle: 'w-8 h-8', icon: 15 },
+  // md e lg ficam um pouco mais compactos no celular (cabem numa linha só)
+  md: { box: 'pl-5 sm:pl-7 pr-1.5 sm:pr-2 py-1.5 sm:py-2 text-[11.5px] sm:text-[12.5px] gap-2.5 sm:gap-3 tracking-[0.1em] sm:tracking-[0.14em]', circle: 'w-9 h-9 sm:w-10 sm:h-10', icon: 17 },
+  lg: { box: 'pl-6 sm:pl-8 pr-1.5 sm:pr-2 py-1.5 sm:py-2 text-[12px] sm:text-[13px] gap-3 sm:gap-3.5 tracking-[0.1em] sm:tracking-[0.14em]', circle: 'w-10 h-10 sm:w-11 sm:h-11', icon: 18 },
 };
 
 const VARIANTS = {
@@ -28,7 +29,7 @@ const VARIANTS = {
 const ALIAS = { accent: 'light', solidWhite: 'light', glass: 'ghostLight' };
 const pick = (v) => VARIANTS[ALIAS[v] || v] || VARIANTS.primary;
 
-const BASE = 'group/btn relative inline-flex items-center justify-center overflow-hidden rounded-full font-bold uppercase tracking-[0.14em] transition-colors duration-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed';
+const BASE = 'group/btn relative inline-flex items-center justify-center max-w-full overflow-hidden rounded-full font-bold uppercase leading-tight text-left transition-colors duration-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed';
 
 // Classes do botão (para usar num link/elemento próprio). Dentro dele,
 // coloque o texto e <BtnArrow /> (o círculo com a seta).

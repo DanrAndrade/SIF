@@ -177,15 +177,20 @@ export default function BannerCarousel() {
                     </button>
                     
                     {/* Dots Indicadores */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+                    {/* Bolinhas: o traço é pequeno, mas a área de toque tem ~44px */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex z-10">
                         {banners.map((_, idx) => (
                             <button
                                 key={idx}
+                                type="button"
+                                aria-label={`Ir para o banner ${idx + 1}`}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`h-1.5 rounded-full transition-all duration-300 shadow-sm backdrop-blur-sm ${
-                                    currentIndex === idx ? 'bg-white w-8' : 'bg-white/50 w-1.5 hover:bg-white'
-                                }`}
-                            />
+                                className="group/dot flex items-center justify-center h-11 px-1.5"
+                            >
+                                <span className={`block h-1.5 rounded-full transition-all duration-300 shadow-sm ${
+                                    currentIndex === idx ? 'bg-white w-8' : 'bg-white/50 w-1.5 group-hover/dot:bg-white'
+                                }`} />
+                            </button>
                         ))}
                     </div>
                 </>

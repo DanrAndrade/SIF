@@ -152,15 +152,15 @@ export default function Associadas() {
       <BenefitsScroller cfg={cfg} />
 
       {/* GRID DE LOGOS */}
-      <div className="py-24">
-        <div className="container mx-auto px-6 md:px-12 lg:px-24">
-          <div className="text-center mb-20">
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
+          <div className="text-center mb-10 md:mb-20">
             <span className="sif-eyebrow mb-4">{cfg.logos_tag}</span>
             <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
             <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {partners.map((partner, index) => {
               // Com site cadastrado, o card inteiro vira link (abre em nova aba)
               const Card = partner.website ? 'a' : 'div';
@@ -171,29 +171,34 @@ export default function Associadas() {
               <Card
                 key={index}
                 {...linkProps}
-                className="bg-white rounded-3xl p-6 flex flex-col border border-white shadow-card hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
+                className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col min-w-0 border border-white shadow-card hover:border-[#007a3d] hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 group"
               >
-                <div className="flex-1 flex items-center justify-center h-32 mb-4">
+                {/* Caixa do logo com altura fixa: logos quadrados e largos ocupam o mesmo espaço */}
+                <div className="shrink-0 flex items-center justify-center h-16 sm:h-20 md:h-28 mb-3 md:mb-4">
                   {partner.src ? (
                     <img
                       src={partner.src}
                       alt={partner.name}
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
                       loading="lazy"
                       decoding="async"
-                      className="max-h-full max-w-[80%] object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                      className="max-h-full max-w-[88%] md:max-w-[80%] w-auto h-auto object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
                     />
+                  ) : null}
+                  {/* sem logo (ou logo que não abriu): o nome no lugar */}
+                  {partner.src ? (
+                    <span className="hidden text-sm font-bold uppercase text-gray-400 text-center">{partner.name}</span>
                   ) : (
                     <span className="text-sm font-bold uppercase text-gray-400 text-center">{partner.name}</span>
                   )}
                 </div>
-                <div className="border-t border-gray-200 pt-4">
-                  <p className="text-sm font-bold text-[#1f2937] uppercase tracking-tight leading-tight">{partner.name}</p>
+                <div className="mt-auto border-t border-gray-200 pt-3 md:pt-4">
+                  <p className="text-[12px] md:text-sm font-bold text-[#1f2937] uppercase tracking-tight leading-tight break-words">{partner.name}</p>
                   {partner.address && (
-                    <p className="text-xs text-gray-500 mt-1 leading-snug">{partner.address}</p>
+                    <p className="text-[11px] md:text-xs text-gray-500 mt-1 leading-snug">{partner.address}</p>
                   )}
                   {partner.website && (
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#007a3d] mt-2 group-hover:underline">
+                    <span className="inline-flex items-center gap-1 text-[11px] md:text-xs font-bold text-[#007a3d] mt-2 group-hover:underline">
                       Visitar site <ExternalLink size={12} />
                     </span>
                   )}
@@ -203,7 +208,7 @@ export default function Associadas() {
             })}
           </div>
 
-          <div className="mt-24 bg-white shadow-card rounded-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="mt-14 md:mt-24 bg-white shadow-card rounded-card md:rounded-panel p-7 sm:p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="max-w-xl">
               <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
               <p className="text-gray-500 text-lg">{cfg.cta_text}</p>

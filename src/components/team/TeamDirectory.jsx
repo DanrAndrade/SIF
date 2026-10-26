@@ -77,19 +77,19 @@ export function TeamCarousel({ title, data }) {
               )}
             </div>
             {m.role && (
-              <span className="text-[#007a3d] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] mb-1 block leading-snug">{m.role}</span>
+              <span className="text-[#007a3d] text-[10px] font-black uppercase tracking-[0.15em] mb-1 block leading-snug">{m.role}</span>
             )}
             <h4 className="font-bold text-[#1f2937] text-xs sm:text-sm uppercase tracking-tight leading-tight">{m.name}</h4>
             {(m.link_email || m.link_whatsapp || m.link_phone) && (
-              <div className="mt-2 space-y-0.5">
+              <div className="mt-1">
                 {m.link_phone && (
-                  <a href={`tel:${String(m.link_phone).replace(/[^\d+]/g, '')}`} className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight">{m.link_phone}</a>
+                  <a href={`tel:${String(m.link_phone).replace(/[^\d+]/g, '')}`} className="block py-1.5 text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight">{m.link_phone}</a>
                 )}
                 {m.link_email && (
-                  <a href={`mailto:${m.link_email}`} className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] break-all leading-tight">{m.link_email}</a>
+                  <a href={`mailto:${m.link_email}`} className="block py-1.5 text-[11px] text-gray-500 hover:text-[#007a3d] break-all leading-tight">{m.link_email}</a>
                 )}
                 {m.link_whatsapp && (
-                  <a href={whatsappLink(m.link_whatsapp)} target="_blank" rel="noopener noreferrer" className="block text-[10px] sm:text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight">{m.link_whatsapp}</a>
+                  <a href={whatsappLink(m.link_whatsapp)} target="_blank" rel="noopener noreferrer" className="block py-1.5 text-[11px] text-gray-500 hover:text-[#007a3d] leading-tight">{m.link_whatsapp}</a>
                 )}
               </div>
             )}
@@ -126,15 +126,18 @@ export default function TeamDirectory({ groups = [] }) {
   return (
     <>
       <div className="flex flex-col gap-6 mb-14" data-no-reveal>
+        {/* celular: abas numa linha que desliza para o lado; computador: quebram linha */}
         {tabs.length > 0 && (
-          <div className="flex flex-wrap gap-x-6 gap-y-3 border-b border-gray-200" role="tablist" aria-label="Filtrar por grupo">
+          <div className="-mx-6 px-6 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+          <div className="flex gap-x-6 gap-y-3 border-b border-gray-200 min-w-max md:min-w-0 md:flex-wrap" role="tablist" aria-label="Filtrar por grupo">
             {tabs.map((t) => (
               <button key={t.key} type="button" role="tab" aria-selected={filter === t.key} onClick={() => setFilter(t.key)}
-                className={`relative shrink-0 pb-3 text-sm font-semibold transition-colors ${filter === t.key ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
+                className={`relative shrink-0 pt-2 pb-3.5 text-sm font-semibold transition-colors ${filter === t.key ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
                 {t.label}
                 <span className={`absolute left-0 right-0 -bottom-px h-[2px] bg-[#007a3d] transition-transform duration-300 origin-left ${filter === t.key ? 'scale-x-100' : 'scale-x-0'}`} />
               </button>
             ))}
+          </div>
           </div>
         )}
         <label className="relative block w-full md:w-80">

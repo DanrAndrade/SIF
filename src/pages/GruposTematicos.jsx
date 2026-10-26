@@ -74,7 +74,7 @@ export default function GruposTematicos() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {loading ? (
               Array(6).fill(0).map((_, i) => (
-                <div key={i} className="bg-white h-[380px] rounded-panel animate-pulse shadow-card"></div>
+                <div key={i} className="bg-white h-[260px] sm:h-[340px] md:h-[380px] rounded-card md:rounded-panel animate-pulse shadow-card"></div>
               ))
             ) : loadError ? (
               <LoadError onRetry={() => { setLoading(true); fetchGts(); }} />
@@ -106,7 +106,7 @@ function GtCard({ gt, Icon }) {
   const color = gt.color || '#007a3d';
   return (
     <Link to={`/grupos-tematicos/${gt.slug}`}
-      className="group relative block h-[380px] md:h-[420px] rounded-panel overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00]">
+      className="group relative block h-[260px] sm:h-[340px] md:h-[420px] rounded-card md:rounded-panel overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00]">
       {imgOk ? (
         <img src={getImageUrl(gt.image_url, 800)} alt="" loading="lazy" decoding="async" onError={() => setImgOk(false)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />

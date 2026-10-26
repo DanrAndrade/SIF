@@ -13,7 +13,7 @@ function ChannelRow({ label, value, href, action }) {
       <div className="flex items-center justify-between gap-3">
         <a
           href={href}
-          className="min-w-0 break-words text-xl sm:text-2xl font-medium leading-tight tracking-tight text-white transition-colors duration-300 hover:text-sif-lime"
+          className="min-w-0 break-words py-2 -my-2 text-xl sm:text-2xl font-medium leading-tight tracking-tight text-white transition-colors duration-300 hover:text-sif-lime"
         >
           {value}
         </a>
@@ -86,7 +86,7 @@ export default function ContactChannels({ title, phoneLabel, phoneValue, emailLa
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 text-sm font-bold text-white"
+            className="group inline-flex items-center gap-2 py-3 -my-3 text-sm font-bold text-white"
           >
             <span className="border-b border-white/30 pb-0.5 transition-colors duration-300 group-hover:border-sif-lime group-hover:text-sif-lime">Como chegar</span>
             <ArrowUpRight size={16} className="transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-sif-lime" />

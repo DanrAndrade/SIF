@@ -354,8 +354,10 @@ function Avatar({ p, className = '' }) {
   );
 }
 
-// Janela da minibio: larga no notebook (foto e nome ao lado, texto rolando
-// à direita). O lado da barra de rolagem fica reto para ela encaixar.
+// Janela da minibio.
+// Notebook: foto da pessoa ocupando a coluna da esquerda (nome e cargo por cima)
+// e, à direita, barra fixa com "Fechar" e o texto rolando (lado da rolagem reto).
+// Celular: abre de baixo, com foto redonda, nome e "Fechar" no topo.
 function BioDialog({ person, bio, onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -364,24 +366,44 @@ function BioDialog({ person, bio, onClose }) {
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [onClose]);
+  const closeBtn = (
+    <button type="button" onClick={onClose} aria-label="Fechar"
+      className="shrink-0 w-10 h-10 rounded-full border border-sif-ink/15 text-sif-ink flex items-center justify-center hover:bg-sif-dark hover:text-white hover:border-sif-dark transition-colors">
+      <X size={18} />
+    </button>
+  );
   // Abre direto no <body>: dentro da seção, animações com transform prendiam a janela
   return createPortal(
-    <div data-lenis-prevent role="dialog" aria-modal="true" aria-label={person.name} onClick={onClose}
-      className="fixed inset-0 z-[100] bg-[#06230f]/70 flex items-end sm:items-center justify-center p-0 sm:p-6 lg:p-10">
+    <div data-lenis-prevent role="dialog" aria-modal="true" aria-label={`Minibio de ${person.name}`} onClick={onClose}
+      className="fixed inset-0 z-[100] bg-[#06190f]/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6 lg:p-10">
       <div onClick={(e) => e.stopPropagation()}
-        className="relative w-full sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[90vh] sm:max-h-[86vh] flex flex-col lg:flex-row overflow-hidden bg-white shadow-2xl rounded-tl-panel sm:rounded-l-panel">
-        <aside className="sif-glow-dark text-white shrink-0 lg:w-[34%] px-7 py-7 sm:px-10 lg:p-12 flex lg:flex-col items-center lg:items-start gap-5 lg:gap-7">
-          <Avatar p={person} className="w-20 h-20 lg:w-36 lg:h-36 ring-4 ring-white/15" />
-          <div className="min-w-0">
-            <p className="text-xl lg:text-2xl font-semibold leading-tight">{person.name}</p>
-            {person.role && <p className="mt-2 text-sm lg:text-base text-sif-lime leading-snug">{person.role}</p>}
+        className="sif-area-in relative w-full sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl h-[88vh] sm:h-auto sm:max-h-[86vh] lg:h-[min(640px,86vh)] flex flex-col lg:flex-row overflow-hidden bg-white shadow-2xl rounded-tl-panel sm:rounded-l-panel">
+
+        {/* Foto (notebook) */}
+        <aside className="hidden lg:block relative shrink-0 w-[36%] bg-sif-dark">
+          {person.photo
+            ? <img src={img(person.photo, 800)} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            : <span className="absolute inset-0 sif-glow-dark flex items-center justify-center text-7xl font-semibold text-sif-lime/60">{person.name.trim().charAt(0)}</span>}
+          <span className="absolute inset-0 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/20 to-transparent" aria-hidden="true" />
+          <div className="absolute inset-x-0 bottom-0 p-9 xl:p-10 text-white">
+            <p className="sif-title text-2xl xl:text-[28px] leading-tight tracking-tight">{person.name}</p>
+            {person.role && <p className="mt-2 text-sm xl:text-base text-sif-lime leading-snug">{person.role}</p>}
           </div>
-          <button type="button" onClick={onClose} aria-label="Fechar"
-            className="ml-auto lg:ml-0 lg:mt-auto self-start lg:self-auto shrink-0 inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 w-10 h-10 lg:w-auto lg:h-auto lg:px-5 lg:py-2.5 justify-center text-sm font-semibold transition-colors">
-            <X size={18} /><span className="hidden lg:inline">Fechar</span>
-          </button>
         </aside>
-        <div className={`flex-1 min-h-0 overflow-y-auto px-7 py-8 sm:px-10 lg:px-14 lg:py-12 ${prose(false)} prose-base lg:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(bio.content || '') }} />
+
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+          {/* Topo: celular com foto e nome; notebook só com "Minibio" e Fechar */}
+          <div className="shrink-0 flex items-center gap-4 px-6 sm:px-10 lg:px-14 py-5 lg:py-6 border-b border-gray-100">
+            <Avatar p={person} className="lg:hidden w-14 h-14 ring-2 ring-sif-green/20" />
+            <div className="min-w-0 flex-1">
+              <span className="hidden lg:block text-[11px] font-bold uppercase tracking-[0.22em] text-sif-green">Minibio</span>
+              <p className="lg:hidden font-semibold leading-tight text-sif-ink">{person.name}</p>
+              {person.role && <p className="lg:hidden mt-0.5 text-sm text-sif-green leading-snug">{person.role}</p>}
+            </div>
+            {closeBtn}
+          </div>
+          <div className={`flex-1 min-h-0 overflow-y-auto px-6 py-7 sm:px-10 lg:px-14 lg:py-10 ${prose(false)} prose-base lg:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(bio.content || '') }} />
+        </div>
       </div>
     </div>,
     document.body
@@ -419,7 +441,7 @@ export function EmbCommittee({ intro, people, bios, photo }) {
                 const Tag = bio ? 'button' : 'div';
                 return (
                   <Tag key={p._id || i} {...(bio ? { type: 'button', onClick: () => setOpen(p) } : {})}
-                    className="group text-left flex items-center gap-4 rounded-card bg-white/[0.06] border border-white/10 p-4 md:p-5 transition-colors duration-300 hover:bg-white/[0.12] hover:border-sif-lime/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-sif-lime">
+                    className="group text-left flex items-center gap-4 rounded-card bg-[#0d2418]/90 border border-white/10 p-4 md:p-5 shadow-[0_18px_40px_-24px_rgba(0,0,0,.7)] transition-colors duration-300 hover:bg-[#123120]/95 hover:border-sif-lime/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-sif-lime">
                     <Avatar p={p} className="w-16 h-16 md:w-[72px] md:h-[72px] ring-2 ring-sif-lime/40" />
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold leading-tight text-white">{p.name}</span>

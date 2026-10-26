@@ -167,22 +167,22 @@ export default function ProdutosServicos() {
       <main className="flex-grow pt-24 pb-12" id="produtos-content">
         <div className="container mx-auto px-6 max-w-7xl">
 
-          {/* NAVEGAÇÃO DE ABAS */}
-          <div className="flex flex-wrap gap-4 mb-20 border-b border-gray-100 pb-8">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-sif-dark text-white shadow-xl'
-                    : 'bg-white text-gray-400 hover:text-[#007a3d] border border-gray-100'
-                }`}
-              >
-                <tab.icon size={18} />
-                {tab.name}
-              </button>
-            ))}
+          {/* NAVEGAÇÃO DE ABAS: mesmo padrão das abas da equipe (sublinhado verde).
+              No celular ficam numa linha que desliza para o lado. */}
+          <div className="-mx-6 px-6 mb-12 md:mb-20 overflow-x-auto no-scrollbar">
+            <div className="flex gap-x-7 border-b border-gray-200 min-w-max" role="tablist" aria-label="Produtos e serviços">
+              {TABS.map((tab) => {
+                const on = activeTab === tab.id;
+                return (
+                  <button key={tab.id} type="button" role="tab" aria-selected={on} onClick={() => setActiveTab(tab.id)}
+                    className={`relative shrink-0 flex items-center gap-2 pt-2 pb-3.5 text-sm font-semibold transition-colors ${on ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
+                    <tab.icon size={16} className={on ? 'text-[#007a3d]' : ''} />
+                    {tab.name}
+                    <span className={`absolute left-0 right-0 -bottom-px h-[2px] bg-[#007a3d] transition-transform duration-300 origin-left ${on ? 'scale-x-100' : 'scale-x-0'}`} />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* CONTEÚDO DAS ABAS */}

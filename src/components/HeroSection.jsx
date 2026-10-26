@@ -102,7 +102,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                 sem vídeo, continua a seta para rolar a página. */}
             {fullUrl ? (
               <button type="button" onClick={() => setShowFull(true)}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 text-white/80 hover:text-white text-[10px] font-bold uppercase tracking-[0.3em] transition-colors">
+                className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 px-4 py-3.5 text-white/80 hover:text-white text-[11px] font-bold uppercase tracking-[0.3em] transition-colors">
                 <Play size={12} fill="currentColor" />
                 {fullLabel}
               </button>

@@ -378,13 +378,13 @@ export default function Institucional() {
                                 const PdfIcon = AREA_ICON_MAP[pdf.icon] || FileText;
                                 const url = getImageUrl(pdf.url); // getImageUrl já trata /docs/ com a subpasta do site
                                 return (
-                                  <a key={i} href={url} download className="group flex items-center gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                                    <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
+                                  <a key={i} href={url} download className="group flex items-center gap-4 sm:gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-5 sm:p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
+                                    <div className="hidden sm:flex w-14 h-14 bg-white/15 rounded-xl items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
                                         <PdfIcon size={24} />
                                     </div>
-                                    <div className="flex-1 text-left">
-                                        <p className="font-bold uppercase text-sm tracking-widest text-white mb-1">{pdf.label}</p>
-                                        <p className="text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Faça o download</p>
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <p className="font-bold uppercase text-[13px] sm:text-sm tracking-wide sm:tracking-widest leading-snug text-white mb-1">{pdf.label}</p>
+                                        <p className="text-[11px] sm:text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Baixar</p>
                                     </div>
                                     <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
                                         <Download size={16} />

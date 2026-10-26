@@ -50,7 +50,7 @@ export default function About({ config = {} }) {
             <p className="mt-5 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_2)}</p>
             <p className="mt-4 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_3)}</p>
             <div className="mt-9">
-              <Button href={c.cta_link || '/institucional'} variant="primary" size="lg">{txt(c.cta_label)}</Button>
+              <Button href={c.cta_link || '/institucional'} variant="primary">{txt(c.cta_label)}</Button>
             </div>
           </div>
 
@@ -79,7 +79,7 @@ export default function About({ config = {} }) {
               </button>
             )}
             {hasBadge && (
-              <div className="mt-6 flex items-end gap-4 border-t border-gray-100 pt-6">
+              <div className="mt-6 flex flex-wrap items-end gap-x-4 gap-y-1 border-t border-gray-100 pt-6">
                 <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
                 {c.badge_label && <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>}
               </div>

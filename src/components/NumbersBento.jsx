@@ -64,21 +64,21 @@ const LAYOUTS = {
   3: ['md:col-span-2 md:row-span-2', 'md:col-start-3 md:col-span-2 md:row-start-1', 'md:col-start-3 md:col-span-2 md:row-start-2'],
   4: ['md:col-span-2 md:row-span-2', 'md:col-start-3 md:row-start-1', 'md:col-start-3 md:row-start-2', 'md:col-start-4 md:row-start-1 md:row-span-2'],
 };
-const SIZE = { big: 'min-h-[300px]', small: 'min-h-[200px]' };
+const SIZE = { big: 'min-h-[240px] sm:min-h-[300px]', small: 'min-h-[150px] sm:min-h-[200px]' };
 const EXTRA_COLS = { 1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-4' };
 
 function Card({ card, index, start, cls: posCls = '', big = false, tall = false }) {
   const content = (
-    <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 text-white">
+    <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 text-white">
       <div className={`flex ${big || tall ? 'flex-col items-start' : 'flex-wrap items-end gap-x-3 gap-y-1'} leading-none`}>
-        <span className={`font-bold tracking-tight ${big ? 'text-6xl md:text-8xl' : tall ? 'text-6xl md:text-7xl' : 'text-4xl md:text-5xl'}`}>
+        <span className={`font-bold tracking-tight ${big ? 'text-6xl md:text-8xl' : tall ? 'text-4xl sm:text-6xl md:text-7xl' : 'text-3xl sm:text-4xl md:text-5xl'}`}>
           {card.prefix}<CountUp number={card.number} start={start} />
         </span>
         {card.unit && (
-          <span className={`font-bold uppercase ${big || tall ? 'text-2xl md:text-4xl mt-2' : 'text-base md:text-xl pb-1'}`}>{card.unit}</span>
+          <span className={`font-bold uppercase ${big ? 'text-2xl md:text-4xl mt-2' : tall ? 'text-base sm:text-2xl md:text-4xl mt-2' : 'text-sm sm:text-base md:text-xl pb-1'}`}>{card.unit}</span>
         )}
       </div>
-      {card.label && <p className={`mt-3 font-medium text-white/90 ${big ? 'text-base md:text-xl max-w-md' : 'text-sm md:text-base'}`}>{card.label}</p>}
+      {card.label && <p className={`mt-3 font-medium text-white/90 ${big ? 'text-base md:text-xl max-w-md' : 'text-xs sm:text-sm md:text-base leading-snug'}`}>{card.label}</p>}
     </div>
   );
 
@@ -134,22 +134,24 @@ export default function NumbersBento({ config }) {
         {(() => {
           const head = cards.slice(0, 4);
           const layout = LAYOUTS[head.length];
-          // celular/tablet (2 colunas): o último card ocupa a linha toda se sobrar sozinho
-          const oddSm = (n, i) => (n % 2 === 1 && i === n - 1 ? 'sm:col-span-2' : '');
+          // celular/tablet (2 colunas): o 1º ocupa a linha toda; depois, se sobrar
+          // um card sozinho no fim, ele também ocupa a linha toda
+          const headCls = (n, i) => (i === 0 || ((n - 1) % 2 === 1 && i === n - 1) ? 'max-md:col-span-2' : '');
+          const oddSm = (n, i) => (n % 2 === 1 && i === n - 1 ? 'max-md:col-span-2' : '');
           const rest = cards.slice(4);
           const rows = [];
           for (let i = 0; i < rest.length; i += 4) rows.push(rest.slice(i, i + 4));
           return (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-[repeat(2,minmax(220px,auto))] gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-[repeat(2,minmax(220px,auto))] gap-3 sm:gap-4">
                 {head.map((c, i) => (
                   <Card key={i} card={c} index={i} start={start}
-                    cls={`${layout[i]} ${oddSm(head.length, i)}`}
+                    cls={`${layout[i]} ${headCls(head.length, i)}`}
                     big={i === 0} tall={head.length === 4 && i === 3} />
                 ))}
               </div>
               {rows.map((row, r) => (
-                <div key={r} className={`grid grid-cols-1 sm:grid-cols-2 ${EXTRA_COLS[row.length]} gap-4 mt-4`}>
+                <div key={r} className={`grid grid-cols-2 ${EXTRA_COLS[row.length]} gap-3 sm:gap-4 mt-3 sm:mt-4`}>
                   {row.map((c, i) => <Card key={i} card={c} index={-1} start={start} cls={oddSm(row.length, i)} />)}
                 </div>
               ))}

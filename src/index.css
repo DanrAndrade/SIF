@@ -43,7 +43,9 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sif-font-sans); overflow-x: hidden; }
+body { font-family: var(--sif-font-sans); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+/* Celular: campos com 16px (menos que isso o iPhone dá zoom na página ao tocar) */
+@media (max-width: 767px) { input:not([type=checkbox]):not([type=radio]), select, textarea { font-size: 16px !important; } }
 
 /* ─── PAINEL: campos mais leves e legíveis ──────────────────────────────
    Texto digitado em peso normal e cinza escuro; rótulos sem o "extra-negrito"
@@ -452,7 +454,7 @@ h1.sif-reveal, h2.sif-reveal { scale: 1; translate: 0 28px; }
 a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
   transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease;
 }
-a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: translateY(-4px); box-shadow: var(--sif-shadow-card-hover); }
+@media (hover: hover) { a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: translateY(-4px); box-shadow: var(--sif-shadow-card-hover); } }
 @media (prefers-reduced-motion: reduce) { a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: none; } }
 
 /* ─── FAIXA COM FOTO DESFOCADA (components/ui/PhotoBand.jsx) ───────── */
