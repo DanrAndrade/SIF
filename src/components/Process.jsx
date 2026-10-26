@@ -81,18 +81,18 @@ export default function Process({ config = {} }) {
   return (
     <div className="px-4 md:px-6">
       <PhotoBand slides={slides} active={typeof window !== 'undefined' && window.innerWidth < 1024 ? mobileIndex : active}
-        className="max-w-[1400px] mx-auto rounded-panel py-14 lg:py-20 shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
+        still className="max-w-[1400px] mx-auto rounded-panel py-10 lg:py-12 shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
         <div className="relative px-6 lg:px-12">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 lg:mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
             <div className="max-w-2xl">
               <span className="block text-sif-lime font-bold tracking-[0.25em] uppercase text-xs mb-4">{sectionTag}</span>
-              <h2 className="sif-title text-3xl md:text-5xl text-white tracking-tight leading-tight">{sectionTitle}</h2>
+              <h2 className="sif-title text-3xl md:text-4xl xl:text-5xl text-white tracking-tight leading-tight">{sectionTitle}</h2>
             </div>
             {sectionSubtitle && <p className="text-white/70 text-base md:text-lg max-w-md lg:text-right">{sectionSubtitle}</p>}
           </div>
 
           {/* COMPUTADOR: painéis que se expandem */}
-          <div className="hidden lg:flex w-full h-[460px] gap-3" data-no-reveal>
+          <div className="hidden lg:flex w-full h-[clamp(340px,50vh,430px)] gap-3" data-no-reveal>
             {steps.map((step, i) => {
               const isActive = active === i;
               return (
@@ -102,8 +102,9 @@ export default function Process({ config = {} }) {
                   style={{ flexGrow: isActive ? 3.4 : 1, flexBasis: 0 }}>
                   <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)}
                     className="absolute inset-0 w-full h-full object-cover transition-[transform,filter] duration-[1400ms] ease-[cubic-bezier(.22,1,.36,1)]"
-                    style={{ transform: isActive ? 'scale(1.03)' : 'scale(1.15)', filter: isActive ? 'brightness(.8)' : 'saturate(.6) brightness(.6)' }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#06190f] via-[#06190f]/75 to-[#06190f]/25" />
+                    style={{ transform: isActive ? 'scale(1)' : 'scale(1.08)', filter: isActive ? 'saturate(1.1) brightness(1.02)' : 'saturate(.55) brightness(.55)' }} />
+                  <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/40 to-transparent ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+                  <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f] via-[#06190f]/75 to-[#06190f]/30 ${isActive ? 'opacity-0' : 'opacity-100'}`} />
 
                   {/* Fechado: título na vertical */}
                   <div className={`absolute left-6 bottom-6 origin-bottom-left -rotate-90 translate-x-6 whitespace-nowrap transition-opacity ${isActive ? 'opacity-0 duration-200' : 'opacity-100 duration-500 delay-300'}`}>
@@ -111,7 +112,7 @@ export default function Process({ config = {} }) {
                   </div>
 
                   {/* Aberto: conteúdo completo */}
-                  <div className={`absolute left-0 bottom-0 w-[min(640px,62vw)] p-8 xl:p-10 text-white transition-[opacity,transform] ${isActive ? 'opacity-100 translate-y-0 duration-700 delay-300' : 'opacity-0 translate-y-4 duration-200 pointer-events-none'}`}>
+                  <div className={`absolute left-0 bottom-0 w-[min(600px,40vw)] p-8 xl:p-10 text-white transition-[opacity,transform] ${isActive ? 'opacity-100 translate-y-0 duration-700 delay-300' : 'opacity-0 translate-y-4 duration-200 pointer-events-none'}`}>
                     {step.shortDesc && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-3">{step.shortDesc}</span>}
                     <h3 className="text-3xl xl:text-4xl font-semibold leading-tight mb-4 max-w-xl">{step.title}</h3>
                     {step.fullDesc && <p className="text-white/80 leading-relaxed max-w-xl mb-6">{step.fullDesc}</p>}

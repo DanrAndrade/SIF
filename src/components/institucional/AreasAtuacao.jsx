@@ -163,7 +163,7 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
       <div
         ref={panelsRef}
         data-no-reveal
-        className="hidden lg:flex gap-3 xl:gap-4 h-[560px]"
+        className="hidden lg:flex gap-3 xl:gap-4 h-[clamp(400px,62vh,540px)]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}

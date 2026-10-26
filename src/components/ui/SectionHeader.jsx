@@ -20,11 +20,10 @@ export default function SectionHeader({
   return (
     <div className={`flex flex-col mb-12 ${alignClass}`}>
       {tag && (
-        <div className={`inline-flex items-center px-3 py-1 border rounded-full mb-6 ${tagStyles}`}>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                {tag}
-            </span>
-        </div>
+        // Etiqueta só em texto (sem "pílula"), como no resto do site
+        <span className={`block text-xs font-bold uppercase tracking-[0.25em] mb-5 ${lightMode ? 'text-sif-lime' : 'text-[#007a3d]'}`}>
+            {tag}
+        </span>
       )}
       
       <h2 className={`sif-title sif-h2 lg:text-6xl leading-none tracking-tight mb-6 ${textColor}`}>

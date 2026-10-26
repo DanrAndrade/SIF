@@ -155,7 +155,7 @@ export default function BlogPost() {
           </Link>
 
           <div className="max-w-4xl flex flex-col gap-6">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white/70 text-[10px] font-black uppercase tracking-widest border border-white/10 w-fit">Blog &amp; Notícias</span>
+            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime w-fit">Blog &amp; Notícias</span>
             <h1 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95]">
               {post.title}
             </h1>

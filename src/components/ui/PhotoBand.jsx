@@ -6,7 +6,8 @@ import React, { useEffect, useRef, useState } from 'react';
 // enquanto a faixa está na tela. Sem foto, vira o verde-escuro padrão.
 // photo: um endereço ou uma lista (se uma foto falhar, tenta a próxima)
 // slides + active: várias fotos que trocam com transição suave (a da vez aparece)
-export default function PhotoBand({ photo, slides, active = 0, as: Tag = 'section', className = '', children, ...rest }) {
+// still: fundo parado (sem parallax e sem zoom)
+export default function PhotoBand({ photo, slides, active = 0, still = false, as: Tag = 'section', className = '', children, ...rest }) {
   const ref = useRef(null);
   const list = (Array.isArray(photo) ? photo : [photo]).filter(Boolean);
   const [idx, setIdx] = useState(0);
@@ -14,7 +15,7 @@ export default function PhotoBand({ photo, slides, active = 0, as: Tag = 'sectio
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !src) return;
+    if (!el || !src || still) return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     let raf = 0, visible = false;
     const paint = () => {
@@ -29,10 +30,10 @@ export default function PhotoBand({ photo, slides, active = 0, as: Tag = 'sectio
     io.observe(el);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => { io.disconnect(); window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [src]);
+  }, [src, still]);
 
   return (
-    <Tag ref={ref} className={`${src ? 'sif-photo-band' : 'sif-glow-dark'} text-white ${className}`} {...rest}>
+    <Tag ref={ref} className={`${src ? 'sif-photo-band' : 'sif-glow-dark'} ${still ? 'sif-photo-band--still' : ''} text-white ${className}`} {...rest}>
       {slides && slides.length ? slides.map((s, i) => (
         <div key={s + i} className="sif-photo-band__bg transition-opacity duration-1000 ease-in-out" style={{ opacity: i === active ? 1 : 0 }} aria-hidden="true">
           <img src={s} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />

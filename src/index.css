@@ -533,3 +533,7 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
     transition: opacity .6s ease .2s, transform .8s cubic-bezier(.22,1,.36,1) .15s;
   }
 }
+
+/* Faixa de foto parada (sem parallax nem zoom), ex.: "Explore nossos recursos" */
+.sif-photo-band--still .sif-photo-band__bg { transform: none; top: 0; bottom: 0; left: 0; right: 0; }
+.sif-photo-band--still .sif-photo-band__bg img { transform: scale(1.04); }
