@@ -170,7 +170,6 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
         onBlurCapture={() => setPaused(false)}
       >
         {areas.map((area, i) => {
-          const Icon = iconMap[area.icon] || Sprout;
           const isActive = i === active;
           return (
             <button
@@ -215,17 +214,6 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
               />
 
               {/* Número grande */}
-              <span
-                className="absolute top-6 left-6 font-heading font-black leading-none text-white tabular-nums transition-all duration-700"
-                style={{
-                  fontSize: isActive ? '5.5rem' : '2rem',
-                  opacity: isActive ? 0.22 : 0.85,
-                  WebkitTextStroke: isActive ? '1.5px rgba(255,255,255,0.9)' : '0',
-                  color: isActive ? 'transparent' : '#fff',
-                }}
-              >
-                {pad(i + 1)}
-              </span>
 
               {/* Estado recolhido: título vertical */}
               <div
@@ -238,9 +226,6 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                   style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
                 >
                   {area.title}
-                </span>
-                <span className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center text-sif-lime transition-all duration-300 group-hover:bg-white/10">
-                  <Icon size={20} strokeWidth={1.75} />
                 </span>
               </div>
 
@@ -258,13 +243,6 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                     visibility: isActive ? 'visible' : 'hidden',
                   }}
                 >
-                  <div className="flex items-center gap-3 mb-5">
-                    <Icon size={26} strokeWidth={1.6} className="text-sif-lime" />
-                    <span className="h-px w-10 bg-sif-lime/60" />
-                    <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-sif-lime">
-                      Área {pad(i + 1)}
-                    </span>
-                  </div>
                   <h3 className="font-heading font-semibold text-white text-3xl xl:text-4xl leading-[1.05] tracking-tight mb-5 w-[460px] max-w-full">
                     {area.title}
                   </h3>
@@ -318,7 +296,6 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
           style={{ scrollPaddingLeft: '1rem' }}
         >
           {areas.map((area, i) => {
-            const Icon = iconMap[area.icon] || Sprout;
             const isActive = i === mActive;
             return (
               <article
@@ -331,21 +308,10 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000"
-                  style={{ transform: isActive ? 'scale(1.04)' : 'scale(1.14)' }}
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-sif-dark/90 via-sif-dark/40 to-transparent" />
-                <span
-                  className="absolute top-5 left-6 font-heading font-black text-6xl leading-none tabular-nums"
-                  style={{ color: 'transparent', WebkitTextStroke: '1.2px rgba(255,255,255,0.75)' }}
-                >
-                  {pad(i + 1)}
-                </span>
                 <div className="relative p-6 sm:p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Icon size={22} strokeWidth={1.6} className="text-sif-lime" />
-                    <span className="h-px w-8 bg-sif-lime/60" />
-                  </div>
                   <h3 className="font-heading font-semibold text-white text-2xl leading-tight tracking-tight mb-3">
                     {area.title}
                   </h3>

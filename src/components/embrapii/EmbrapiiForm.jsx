@@ -85,8 +85,7 @@ export default function EmbrapiiForm({ buttonLabel = 'Quero uma demonstração' 
         </div>
       )}
 
-      <div className="mt-8 flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[12px] text-gray-400">Seus dados estão protegidos conosco.</p>
+      <div className="mt-8 flex">
         <button type="submit" disabled={loading} aria-busy={loading}
           className="group relative inline-flex self-start sm:self-auto items-center justify-center gap-3 overflow-hidden rounded-full bg-sif-dark pl-8 pr-2 py-2 text-[13px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-500 hover:bg-sif-green disabled:cursor-wait active:scale-[0.98]">
           <span className="py-2">{loading ? 'Enviando' : status === 'error' ? 'Tentar novamente' : buttonLabel}</span>
