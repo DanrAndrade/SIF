@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, Layers, Target, Activity, ShieldCheck, Zap, Globe, Microscope } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, htmlToText } from '../apiConfig';
-import Button from '../components/ui/Button';
+import GlowCta from '../components/ui/GlowCta';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -85,15 +85,11 @@ export default function GruposTematicos() {
             )}
           </div>
 
-          {/* CHAMADA */}
-          <div className="sif-glow-dark mt-20 md:mt-24 p-10 md:p-16 rounded-panel text-white overflow-hidden">
-            <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-12">
-              <div className="max-w-2xl">
-                <h3 className="sif-title text-3xl md:text-5xl leading-tight mb-4">Quer tornar sua empresa <span className="text-sif-lime">parceira de um GT?</span></h3>
-                <p className="text-white/70 text-base md:text-lg">Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas.</p>
-              </div>
-              <Button href="/associadas" variant="light" icon={ArrowRight} className="shrink-0">Quero ser associado</Button>
-            </div>
+          {/* CHAMADA (mesmo card do Trabalhe Conosco da Home) */}
+          <div className="mt-20 md:mt-24">
+            <GlowCta title="Quer tornar sua empresa" highlight="parceira de um GT?"
+              text="Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas."
+              btnLabel="Quero ser associado" href="/associadas" />
           </div>
         </div>
       </main>
@@ -116,14 +112,9 @@ function GtCard({ gt, Icon }) {
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
       ) : (
         <div className="absolute inset-0" style={{ background: `linear-gradient(150deg, ${color} 0%, #0b3320 85%)` }}>
-          <Icon size={220} strokeWidth={1} className="absolute -right-10 -top-6 text-white/10" aria-hidden="true" />
         </div>
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/45 to-transparent" />
-
-      <span className="absolute top-6 left-6 w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: color }}>
-        <Icon size={20} />
-      </span>
 
       <div className="absolute inset-x-0 bottom-0 p-7 md:p-8 text-white">
         <h3 className="text-2xl font-semibold leading-tight mb-2">{gt.title}</h3>

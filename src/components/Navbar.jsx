@@ -7,16 +7,34 @@ import { useEincolActive } from '../hooks/useEincolActive';
 export default function Navbar({ scrolled: forceScrolled }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false); // some ao descer, volta ao subir
   const [mobileExpanded, setMobileExpanded] = useState(null);
   const eincolActive = useEincolActive();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+    let lastY = window.scrollY, raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      // No topo: transparente e visível.
+      // Descendo: o menu só sobe, SEM trocar de cor (antes ele ficava branco
+      // e depois sumia, dando uma "piscada").
+      // Subindo: volta já com o fundo branco.
+      if (y <= 50) { setHidden(false); setIsScrolled(false); }
+      else if (y > lastY + 6) setHidden(true);
+      else if (y < lastY - 6) { setIsScrolled(true); setHidden(false); }
+      if (y <= 50 || Math.abs(y - lastY) > 6) lastY = y;
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', handleScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
+
+  // Avisa a página (CSS) quando o menu está escondido: submenus fixos sobem junto
+  useEffect(() => {
+    document.documentElement.dataset.navHidden = hidden && !mobileMenuOpen ? '1' : '0';
+  }, [hidden, mobileMenuOpen]);
+  useEffect(() => () => { document.documentElement.dataset.navHidden = '0'; }, []);
 
   const scrolled = forceScrolled || isScrolled;
   
@@ -102,7 +120,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
   return (
     <>
       {/* --- DESKTOP HEADER --- */}
-      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${headerBg}`}>
+      <header className={`fixed top-0 left-0 w-full z-50 transition-[transform,background-color,box-shadow] duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${headerBg} ${hidden && !mobileMenuOpen ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center gap-16">
             
             <Link to="/" className="flex items-center gap-2 cursor-pointer z-20">

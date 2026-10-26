@@ -331,7 +331,19 @@ iframe.ql-video {
 .prose h5 { font-size: 1.05em; font-weight: 700; margin-top: 1.2em; margin-bottom: 0.4em; color: #1f2937; }
 .prose h6 { font-size: 0.95em; font-weight: 700; margin-top: 1em;   margin-bottom: 0.4em; color: #1f2937; }
 /* ─── FUNDO DAS PÁGINAS ─────────────────────────────────────────────── */
-body { background-color: #f6f8f7; }
+/* Granulado bem fino e discreto no fundo das páginas (SVG ~0,5 KB). Rola
+   junto com a página. */
+:root {
+  --sif-page-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .14 0 0 0 0 .1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+body {
+  background-color: #f6f8f7;
+  background-image: var(--sif-page-grain);
+  background-size: 120px 120px;
+}
+/* Seção que fica travada na tela (ex.: Nossos Serviços): fundo próprio e
+   parado, para não ver o fundo da página "descendo" atrás dos cards. */
+.sif-pinned-bg { background-color: #f6f8f7; background-image: var(--sif-page-grain); background-size: 120px 120px; }
 .sif-page { background-color: transparent; }
 
 /* ─── FAIXAS COM DEGRADÊ VERDE (destaque e contraste) ─────────────────
@@ -425,12 +437,23 @@ body { background-color: #f6f8f7; }
 /* ─── ANIMAÇÃO DE ENTRADA (components/ui/AutoReveal.jsx) ────────────── */
 .sif-reveal {
   opacity: 0;
-  translate: 0 26px;
-  transition: opacity .8s cubic-bezier(.2,.7,.2,1), translate .8s cubic-bezier(.2,.7,.2,1) !important;
+  translate: 0 36px;
+  scale: .985;
+  filter: blur(6px);
+  transition: opacity .9s cubic-bezier(.22,1,.36,1), translate 1.1s cubic-bezier(.22,1,.36,1), scale 1.1s cubic-bezier(.22,1,.36,1), filter .9s cubic-bezier(.22,1,.36,1) !important;
   transition-delay: var(--sif-reveal-delay, 0ms) !important;
 }
-.sif-reveal.is-in { opacity: 1; translate: 0 0; }
-@media (prefers-reduced-motion: reduce) { .sif-reveal { opacity: 1; translate: none; transition: none !important; } }
+/* títulos: sem zoom, só sobem e saem do desfoque */
+h1.sif-reveal, h2.sif-reveal { scale: 1; translate: 0 28px; }
+.sif-reveal.is-in { opacity: 1; translate: 0 0; scale: 1; filter: none; }
+@media (prefers-reduced-motion: reduce) { .sif-reveal { opacity: 1; translate: none; scale: none; filter: none; transition: none !important; } }
+
+/* Interação padrão: card clicável levanta um pouco ao passar o mouse */
+a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
+  transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease;
+}
+a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: translateY(-4px); box-shadow: var(--sif-shadow-card-hover); }
+@media (prefers-reduced-motion: reduce) { a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: none; } }
 
 /* ─── FAIXA COM FOTO DESFOCADA (components/ui/PhotoBand.jsx) ───────── */
 .sif-photo-band { isolation: isolate; overflow: hidden; background-color: #0b3320; }
@@ -440,11 +463,14 @@ body { background-color: #f6f8f7; }
   transform: translate3d(0, calc((var(--p, .5) - .5) * 240px), 0);
   will-change: transform;
 }
+/* Desfoque leve + zoom controlado pela rolagem (aproxima ao entrar na tela) */
 .sif-photo-band__bg img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  filter: blur(9px) brightness(.62) saturate(.9);
-  transform: scale(1.08);
+  filter: blur(3px) brightness(.58) saturate(.95);
+  transform: scale(calc(1.24 - var(--p, .5) * .2));
+  will-change: transform;
 }
+@media (prefers-reduced-motion: reduce) { .sif-photo-band__bg img { transform: scale(1.06); } }
 /* véu verde da SIF por cima da foto */
 .sif-photo-band::before {
   content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
@@ -465,3 +491,35 @@ body { background-color: #f6f8f7; }
 .sif-stack-card { transform-origin: 50% 0; transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
 .sif-stack-card[data-covered="1"] { transform: scale(.95); filter: brightness(.7); }
 @media (prefers-reduced-motion: reduce) { .sif-stack-card { transition: none; } }
+
+/* Submenu fixo (ex.: página do GT): fica logo abaixo do menu e sobe junto
+   quando o menu some ao rolar para baixo */
+.sif-subnav { top: 72px; transition: top .3s cubic-bezier(.2,.7,.2,1); }
+html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
+
+/* Card de chamada com brilho que segue o mouse (components/ui/GlowCta.jsx) */
+.sif-cta-glow { overflow: hidden; transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease; box-shadow: 0 30px 60px -30px rgba(6,25,15,.55); }
+.sif-cta-glow::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  width: 560px; height: 560px; left: var(--mx, 78%); top: var(--my, 35%);
+  transform: translate(-50%, -50%) scale(.75);
+  background: radial-gradient(circle, rgba(127,186,0,.55) 0%, rgba(0,122,61,.35) 38%, transparent 70%);
+  filter: blur(46px); opacity: .55;
+  transition: transform .7s cubic-bezier(.2,.7,.2,1), opacity .7s ease, left .25s ease-out, top .25s ease-out;
+}
+.sif-cta-glow:hover { transform: translateY(-4px); box-shadow: 0 40px 70px -30px rgba(6,25,15,.7); }
+.sif-cta-glow:hover::before { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .sif-cta-glow, .sif-cta-glow::before { transition: none; } .sif-cta-glow:hover { transform: none; } }
+
+/* Benefícios (Associadas): troca do card grande ao rolar */
+.sif-benefit { transition: transform .9s cubic-bezier(.65,0,.35,1), opacity .7s ease, filter .7s ease, clip-path .9s cubic-bezier(.65,0,.35,1); will-change: transform, opacity; }
+.sif-benefit.is-active { transform: none; opacity: 1; filter: none; clip-path: inset(0 0 0 0 round 40px); z-index: 2; }
+.sif-benefit.is-past   { transform: translateY(-8%) scale(.92); opacity: 0; filter: blur(6px); clip-path: inset(0 0 0 0 round 40px); z-index: 1; pointer-events: none; }
+.sif-benefit.is-next   { transform: translateY(6%); opacity: 1; clip-path: inset(100% 0 0 0 round 40px); z-index: 3; pointer-events: none; }
+.sif-benefit .sif-benefit__img { transform: scale(1.15); transition: transform 1.4s cubic-bezier(.2,.7,.2,1); }
+.sif-benefit.is-active .sif-benefit__img { transform: scale(1); }
+.sif-benefit .sif-benefit__num, .sif-benefit .sif-benefit__text { opacity: 0; transform: translateY(24px); transition: opacity .6s ease .25s, transform .8s cubic-bezier(.2,.7,.2,1) .25s; }
+.sif-benefit.is-active .sif-benefit__num { opacity: 1; transform: none; }
+.sif-benefit.is-active .sif-benefit__text { opacity: 1; transform: none; transition-delay: .4s; }
+.sif-benefit .sif-benefit__bar { width: 0; transition: width 1.2s cubic-bezier(.2,.7,.2,1) .4s; }
+.sif-benefit.is-active .sif-benefit__bar { width: 100%; }

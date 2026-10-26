@@ -58,7 +58,16 @@ if (move_uploaded_file($file['tmp_name'], $target)) {
             if (move_uploaded_file($_FILES['poster']['tmp_name'], $pTarget)) $poster = $pTarget;
         }
     }
-    echo json_encode(['success' => true, 'url' => $target, 'poster' => $poster]);
+    // Trecho curto e sem som para o fundo (gerado no painel junto com o vídeo)
+    $loop = '';
+    if (isset($_FILES['loop']) && $_FILES['loop']['error'] === UPLOAD_ERR_OK && $_FILES['loop']['size'] <= 15 * 1024 * 1024) {
+        $lExt = sif_safe_ext($_FILES['loop']['tmp_name'], 'video', $_FILES['loop']['name']);
+        if ($lExt) {
+            $lTarget = $dir . sif_safe_name($lExt);
+            if (move_uploaded_file($_FILES['loop']['tmp_name'], $lTarget)) $loop = $lTarget;
+        }
+    }
+    echo json_encode(['success' => true, 'url' => $target, 'poster' => $poster, 'loop' => $loop]);
 } else {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Erro ao salvar o vídeo no servidor.']);

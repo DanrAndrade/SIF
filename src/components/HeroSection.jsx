@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Play } from 'lucide-react';
 import VideoModal from './ui/VideoModal';
+import ParallaxLayer from './ui/ParallaxLayer';
 import iconLogo from '../assets/sif.svg';
 import Button from './ui/Button';
 import { getImageUrl } from '../apiConfig';
@@ -30,7 +31,8 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const loopFile  = config.video_loop || '';
   const bgMode    = config.bg_mode || (loopFile ? 'video' : 'image');
   const useVideo  = bgMode === 'video' && !!loopFile;
-  const loopSrc   = useVideo ? getImageUrl(loopFile) : '';
+  // Fundo: trecho curto e leve (se houver); o completo só carrega no botão
+  const loopSrc   = useVideo ? getImageUrl(config.video_loop_short || loopFile) : '';
   const poster    = config.video_poster ? getImageUrl(config.video_poster) : resolvedBg;
   const fullUrl   = useVideo ? loopFile : '';
   const fullLabel = config.video_full_label || 'Assistir vídeo';
@@ -46,9 +48,15 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
         <div ref={bgRef} className="absolute top-16 left-0 right-0 h-full bg-transparent rounded-bl-[40px] md:rounded-bl-[80px] z-0 will-change-transform"></div>
 
         <section className="relative z-10 min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] gpu-layer"
-            style={resolvedBg ? { backgroundImage: `url('${resolvedBg}')` } : undefined}>
+            >
             
-            {loopSrc && <HeroVideo src={loopSrc} poster={poster} />}
+            {/* Fundo (foto ou vídeo) com profundidade ao rolar */}
+            {(resolvedBg || loopSrc) && (
+              <ParallaxLayer speed={0.25} zoom={0.06} className="!-top-[25%] z-0">
+                {resolvedBg && <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${resolvedBg}')` }} />}
+                {loopSrc && <HeroVideo src={loopSrc} poster={poster} />}
+              </ParallaxLayer>
+            )}
 
             {/* --- CORREÇÃO AQUI: OVERLAYS ESCUROS (FUMÊ) --- */}
             {/* Gradiente lateral escuro (preto/cinza escuro) */}
@@ -120,7 +128,8 @@ function HeroVideo({ src, poster }) {
     if (typeof window === 'undefined') return false;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const saveData = navigator.connection?.saveData;
-    return !reduce && !saveData;
+    const bigScreen = window.matchMedia?.('(min-width: 768px)').matches;
+    return !reduce && !saveData && bigScreen;
   });
 
   useEffect(() => {
@@ -131,7 +140,8 @@ function HeroVideo({ src, poster }) {
     return () => io.disconnect();
   }, [allowed]);
 
-  if (!allowed) return null;
+  // Sem vídeo (celular, menos movimento, economia de dados): fica a capa
+  if (!allowed) return poster ? <img src={poster} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" /> : null;
   return (
     <video ref={ref} className="absolute inset-0 w-full h-full object-cover z-0" src={src} poster={poster || undefined}
       autoPlay muted loop playsInline preload="metadata" aria-hidden="true" tabIndex={-1} />

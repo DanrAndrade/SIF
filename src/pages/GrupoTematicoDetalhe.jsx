@@ -69,7 +69,7 @@ export default function GrupoTematicoDetalhe() {
     gt_contact: (sec) => (!hasContact ? null :
       <div className="max-w-3xl mx-auto">
         <BlockHeader sec={sec} align="center" size="md" className="mb-8" />
-        <EditablePageContact pageKey="gt" fallbackTitle="Responsável pelo grupo" override={responsavel} />
+        <EditablePageContact pageKey="gt" fallbackTitle="Responsável pelo grupo" override={responsavel} layout="wide" />
       </div>
     ),
   };
@@ -120,7 +120,7 @@ export default function GrupoTematicoDetalhe() {
   const cover = gt.image_url ? getImageUrl(gt.image_url, 1920) : '';
   // Fundo das faixas escuras: capa do grupo; sem capa, a 1ª foto da página
   const pagePhotos = (sections || []).flatMap(s => [s.image, ...(s.images || [])]).filter(Boolean);
-  const bandPhoto = [gt.image_url, ...pagePhotos].filter(Boolean).slice(0, 6).map(p => getImageUrl(p, 640));
+  const bandPhoto = [gt.image_url, ...pagePhotos].filter(Boolean).slice(0, 6).map(p => getImageUrl(p, 1280));
   const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const contactSec = visible.find(s => s.type === 'gt_contact');
   const blogSec = visible.find(s => s.type === 'gt_blog');
@@ -133,7 +133,7 @@ export default function GrupoTematicoDetalhe() {
       <DetailHero
         cover={cover} accent={color}
         crumbs={[{ label: 'Grupos Temáticos', to: '/grupos-tematicos' }]}
-        eyebrow="Grupo Temático" icon={Target}
+        eyebrow="Grupo Temático"
         title={gt.title} summary={summary}
         actions={<>
           {contactSec && (
@@ -159,7 +159,7 @@ export default function GrupoTematicoDetalhe() {
 
       {/* MENU DA PÁGINA (fixo ao rolar) */}
       {navItems.length > 1 && (
-        <div className="sticky top-[72px] z-30 mt-6">
+        <div className="sif-subnav sticky z-30 mt-6">
           <div className="max-w-6xl mx-auto px-6">
             <nav aria-label="Nesta página" className="flex gap-1 overflow-x-auto no-scrollbar p-1.5 rounded-full bg-white/85 backdrop-blur-md border border-gray-100 shadow-[var(--sif-shadow-card)] w-fit max-w-full">
               {navItems.map(n => (

@@ -15,6 +15,7 @@ import SmartLink from '../components/ui/SmartLink';
 import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 import { buttonClass } from '../components/ui/Button';
+import AreasAtuacao from '../components/institucional/AreasAtuacao';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -280,7 +281,6 @@ const GalleryCarousel = ({ title, data }) => {
 export default function Institucional() {
   usePageTitle('Institucional'); // título da aba do navegador / Google
   const mainRef = useRef(null);
-  const areasScrollRef = useRef(null);
   const location = useLocation();
 
   // Equipe vinda do banco (admin de Institucional → aba Equipe).
@@ -341,20 +341,6 @@ export default function Institucional() {
         .filter((g) => teamFromApi[g.key] && teamFromApi[g.key].length > 0)
     : [];
 
-  const scrollAreas = (direction) => {
-    const el = areasScrollRef.current;
-    if (!el) return;
-    // Rola por CARD (largura do card + gap), garantindo que cada card sempre
-    // pare inteiro na visualização — nunca cortado. Avança quantos cards
-    // couberem na área visível (no mínimo 1).
-    const first = el.children[0];
-    const second = el.children[1];
-    const step = second ? (second.offsetLeft - first.offsetLeft) : (first?.offsetWidth || 300);
-    const perView = Math.max(1, Math.floor(el.clientWidth / step));
-    const delta = step * perView;
-    el.scrollTo({ left: direction === 'left' ? el.scrollLeft - delta : el.scrollLeft + delta, behavior: 'smooth' });
-  };
-  
   // Scroll automático para a seção SOMENTE quando há hash explícito na URL
   // (ex: /institucional#nossa-gente). Sem hash (reload normal), vai para o topo
   // e desliga a restauração de scroll do navegador.
@@ -482,56 +468,8 @@ export default function Institucional() {
         </div>
         
         {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
-        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-32 border-t border-gray-50 overflow-hidden`}>
-            <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-20 gap-8">
-                    <div className="w-full max-w-2xl text-left">
-                        <span className="sif-eyebrow mb-4">{cfg.areas_tag}</span>
-                        <h2 className="sif-title sif-h2 text-[#1f2937] leading-[0.9] tracking-tighter">{cfg.areas_title_line1} <br/><span className="text-[#007a3d]">{cfg.areas_title_highlight}</span></h2>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row gap-8 items-start lg:items-center w-full lg:w-auto">
-                        <p className="text-gray-400 font-medium text-base max-w-sm">{cfg.areas_subtitle}</p>
-                        <div className="flex gap-4">
-                            <button 
-                                onClick={() => scrollAreas('left')}
-                                className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-[#1f2937] hover:border-[#007a3d] hover:bg-[#007a3d] hover:text-white transition-all shadow-md active:scale-95"
-                            >
-                                <ArrowLeft size={24} strokeWidth={2.5} />
-                            </button>
-                            <button 
-                                onClick={() => scrollAreas('right')}
-                                className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-[#1f2937] hover:border-[#007a3d] hover:bg-[#007a3d] hover:text-white transition-all shadow-md active:scale-95"
-                            >
-                                <ArrowRight size={24} strokeWidth={2.5} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div 
-                    ref={areasScrollRef}
-                    className="flex overflow-x-auto gap-10 no-scrollbar pb-16 snap-x snap-mandatory scroll-pl-4 px-4"
-                >
-                    {areas.map((area, i) => {
-                        const Icon = AREA_ICON_MAP[area.icon] || Sprout;
-                        return (
-                          <div
-                            key={i}
-                            className="group flex-shrink-0 w-[85vw] max-w-[450px] md:w-[450px] bg-white p-12 rounded-panel transition-all duration-500 snap-start border border-gray-100 shadow-[inset_0_0_20px_rgba(255,255,255,1),0_15px_50px_-20px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_70px_-25px_rgba(0,0,0,0.15)]"
-                          >
-                            <div className="text-[#007a3d] mb-10 group-hover:scale-110 transition-transform origin-left duration-500">
-                                <Icon size={42} strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-2xl font-semibold font-heading text-[#1f2937] mb-6 group-hover:text-[#007a3d] transition-colors leading-tight">{area.title}</h3>
-                            <p className="text-gray-500 text-base leading-relaxed font-medium">
-                                {area.desc}
-                            </p>
-                          </div>
-                        );
-                    })}
-                </div>
-            </div>
+        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 border-t border-gray-50 overflow-hidden`}>
+            {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
         </div>
 
         {/* ESTATUTO E NORMAS */}

@@ -55,21 +55,21 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
   const sectionTitle = config.section_title || 'Nossos Serviços';
 
   return (
-    <section ref={sectionRef} data-no-reveal className="relative w-full mt-12 md:mt-20 py-16 md:pt-28 md:pb-10 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden bg-transparent z-20">
+    <section ref={sectionRef} data-no-reveal className="relative w-full mt-12 md:mt-20 py-16 md:pt-20 md:pb-10 md:h-screen md:flex md:flex-col md:justify-center overflow-hidden sif-pinned-bg z-20">
         
-        <div className="container mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
-            <div className="max-w-xl">
+        <div className="container mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end relative z-10 gap-8">
+            <div className="max-w-xl [&>div]:mb-0 [&_h2]:mb-0">
                  <SectionHeader tag={sectionTag} title={sectionTitle} />
             </div>
         </div>
 
-        <div className="w-full h-4 md:h-6"></div>
+
         
         <div ref={trackRef} className="flex gap-4 md:gap-8 pb-4 relative z-10 pl-6 md:pl-12 lg:pl-[max(48px,calc((100vw-1280px)/2+48px))] pr-6 md:pr-24 w-full md:w-max overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar">
             {categories.map((item) => (
                 <div key={item.id} className="w-[85vw] sm:w-[60vw] md:w-[760px] min-h-[450px] md:min-h-[min(420px,55vh)] shrink-0 snap-center relative flex items-end md:items-center group">
                     <div className="w-full md:w-[84%] h-[85%] md:h-full absolute md:right-0 top-0 rounded-card overflow-hidden shadow-lg bg-gradient-to-br from-[#0f1f11] to-[#007a3d]">
-                        {item.image && <img src={item.image} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />}
+                        {item.image && <img src={item.image} loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={item.title} />}
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all"></div>
                     </div>
                     <div className="relative md:static w-[92%] md:w-[50%] mx-auto md:mx-0 md:ml-8 mb-6 md:mb-0 min-h-[220px] md:min-h-[280px] bg-white p-6 md:p-8 rounded-[24px] shadow-2xl z-10 border border-gray-100 flex flex-col justify-between">

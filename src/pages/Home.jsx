@@ -102,7 +102,6 @@ export default function Home() {
     return (
         <div className="sif-app sif-page font-sans text-[#1f2937] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
           <Navbar 
-            scrolled={scrolled} 
             mobileMenuOpen={mobileMenuOpen} 
             setMobileMenuOpen={setMobileMenuOpen} 
           />

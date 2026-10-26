@@ -259,24 +259,42 @@ export default function Associadas() {
   );
 }
 
-// Benefícios. No computador a seção TRAVA a rolagem: o título fica à
-// esquerda e os cards sobem um a um e se empilham à direita; depois do
-// último card há uma folga antes de a página voltar a rolar. Fundo com foto
-// desfocada (Painel › Associadas › Benefícios). No celular: lista simples.
+// Benefícios. No computador a seção TRAVA a rolagem: à esquerda o título e a
+// lista; à direita UM card grande de texto, trocado pelo próximo com
+// animação conforme a rolagem. A foto de fundo (desfocada) muda junto com
+// o card. Depois do último há uma folga antes de a página voltar a rolar.
+// No celular: lista simples.
 const BENEFITS_BG = 'https://images.unsplash.com/photo-1509414556967-312906f278a0?q=80&w=1600&auto=format&fit=crop';
-const EXIT_SLACK = 0.7;   // folga depois do último card (em "cards")
-const STEP_VH = 70;       // rolagem usada por card (vh)
+// Foto de fundo de cada benefício (por posição), do Unsplash
+const BENEFIT_PHOTOS = [
+  BENEFITS_BG,
+  'https://images.unsplash.com/photo-1758343660101-10ee4fa1ca68?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1615671524990-c0e871c5f806?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1639051119236-475ab61f5bc3?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1627278631921-874a70b5f973?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1624905918163-bd455354cfed?q=80&w=1600&auto=format&fit=crop',
+];
+const EXIT_SLACK = 0.6;  // folga depois do último card (em "cards")
+const STEP_VH = 80;      // rolagem usada por card (vh)
 
-function BenefitCard({ b, i, style, refFn }) {
+function BenefitCard({ b }) {
   return (
-    <article ref={refFn} style={style}
-      className="rounded-card bg-[#242b27] border border-white/10 p-7 md:p-10 text-white shadow-[0_30px_60px_-25px_rgba(0,0,0,0.75)] will-change-transform">
-      <div className="flex items-start gap-5 md:gap-7">
-        <span className="text-4xl md:text-5xl font-semibold leading-none text-sif-lime tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-        <div>
-          <h3 className="text-xl md:text-2xl font-semibold font-heading leading-tight mb-3">{b.title}</h3>
-          <p className="text-white/75 leading-relaxed">{b.description}</p>
-        </div>
+    <article className="rounded-card bg-[#242b27] border border-white/10 p-7 text-white">
+      <h3 className="text-xl font-semibold font-heading leading-tight mb-3">{b.title}</h3>
+      <p className="text-white/75 leading-relaxed">{b.description}</p>
+    </article>
+  );
+}
+
+// Card grande de texto (computador)
+function BenefitBig({ b, state }) {
+  return (
+    <article className={`sif-benefit absolute inset-0 rounded-panel bg-[#1f2622]/95 border border-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)] p-12 xl:p-16 flex flex-col justify-center ${state}`}
+      aria-hidden={state !== 'is-active'}>
+      <div className="sif-benefit__text max-w-2xl">
+        <span className="block w-12 h-[3px] rounded-full bg-sif-lime mb-8" aria-hidden="true" />
+        <h3 className="text-4xl xl:text-5xl font-semibold font-heading leading-[1.1] mb-6">{b.title}</h3>
+        <p className="text-white/75 text-xl leading-relaxed">{b.description}</p>
       </div>
     </article>
   );
@@ -286,13 +304,14 @@ function BenefitsScroller({ cfg }) {
   const items = (cfg.benefits || []).filter(b => b && (b.title || b.description));
   const n = items.length;
   const wrap = useRef(null);
-  const cards = useRef([]);
   const [active, setActive] = useState(0);
   const canPin = () => typeof window !== 'undefined'
     && !!window.matchMedia?.('(min-width: 1024px)').matches
     && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const [pinned, setPinned] = useState(canPin);
-  const bg = getImageUrl(cfg.beneficios_bg_image || BENEFITS_BG, 1280);
+  // Foto de cada card: a do benefício (se houver), a de fundo escolhida no
+  // painel para o 1º, ou uma do Unsplash
+  const slides = items.map((b, i) => getImageUrl(b.image || (i === 0 && cfg.beneficios_bg_image) || BENEFIT_PHOTOS[i % BENEFIT_PHOTOS.length], 1280));
 
   useEffect(() => {
     const mq = window.matchMedia?.('(min-width: 1024px)');
@@ -302,9 +321,10 @@ function BenefitsScroller({ cfg }) {
     return () => mq.removeEventListener?.('change', upd);
   }, []);
 
+  // Rolagem → qual card está na frente
   useEffect(() => {
     if (!pinned || n < 1) return;
-    let raf = 0, last = -1;
+    let raf = 0;
     const paint = () => {
       raf = 0;
       const el = wrap.current;
@@ -312,25 +332,15 @@ function BenefitsScroller({ cfg }) {
       const r = el.getBoundingClientRect();
       const dist = Math.max(1, el.offsetHeight - window.innerHeight);
       const p = Math.min(1, Math.max(0, -r.top / dist));
-      const u = p * ((n - 1) + EXIT_SLACK); // quantos cards já chegaram
-      const t = items.map((_, i) => (i === 0 ? 1 : Math.min(1, Math.max(0, u - (i - 1)))));
-      cards.current.forEach((c, i) => {
-        if (!c) return;
-        const over = t.slice(i + 1).reduce((s, v) => s + v, 0); // cards por cima deste
-        const y = (1 - t[i]) * 75; // vh
-        c.style.transform = `translate3d(0, calc(${y.toFixed(2)}vh + ${i * 16}px), 0) scale(${(1 - Math.min(over, 3) * 0.045).toFixed(3)})`;
-        c.style.filter = over > 0.05 ? `brightness(${(1 - Math.min(over, 3) * 0.14).toFixed(3)})` : '';
-        c.style.opacity = t[i] > 0 ? '1' : '0';
-      });
-      const a = t.reduce((acc, v, i) => (v > 0.5 ? i : acc), 0);
-      if (a !== last) { last = a; setActive(a); }
+      const u = p * ((n - 1) + EXIT_SLACK);
+      setActive(Math.min(n - 1, Math.floor(u + 0.15)));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
     paint();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [pinned, n]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pinned, n]);
 
   if (!n) return null;
 
@@ -338,8 +348,7 @@ function BenefitsScroller({ cfg }) {
     const el = wrap.current;
     if (!el) return;
     const dist = el.offsetHeight - window.innerHeight;
-    const u = i === 0 ? 0 : i;
-    const top = el.getBoundingClientRect().top + window.pageYOffset + dist * (u / ((n - 1) + EXIT_SLACK));
+    const top = el.getBoundingClientRect().top + window.pageYOffset + dist * ((i + 0.1) / ((n - 1) + EXIT_SLACK));
     window.scrollTo({ top, behavior: 'smooth' });
   };
 
@@ -356,11 +365,11 @@ function BenefitsScroller({ cfg }) {
   // Celular ou "menos movimento": lista simples sobre a foto
   if (!pinned) {
     return (
-      <PhotoBand id="beneficios" photo={bg} className="scroll-mt-32 py-20">
+      <PhotoBand id="beneficios" photo={slides[0]} className="scroll-mt-32 py-20">
         <div className="container mx-auto px-6">
           <div className="mb-10">{title}</div>
           <div className="space-y-4">
-            {items.map((b, i) => <BenefitCard key={i} b={b} i={i} />)}
+            {items.map((b, i) => <BenefitCard key={i} b={b} />)}
           </div>
         </div>
       </PhotoBand>
@@ -370,8 +379,8 @@ function BenefitsScroller({ cfg }) {
   return (
     <section id="beneficios" ref={wrap} className="relative"
       style={{ height: `calc(100vh + ${((n - 1) + EXIT_SLACK) * STEP_VH}vh)` }}>
-      <PhotoBand as="div" photo={bg} className="sticky top-0 h-screen flex items-center">
-        <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-12 gap-16 items-center w-full pt-16">
+      <PhotoBand as="div" slides={slides} active={active} className="sticky top-0 h-screen flex items-center">
+        <div className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full">
           <div className="col-span-5">
             {title}
             <ol className="mt-10 space-y-1" data-no-reveal>
@@ -379,19 +388,17 @@ function BenefitsScroller({ cfg }) {
                 <li key={i}>
                   <button type="button" onClick={() => go(i)}
                     className={`w-full flex items-center gap-4 py-2.5 text-left transition-colors duration-300 ${active === i ? 'text-white' : 'text-white/45 hover:text-white/80'}`}>
-                    <span className={`text-xs font-bold tabular-nums ${active === i ? 'text-sif-lime' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
-                    <span className={`h-px transition-all duration-500 ${active === i ? 'w-12 bg-sif-lime' : 'w-6 bg-white/25'}`} />
+                    <span className={`h-px shrink-0 transition-all duration-500 ${active === i ? 'w-12 bg-sif-lime' : 'w-6 bg-white/25'}`} />
                     <span className="text-sm font-semibold">{b.title}</span>
                   </button>
                 </li>
               ))}
             </ol>
           </div>
-          <div className="col-span-7 relative h-[380px]" data-no-reveal>
+          <div className="col-span-7 relative h-[min(460px,58vh)]" data-no-reveal>
             {items.map((b, i) => (
-              <div key={i} className="absolute inset-x-0 top-0" style={{ zIndex: i + 1 }}>
-                <BenefitCard b={b} i={i} refFn={el => (cards.current[i] = el)} style={{ transformOrigin: '50% 0', opacity: i === 0 ? 1 : 0 }} />
-              </div>
+              <BenefitBig key={i} b={b}
+                state={i === active ? 'is-active' : i < active ? 'is-past' : 'is-next'} />
             ))}
           </div>
         </div>

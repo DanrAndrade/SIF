@@ -10,6 +10,8 @@
 const MAX_W = 1280;
 const VIDEO_BPS = 2_500_000; // ~2,5 Mbps: bom para 720p
 const AUDIO_BPS = 128_000;
+const LOOP_SECONDS = 20;     // trecho do fundo (sem áudio, mais leve)
+const LOOP_BPS = 1_200_000;
 
 const MIME_OPTIONS = [
   'video/mp4;codecs=avc1.42E01F,mp4a.40.2',
@@ -36,7 +38,10 @@ const once = (el, ev) => new Promise((res, rej) => {
 /**
  * @param {File} file
  * @param {(p:number)=>void} onProgress  0..1
- * @returns {Promise<{ video: File, poster: File|null, width:number, height:number }>}
+ * @returns {Promise<{ video: File, loop: File|null, poster: File|null, width:number, height:number }>}
+ * video = completo, com som (botão "Assistir vídeo"); loop = primeiros
+ * segundos, sem som e mais leve (fundo do topo). Os dois saem da mesma
+ * passada, sem gastar mais tempo.
  */
 export async function optimizeVideo(file, onProgress = () => {}) {
   const url = URL.createObjectURL(file);
@@ -48,6 +53,13 @@ export async function optimizeVideo(file, onProgress = () => {}) {
   let audioCtx = null;
   try {
     await once(video, 'loadedmetadata');
+    // Alguns WebM não informam a duração: descobre pulando para o fim
+    if (!isFinite(video.duration)) {
+      video.currentTime = 1e9;
+      await new Promise(r => video.addEventListener('durationchange', r, { once: true }));
+      video.currentTime = 0;
+      await once(video, 'seeked');
+    }
     const scale = Math.min(1, MAX_W / (video.videoWidth || MAX_W));
     const w = Math.max(2, Math.round((video.videoWidth * scale) / 2) * 2);
     const h = Math.max(2, Math.round((video.videoHeight * scale) / 2) * 2);
@@ -82,21 +94,37 @@ export async function optimizeVideo(file, onProgress = () => {}) {
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     const stopped = new Promise(r => { rec.onstop = r; });
 
+    // Trecho do fundo: só imagem, primeiros segundos, taxa menor
+    const loopStream = new MediaStream(stream.getVideoTracks().map(t => t.clone()));
+    const sameFamily = /mp4/.test(mimeType) ? ['video/mp4;codecs=avc1.42E01F', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    const loopMime = sameFamily.find(m => MediaRecorder.isTypeSupported(m)) || mimeType;
+    const loopRec = new MediaRecorder(loopStream, { mimeType: loopMime, videoBitsPerSecond: LOOP_BPS });
+    const loopChunks = [];
+    loopRec.ondataavailable = (e) => { if (e.data && e.data.size) loopChunks.push(e.data); };
+    const loopStopped = new Promise(r => { loopRec.onstop = r; });
+    const loopLimit = Math.min(LOOP_SECONDS, video.duration || LOOP_SECONDS);
+    let loopDone = false;
+    const stopLoop = () => { if (!loopDone) { loopDone = true; try { loopRec.stop(); } catch { /* já parou */ } loopStream.getTracks().forEach(t => t.stop()); } };
+
     let raf = 0;
     const draw = () => {
       ctx.drawImage(video, 0, 0, w, h);
       if (video.duration) onProgress(Math.min(0.99, video.currentTime / video.duration));
+      if (!loopDone && video.currentTime >= loopLimit) stopLoop();
       raf = video.requestVideoFrameCallback ? video.requestVideoFrameCallback(draw) : requestAnimationFrame(draw);
     };
 
     rec.start(1000);
+    loopRec.start(1000);
     await audioCtx?.resume?.();
-    await video.play();
+    // play() pode "falhar" se o vídeo acabar antes da resposta: não é erro
+    await video.play().catch((e) => { if (!video.ended) throw e; });
     draw();
-    await new Promise(r => video.addEventListener('ended', r, { once: true }));
+    if (!video.ended) await new Promise(r => video.addEventListener('ended', r, { once: true }));
     if (video.cancelVideoFrameCallback && raf) video.cancelVideoFrameCallback(raf); else cancelAnimationFrame(raf);
     rec.stop();
-    await stopped;
+    stopLoop();
+    await Promise.all([stopped, loopStopped]);
     onProgress(1);
 
     const isMp4 = /mp4/.test(mimeType);
@@ -104,7 +132,8 @@ export async function optimizeVideo(file, onProgress = () => {}) {
     const base = (file.name || 'video').replace(/\.[^.]+$/, '');
     const out = new File(chunks, `${base}.${isMp4 ? 'mp4' : 'webm'}`, { type });
     const poster = posterBlob ? new File([posterBlob], `${base}-capa.webp`, { type: 'image/webp' }) : null;
-    return { video: out, poster, width: w, height: h };
+    const loop = loopChunks.length ? new File(loopChunks, `${base}-fundo.${isMp4 ? 'mp4' : 'webm'}`, { type }) : null;
+    return { video: out, loop, poster, width: w, height: h };
   } finally {
     try { video.pause(); } catch { /* ignore */ }
     URL.revokeObjectURL(url);

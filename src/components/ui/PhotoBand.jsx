@@ -5,11 +5,12 @@ import React, { useEffect, useRef, useState } from 'react';
 // A foto se move um pouco mais devagar que a página (profundidade), só
 // enquanto a faixa está na tela. Sem foto, vira o verde-escuro padrão.
 // photo: um endereço ou uma lista (se uma foto falhar, tenta a próxima)
-export default function PhotoBand({ photo, as: Tag = 'section', className = '', children, ...rest }) {
+// slides + active: várias fotos que trocam com transição suave (a da vez aparece)
+export default function PhotoBand({ photo, slides, active = 0, as: Tag = 'section', className = '', children, ...rest }) {
   const ref = useRef(null);
   const list = (Array.isArray(photo) ? photo : [photo]).filter(Boolean);
   const [idx, setIdx] = useState(0);
-  const src = list[idx] || '';
+  const src = (slides && slides.length ? slides[active] || slides[0] : list[idx]) || '';
 
   useEffect(() => {
     const el = ref.current;
@@ -32,7 +33,11 @@ export default function PhotoBand({ photo, as: Tag = 'section', className = '', 
 
   return (
     <Tag ref={ref} className={`${src ? 'sif-photo-band' : 'sif-glow-dark'} text-white ${className}`} {...rest}>
-      {src && (
+      {slides && slides.length ? slides.map((s, i) => (
+        <div key={s + i} className="sif-photo-band__bg transition-opacity duration-1000 ease-in-out" style={{ opacity: i === active ? 1 : 0 }} aria-hidden="true">
+          <img src={s} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+        </div>
+      )) : src && (
         <div className="sif-photo-band__bg" aria-hidden="true">
           <img key={src} src={src} alt="" loading="lazy" decoding="async" onError={() => setIdx(i => i + 1)} />
         </div>

@@ -432,13 +432,13 @@ function HeroVideoFields({ config, update }) {
     if (!file) return;
     if (!/^video\//.test(file.type)) { window.showToast?.('Escolha um arquivo de vídeo.', 'error'); return; }
     if (file.size > 600 * 1024 * 1024) { window.showToast?.('Vídeo muito grande (máximo 600 MB antes da otimização).', 'error'); return; }
-    let video = file, poster = null;
+    let video = file, poster = null, loop = null;
     try {
       const { canOptimizeVideo, optimizeVideo } = await import('../../utils/videoOptimize');
       if (canOptimizeVideo()) {
         setBusy('convert'); setProgress(0);
         const out = await optimizeVideo(file, setProgress);
-        video = out.video; poster = out.poster;
+        video = out.video; poster = out.poster; loop = out.loop;
       } else if (file.size > 40 * 1024 * 1024) {
         window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 40 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
         return;
@@ -451,8 +451,9 @@ function HeroVideoFields({ config, update }) {
       const fd = new FormData();
       fd.append('file', video);
       if (poster) fd.append('poster', poster);
+      if (loop) fd.append('loop', loop);
       const data = await apiRequest(`${API_BASE_URL}/upload_video.php`, { method: 'POST', body: fd });
-      update({ video_loop: data.url, video_poster: data.poster || '', bg_mode: 'video', video_loop_url: '', video_full_url: '' });
+      update({ video_loop: data.url, video_loop_short: data.loop || '', video_poster: data.poster || '', bg_mode: 'video', video_loop_url: '', video_full_url: '' });
       const mb = (video.size / 1024 / 1024).toFixed(1);
       window.showToast?.(`Vídeo otimizado e enviado (${mb} MB). Clique em Salvar para publicar.`);
     } catch (err) { toastError(err); }
@@ -487,7 +488,7 @@ function HeroVideoFields({ config, update }) {
           {hasVideo && !busy && (
             <>
               <span className="text-xs text-gray-500 truncate max-w-[260px]">{config.video_loop.split('/').pop()}</span>
-              <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '', video_poster: '' })}>Remover vídeo</button>
+              <button type="button" className="text-xs text-red-600 hover:underline" onClick={() => update({ video_loop: '', video_loop_short: '', video_poster: '' })}>Remover vídeo</button>
             </>
           )}
         </div>
@@ -496,7 +497,7 @@ function HeroVideoFields({ config, update }) {
             <div className="h-full bg-[#007a3d] transition-[width] duration-300" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         )}
-        {hasVideo && <video src={getImageUrl(config.video_loop)} poster={config.video_poster ? getImageUrl(config.video_poster) : undefined} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
+        {hasVideo && <video src={getImageUrl(config.video_loop_short || config.video_loop)} poster={config.video_poster ? getImageUrl(config.video_poster) : undefined} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
         <Input label="Texto do botão de vídeo (embaixo, no centro)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo" />
       </>)}
     </div>

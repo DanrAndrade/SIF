@@ -90,7 +90,7 @@ export default function Process({ config = {} }) {
                         >
                             <div className="relative w-full h-full bg-[#0a0f16] rounded-card overflow-hidden">
                                 <div className="absolute inset-0 z-0">
-                                    {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.45]" />}
+                                    {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-full object-cover brightness-[0.45]" />}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                                 </div>
 
@@ -146,7 +146,7 @@ export default function Process({ config = {} }) {
                                 <div className="relative rounded-card overflow-hidden flex flex-col min-h-[440px] bg-[#0a0f16] p-[2px] bg-gradient-to-b from-[#1B5E20] to-[#007a3d]">
                                     <div className="relative rounded-card overflow-hidden flex flex-col flex-grow bg-[#0a0f16]">
                                     <div className="absolute inset-0 z-0">
-                                        {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" className="w-full h-full object-cover brightness-[0.4]" />}
+                                        {step.img && <img src={step.img} alt={step.title} loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-full object-cover brightness-[0.4]" />}
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
                                     </div>
                                     <div className="relative z-10 p-6 flex flex-col h-full justify-between text-white">

@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 // com "overflow: hidden" e posição relativa/absoluta.
 // Só calcula enquanto o topo está na tela; quem pediu "menos movimento" no
 // sistema vê a foto parada.
-export default function ParallaxLayer({ speed = 0.35, className = '', children }) {
+export default function ParallaxLayer({ speed = 0.45, zoom = 0.12, className = '', children }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -17,8 +17,10 @@ export default function ParallaxLayer({ speed = 0.35, className = '', children }
     const paint = () => {
       raf = 0;
       const r = host.getBoundingClientRect();
-      const y = Math.max(0, -r.top) * speed; // 0 no topo da página
-      el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`;
+      const passed = Math.max(0, -r.top);              // quanto do topo já rolou
+      const y = passed * speed;                         // desce mais devagar
+      const s = 1 + Math.min(1, passed / (r.height || 1)) * zoom; // e aproxima
+      el.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
     };
     const onScroll = () => { if (visible && !raf) raf = requestAnimationFrame(paint); };
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) onScroll(); });
@@ -26,11 +28,11 @@ export default function ParallaxLayer({ speed = 0.35, className = '', children }
     window.addEventListener('scroll', onScroll, { passive: true });
     paint();
     return () => { io.disconnect(); window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
-  }, [speed]);
+  }, [speed, zoom]);
 
-  // Começa acima do topo (top -40%) para não abrir um vão quando desce
+  // Começa acima do topo (top -50%) para não abrir um vão quando desce
   return (
-    <div ref={ref} aria-hidden="true" className={`absolute left-0 right-0 bottom-0 -top-[40%] will-change-transform pointer-events-none ${className}`}>
+    <div ref={ref} aria-hidden="true" className={`absolute left-0 right-0 bottom-0 -top-[50%] will-change-transform pointer-events-none ${className}`}>
       {children}
     </div>
   );

@@ -82,7 +82,12 @@ export function CardsBlock({ sec, dark }) {
               </div>
               <div className="flex-1 min-h-[40px]" />
               {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight mb-3 max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
-              {it.text && <p className={`leading-relaxed whitespace-pre-line max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white/70' : 'text-gray-500 group-hover:text-white/75 group-focus:text-white/75'}`}>{it.text}</p>}
+              {/* Texto: mostra as primeiras linhas; no hover/foco o restante sobe com animação */}
+              {it.text && (
+                <div className="relative overflow-hidden max-h-[4.9em] group-hover:max-h-[24em] group-focus:max-h-[24em] transition-[max-height] duration-700 ease-[cubic-bezier(.65,0,.35,1)]">
+                  <p className={`leading-relaxed whitespace-pre-line max-w-[22rem] transition-[color,transform] duration-700 ease-[cubic-bezier(.2,.7,.2,1)] translate-y-1 group-hover:translate-y-0 ${dark ? 'text-white/70' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
+                </div>
+              )}
             </article>
           );
         })}
