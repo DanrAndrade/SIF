@@ -149,6 +149,8 @@ export function PeopleEditor({ sec, onUpdate }) {
             <Field label="Nome" value={it.name} onChange={(name) => set({ name })} />
             <Field label="Cargo / função" value={it.role} onChange={(role) => set({ role })} />
             <Field label="Link (Lattes, LinkedIn...)" value={it.link} onChange={(link) => set({ link })} placeholder="https://" />
+            <Field label="Telefone (opcional)" value={it.phone} onChange={(phone) => set({ phone })} placeholder="(31) 99999-9999" />
+            <Field label="E-mail (opcional)" value={it.email} onChange={(email) => set({ email })} placeholder="nome@sif.org.br" />
           </div>
         </div>
       )} />

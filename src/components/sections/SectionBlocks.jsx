@@ -136,9 +136,21 @@ export function PeopleBlock({ sec, dark }) {
               {p.link && <span className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-[var(--accent,#007a3d)]">Ver perfil <ExternalLink size={12} /></span>}
             </>
           );
-          return p.link
-            ? <SmartLink key={i} href={p.link} className={`group text-center block px-3 ${PERSON_W}`}>{body}</SmartLink>
-            : <div key={i} className={`group text-center px-3 ${PERSON_W}`}>{body}</div>;
+          // Telefone e e-mail (opcionais) ficam fora do link do perfil
+          const phone = String(p.phone || '').trim();
+          const email = String(p.email || '').trim();
+          const contact = (phone || email) && (
+            <div className={`mt-2 space-y-0.5 text-xs break-words ${dark ? 'text-white/70' : 'text-gray-500'}`}>
+              {phone && <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="block hover:text-[var(--accent,#007a3d)]">{phone}</a>}
+              {email && <a href={`mailto:${email}`} className="block hover:text-[var(--accent,#007a3d)]">{email}</a>}
+            </div>
+          );
+          return (
+            <div key={i} className={`group text-center px-3 ${PERSON_W}`}>
+              {p.link ? <SmartLink href={p.link} className="block">{body}</SmartLink> : body}
+              {contact}
+            </div>
+          );
         })}
       </div>
     </div>
