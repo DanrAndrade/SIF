@@ -261,7 +261,7 @@ export default function Institucional() {
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
           <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{cfg.hero_badge}</span>
 
-          <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tighter mb-8">
+          <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl text-white leading-[1.05] tracking-tighter mb-8">
               {cfg.hero_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
           </h1>

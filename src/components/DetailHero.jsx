@@ -34,7 +34,7 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{eyebrow}</span>
           </div>
         )}
-        <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight text-white max-w-4xl">{title}</h1>
+        <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl leading-[1.05] tracking-tight text-white max-w-4xl">{title}</h1>
         {summary && <p className="mt-6 text-lg md:text-xl text-white/75 leading-relaxed max-w-2xl">{summary}</p>}
 
         {items.length > 0 && (

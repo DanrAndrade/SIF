@@ -4,6 +4,7 @@ import { Play, X, Plus, Download, ArrowLeft, ArrowRight } from 'lucide-react';
 import { getImageUrl, cleanRichHtml, htmlToText } from '../../apiConfig';
 import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass, BtnArrow } from '../ui/Button';
+import PhotoBand from '../ui/PhotoBand';
 import LogoCarousel from '../sections/LogoCarousel';
 import TeamDirectory from '../team/TeamDirectory';
 import EmbrapiiForm from './EmbrapiiForm';
@@ -94,57 +95,104 @@ export function EmbIntro({ c, video }) {
 
 /* ─── ÁREAS DE ATUAÇÃO (foto de fundo + título grande + cards ao lado) ── */
 // A área ativa vira o fundo e o título; os cards mostram as próximas.
-// Troca sozinha a cada 7 s enquanto está na tela (para no mouse/toque).
+// Ao escolher um card, a foto dele cresce até virar o fundo.
 export function EmbAreas({ c, frentes }) {
   const n = frentes.length;
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(0);   // área do texto e dos cards
+  const [bg, setBg] = useState(0);           // foto do fundo (troca quando a foto "chega")
+  const [flight, setFlight] = useState(null); // foto voando do card para o fundo
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
-  const ref = useRef(null);
+  const boxRef = useRef(null);
+  const cardRefs = useRef({});
+  const busy = useRef(false);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = boxRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  const go = useCallback((d) => setActive(a => (a + d + n) % n), [n]);
+  // Escolher uma área: a foto do card cresce até ocupar o fundo todo.
+  const select = useCallback((i) => {
+    if (busy.current || i === active || !frentes[i]) return;
+    const box = boxRef.current;
+    const card = cardRefs.current[i];
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !box || !card || !frentes[i].image) { setActive(i); setBg(i); return; }
+    const b = box.getBoundingClientRect();
+    const r = card.getBoundingClientRect();
+    busy.current = true;
+    setFlight({ i, src: img(frentes[i].image, 1600), full: false, from: { left: r.left - b.left, top: r.top - b.top, width: r.width, height: r.height } });
+  }, [active, frentes]);
+
+  // Monta a foto no lugar do card e, no quadro seguinte, manda para o fundo
   useEffect(() => {
-    if (n < 2 || paused || !inView || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const t = setTimeout(() => go(1), 7000);
+    if (!flight || flight.full) return;
+    let r2 = 0;
+    const r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setFlight(f => (f ? { ...f, full: true } : f))); });
+    return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
+  }, [flight]);
+
+  // Texto troca junto com o voo; quando a foto chega, ela vira o fundo
+  const flying = flight?.full ? flight.i : null;
+  useEffect(() => {
+    if (flying === null) return;
+    setActive(flying);
+    const t = setTimeout(() => { setBg(flying); setFlight(null); busy.current = false; }, 950);
     return () => clearTimeout(t);
-  }, [active, paused, inView, n, go]);
+  }, [flying]);
+
+  // Troca sozinha a cada 7 s enquanto está na tela (para com o mouse em cima)
+  useEffect(() => {
+    if (n < 2 || paused || !inView || flight || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setTimeout(() => select((active + 1) % n), 7000);
+    return () => clearTimeout(t);
+  }, [active, paused, inView, flight, n, select]);
 
   if (!n) return null;
-  const cur = frentes[active];
   const next = Array.from({ length: n - 1 }, (_, k) => (active + 1 + k) % n);
-  const text = cur.text || c.frentes_text;
+  const EASE = 'cubic-bezier(.65,0,.35,1)';
+  const FLY = ['left', 'top', 'width', 'height', 'border-radius'].map(p => `${p} .9s ${EASE}`).join(', ');
 
   return (
     <section className="px-4 md:px-6 py-6 md:py-10" data-no-reveal>
-      <div ref={ref} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}
+      <div ref={boxRef} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}
         className="relative max-w-[1400px] mx-auto rounded-panel overflow-hidden bg-sif-dark text-white shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
-        {/* Fundos: só troca a opacidade (leve) */}
+        {/* Fundo: a foto da vez (sem transição; quem anima é a foto que voa) */}
         {frentes.map((f, i) => (
           f.image ? (
-            <img key={i} src={img(f.image, 1600)} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1100ms] ease-out ${i === active ? 'opacity-100' : 'opacity-0'}`} />
+            <img key={i} src={img(f.image, 1600)} alt="" loading="eager" decoding="async"
+              className={`absolute inset-0 w-full h-full object-cover ${i === bg ? 'opacity-100' : 'opacity-0'}`} />
           ) : null
         ))}
+        {flight && (
+          <div aria-hidden="true" className="absolute overflow-hidden"
+            style={{ transition: FLY, ...(flight.full ? { left: 0, top: 0, width: '100%', height: '100%', borderRadius: 0 } : { ...flight.from, borderRadius: 20 }) }}>
+            <img src={flight.src} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-r from-[#06190f]/90 via-[#06190f]/60 to-[#06190f]/15" aria-hidden="true" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#06190f]/80 to-transparent" aria-hidden="true" />
 
         <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 px-6 py-12 sm:px-10 md:px-14 md:py-16 lg:min-h-[clamp(520px,74vh,660px)] items-center">
-          {/* Texto da área ativa */}
+          {/* Texto: todas as áreas ocupam o mesmo lugar (altura = a maior), só a da vez aparece */}
           <div className="lg:col-span-5">
-            <span className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">
-              <span className="w-8 h-px bg-sif-lime" aria-hidden="true" />{c.frentes_tag || 'Áreas de atuação'}
-            </span>
-            <div key={active} className="sif-area-in">
-              <h2 className="mt-6 sif-title text-4xl sm:text-5xl lg:text-[56px] leading-[1.02] tracking-tight">{cur.title}</h2>
-              {text && <p className="mt-6 max-w-md text-base md:text-[17px] leading-relaxed text-white/75">{text}</p>}
+            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{c.frentes_tag || 'Áreas de atuação'}</span>
+            <div className="grid mt-6">
+              {frentes.map((f, i) => {
+                const on = i === active;
+                const text = f.text || c.frentes_text;
+                return (
+                  <div key={i} aria-hidden={!on}
+                    className={`[grid-area:1/1] transition-[opacity,transform] duration-700 ease-[cubic-bezier(.22,1,.36,1)] ${on ? 'opacity-100 translate-y-0 delay-200' : 'opacity-0 translate-y-3 pointer-events-none'}`}>
+                    <p className="sif-title text-4xl sm:text-5xl lg:text-[56px] leading-[1.02] tracking-tight" role={on ? 'heading' : undefined} aria-level={on ? 2 : undefined}>{f.title}</p>
+                    {text && <p className="mt-6 max-w-md text-base md:text-[17px] leading-relaxed text-white/75">{text}</p>}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -153,7 +201,7 @@ export function EmbAreas({ c, frentes }) {
             {next.length > 0 && (
               <div className="flex gap-4 md:gap-5 overflow-x-auto no-scrollbar lg:justify-end pb-1">
                 {next.map((i, k) => (
-                  <button key={`${active}-${i}`} type="button" onClick={() => setActive(i)} aria-label={`Ver ${frentes[i].title}`}
+                  <button key={`${active}-${i}`} ref={el => { cardRefs.current[i] = el; }} type="button" onClick={() => select(i)} aria-label={`Ver ${frentes[i].title}`}
                     style={{ animationDelay: `${k * 110}ms` }}
                     className="sif-card-in group relative shrink-0 w-[170px] sm:w-[200px] lg:w-[clamp(180px,15vw,230px)] aspect-[2/3] rounded-card overflow-hidden text-left shadow-[0_20px_40px_-20px_rgba(0,0,0,.6)] ring-1 ring-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sif-lime">
                     {frentes[i].image && <img src={img(frentes[i].image, 480)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />}
@@ -168,8 +216,8 @@ export function EmbAreas({ c, frentes }) {
             )}
             {n > 1 && (
               <div className="mt-8 flex items-center gap-4 lg:pl-[8%]">
-                <button type="button" onClick={() => go(-1)} aria-label="Área anterior" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowLeft size={18} /></button>
-                <button type="button" onClick={() => go(1)} aria-label="Próxima área" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowRight size={18} /></button>
+                <button type="button" onClick={() => select((active - 1 + n) % n)} aria-label="Área anterior" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowLeft size={18} /></button>
+                <button type="button" onClick={() => select((active + 1) % n)} aria-label="Próxima área" className="w-12 h-12 shrink-0 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors"><ArrowRight size={18} /></button>
                 <span className="relative flex-1 h-px bg-white/20" aria-hidden="true">
                   <span className="absolute inset-y-0 left-0 bg-sif-lime transition-[width] duration-700 ease-out" style={{ width: `${((active + 1) / n) * 100}%` }} />
                 </span>
@@ -214,18 +262,16 @@ export function EmbSteps({ sec, photo }) {
   );
 }
 
-/* ─── CAPACITAÇÃO (texto em duas colunas + faixa do documento) ─────── */
+/* ─── CAPACITAÇÃO (título, texto abaixo e faixa do documento) ──────── */
 export function EmbTextDoc({ sec, docs }) {
   const files = (docs?.pdfs || []).filter(p => fileUrl(p));
   const [main, ...others] = files;
   return (
     <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
       <div className="container mx-auto px-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-          <div className="lg:col-span-5">
-            <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-0" />
-          </div>
-          <div className={`lg:col-span-7 ${prose(false)} prose-base md:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.content || '') }} />
+        <div className="max-w-4xl">
+          <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-8 md:mb-10" />
+          <div className={`${prose(false)} prose-base md:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.content || '') }} />
         </div>
 
         {main && (
@@ -342,13 +388,13 @@ function BioDialog({ person, bio, onClose }) {
   );
 }
 
-export function EmbCommittee({ intro, people, bios }) {
+export function EmbCommittee({ intro, people, bios, photo }) {
   const items = (people?.items || []).filter(i => i && i.name);
   const bioMap = matchBios(items, bios?.tabs);
   const [open, setOpen] = useState(null);
   const anchor = (intro || people).id;
   return (
-    <section id={`secao-${anchor}`} className="sif-glow-dark relative py-20 md:py-28 scroll-mt-28 overflow-hidden">
+    <PhotoBand id={`secao-${anchor}`} photo={photo} className="py-20 md:py-28 scroll-mt-28">
       <div className="relative container mx-auto px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {intro && (
@@ -393,7 +439,7 @@ export function EmbCommittee({ intro, people, bios }) {
         </div>
       </div>
       {open && <BioDialog person={open} bio={bioMap.get(open)} onClose={() => setOpen(null)} />}
-    </section>
+    </PhotoBand>
   );
 }
 
@@ -436,17 +482,17 @@ export function EmbLogos({ sec }) {
 }
 
 /* ─── FALE CONOSCO (texto + formulário próprio) ────────────────────── */
-export function EmbContact({ c }) {
+export function EmbContact({ c, photo }) {
   return (
     <section id="fale-conosco" className="relative py-20 md:py-28 scroll-mt-24">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 rounded-card md:rounded-panel overflow-hidden bg-white shadow-card-hover">
-          <div className="lg:col-span-5 sif-glow-dark text-white px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
+          <PhotoBand as="div" photo={photo} className="lg:col-span-5 px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
             {c.cta_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">{c.cta_tag}</span>}
             {c.cta_title && <h2 className="sif-title text-3xl md:text-4xl leading-[1.1] tracking-tight">{c.cta_title}</h2>}
             {c.cta_text && <p className="mt-6 text-base md:text-[17px] leading-relaxed text-white/75">{c.cta_text}</p>}
-            {c.form_note && <p className="mt-10 lg:mt-auto pt-6 border-t border-white/10 text-sm font-semibold text-sif-lime">{c.form_note}</p>}
-          </div>
+            {c.form_note && <p className="relative mt-10 lg:mt-auto pt-6 border-t border-white/10 text-sm font-semibold text-sif-lime">{c.form_note}</p>}
+          </PhotoBand>
           <div className="lg:col-span-7 px-6 py-10 sm:px-10 md:px-14 md:py-14">
             <EmbrapiiForm buttonLabel={c.form_button || 'Quero uma demonstração'} />
           </div>

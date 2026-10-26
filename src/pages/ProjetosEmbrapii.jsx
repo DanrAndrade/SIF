@@ -69,6 +69,8 @@ export default function ProjetosEmbrapii() {
   const bandPhoto = [c.band_photo, c.hero_image, c.intro_image].filter(Boolean).map(p => getImageUrl(p, 1600));
   // O primeiro vídeo fica na apresentação, ao lado do texto (como na página de referência)
   const video = visibleSections(sections).find(s => s.type === 'video' && !isSectionEmpty(s));
+  // Lado verde do formulário: mesma foto do painel da página de Contato
+  const contactPhoto = getImageUrl('https://images.unsplash.com/photo-1639051119236-475ab61f5bc3?q=80&w=1600&auto=format&fit=crop', 1200);
   const scenes = buildScenes(sections.filter(s => !video || s.id !== video.id));
   // Logos no fim; o "Fale conosco" (formulário) vem logo abaixo deles
   const logoScenes = scenes.filter(s => s.kind === 'logos');
@@ -79,7 +81,7 @@ export default function ProjetosEmbrapii() {
       case 'steps': return <EmbSteps key={s.sec.id} sec={s.sec} photo={c.parceria_image} />;
       case 'textdoc': return <EmbTextDoc key={s.sec.id} sec={s.sec} docs={s.docs} />;
       case 'team': return <EmbTeam key={s.sec.id} sec={s.sec} />;
-      case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} />;
+      case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} photo={bandPhoto} />;
       case 'logos': return <EmbLogos key={s.sec.id} sec={s.sec} />;
       default: return <ContentSectionsRenderer key={s.sec.id || i} sections={[s.sec]} layout="page" bgPhoto={bandPhoto} />;
     }
@@ -132,7 +134,7 @@ export default function ProjetosEmbrapii() {
         {logoScenes.map(renderScene)}
 
         {/* FALE CONOSCO: texto + formulário próprio (mensagens em Painel › Mensagens EMBRAPII) */}
-        {(c.cta_title || c.cta_text) && <EmbContact c={c} />}
+        {(c.cta_title || c.cta_text) && <EmbContact c={c} photo={contactPhoto} />}
       </main>
 
       <Footer />

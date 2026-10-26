@@ -69,7 +69,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                 <div className="md:col-span-7 flex flex-col items-start space-y-7 py-12">
                     <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{tag}</span>
 
-                    <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.1] tracking-tight text-white">
+                    <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl font-semibold leading-[1.1] tracking-tight text-white">
                         {titleLine1} <br/>
                         <span className="text-[#cce399]">{titleLine2}</span>
                     </h1>
@@ -79,10 +79,10 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
-                        <Button href={cta1Link} variant="light" className="w-full sm:w-auto">
+                        <Button href={cta1Link} variant="light" size="sm" className="w-full sm:w-auto">
                             {cta1Label}
                         </Button>
-                        <Button href={cta2Link} variant="glass" className="w-full sm:w-auto">
+                        <Button href={cta2Link} variant="glass" size="sm" className="w-full sm:w-auto">
                             {cta2Label}
                         </Button>
                     </div>

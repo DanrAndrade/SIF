@@ -115,7 +115,7 @@ export default function TeamDirectory({ groups = [] }) {
             ))}
           </div>
         )}
-        <label className={`relative block w-full md:w-80 ${tabs.length > 0 ? 'md:self-end' : 'md:self-center'}`}>
+        <label className="relative block w-full md:w-80">
           <span className="sr-only">Buscar pessoa</span>
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por nome ou cargo"
             className="w-full bg-transparent border-b border-gray-300 focus:border-[#007a3d] outline-none py-2.5 text-sm text-[#1f2937] placeholder:text-gray-400 transition-colors" />
