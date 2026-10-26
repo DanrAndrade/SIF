@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { JOB_CATEGORIES, jobCategory, jobCategoryLabel } from '../utils/jobCategories';
-import { Briefcase, MapPin, Clock, Upload, CheckCircle2, FileText, ChevronRight, Target, Eye, Heart, ChevronLeft, X, DollarSign, ChevronDown, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Button from '../components/ui/Button';
-import { Input } from '../components/ui/FormElements';
 import EditablePageHero from '../components/EditablePageHero';
+import GlowCta from '../components/ui/GlowCta';
+import MissionValues from '../components/jobs/MissionValues';
+import JobCard from '../components/jobs/JobCard';
+import JobFilters from '../components/jobs/JobFilters';
+import ApplicationModal from '../components/jobs/ApplicationModal';
 import { usePageConfig } from '../hooks/usePageConfig';
-
-// Importando o icone para uso em componentes
-import iconLogo from '../assets/icone.svg';
-
-import { API_BASE_URL, stripNbsp } from '../apiConfig';
+import { API_BASE_URL } from '../apiConfig';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 const HERO_DEFAULTS = {
@@ -41,434 +40,170 @@ const CONTENT_DEFAULTS = {
   banco_btn_label: 'Cadastrar Currículo',
 };
 
+const BANCO_JOB = {
+  id: 'banco',
+  title: 'Banco de Talentos',
+  location: 'Geral',
+  type: 'Cadastro reserva',
+  description: 'Seu currículo ficará em nossa base estratégica para futuras oportunidades dentro dos nossos pilares técnicos e científicos.',
+  requirements: [],
+};
+
+const ITEMS_PER_PAGE = 6;
+
+const parseReqs = (r) => {
+  if (Array.isArray(r)) return r;
+  try { const v = JSON.parse(r || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+};
+
+const scrollToJobs = () => {
+  const section = document.getElementById('jobs-section');
+  if (section) window.scrollTo({ top: section.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' });
+};
+
 export default function Jobs() {
   usePageTitle('Trabalhe Conosco');
-  const [selectedJob, setSelectedJob] = useState(null);
   const { config: pageConfig } = usePageConfig('jobs');
   const cfg = { ...CONTENT_DEFAULTS, ...pageConfig };
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [catFilter, setCatFilter] = useState('todas');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
 
   useEffect(() => {
-    // 1. Configura Título
-
-    // 2. Busca Vagas
     fetch(`${API_BASE_URL}/jobs.php`)
       .then(res => res.json())
       .then(data => {
-          const parseReqs = (r) => {
-              if (Array.isArray(r)) return r;
-              try { const v = JSON.parse(r || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
-          };
-          const formattedData = (Array.isArray(data) ? data : []).map(j => ({
-              ...j,
-              requirements: parseReqs(j.requirements)
-          })).filter(job => job.active == 1 || job.active === true);
-          setJobs(formattedData);
-          setLoading(false);
+        const formatted = (Array.isArray(data) ? data : [])
+          .map(j => ({ ...j, requirements: parseReqs(j.requirements) }))
+          .filter(job => job.active == 1 || job.active === true);
+        setJobs(formatted);
       })
-      .catch(err => {
-          console.error(err);
-          setLoading(false);
-      });
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
-
   // Filtro por categoria (só aparecem as categorias que têm vaga aberta)
-  const [catFilter, setCatFilter] = useState('todas');
-  const catCounts = JOB_CATEGORIES.map(c => ({ ...c, count: jobs.filter(j => jobCategory(j) === c.key).length })).filter(c => c.count > 0);
+  const catCounts = JOB_CATEGORIES
+    .map(c => ({ ...c, count: jobs.filter(j => jobCategory(j) === c.key).length }))
+    .filter(c => c.count > 0);
   const filteredJobs = catFilter === 'todas' ? jobs : jobs.filter(j => jobCategory(j) === catFilter);
-  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
+  const currentJobs = filteredJobs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const goToPage = (page) => {
-    setCurrentPage(page);
-    const section = document.getElementById('jobs-section');
-    if (section) {
-        const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
-        window.scrollTo({top: y, behavior: 'smooth'});
-    }
-  };
+  const goToPage = (page) => { setCurrentPage(page); scrollToJobs(); };
+  const openBanco = () => setSelectedJob(BANCO_JOB);
+  const closeModal = useCallback(() => setSelectedJob(null), []);
 
-  const scrollToContent = () => {
-    const section = document.getElementById('jobs-section');
-    if (section) {
-        const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
-        window.scrollTo({top: y, behavior: 'smooth'});
-    }
-  };
+  const filterItems = [
+    { key: 'todas', label: 'Todas', count: jobs.length },
+    ...catCounts.map(c => ({ key: c.key, label: jobCategoryLabel(c.key, cfg), count: c.count })),
+  ];
 
   return (
-    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
+    <div className="sif-page min-h-screen font-sans text-sif-ink overflow-x-hidden selection:bg-sif-green selection:text-white flex flex-col">
       <Navbar />
-      
-      {/* DEFINIÇÃO DE GRADIENTES SIF */}
-      <svg width="0" height="0" className="absolute">
-        <defs>
-            <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#007a3d" />
-                <stop offset="100%" stopColor="#064e3b" />
-            </linearGradient>
-            <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#007a3d" />
-                <stop offset="100%" stopColor="#4ADE80" />
-            </linearGradient>
-        </defs>
-      </svg>
 
-      <div className="flex flex-col w-full">
-          <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" bgColor="white" />
+      <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" />
 
-          {/* --- MISSÃO, VISÃO E VALORES --- */}
-          <div className="py-24">
-              <div className="container mx-auto px-6 max-w-6xl">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
-                                <Target size={56} style={{ stroke: "url(#grad-green)" }} strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.missao_title}</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.missao_text}</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
-                                <Eye size={56} style={{ stroke: "url(#grad-gold)" }} strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.visao_title}</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.visao_text}</p>
-                        </div>
-                        <div className="flex flex-col items-center text-center group">
-                            <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
-                                <Heart size={56} style={{ stroke: "url(#grad-green)" }} strokeWidth={1.5} />
-                            </div>
-                            <h3 className="text-sm font-black font-heading uppercase mb-4 text-[#1f2937] tracking-[0.2em]">{cfg.valores_title}</h3>
-                            <p className="text-gray-500 leading-relaxed font-medium text-sm">{cfg.valores_text}</p>
-                        </div>
-                    </div>
-              </div>
+      <main className="flex-grow">
+        <MissionValues cfg={cfg} />
+
+        {/* LISTA DE VAGAS */}
+        <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pb-20 md:pb-28 scroll-mt-32">
+          <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
+              <h2 className="sif-title sif-h2 text-sif-ink tracking-tight">{cfg.vagas_title}</h2>
+            </div>
+            {!loading && jobs.length > 0 && (
+              <p className="text-[15px] text-gray-500 md:pb-2">
+                <strong className="font-semibold text-sif-ink">{jobs.length}</strong> {jobs.length === 1 ? 'oportunidade aberta' : 'oportunidades abertas'} agora
+              </p>
+            )}
           </div>
 
-          {/* LISTA VAGAS */}
-          <div id="jobs-section" className="py-24 bg-transparent scroll-mt-32">
-             <div className="container mx-auto px-6 max-w-6xl">
-                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 border-b border-gray-100 pb-10 gap-8">
-                    <div>
-                        <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
-                        <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">{cfg.vagas_title}</h2>
-                    </div>
-                    {catCounts.length > 1 && (
-                      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Categorias de vaga">
-                        {[{ key: 'todas', label: 'Todas', count: jobs.length }, ...catCounts.map(c => ({ ...c, label: jobCategoryLabel(c.key, cfg) }))].map(c => (
-                          <button key={c.key} type="button" role="tab" aria-selected={catFilter === c.key}
-                            onClick={() => { setCatFilter(c.key); setCurrentPage(1); }}
-                            className={`px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-colors ${catFilter === c.key ? 'bg-[#007a3d] border-[#007a3d] text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
-                            {c.label} <span className="opacity-70">({c.count})</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    
+          {catCounts.length > 1 && (
+            <div className="mb-10">
+              <JobFilters items={filterItems} value={catFilter} onChange={(k) => { setCatFilter(k); setCurrentPage(1); }} />
+            </div>
+          )}
 
-                 </div>
-                 
-                 {loading ? (
-                     <div className="text-center py-20 text-gray-400 animate-pulse font-black uppercase tracking-[0.3em] text-xs">Aguarde, carregando vagas...</div>
-                 ) : (
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {currentJobs.map((job) => (
-                            <div key={job.id} role="button" tabIndex={0} aria-label={`Ver vaga: ${job.title}`} onClick={() => setSelectedJob(job)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedJob(job); } }} className="w-full bg-white rounded-panel p-10 shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between h-full relative overflow-hidden">
-                                <div className={`absolute top-0 left-0 w-full h-1.5 ${jobCategory(job) === 'Interna' ? 'bg-[#007a3d]' : 'bg-[#4ADE80]'} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`}></div>
-                                
-                                <div>
-                                    <div className="flex justify-between items-start mb-10">
-                                      <div className={`w-16 h-16 rounded-3xl flex items-center justify-center transition-all duration-500 shadow-sm ${
-                                        jobCategory(job) === 'Interna'
-                                        ? "bg-emerald-50 text-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white" 
-                                        : "bg-emerald-50 text-emerald-700 group-hover:bg-[#007a3d] group-hover:text-white"
-                                      }`}>
-                                        <Briefcase size={28} />
-                                      </div>
-                                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                                        jobCategory(job) === 'Interna'
-                                        ? "border-emerald-100 text-emerald-600 bg-emerald-50/50"
-                                        : "border-emerald-100 text-emerald-700 bg-emerald-50/50"
-                                      }`}>
-                                        {jobCategoryLabel(jobCategory(job), cfg)}
-                                      </span>
-                                    </div>
-                                    <h3 className="text-2xl font-semibold font-heading text-[#1f2937] mb-6 leading-tight group-hover:text-[#007a3d] transition-colors line-clamp-2">{job.title}</h3>
-                                    <div className="flex flex-col gap-4 mb-10">
-                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><MapPin size={16} className="text-[#007a3d]" /> {job.location}</span>
-                                        <span className="flex items-center gap-3 text-[11px] text-gray-400 font-black uppercase tracking-widest"><Clock size={16} className="text-[#007a3d]" /> {job.type}</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between pt-8 border-t border-gray-50">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-300 group-hover:text-[#007a3d] transition-colors">Detalhes da Oportunidade</span>
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-sif-dark group-hover:text-white transition-all shadow-sm"><ChevronRight size={18} /></div>
-                                </div>
-                            </div>
-                        ))}
-                     </div>
-                 )}
+          {loading ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Carregando vagas" data-no-reveal>
+              {[0, 1, 2].map(i => (
+                <div key={i} className="h-[300px] rounded-card bg-white/70 p-8 shadow-card">
+                  <div className="h-3 w-24 animate-pulse rounded-full bg-sif-ink/10" />
+                  <div className="mt-6 h-6 w-4/5 animate-pulse rounded-full bg-sif-ink/10" />
+                  <div className="mt-3 h-6 w-3/5 animate-pulse rounded-full bg-sif-ink/10" />
+                  <div className="mt-6 h-3 w-full animate-pulse rounded-full bg-sif-ink/5" />
+                  <div className="mt-2 h-3 w-2/3 animate-pulse rounded-full bg-sif-ink/5" />
+                </div>
+              ))}
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="rounded-panel bg-white px-6 py-14 text-center shadow-card sm:px-12 md:py-20">
+              <span className="sif-eyebrow mb-4">Nenhuma vaga no momento</span>
+              <p className="sif-title sif-h3 mx-auto max-w-xl text-sif-ink">
+                As próximas oportunidades <span className="text-sif-green">aparecem aqui.</span>
+              </p>
+              <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-gray-500">
+                Enquanto isso, deixe seu currículo no banco de talentos. Quando surgir uma vaga com o seu perfil, falamos com você.
+              </p>
+              <button type="button" onClick={openBanco} className="group mt-8 inline-flex items-center gap-2 text-sm font-bold text-sif-green">
+                <span className="border-b border-sif-green/30 transition-colors group-hover:border-sif-green">Cadastrar meu currículo</span>
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {currentJobs.map(job => (
+                <JobCard key={job.id} job={job} category={jobCategoryLabel(jobCategory(job), cfg)} onOpen={setSelectedJob} />
+              ))}
+            </div>
+          )}
 
-                 {totalPages > 1 && (
-                     <div className="mt-20 flex justify-center items-center gap-4 text-[#1f2937]">
-                         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-sif-dark hover:text-white hover:border-sif-dark transition-all disabled:opacity-20"><ChevronLeft size={24} /></button>
-                         <span className="text-xs font-black px-8 uppercase tracking-[0.3em]">Página {currentPage} de {totalPages}</span>
-                         <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="w-14 h-14 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-sif-dark hover:text-white hover:border-sif-dark transition-all disabled:opacity-20"><ChevronRight size={24} /></button>
-                     </div>
-                 )}
-             </div>
+          {totalPages > 1 && (
+            <nav className="mt-14 flex items-center justify-center gap-6" aria-label="Paginação das vagas">
+              <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Página anterior"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+                <ArrowLeft size={18} />
+              </button>
+              <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-sif-ink/70 tabular-nums">
+                {currentPage} <span className="text-gray-400">de</span> {totalPages}
+              </span>
+              <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Próxima página"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+                <ArrowRight size={18} />
+              </button>
+            </nav>
+          )}
+        </section>
+
+        {/* BANCO DE TALENTOS: o card é um link "#"; o clique abre a janela de envio */}
+        <section className="sif-container px-4 sm:px-6 md:px-10 pb-24 md:pb-32">
+          <div onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); openBanco(); }}>
+            <GlowCta
+              eyebrow={cfg.banco_tag}
+              title={cfg.banco_title}
+              text={cfg.banco_text}
+              btnLabel={cfg.banco_btn_label}
+              href="#banco-de-talentos"
+            />
           </div>
-          
-          {/* BANCO DE TALENTOS */}
-          <div className="py-24 bg-white">
-             <div className="container mx-auto px-6 max-w-6xl">
-                 <div className="bg-sif-dark border border-sif-dark rounded-panel p-10 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 shadow-2xl relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 w-96 h-96 bg-[#007a3d] rounded-full blur-[120px] opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-125"></div>
-                     <div className="relative z-10 text-center md:text-left">
-                         <span className="sif-eyebrow mb-4">{cfg.banco_tag}</span>
-                         <h3 className="text-4xl md:text-6xl font-medium font-heading text-white mb-6 tracking-tight leading-none">{cfg.banco_title}</h3>
-                         <p className="text-gray-400 font-medium text-base leading-relaxed max-w-xl">{cfg.banco_text}</p>
-                     </div>
-                     <button 
-                        onClick={() => setSelectedJob({ id: 'banco', title: "Banco de Talentos", location: "Geral", type: "Cadastro Reserva", category: "SIF", description: "Seu currículo ficará em nossa base estratégica para futuras oportunidades dentro dos nossos pilares técnicos e científicos.", requirements: [] })} 
-                        className="relative z-10 bg-[#007a3d] hover:bg-[#047857] px-14 py-6 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center gap-4" 
-                     >
-                        Enviar Currículo <Upload size={20} />
-                     </button>
-                 </div>
-             </div>
-          </div>
-      </div>
+        </section>
+      </main>
+
       <Footer />
-      {selectedJob && <ApplicationModal job={selectedJob} catLabel={selectedJob.id === 'banco' ? 'Banco de Talentos' : jobCategoryLabel(jobCategory(selectedJob), cfg)} onClose={() => setSelectedJob(null)} />}
+
+      {selectedJob && (
+        <ApplicationModal
+          job={selectedJob}
+          catLabel={selectedJob.id === 'banco' ? cfg.banco_tag : jobCategoryLabel(jobCategory(selectedJob), cfg)}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
-}
-
-// --- MODAL DE APLICAÇÃO ---
-function ApplicationModal({ job, catLabel, onClose }) {
-    const [step, setStep] = useState(1);
-    const [submitStatus, setSubmitStatus] = useState('idle'); 
-    
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', linkedin: '' });
-    const [file, setFile] = useState(null);
-
-    const maskPhone = (value) => {
-        if (!value) return "";
-        let v = value.replace(/\D/g, "");
-        if (v.length > 11) v = v.slice(0, 11);
-        
-        if (v.length > 10) {
-            // Mobile: (73) 98192-8547
-            return v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-        } else if (v.length > 6) {
-            // Fixed: (73) 3211-1234
-            return v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-        } else if (v.length > 2) {
-            return v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
-        } else if (v.length > 0) {
-            return v.replace(/(\d*)/, "($1");
-        }
-        return v;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!file) { window.alert('Anexe o seu currículo (PDF ou Word) antes de enviar.'); return; }
-        setSubmitStatus('loading');
-
-        const data = new FormData();
-        data.append('job_id', job.id);
-        data.append('job_title', job.title);
-        data.append('name', formData.name);
-        data.append('email', formData.email);
-        data.append('phone', formData.phone);
-        data.append('linkedin', formData.linkedin);
-        if (file) data.append('cv', file);
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/candidates.php`, {
-                method: 'POST',
-                body: data 
-            });
-            const result = await response.json();
-            
-            if (result.success) {
-                setSubmitStatus('success');
-            } else {
-                setSubmitStatus('error');
-            }
-        } catch (error) {
-            setSubmitStatus('error');
-        }
-    };
-
-    if (submitStatus === 'success') {
-        return (
-            <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                <div className="absolute inset-0 bg-sif-dark/95 backdrop-blur-xl" onClick={onClose}></div>
-                <div className="bg-white w-full max-w-md rounded-panel p-12 relative z-10 text-center shadow-2xl overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-[#007a3d]"></div>
-                    <div className="w-24 h-24 bg-emerald-50 text-[#007a3d] rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
-                        <CheckCircle2 size={48} />
-                    </div>
-                    <h3 className="text-3xl font-medium text-[#1f2937] mb-4 font-heading tracking-tight leading-none">Recebido!</h3>
-                    <p className="text-gray-500 mb-12 text-base font-medium leading-relaxed">Sua candidatura para <strong>{job.title}</strong> foi registrada com sucesso.</p>
-                    <button onClick={onClose} className="w-full bg-sif-dark text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#007a3d] transition-all">Fechar Janela</button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 animate-in fade-in duration-500">
-            <div className="absolute inset-0 bg-sif-dark/80 backdrop-blur-md" onClick={onClose}></div>
-            <div className="bg-white w-full max-w-2xl rounded-panel shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh] border border-white">
-                
-                {/* HEAD PROGRESS BAR */}
-                <div className="w-full h-1.5 bg-gray-100 flex relative z-20">
-                    <div className={`h-full bg-[#007a3d] transition-all duration-700 ease-in-out ${step === 1 ? 'w-1/2' : 'w-full'}`}></div>
-                </div>
-
-                <div className="bg-white p-10 flex justify-between items-start shrink-0 relative">
-                    <div>
-                        <div className="flex items-center gap-4 mb-4">
-                          <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#007a3d] text-white`}>
-                            {catLabel}
-                          </span>
-                          <span className="text-gray-300 font-black text-[9px] uppercase tracking-[0.3em]">
-                              Passo {step} de 2
-                          </span>
-                        </div>
-                        <h2 className="sif-title text-3xl md:text-4xl text-[#1f2937] leading-tight tracking-tighter">{job.title}</h2>
-                    </div>
-                    <button onClick={onClose} className="w-12 h-12 bg-gray-50 text-[#1f2937] rounded-full flex items-center justify-center hover:bg-[#007a3d] hover:text-white transition-all"><X size={24} /></button>
-                </div>
-
-                <div className="p-10 overflow-y-auto custom-scrollbar bg-white flex-grow">
-                    {step === 1 ? (
-                        <div className="space-y-10">
-                            <div className="flex flex-wrap gap-4">
-                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><MapPin size={16} className="text-[#007a3d]"/> {job.location}</span>
-                                <span className="flex items-center gap-3 bg-[#f8f9fa] text-[#1f2937] px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-50"><Clock size={16} className="text-[#007a3d]"/> {job.type}</span>
-                            </div>
-                            
-                            <div className="space-y-6">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#007a3d]">
-                                    <span className="w-10 h-[2px] bg-[#007a3d]"></span> Descrição da Vaga
-                                </h4>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-base font-medium">{stripNbsp(job.description)}</p>
-                            </div>
-
-                            {job.salary && <span className="flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-2 rounded-xl border border-gray-100"><DollarSign size={16} className="text-[#007a3d]"/> {job.salary}</span>}
-
-                            {job.requirements && job.requirements.length > 0 && (
-                                <div className="space-y-6 pt-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-4 text-[#007a3d]">
-                                        <span className="w-10 h-[2px] bg-[#007a3d]"></span> Requisitos & Diferenciais
-                                    </h4>
-                                    <ul className="grid grid-cols-1 gap-4">
-                                        {job.requirements.map((req, i) => (
-                                            <li key={i} className="flex items-start gap-4 text-base text-gray-600 font-medium">
-                                                <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5"><CheckCircle2 size={14} className="text-[#007a3d]" /></div> {req}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            <div className="pt-12 border-t border-gray-50">
-                                <button 
-                                    onClick={() => setStep(2)} 
-                                    className="w-full bg-sif-dark hover:bg-[#007a3d] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-4"
-                                >
-                                    Ir para Formulário <ArrowRight size={20} />
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">Nome Completo</label>
-                                    <input placeholder="Ex: José Silva" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
-                                </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">E-mail Pessoal</label>
-                                    <input type="email" placeholder="jose@email.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
-                                </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">Telefone / WhatsApp</label>
-                                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: maskPhone(e.target.value)})} inputMode="numeric" required placeholder="(00) 00000-0000" maxLength={15} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
-                                </div>
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1">LinkedIn (Opcional)</label>
-                                    <input placeholder="linkedin.com/in/perfil" value={formData.linkedin} onChange={e => setFormData({...formData, linkedin: e.target.value})} className="w-full bg-[#f8f9fa] border-gray-100 p-5 rounded-2xl focus:border-[#007a3d] focus:ring-0 outline-none text-sm font-medium transition-all" />
-                                </div>
-                            </div>
-                            
-                            <div className="space-y-4 pt-4">
-                                <label className="text-[10px] font-black uppercase text-[#1f2937] tracking-widest ml-1 block">Anexar Currículo (PDF/DOC)</label>
-                                <div className="relative group">
-                                    <input type="file" accept=".pdf,.doc,.docx" onChange={e => {
-                                      const f = e.target.files[0];
-                                      if (!f) return;
-                                      if (f.size > 10 * 1024 * 1024) {
-                                        window.showToast?.('Arquivo muito grande (máx. 10 MB). Reduza o currículo antes de enviar.', 'error');
-                                        e.target.value = '';
-                                        return;
-                                      }
-                                      setFile(f);
-                                    }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
-                                    <div className={`w-full border-2 border-dashed rounded-[2.5rem] px-8 py-16 flex flex-col items-center justify-center text-center transition-all duration-500 ${
-                                      file ? 'border-[#007a3d] bg-emerald-50' : 'border-gray-100 bg-[#f8f9fa] group-hover:border-[#007a3d]'
-                                    }`}>
-                                        <div className={`w-20 h-20 rounded-3xl shadow-lg flex items-center justify-center mb-6 transition-all duration-500 ${
-                                          file ? 'bg-[#007a3d] text-white scale-110' : 'bg-white text-[#007a3d]'
-                                        }`}>
-                                            {file ? <CheckCircle2 size={36}/> : <Upload size={36} />}
-                                        </div>
-                                        {file ? (
-                                          <div>
-                                            <p className="text-lg font-bold text-[#1f2937]">{file.name}</p>
-                                            <p className="text-[10px] text-[#007a3d] font-black uppercase mt-2">Clique para substituir</p>
-                                          </div>
-                                        ) : (
-                                          <>
-                                            <p className="text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Clique ou arraste seu arquivo</p>
-                                            <p className="text-xs text-gray-300 mt-3 font-medium">Formatos PDF, DOC ou DOCX (Máximo 10MB)</p>
-                                          </>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {submitStatus === 'error' && <p className="text-red-500 text-sm font-bold text-center bg-red-50 py-3 rounded-xl border border-red-100 uppercase tracking-widest">Erro ao enviar. Tente novamente mais tarde.</p>}
-
-                            <div className="flex gap-6 pt-10 border-t border-gray-50">
-                                <button type="button" onClick={() => setStep(1)} className="flex-1 py-6 bg-gray-50 text-gray-400 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:bg-gray-100 transition-all">Voltar</button>
-                                <button 
-                                    type="submit" 
-                                    disabled={submitStatus === 'loading'}
-                                    className="flex-[2] bg-sif-dark text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#007a3d] transition-all disabled:opacity-50 flex items-center justify-center gap-4"
-                                >
-                                    {submitStatus === 'loading' ? (
-                                      <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        Enviando Dados...
-                                      </>
-                                    ) : 'Concluir Candidatura'}
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
 }
