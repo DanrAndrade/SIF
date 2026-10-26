@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Play } from 'lucide-react';
-import { getImageUrl } from '../apiConfig';
 import Button from './ui/Button';
 import VideoModal from './ui/VideoModal';
 import useParallax from './about/useParallax';
@@ -20,12 +19,7 @@ const DEFAULTS = {
   badge_label: 'De excelência',
 };
 
-// Fotos de exemplo (o painel ainda não tem campo de foto para esta seção;
-// se um dia existir "image" / "image_2" no config, elas passam a valer).
-const PHOTO_MAIN = 'https://images.unsplash.com/photo-1639051119236-475ab61f5bc3?q=80&w=1600&auto=format&fit=crop';
-const PHOTO_ALT = 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1200&auto=format&fit=crop';
-
-// Capa do vídeo: miniatura do próprio YouTube; senão, a foto de apoio.
+// ID do YouTube para usar a capa do próprio vídeo.
 const youtubeId = (url = '') => (url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i) || [])[1];
 
 export default function About({ config = {} }) {
@@ -35,89 +29,98 @@ export default function About({ config = {} }) {
   const compRef = useParallax();
 
   const ytId = youtubeId(c.video_url);
-  const poster = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : getImageUrl(c.image_2 || PHOTO_ALT, 800);
-  const mainPhoto = getImageUrl(c.image || PHOTO_MAIN, 1100);
+  const [poster, setPoster] = useState(ytId ? `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg` : null);
+  // capa grande nem sempre existe: cai para a média
+  const posterFallback = () => {
+    if (ytId && poster && !poster.includes('hqdefault')) setPoster(`https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`);
+  };
 
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 md:px-12 mt-12">
       <section className="relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Texto */}
-          <div className="lg:col-span-6 xl:col-span-5 min-w-0">
+        {/* Cabeçalho: título à esquerda, texto principal à direita */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-end mb-10 md:mb-14">
+          <div className="lg:col-span-7 min-w-0">
             <span className="sif-eyebrow mb-5">{txt(c.tag)}</span>
             <h2
-              className="sif-title sif-h2 lg:text-6xl leading-[1.05] tracking-tight text-sif-ink mb-8"
+              className="sif-title sif-h2 lg:text-6xl leading-[1.05] tracking-tight text-sif-ink"
               dangerouslySetInnerHTML={{ __html: txt(c.title) }}
             />
-
-            <p className="text-lg md:text-xl leading-relaxed text-sif-ink/85 mb-10">
+          </div>
+          <div className="lg:col-span-5 min-w-0 lg:pb-2">
+            <p className="text-lg leading-relaxed text-sif-ink/80 mb-7">
               {txt(c.paragraph_1)}
             </p>
-
-            {/* Selo (valor + legenda do painel) */}
-            {(c.badge_value || c.badge_label) && (
-              <div className="flex items-end gap-5 mb-10 pb-10 border-b border-sif-dark/10">
-                <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">
-                  {c.badge_value}
-                </span>
-                {c.badge_label && (
-                  <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55 leading-snug">
-                    {c.badge_label}
-                  </span>
-                )}
-              </div>
-            )}
-
             <Button href={c.cta_link || '/institucional'} variant="primary" size="lg">
               {txt(c.cta_label)}
             </Button>
           </div>
-
-          {/* Composição de fotos com leve parallax */}
-          <div ref={compRef} className="lg:col-span-6 xl:col-span-7 relative min-w-0 pb-16 sm:pb-20 lg:pb-10 lg:pl-10">
-            <div data-speed="-0.05" className="will-change-transform">
-              <div className="relative ml-auto w-[88%] sm:w-[80%] aspect-[5/4] sm:aspect-[4/5] rounded-card md:rounded-panel overflow-hidden bg-sif-dark/10 shadow-card">
-                <img
-                  src={mainPhoto}
-                  alt="Floresta plantada"
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Vídeo institucional (abre em janela) */}
-            <div data-speed="0.06" className="absolute left-0 bottom-0 w-[64%] sm:w-[58%] lg:w-[56%] will-change-transform">
-              <button
-                type="button"
-                onClick={() => setVideo(true)}
-                aria-label="Assistir ao vídeo institucional"
-                className="group relative block w-full aspect-video rounded-card overflow-hidden bg-sif-dark ring-[6px] md:ring-8 ring-[#f6f8f7] shadow-card"
-              >
-                <img
-                  src={poster}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover scale-[1.02] transition-transform duration-700 group-hover:scale-[1.06]"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/80 via-sif-dark/20 to-transparent" />
-                <span className="absolute left-4 bottom-4 md:left-5 md:bottom-5 flex items-center gap-3 text-white text-left">
-                  <span className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white text-sif-dark flex items-center justify-center transition-colors group-hover:bg-sif-leaf group-hover:text-white">
-                    <Play size={18} className="ml-0.5" fill="currentColor" />
-                  </span>
-                  <span className="text-[11px] md:text-xs font-bold uppercase tracking-[0.16em] leading-snug">
-                    Vídeo<br className="sm:hidden" /> institucional
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
         </div>
 
+        {/* Vídeo institucional em destaque (abre em janela) */}
+        {c.video_url && (
+          <div ref={compRef} className="relative rounded-card md:rounded-panel overflow-hidden bg-sif-dark shadow-card">
+            <button
+              type="button"
+              onClick={() => setVideo(true)}
+              aria-label="Assistir ao vídeo institucional"
+              className="group relative block w-full aspect-[4/3] sm:aspect-video lg:aspect-[21/9] text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-sif-lime"
+            >
+              {poster && (
+                <span data-speed="0.07" className="absolute inset-x-0 -inset-y-12 will-change-transform">
+                  <img
+                    src={poster}
+                    onError={posterFallback}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                  />
+                </span>
+              )}
+              <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/85 via-sif-dark/25 to-sif-dark/10" />
+
+              {/* Play central */}
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="relative flex items-center justify-center">
+                  <span className="absolute w-20 h-20 md:w-28 md:h-28 rounded-full bg-white/20 transition-transform duration-500 ease-out group-hover:scale-125" />
+                  <span className="relative w-16 h-16 md:w-20 md:h-20 rounded-full bg-white text-sif-dark flex items-center justify-center shadow-card transition-transform duration-500 ease-out group-hover:scale-105">
+                    <Play size={26} className="ml-1" fill="currentColor" />
+                  </span>
+                </span>
+              </span>
+
+              {/* Legenda e selo */}
+              <span className="absolute inset-x-0 bottom-0 p-5 md:p-8 flex items-end justify-between gap-4 text-white">
+                <span className="min-w-0">
+                  <span className="block text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-1.5">Vídeo institucional</span>
+                  <span className="block text-base md:text-xl font-semibold leading-snug">Conheça a SIF em poucos minutos</span>
+                </span>
+                {(c.badge_value || c.badge_label) && (
+                  <span className="hidden sm:flex flex-col items-end text-right shrink-0">
+                    <span className="sif-title text-4xl md:text-5xl leading-none tracking-tight whitespace-nowrap">{c.badge_value}</span>
+                    {c.badge_label && (
+                      <span className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">{c.badge_label}</span>
+                    )}
+                  </span>
+                )}
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Selo no celular (no computador ele fica sobre o vídeo) */}
+        {(c.badge_value || c.badge_label) && (
+          <div className="sm:hidden mt-8 flex items-end gap-4">
+            <span className="sif-title text-5xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
+            {c.badge_label && (
+              <span className="pb-1 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>
+            )}
+          </div>
+        )}
+
         {/* Texto de apoio em duas colunas */}
-        <div className="mt-14 lg:mt-20 pt-10 border-t border-sif-dark/10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
+        <div className="mt-8 sm:mt-12 md:mt-14 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-14">
           <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_2)}</p>
           <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_3)}</p>
         </div>

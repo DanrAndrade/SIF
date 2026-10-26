@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-// Parallax leve para a composição de fotos do "Quem Somos".
+// Parallax leve para a capa do vídeo do "Quem Somos".
 // Cada camada recebe data-speed (ex.: -0.06 sobe, 0.05 desce) e só muda o
 // "transform" enquanto o bloco está visível na tela (barato para o celular).
 // Quem pediu "menos movimento" no sistema vê as fotos paradas.
