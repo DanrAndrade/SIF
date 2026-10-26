@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { apiRequest, toastError } from '../../utils/adminApi';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
-import { Image as ImageIcon, Trash2, Edit3, X, Plus, Play, MapPin, Calendar, Clock, Eye, EyeOff } from 'lucide-react';
+import { Image as ImageIcon, Trash2, Edit3, X, Plus, MapPin, Calendar, Clock, Eye, EyeOff } from 'lucide-react';
 import { projectStatusColor } from '../../utils/helpers';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
@@ -230,12 +230,12 @@ export default function EventosAdmin() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data do evento</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Data do evento</label>
                     <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.event_date || ''} onChange={e => setFormData(f => ({...f, event_date: e.target.value}))} />
                     <p className="text-[9px] text-gray-400 ml-1">Exibida formatada no site (ex: 20 Out 2026) e usada para mover ao histórico após passar.</p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Clock size={10}/> Horário</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Horário</label>
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 08h00 – 18h00" value={formData.time} onChange={e => setFormData(f => ({...f, time: e.target.value}))} />
                   </div>
                 </div>
@@ -247,12 +247,12 @@ export default function EventosAdmin() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><MapPin size={10}/> Localização</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Localização</label>
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Viçosa - MG" value={formData.location} onChange={e => setFormData(f => ({...f, location: e.target.value}))} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Play size={10}/> Link do Vídeo (YouTube)</label>
+                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link do Vídeo (YouTube)</label>
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-sm outline-none border focus:border-[#007a3d]" placeholder="https://youtube.com/..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
                 </div>
               </div>

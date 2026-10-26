@@ -3,7 +3,7 @@ import { apiRequest, toastError } from '../utils/adminApi';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, useCanLeave } from '../components/admin/kit';
 import PageContactForm from '../components/admin/PageContactForm';
 import { Trash2, Edit3, X, Plus, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import Button from '../components/ui/Button';
+import Button from '../components/admin/kit/AdminButton';
 import QuillEditor from '../components/admin/QuillEditor';
 import ImageUploadArea from '../components/admin/ImageUploadArea';
 import ContentSections from '../components/admin/ContentSections';
@@ -218,7 +218,7 @@ export default function BlogAdmin() {
                         onError={e => { e.target.onerror = null; e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Crect fill="%23f3f4f6"/%3E%3C/svg%3E'; }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">📝</div>
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" aria-hidden="true" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">

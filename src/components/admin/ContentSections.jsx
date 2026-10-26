@@ -7,102 +7,10 @@ import { Type, Image as ImageIcon, LayoutGrid, BarChart3, Users, GalleryHorizont
 const Icons = { Type, ImageIcon, LayoutGrid, BarChart3, Users, Images, PlayCircle, Quote, Megaphone, Layers, FileText: FileTextIcon, Building2, Info, Newspaper, UserRound, Square };
 import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
 import LogosEditor from './sections/LogosEditor';
-import { Upload, X, FileText, Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import FilesEditor from './sections/FilesEditor';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
-import { API_BASE_URL } from '../../apiConfig';
-
-const PDF_UPLOAD_URL = `${API_BASE_URL}/upload_pdf.php`;
-
-function PdfManager({ pdfs = [], onChange, onUploadingChange }) {
-  const confirm = useConfirm();
-  const latestPdfs = useLatest(pdfs);
-  const [uploading, setUploading] = useState(false);
-
-  const setUploadState = useCallback((val) => {
-    setUploading(val);
-    onUploadingChange?.(val);
-  }, [onUploadingChange]);
-
-  const handleUpload = async (file) => {
-    setUploadState(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await fetch(PDF_UPLOAD_URL, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.success) {
-        onChange([...(latestPdfs.current || []), { url: data.url, title: file.name.replace(/\.pdf$/i, '') }]);
-      } else {
-        window.showToast('Erro ao enviar PDF: ' + (data.message || 'Erro desconhecido'));
-      }
-    } catch (err) {
-      window.showToast('Erro ao enviar PDF: ' + err.message);
-    } finally {
-      setUploadState(false);
-    }
-  };
-
-  const update = (i, field, val) => {
-    const p = [...pdfs];
-    p[i] = { ...p[i], [field]: val };
-    onChange(p);
-  };
-  const remove = async (i) => {
-    const target = pdfs[i];
-    if (!(await confirm({ title: 'Remover este PDF?', message: target?.title || '', confirmLabel: 'Remover' }))) return;
-    const cur = latestPdfs.current || [];
-    const j = cur.indexOf(target) >= 0 ? cur.indexOf(target) : i;
-    onChange(cur.filter((_, idx) => idx !== j));
-  };
-
-  return (
-    <div className="space-y-3">
-      {pdfs.map((pdf, i) => (
-        <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
-          <FileText size={18} className="text-[#007a3d] flex-shrink-0" />
-          <input
-            className="flex-1 bg-transparent font-bold text-sm outline-none text-gray-700 placeholder-gray-400"
-            placeholder="Título do PDF..."
-            value={pdf.title || ''}
-            onChange={e => update(i, 'title', e.target.value)}
-          />
-          <span className="text-[10px] text-gray-400 truncate max-w-[120px] hidden sm:block">
-            {pdf.url?.split('/').pop()}
-          </span>
-          <button type="button" onClick={() => remove(i)}
-            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0">
-            <X size={14}/>
-          </button>
-        </div>
-      ))}
-
-      {uploading && (
-        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-          <Loader2 size={16} className="text-emerald-600 animate-spin flex-shrink-0" />
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest">
-            Enviando PDF... aguarde antes de salvar
-          </span>
-        </div>
-      )}
-
-      <label className={`flex items-center gap-2 p-3 bg-white rounded-xl border-2 border-dashed transition-colors ${uploading ? 'border-gray-200 cursor-not-allowed opacity-40 pointer-events-none' : 'border-gray-200 cursor-pointer hover:border-[#007a3d]'}`}>
-        <Upload size={16} className="text-gray-400 flex-shrink-0" />
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-          Adicionar PDF (máx. 20 MB)
-        </span>
-        <input
-          type="file"
-          accept=".pdf,application/pdf"
-          className="hidden"
-          disabled={uploading}
-          onChange={e => { if (e.target.files[0]) { handleUpload(e.target.files[0]); e.target.value = ''; } }}
-        />
-      </label>
-    </div>
-  );
-}
 
 const typeIcon = (type) => Icons[SECTION_TYPES[type]?.icon] || Icons.Square;
 
@@ -162,7 +70,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
           <TabManager tabs={section.tabs || []} onChange={tabs => onUpdate({ tabs })} title="" itemLabel="Aba" />
         )}
         {section.type === 'pdfs' && (
-          <PdfManager pdfs={section.pdfs || []} onChange={pdfs => onUpdate({ pdfs })} onUploadingChange={onUploadingChange} />
+          <FilesEditor files={section.pdfs || []} onChange={pdfs => onUpdate({ pdfs })} onUploadingChange={onUploadingChange} />
         )}
         {section.type === 'logos' && (
           <LogosEditor images={section.images || []} onChange={images => onUpdate({ images })} />
@@ -178,7 +86,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
           </div>
         )}
         {section.type === 'gt_contact' && (
-          <SpecialNote>Mostra o card do responsável (preenchido em “Responsável por este grupo”, acima). Sem responsável preenchido, usa o contato geral de Grupos Temáticos.</SpecialNote>
+          <SpecialNote>Mostra o card do responsável escolhido em “Responsável por este grupo”, acima. Sem responsável, o bloco não aparece no site.</SpecialNote>
         )}
       </div>
       )}
@@ -257,7 +165,7 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
     <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm space-y-4">
       <div className="border-b pb-4">
         <h3 className="text-lg font-bold text-[#1f2937] tracking-tight">{title}</h3>
-        <p className="text-xs text-gray-500 mt-1">Monte a página com blocos: adicione, mude a ordem com ↑↓, use o olho para ocultar sem apagar. Clique no nome do bloco para recolher.</p>
+        <p className="text-xs text-gray-500 mt-1">Monte a página com blocos: adicione, mude a ordem com as setas, use o olho para ocultar sem apagar. Clique no nome do bloco para recolher.</p>
       </div>
 
       {isUploading && (

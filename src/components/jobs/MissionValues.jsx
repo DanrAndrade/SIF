@@ -10,10 +10,10 @@ export default function MissionValues({ cfg }) {
     .filter(Boolean);
 
   const rows = [
-    { n: '01', title: cfg.missao_title, body: <p className="text-lg md:text-xl leading-relaxed text-sif-ink/75">{cfg.missao_text}</p> },
-    { n: '02', title: cfg.visao_title, body: <p className="text-lg md:text-xl leading-relaxed text-sif-ink/75">{cfg.visao_text}</p> },
+    { title: cfg.missao_title, body: <p className="text-lg md:text-xl leading-relaxed text-sif-ink/75">{cfg.missao_text}</p> },
+    { title: cfg.visao_title, body: <p className="text-lg md:text-xl leading-relaxed text-sif-ink/75">{cfg.visao_text}</p> },
     {
-      n: '03',
+     
       title: cfg.valores_title,
       body: (
         <ul className="flex flex-wrap gap-x-3 gap-y-2 text-lg md:text-xl text-sif-ink/75">
@@ -42,17 +42,14 @@ export default function MissionValues({ cfg }) {
           </p>
         </header>
 
-        <ol className="lg:col-span-8">
+        <ul className="lg:col-span-8 bg-white shadow-card divide-y divide-sif-ink/10">
           {rows.map((r) => (
-            <li key={r.n} className="grid grid-cols-1 gap-3 border-t border-sif-ink/10 py-8 sm:grid-cols-[180px_1fr] sm:gap-8 md:py-10 last:border-b">
-              <div className="flex items-baseline gap-4 sm:flex-col sm:gap-2">
-                <span className="font-heading text-sm font-semibold tabular-nums text-sif-green">{r.n}</span>
-                <h3 className="font-heading text-2xl md:text-[28px] font-medium leading-tight text-sif-ink">{r.title}</h3>
-              </div>
-              <div className="sm:pt-7">{r.body}</div>
+            <li key={r.title} className="grid grid-cols-1 gap-2 px-7 py-8 sm:grid-cols-[170px_1fr] sm:gap-8 md:px-10 md:py-10 transition-colors duration-500 ease-out hover:bg-[#f2f7f3]">
+              <h3 className="font-heading text-2xl md:text-[28px] font-medium leading-tight text-sif-ink">{r.title}</h3>
+              <div className="sm:pt-1">{r.body}</div>
             </li>
           ))}
-        </ol>
+        </ul>
       </div>
     </section>
   );

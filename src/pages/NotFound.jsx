@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 // Página para endereços que não existem (antes ficava uma tela em branco).
 export default function NotFound() {
@@ -18,8 +19,9 @@ export default function NotFound() {
           <p className="text-gray-500 mb-10">
             O endereço que você acessou não existe ou foi alterado.
           </p>
-          <Link to="/" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#007a3d] text-white text-sm font-bold hover:bg-[#1B5E20] transition-colors">
-            <ArrowLeft size={18} /> Voltar para o início
+          <Link to="/" className={buttonClass('primary', 'lg')}>
+            <span className="py-2">Voltar para o início</span>
+            <BtnArrow variant="primary" size="lg" icon={ArrowLeft} />
           </Link>
         </div>
       </main>

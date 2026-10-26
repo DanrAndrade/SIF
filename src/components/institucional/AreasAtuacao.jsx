@@ -198,14 +198,14 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{
                   transform: 'none', // sem zoom (só a troca de brilho)
-                  filter: isActive ? 'saturate(1) brightness(0.85)' : 'saturate(0.6) brightness(0.7)',
+                  filter: isActive ? 'none' : 'saturate(0.75) brightness(0.85)',
                   transition: reduced ? 'none' : 'filter 700ms ease',
                 }}
               />
               {/* Véus */}
-              <div className="absolute inset-0 bg-gradient-to-t from-sif-dark via-sif-dark/80 to-sif-dark/35" />
+              <div className="absolute inset-0 bg-gradient-to-t from-sif-dark/90 via-sif-dark/30 to-transparent" />
               <div
-                className="absolute inset-0 bg-sif-dark/55 transition-opacity duration-700"
+                className="absolute inset-0 bg-sif-dark/35 transition-opacity duration-700"
                 style={{ opacity: isActive ? 0 : 1 }}
               />
               {/* Granulado leve */}
@@ -334,7 +334,7 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000"
                   style={{ transform: isActive ? 'scale(1.04)' : 'scale(1.14)' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-sif-dark via-sif-dark/85 to-sif-dark/40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-sif-dark/90 via-sif-dark/40 to-transparent" />
                 <span
                   className="absolute top-5 left-6 font-heading font-black text-6xl leading-none tabular-nums"
                   style={{ color: 'transparent', WebkitTextStroke: '1.2px rgba(255,255,255,0.75)' }}

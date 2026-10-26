@@ -5,8 +5,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import PhotoBand from '../components/ui/PhotoBand';
-import ParallaxLayer from '../components/ui/ParallaxLayer';
-import { ArrowRight, ChevronDown, ExternalLink } from 'lucide-react';
+import EditablePageHero from '../components/EditablePageHero';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
 // --- LOGOS DE FALLBACK (caso a API esteja offline) ---
@@ -98,8 +98,6 @@ export default function Associadas() {
   usePageTitle('Empresas Associadas'); // título da aba do navegador / Google
   const [partners, setPartners] = useState(fallbackPartners);
   const [cfg, setCfg] = useState(DEFAULTS);
-  // Hero só renderiza conteúdo/imagem após o banco responder (evita flash de exemplo)
-  const [heroReady, setHeroReady] = useState(false);
 
   useEffect(() => {
     http.get(`${API_BASE_URL}/associadas.php?active_only=1`)
@@ -127,50 +125,16 @@ export default function Associadas() {
         }
       })
       .catch(() => { /* mantém DEFAULTS */ })
-      .finally(() => setHeroReady(true));
+;
   }, []);
 
-  const heroBgUrl = cfg.hero_image && !cfg.hero_image.startsWith('http') ? getImageUrl(cfg.hero_image, 1920) : cfg.hero_image;
 
   return (
     <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-clip selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
-      {/* HERO */}
-      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
-        <div className="absolute inset-0 z-0">
-          <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && heroBgUrl ? `url('${heroBgUrl}')` : 'none' }}></div></ParallaxLayer>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-        </div>
-        <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
-          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{cfg.hero_badge}</span>
-
-          <h1 className="sif-title text-5xl md:text-8xl text-white leading-[0.9] tracking-tighter mb-8">
-              {cfg.hero_title_line1} <br/>
-              <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
-          </h1>
-
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              {cfg.hero_subtitle}
-          </p>
-
-          <button
-              onClick={() => {
-                  const section = document.getElementById('beneficios');
-                  if (section) {
-                      const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
-                      window.scrollTo({top: y, behavior: 'smooth'});
-                  }
-              }}
-              className="group flex items-center gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
-          >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
-                  <ChevronDown className="animate-bounce" size={20} />
-              </div>
-              {cfg.hero_scroll_label || ''}
-          </button>
-        </div>
-      </div>
+      {/* HERO (mesmo topo padrão das outras páginas) */}
+      <EditablePageHero pageKey="associadas" defaults={DEFAULTS} scrollTargetId="beneficios" />
 
       {/* TEXTO CORRIDO — editável em Painel › Associadas › Texto */}
       {cfg.texto_enabled !== false && hasText(cfg.texto_html) && (
@@ -244,7 +208,7 @@ export default function Associadas() {
               <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
               <p className="text-gray-500 text-lg">{cfg.cta_text}</p>
             </div>
-            <Button href={cfg.cta_btn_link} variant="primary" icon={ArrowRight} className="bg-[#007a3d] hover:bg-[#047857]">
+            <Button href={cfg.cta_btn_link} variant="primary" icon={ArrowRight} className="shrink-0">
               {cfg.cta_btn_label}
             </Button>
           </div>
@@ -271,7 +235,7 @@ const BENEFIT_PHOTOS = [
   'https://images.unsplash.com/photo-1627278631921-874a70b5f973?q=80&w=1600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1624905918163-bd455354cfed?q=80&w=1600&auto=format&fit=crop',
 ];
-const EXIT_SLACK = 1.1;  // folga depois do último card (em "cards"): saída suave
+const EXIT_SLACK = 0.4;  // pequena pausa no último card antes de a página seguir rolando
 const STEP_VH = 80;      // rolagem usada por card (vh)
 
 function BenefitCard({ b }) {
@@ -332,12 +296,6 @@ function BenefitsScroller({ cfg }) {
       const p = Math.min(1, Math.max(0, -r.top / dist));
       const u = p * ((n - 1) + EXIT_SLACK);
       setActive(Math.min(n - 1, Math.floor(u + 0.15)));
-      // Saída: depois do último card, o conteúdo sobe e some aos poucos
-      const k = Math.min(1, Math.max(0, (u - (n - 1) - 0.35) / (EXIT_SLACK - 0.35)));
-      if (inner.current) {
-        inner.current.style.opacity = String(1 - k);
-        inner.current.style.transform = `translate3d(0, ${(-k * 80).toFixed(1)}px, 0) scale(${(1 - k * 0.04).toFixed(3)})`;
-      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
     paint();
@@ -384,7 +342,7 @@ function BenefitsScroller({ cfg }) {
     <section id="beneficios" ref={wrap} className="relative"
       style={{ height: `calc(100vh + ${((n - 1) + EXIT_SLACK) * STEP_VH}vh)` }}>
       <PhotoBand as="div" slides={slides} active={active} className="sticky top-0 h-screen flex items-center">
-        <div ref={inner} className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full will-change-transform">
+        <div ref={inner} className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full">
           <div className="col-span-5">
             {title}
             <ol className="mt-10 space-y-1" data-no-reveal>

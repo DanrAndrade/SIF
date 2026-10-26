@@ -79,7 +79,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
-                        <Button href={cta1Link} variant="primary" className="w-full sm:w-auto">
+                        <Button href={cta1Link} variant="light" className="w-full sm:w-auto">
                             {cta1Label}
                         </Button>
                         <Button href={cta2Link} variant="glass" className="w-full sm:w-auto">

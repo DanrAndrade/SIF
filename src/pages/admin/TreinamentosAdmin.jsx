@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
-import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Play, Eye, EyeOff, Calendar } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Eye, EyeOff, Calendar } from 'lucide-react';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
@@ -267,16 +267,16 @@ export default function TreinamentosAdmin() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data de início</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Data de início</label>
                     <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.start_date || ''} onChange={e => setFormData(f => ({...f, start_date: e.target.value}))} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-1"><Calendar size={10}/> Data de fim</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Data de fim</label>
                     <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.end_date || ''} min={formData.start_date || undefined} onChange={e => setFormData(f => ({...f, end_date: e.target.value}))} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1 flex items-center gap-2"><Play size={10}/> Link do Vídeo (YouTube)</label>
+                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link do Vídeo (YouTube)</label>
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-xs outline-none border focus:border-[#007a3d]" placeholder="YouTube URL..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
                 </div>
                 <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100/50">

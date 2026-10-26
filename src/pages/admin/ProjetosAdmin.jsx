@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Plus, Edit3, Trash2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';

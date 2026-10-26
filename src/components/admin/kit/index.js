@@ -8,3 +8,5 @@ export { ConfirmProvider, useConfirm } from './ConfirmDialog';
 export { UnsavedGuardProvider, useUnsavedGuard, useCanLeave } from './UnsavedGuard';
 export { default as useDirty } from './useDirty';
 export { default as Field } from './Field';
+export { default as AdminButton } from './AdminButton';
+export { default as IconPicker, ICON_CHOICES } from './IconPicker';

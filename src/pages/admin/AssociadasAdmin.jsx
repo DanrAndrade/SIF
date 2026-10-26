@@ -4,7 +4,7 @@ import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft,
 } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';

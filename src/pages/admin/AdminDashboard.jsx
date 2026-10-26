@@ -47,6 +47,8 @@ export default function AdminDashboard(props) {
   );
 }
 
+const MINI_KEY = 'sif_admin_menu_recolhido';
+
 function DashboardInner({ currentTab }) {
   const activeTab = currentTab || 'inicio';
   const item = findItem(activeTab);
@@ -56,6 +58,19 @@ function DashboardInner({ currentTab }) {
   const canLeave = useCanLeave();
   const { user, loading: userLoading, can } = useAdminUser();
   const [pwdOpen, setPwdOpen] = useState(false);
+
+  // Menu lateral recolhido (só ícones) no computador. Lembra a escolha neste navegador.
+  const [menuMini, setMenuMini] = useState(() => { try { return localStorage.getItem(MINI_KEY) === '1'; } catch { return false; } });
+  const toggleMenuMini = () => setMenuMini(v => {
+    try { localStorage.setItem(MINI_KEY, v ? '0' : '1'); } catch { /* navegador sem armazenamento: só não lembra */ }
+    return !v;
+  });
+  // Atalho: Ctrl + \ (ou Cmd + \ no Mac) abre/recolhe o menu
+  useEffect(() => {
+    const onKey = (e) => { if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key === '\\') { e.preventDefault(); toggleMenuMini(); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Tela sem permissão (ex.: editor abrindo /admin/dashboard) → vai para a 1ª permitida
   const allowed = !user || can(activeTab);
@@ -72,7 +87,7 @@ function DashboardInner({ currentTab }) {
   };
 
   return (
-    <div className="sif-admin flex h-screen bg-[#f4f6f5] font-sans text-[#1f2937] overflow-hidden">
+    <div data-menu={menuMini ? 'mini' : 'full'} className="sif-admin flex h-screen bg-[#f4f6f5] font-sans text-[#1f2937] overflow-hidden">
       
       {/* SIDEBAR */}
       <AdminSidebar 
@@ -82,6 +97,8 @@ function DashboardInner({ currentTab }) {
         onMyPassword={() => setPwdOpen(true)}
         isOpen={sidebarOpen}
         closeMobile={() => setSidebarOpen(false)}
+        mini={menuMini}
+        onToggleMini={toggleMenuMini}
       />
 
       {/* ÁREA DE CONTEÚDO */}
@@ -107,7 +124,7 @@ function DashboardInner({ currentTab }) {
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-10">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl lg:[[data-menu=mini]_&]:max-w-7xl mx-auto">
                 {userLoading ? null : !allowed ? (
                   <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center text-gray-500">
                     <Lock className="mx-auto mb-3 text-gray-300" size={32} />

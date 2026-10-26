@@ -3,7 +3,7 @@ import LogosEditor from '../../components/admin/sections/LogosEditor';
 import { TitleField, TitleExtraControls } from '../../components/admin/sections/TitleStyleFields';
 import { useConfirm, AdminPage, SaveButton, useDirty, ItemActions } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Plus, Save, FileText, Upload, X, Eye, EyeOff, Users, ChevronUp, ChevronDown } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -281,7 +281,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 1: HERO */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-6">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
-            🖼️ Hero da Página
+            Topo da página
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ImageUploadField
@@ -317,7 +317,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 2: CONTEÚDO PRINCIPAL */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
-            📝 Conteúdo Principal
+            Conteúdo principal
           </h3>
           <QuillEditor
             value={form.main_content}
@@ -329,7 +329,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 3: RENDER DO EVENTO */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4 mb-6">
-            🏛️ Render / Foto do Evento
+            Render / foto do evento
           </h3>
           <ImageUploadField
             label="Imagem da Render ou Foto do Evento"
@@ -344,7 +344,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 4: PLANTA BAIXA */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-6">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
-            📐 Planta do Evento
+            Planta do evento
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ImageUploadField
@@ -371,7 +371,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 5: PDFs PARA DOWNLOAD */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
           <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight border-b pb-4">
-            📂 PDFs para Download (até 3)
+            PDFs para download (até 3)
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
@@ -397,7 +397,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 6: ABAS DE PROGRAMAÇÃO */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
           <div className="flex justify-between items-center border-b pb-4">
-            <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">📅 Abas de Programação</h3>
+            <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">Abas de programação</h3>
             <button type="button" onClick={addTab}
               className="flex items-center gap-2 px-4 py-2 bg-[#007a3d] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#047857] transition-colors">
               <Plus size={14} /> Adicionar Aba
@@ -423,7 +423,7 @@ export default function EincolAdmin() {
         {/* SEÇÃO 7: SEÇÕES CONFIGURÁVEIS + PATROCINADORES */}
         <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-4 gap-3">
-            <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">✏️ Seções Adicionais</h3>
+            <h3 className="text-lg font-bold uppercase text-[#1f2937] tracking-tight">Seções adicionais</h3>
             <AddSectionButtons onAddText={addSection} onAddLogos={addSponsorGroup} />
           </div>
           <p className="text-xs text-gray-400">Seções de texto para informações extras (localização, hospedagem...) ou <strong>carrossel de logos</strong> com título (ex: Patrocinadores, Organização e apoio). Para logos, use o carrossel em vez de colar uma imagem no texto.</p>

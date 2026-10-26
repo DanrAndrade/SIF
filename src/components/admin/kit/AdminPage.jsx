@@ -19,7 +19,7 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
           na borda de cima de verdade, cobrindo essa margem (sem frestinha de
           conteúdo aparecendo por cima) e sem mudar a posição inicial. */}
       <div className="sticky -top-4 lg:-top-10 z-30 -mt-4 lg:-mt-10 -mx-4 lg:-mx-10 px-4 lg:px-10 pt-4 lg:pt-8 pb-4 bg-[#f4f6f5]/95 backdrop-blur border-b border-gray-200/70">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl lg:[[data-menu=mini]_&]:max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">{title}</h2>
@@ -38,7 +38,7 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
             <div className="mt-4 border-b border-gray-200 overflow-x-auto">
               <div className="flex gap-1 min-w-max">
                 {tabs.map(t => {
-                  const Icon = t.icon;
+                  // Abas só com texto: os ícones eram decorativos e poluíam a barra
                   const active = activeTab === t.id;
                   return (
                     <button
@@ -47,7 +47,7 @@ export default function AdminPage({ title, subtitle, actions, save, tabs, active
                       onClick={() => onTabChange?.(t.id)}
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all border-b-2 ${active ? 'border-[#007a3d] text-[#007a3d]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
                     >
-                      {Icon && <Icon size={14} />} {t.label}
+                      {t.label}
                     </button>
                   );
                 })}

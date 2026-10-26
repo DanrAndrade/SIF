@@ -3,7 +3,7 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Clock, ChevronLeft, Play, Layers, Award } from 'lucide-react';
+import { Clock, ChevronLeft, ArrowLeft, Play, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
@@ -50,7 +50,7 @@ export default function TreinamentoInCompanyDetalhe() {
     return (
       <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Treinamento não encontrado</h2>
-        <Button href="/treinamentos-in-company" variant="primary" className="rounded-xl">Voltar para Treinamentos In-Company</Button>
+        <Button href="/treinamentos-in-company" variant="primary" icon={ArrowLeft}>Voltar para Treinamentos In-Company</Button>
       </div>
     );
   }

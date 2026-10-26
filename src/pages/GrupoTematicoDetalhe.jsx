@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, ArrowDown, MessageCircle, Newspaper, Target } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { MessageCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
@@ -12,9 +12,8 @@ import { BlockHeader } from '../components/sections/SectionBlocks';
 import { withGtDefaults, htmlExcerpt } from '../components/sections/sectionTypes';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useSeo } from '../hooks/useSeo';
-import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
-import { buttonClass } from '../components/ui/Button';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 // Página de um Grupo Temático: topo com capa, menu da página (âncoras) e
 // blocos configuráveis em faixas (ordem, conteúdo e fundo vêm do painel).
@@ -49,14 +48,14 @@ export default function GrupoTematicoDetalhe() {
 
   const extra = useMemo(() => parseExtra(gt), [gt]);
   const sections = useMemo(() => (gt ? withGtDefaults(extra.sections, gt.description || '') : []), [gt, extra]);
-  const resp = extra.responsavel || {};
+  // Responsável = usuário do painel escolhido no GT (perfil vem do usuário).
+  // GT antigo, ainda sem usuário escolhido: mostra o texto que estava salvo no grupo.
+  const resp = gt?.responsavel || (!gt?.responsavel_id ? extra.responsavel : null) || {};
   const responsavel = (resp.name || resp.email || resp.whatsapp) ? {
     contact_name: resp.name, contact_role: resp.role, contact_email: resp.email, contact_whatsapp: resp.whatsapp,
     contact_photo: resp.photo, contact_link: resp.link, contact_link_label: resp.link_label,
   } : null;
-  // Contato geral de Grupos Temáticos (usado quando o grupo não tem responsável próprio)
-  const { config: gtPage } = usePageConfig('gt');
-  const hasContact = !!responsavel || !!(gtPage?.contact_name || gtPage?.contact_email || gtPage?.contact_whatsapp);
+  const hasContact = !!responsavel; // sem responsável, o card não aparece
   const intro = sections.find(s => s.type === 'gt_intro');
   const summary = extra.summary || htmlExcerpt(intro?.content || gt?.description || '', 220);
 
@@ -69,7 +68,7 @@ export default function GrupoTematicoDetalhe() {
     gt_contact: (sec) => (!hasContact ? null :
       <div className="max-w-3xl mx-auto">
         <BlockHeader sec={sec} align="center" size="md" className="mb-8" />
-        <EditablePageContact pageKey="gt" fallbackTitle="Responsável pelo grupo" override={responsavel} layout="wide" />
+        <EditablePageContact pageKey={null} fallbackTitle="Responsável pelo grupo" override={responsavel} layout="wide" />
       </div>
     ),
   };
@@ -138,12 +137,12 @@ export default function GrupoTematicoDetalhe() {
         actions={<>
           {contactSec && (
             <button type="button" onClick={() => go(sectionAnchor(contactSec))} className={buttonClass('light')}>
-              <MessageCircle size={16} /> Falar com o responsável
+              <span className="py-2">Falar com o responsável</span><BtnArrow variant="light" icon={MessageCircle} />
             </button>
           )}
           {blogSec && (
             <button type="button" onClick={() => go(sectionAnchor(blogSec))} className={buttonClass('ghostLight')}>
-              <Newspaper size={16} /> {posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}
+              <span className="py-2">{posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}</span><BtnArrow variant="ghostLight" icon={Newspaper} />
             </button>
           )}
           {responsavel?.contact_name && (

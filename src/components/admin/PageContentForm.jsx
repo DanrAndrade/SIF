@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminCard, SaveButton, SaveStatus, useDirty } from './kit';
 import { Save, Check, Loader2 } from 'lucide-react';
-import Button from '../ui/Button';
+import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
 import Field from './kit/Field'; // campo padrão do painel

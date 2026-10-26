@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../apiConfig';
 import PhotoBand from './ui/PhotoBand';
+import { buttonClass, BtnArrow } from './ui/Button';
 
 // Home › "Explore nossos recursos" (Painel › Home › Explore Recursos).
 // Faixa escura com foto desfocada que troca junto com o painel em destaque;
@@ -45,7 +46,7 @@ export default function Process({ config = {} }) {
   // Pequena espera antes de trocar de painel: passar o mouse rápido por
   // cima não faz os painéis ficarem "pulando"
   const hoverTimer = useRef(0);
-  const hoverTo = (i) => { clearTimeout(hoverTimer.current); hoverTimer.current = setTimeout(() => setActive(i), 110); };
+  const hoverTo = (i) => { clearTimeout(hoverTimer.current); hoverTimer.current = setTimeout(() => setActive(i), 140); };
   const cancelHover = () => clearTimeout(hoverTimer.current);
   useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
@@ -101,22 +102,22 @@ export default function Process({ config = {} }) {
               return (
                 <StepLink key={i} step={step}
                   onMouseEnter={() => hoverTo(i)} onMouseLeave={cancelHover} onFocus={() => setActive(i)}
-                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[650ms] ease-[cubic-bezier(.4,0,.2,1)] [contain:layout_paint]"
+                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[1000ms] ease-[cubic-bezier(.25,.8,.25,1)] [contain:layout_paint]"
                   style={{ flexGrow: isActive ? 2.8 : 1, flexBasis: 0 }}>
                   <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)}
-                    className="absolute inset-0 w-full h-full object-cover" />
+                    className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-[min(820px,62vw)] max-w-none object-cover" />
                   {/* fechado: escurece a foto (só opacidade, leve até em aparelhos fracos) */}
-                  <div className={`absolute inset-0 bg-[#06190f]/55 transition-opacity duration-500 ${isActive ? 'opacity-0' : 'opacity-100'}`} />
+                  <div className={`absolute inset-0 bg-[#06190f]/55 transition-opacity duration-[900ms] ease-out ${isActive ? 'opacity-0' : 'opacity-100'}`} />
                   <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/40 to-transparent ${isActive ? 'opacity-100' : 'opacity-0'}`} />
                   <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f] via-[#06190f]/75 to-[#06190f]/30 ${isActive ? 'opacity-0' : 'opacity-100'}`} />
 
                   {/* Fechado: título na vertical */}
-                  <div className={`absolute left-6 bottom-6 origin-bottom-left -rotate-90 translate-x-6 whitespace-nowrap transition-opacity ${isActive ? 'opacity-0 duration-200' : 'opacity-100 duration-500 delay-300'}`}>
+                  <div className={`absolute left-6 bottom-6 origin-bottom-left -rotate-90 translate-x-6 whitespace-nowrap transition-opacity ${isActive ? 'opacity-0 duration-300' : 'opacity-100 duration-700 delay-[400ms]'}`}>
                     <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white/85">{step.title}</span>
                   </div>
 
                   {/* Aberto: conteúdo completo */}
-                  <div className={`absolute left-0 bottom-0 w-[min(600px,40vw)] p-8 xl:p-10 text-white transition-[opacity,transform] ${isActive ? 'opacity-100 translate-y-0 duration-700 delay-300' : 'opacity-0 translate-y-4 duration-200 pointer-events-none'}`}>
+                  <div className={`absolute left-0 bottom-0 w-[min(600px,40vw)] p-8 xl:p-10 text-white transition-[opacity,transform] ${isActive ? 'opacity-100 translate-y-0 duration-[900ms] delay-[350ms] ease-out' : 'opacity-0 translate-y-3 duration-300 ease-out pointer-events-none'}`}>
                     {step.shortDesc && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-3">{step.shortDesc}</span>}
                     <h3 className="text-3xl xl:text-4xl font-semibold leading-tight mb-4 max-w-xl">{step.title}</h3>
                     {step.fullDesc && <p className="text-white/80 leading-relaxed max-w-xl mb-6">{step.fullDesc}</p>}
@@ -124,8 +125,9 @@ export default function Process({ config = {} }) {
                       {step.benefits.map((b, j) => (
                         <span key={j} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-white/90">{b}</span>
                       ))}
-                      <span className="ml-3 inline-flex items-center gap-2 pl-5 pr-4 py-2.5 rounded-full bg-white text-sif-dark text-xs font-bold uppercase tracking-wider transition-colors group-hover:bg-sif-lime">
-                        Acessar <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <span className={`ml-3 ${buttonClass('light', 'sm')}`}>
+                        <span className="py-2">Acessar</span>
+                        <BtnArrow variant="light" size="sm" />
                       </span>
                     </div>
                   </div>
@@ -148,7 +150,7 @@ export default function Process({ config = {} }) {
                     <div className="flex flex-wrap gap-2 mb-5">
                       {step.benefits.map((b, j) => <span key={j} className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] text-white/90">{b}</span>)}
                     </div>
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-sif-dark text-xs font-bold uppercase tracking-wider">Acessar <ArrowUpRight size={15} /></span>
+                    <span className={`self-start ${buttonClass('light', 'sm')}`}><span className="py-2">Acessar</span><BtnArrow variant="light" size="sm" /></span>
                   </div>
                 </StepLink>
               ))}

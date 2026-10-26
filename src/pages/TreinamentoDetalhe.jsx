@@ -4,7 +4,8 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, MessageSquare, Layers, Award } from 'lucide-react';
-import Button from '../components/ui/Button';
+import Button, { buttonClass, BtnArrow } from '../components/ui/Button';
+import { Download, ArrowLeft } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import { useSeo } from '../hooks/useSeo';
@@ -61,7 +62,7 @@ export default function TreinamentoDetalhe() {
     return (
       <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Treinamento não encontrado</h2>
-        <Button href="/treinamentos" variant="primary" className="rounded-xl">Voltar para Treinamentos</Button>
+        <Button href="/treinamentos" variant="primary" icon={ArrowLeft}>Voltar para Treinamentos</Button>
       </div>
     );
   }
@@ -176,8 +177,9 @@ export default function TreinamentoDetalhe() {
             {/* PDF do treinamento (se houver) — link discreto */}
             {training.pdf_url && (
               <div className="w-full">
-                <a href={getImageUrl(training.pdf_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 text-[#007a3d] hover:bg-[#007a3d] hover:text-white text-xs font-bold uppercase tracking-widest transition-all">
-                  <FileText size={16} /> Baixar Material do Curso (PDF)
+                <a href={getImageUrl(training.pdf_url)} target="_blank" rel="noreferrer" className={buttonClass('outline')}>
+                  <span className="py-2">Baixar Material do Curso (PDF)</span>
+                  <BtnArrow variant="outline" icon={Download} />
                 </a>
               </div>
             )}

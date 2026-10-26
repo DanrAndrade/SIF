@@ -8,6 +8,7 @@ import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import { Sprout, Briefcase, FileText, Microscope, ArrowRight, Download } from 'lucide-react';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { getImageUrl } from '../apiConfig';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -238,10 +239,10 @@ export default function ProdutosServicos() {
               </div>
               <Link
                 to="/trabalhe-conosco"
-                className="flex items-center gap-3 px-7 py-5 rounded-2xl bg-white text-[#0f1f11] font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#7FBA00] hover:text-[#0f1f11] transition-colors flex-shrink-0 group"
+                className={`${buttonClass('light', 'lg')} flex-shrink-0`}
               >
-                Ver Vagas Abertas
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <span className="py-2">Ver Vagas Abertas</span>
+                <BtnArrow variant="light" size="lg" />
               </Link>
             </div>
           </div>

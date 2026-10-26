@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
-import { Calendar, ArrowRight, ChevronDown, AlertCircle } from 'lucide-react';
+import { Calendar, ArrowRight, ChevronDown, AlertCircle, RefreshCw } from 'lucide-react';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl, toDate } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/blog.php`;
@@ -65,9 +66,10 @@ export default function Blog() {
               <p className="text-red-600">{error}</p>
               <button 
                 onClick={() => window.location.reload()} 
-                className="mt-4 px-6 py-3 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-colors"
+                className={`mt-4 ${buttonClass('primary')}`}
               >
-                Tentar Novamente
+                <span className="py-2">Tentar Novamente</span>
+                <BtnArrow variant="primary" icon={RefreshCw} />
               </button>
             </div>
           </div>

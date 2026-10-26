@@ -11,7 +11,7 @@ import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { getEffectiveProjectStatus } from '../utils/helpers';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../utils/embrapiiDefaults';
-import { buttonClass } from '../components/ui/Button';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 const FRENTE_ICONS = [Sprout, Factory, Leaf];
 
@@ -83,8 +83,9 @@ export default function ProjetosEmbrapii() {
                   {c.projects_tag && <span className="sif-eyebrow mb-3">{c.projects_tag}</span>}
                   {c.projects_title && <h2 className="sif-title sif-h2 text-[#1f2937]">{c.projects_title}</h2>}
                 </div>
-                <Link to="/projetos" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#007a3d] hover:underline">
-                  Ver todos os projetos <ArrowRight size={14} />
+                <Link to="/projetos" className={`shrink-0 self-start md:self-auto ${buttonClass('outline', 'sm')}`}>
+                  <span className="py-2">Ver todos os projetos</span>
+                  <BtnArrow variant="outline" size="sm" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -117,7 +118,7 @@ export default function ProjetosEmbrapii() {
                   {c.cta_text && <p className="text-white/80 text-lg leading-relaxed">{c.cta_text}</p>}
                   {c.cta_btn_label && (
                     <SmartLink href={c.cta_btn_link || '/contato'} className={`mt-8 ${buttonClass('light')}`}>
-                      {c.cta_btn_label} <ArrowRight size={16} />
+                      <span className="py-2">{c.cta_btn_label}</span><BtnArrow variant="light" />
                     </SmartLink>
                   )}
                 </div>

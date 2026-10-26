@@ -81,12 +81,15 @@ function sif_raw_input(): string {
 // nome que veio do computador do usuário). Assim ninguém consegue gravar
 // um ".php" ou um SVG com script disfarçado de imagem. Retorna null se o
 // tipo não for permitido.
-//   $kinds: 'image', 'pdf', 'doc', 'video' ou combinação ('image,pdf')
+//   $kinds: 'image', 'pdf', 'doc', 'video', 'files' ou combinação ('image,pdf')
+//   'files' = documentos para baixar (bloco "Arquivos e documentos"): PDF,
+//   Word, Excel, PowerPoint, OpenDocument e CSV. Sem executáveis e sem zip.
 function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = ''): ?string {
     if (!is_file($tmpPath)) return null;
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime  = finfo_file($finfo, $tmpPath);
     finfo_close($finfo);
+    $origExt = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
     $map = [
         'image' => [
@@ -101,6 +104,17 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
             'application/msword' => 'doc',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
         ],
+        'files' => [
+            'application/pdf' => 'pdf',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/vnd.ms-powerpoint' => 'ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+            'application/vnd.oasis.opendocument.text' => 'odt',
+            'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+        ],
     ];
     foreach (explode(',', $kinds) as $k) {
         $k = trim($k);
@@ -108,8 +122,43 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
     }
     // .docx às vezes é identificado só como "zip"
     if (strpos($kinds, 'doc') !== false && $mime === 'application/zip'
-        && strtolower(pathinfo($originalName, PATHINFO_EXTENSION)) === 'docx') {
+        && $origExt === 'docx') {
         return 'docx';
+    }
+    if (strpos($kinds, 'files') !== false) {
+        // Office novo / OpenDocument identificados só como zip: confere por dentro
+        // (precisa ter a estrutura do Office/ODF; zip comum é recusado).
+        $zipLike = ['application/zip', 'application/octet-stream', 'application/x-zip-compressed'];
+        if (in_array($mime, $zipLike, true) && in_array($origExt, ['docx', 'xlsx', 'pptx', 'odt', 'ods'], true)) {
+            $fh = @fopen($tmpPath, 'rb'); $head = $fh ? fread($fh, 4) : ''; if ($fh) fclose($fh);
+            if ($head !== "PK\x03\x04") return null;
+            if (!class_exists('ZipArchive')) { // sem a extensão zip: procura a estrutura pelo nome interno
+                $raw = (string)@file_get_contents($tmpPath);
+                return strpos($raw, in_array($origExt, ['odt', 'ods'], true) ? 'mimetypeapplication/vnd.oasis' : '[Content_Types].xml') !== false ? $origExt : null;
+            }
+            $z = new ZipArchive();
+            if ($z->open($tmpPath) !== true) return null;
+            $okOffice = $z->locateName('[Content_Types].xml') !== false;
+            $odfMime = $z->getFromName('mimetype');
+            $z->close();
+            if (in_array($origExt, ['odt', 'ods'], true)) {
+                $want = $origExt === 'odt' ? 'application/vnd.oasis.opendocument.text' : 'application/vnd.oasis.opendocument.spreadsheet';
+                return trim((string)$odfMime) === $want ? $origExt : null;
+            }
+            return $okOffice ? $origExt : null;
+        }
+        // Office antigo (doc/xls/ppt) às vezes vem como "contêiner OLE" genérico
+        if (in_array($mime, ['application/CDFV2', 'application/x-ole-storage', 'application/vnd.ms-office', 'application/octet-stream'], true)
+            && in_array($origExt, ['doc', 'xls', 'ppt'], true)) {
+            $fh = @fopen($tmpPath, 'rb'); $head = $fh ? fread($fh, 8) : ''; if ($fh) fclose($fh);
+            return $head === "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" ? $origExt : null;
+        }
+        // CSV: texto puro, só com o nome .csv (sem tags HTML/script)
+        if (in_array($mime, ['text/csv', 'text/plain', 'application/csv', 'text/x-csv'], true) && $origExt === 'csv') {
+            $sample = (string)@file_get_contents($tmpPath, false, null, 0, 8192);
+            if (preg_match('#<\s*(script|html|body|iframe|svg|\?php)#i', $sample)) return null;
+            return 'csv';
+        }
     }
     return null;
 }
@@ -125,7 +174,7 @@ function sif_safe_name(string $ext): string {
 // session.php/login quando o admin entra — não pesa nas visitas do site.
 // Cada comando roda sozinho: se um falhar (ex.: banco antigo), fica no log
 // e os outros continuam — uma falha não trava as versões seguintes.
-const SIF_SCHEMA_VERSION = 4;
+const SIF_SCHEMA_VERSION = 5;
 
 function sif_ensure_schema(PDO $pdo): void {
     static $done = false;
@@ -221,6 +270,24 @@ function sif_ensure_schema(PDO $pdo): void {
                     created_at DATETIME NOT NULL,
                     INDEX idx_login_attempts (kind, ident, created_at)
                   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if ($current < 5) {
+            // Responsável por GT = usuário do painel. Perfil público no próprio usuário
+            // (aparece no card "Responsável pelo grupo") e o GT guarda quem responde por ele.
+            foreach ([
+                'photo' => 'VARCHAR(500) NULL', 'whatsapp' => 'VARCHAR(40) NULL', 'link' => 'VARCHAR(500) NULL',
+                'link_label' => 'VARCHAR(80) NULL', 'contact_email' => 'VARCHAR(190) NULL',
+            ] as $col => $def) $addCol('admins', $col, $def);
+            $addCol('gt', 'responsavel_id', 'INT NULL');
+            // Quem já tinha GT marcado no cadastro vira o responsável (se o GT ainda não tem)
+            try {
+                foreach ($pdo->query("SELECT id, gt_ids FROM admins WHERE gt_ids IS NOT NULL AND gt_ids <> '' AND gt_ids <> '[]'")->fetchAll(PDO::FETCH_ASSOC) as $a) {
+                    foreach (array_map('intval', sif_json_list($a['gt_ids'])) as $g) {
+                        $pdo->prepare("UPDATE gt SET responsavel_id = ? WHERE id = ? AND responsavel_id IS NULL")->execute([(int)$a['id'], $g]);
+                    }
+                }
+            } catch (Throwable $e) { error_log('[sif-api] migração v5: ' . $e->getMessage()); }
         }
 
         $pdo->prepare("INSERT INTO page_configs (page_key, config_json) VALUES ('_schema', ?)
@@ -376,6 +443,53 @@ function sif_deny(string $msg = 'Seu usuário não tem permissão para alterar e
 }
 function sif_require(string $module): void { if (!sif_can($module)) sif_deny(); }
 
+// ---------------------------------------------------------------- 3b) responsável por GT
+// Cada GT tem UM responsável (gt.responsavel_id), que é um usuário do painel.
+// admins.gt_ids é a lista espelhada (usada nas permissões do blog e do GT).
+// Estas funções mantêm as duas coisas sempre iguais.
+function sif_gt_can_edit($gtId): bool {
+    $u = sif_user();
+    if (!$u) return false;
+    return sif_can('gt') || ($gtId && in_array((int)$gtId, $u['gt_ids'], true));
+}
+
+// Define (ou tira, com null) o responsável de um GT.
+function sif_gt_set_responsavel(PDO $pdo, int $gtId, ?int $userId): void {
+    $pdo->prepare("UPDATE gt SET responsavel_id = ? WHERE id = ?")->execute([$userId ?: null, $gtId]);
+    // Tira o GT de quem tinha e coloca no novo responsável
+    foreach ($pdo->query("SELECT id, gt_ids FROM admins")->fetchAll(PDO::FETCH_ASSOC) as $a) {
+        $ids = array_map('intval', sif_json_list($a['gt_ids']));
+        $has = in_array($gtId, $ids, true);
+        $want = $userId && (int)$a['id'] === $userId;
+        if ($has === $want) continue;
+        $ids = $want ? array_merge($ids, [$gtId]) : array_values(array_diff($ids, [$gtId]));
+        $pdo->prepare("UPDATE admins SET gt_ids = ? WHERE id = ?")->execute([json_encode(array_values(array_unique($ids))), (int)$a['id']]);
+    }
+}
+
+// Tela Usuários mudou os GTs de alguém: o GT passa a ter essa pessoa como responsável
+// (e sai de quem tinha); GT desmarcado fica sem responsável.
+function sif_gt_sync_user(PDO $pdo, int $userId, array $gtIds, array $oldIds = []): void {
+    foreach (array_diff($gtIds, $oldIds) as $g) sif_gt_set_responsavel($pdo, (int)$g, $userId);
+    foreach (array_diff($oldIds, $gtIds) as $g) {
+        $pdo->prepare("UPDATE gt SET responsavel_id = NULL WHERE id = ? AND responsavel_id = ?")->execute([(int)$g, $userId]);
+    }
+}
+
+// Dados públicos do responsável (card da página do GT).
+function sif_gt_public_profile(array $a): array {
+    return [
+        'id'         => (int)$a['id'],
+        'name'       => $a['name'] ?? '',
+        'role'       => $a['cargo'] ?? '',
+        'email'      => ($a['contact_email'] ?? '') !== '' ? $a['contact_email'] : ($a['email'] ?? ''),
+        'whatsapp'   => $a['whatsapp'] ?? '',
+        'photo'      => $a['photo'] ?? '',
+        'link'       => $a['link'] ?? '',
+        'link_label' => $a['link_label'] ?? '',
+    ];
+}
+
 // Página (page_configs) → módulo que pode editá-la
 function sif_page_module(string $page): ?string {
     $map = [
@@ -427,7 +541,7 @@ if (!in_array($sif_script, $sif_public_scripts, true)
 // candidaturas, uploads e usuários) ficam fora deste mapa.
 $sif_script_module = [
     'banners.php' => 'banners', 'jobs.php' => 'jobs', 'eventos.php' => 'eventos',
-    'treinamentos.php' => 'treinamentos', 'gt.php' => 'gt', 'projetos.php' => 'projetos',
+    'treinamentos.php' => 'treinamentos', 'projetos.php' => 'projetos', // gt.php confere sozinho (o responsável edita o próprio GT)
     'faqs.php' => 'home', 'institucional.php' => 'institucional', 'associadas.php' => 'associadas',
     'treinamentos_in_company.php' => 'in_company', 'eincol.php' => 'eincol',
 ];
@@ -444,7 +558,7 @@ if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() &
 // SEO: depois de qualquer gravação de conteúdo no painel, atualiza o índice
 // usado nas metatags, no sitemap.xml e no llms.txt (roda no fim do pedido).
 if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)
-    && !in_array($sif_script, ['upload.php', 'upload_pdf.php', 'upload_video.php', 'session.php', 'login_admin.php', 'users.php'], true)) {
+    && !in_array($sif_script, ['upload.php', 'upload_pdf.php', 'upload_file.php', 'upload_video.php', 'session.php', 'login_admin.php', 'users.php'], true)) {
     register_shutdown_function(function () use ($pdo) {
         require_once __DIR__ . '/seo_lib.php';
         sif_seo_write_cache($pdo);

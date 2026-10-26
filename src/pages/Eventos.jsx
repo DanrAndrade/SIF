@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoadError from '../components/ui/LoadError';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { STATUS_DOT } from '../utils/helpers';
 import { Link } from 'react-router-dom';
@@ -167,9 +168,9 @@ export default function Eventos() {
                       Encontro Internacional de Ciência Florestal — conheça a programação completa, palestrantes e como participar.
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white text-[#0f1f11] font-black uppercase tracking-widest text-[10px] shadow-lg group-hover:bg-[#7FBA00] group-hover:text-[#0f1f11] transition-colors flex-shrink-0">
-                    Acessar Página
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <div className={`${buttonClass('light', 'lg')} flex-shrink-0`}>
+                    <span className="py-2">Acessar Página</span>
+                    <BtnArrow variant="light" size="lg" />
                   </div>
                 </div>
               </Link>

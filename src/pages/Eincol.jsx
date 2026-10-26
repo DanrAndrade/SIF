@@ -4,6 +4,7 @@ import LogoCarousel from '../components/sections/LogoCarousel';
 import SectionTitle from '../components/sections/SectionTitle';
 import { usePageTitle } from '../hooks/usePageTitle';
 import SmartLink from '../components/ui/SmartLink';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 import { Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -153,9 +154,10 @@ export default function Eincol() {
                   {config.planta_url && (
                     <SmartLink
                       href={config.planta_url}
-                      className="inline-flex items-center gap-3 px-8 py-4 bg-[#007a3d] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#047857] transition-all shadow-lg shadow-emerald-900/40"
+                      className={buttonClass('light', 'lg')}
                     >
-                      <Download size={18} /> Baixar Planta
+                      <span className="py-2">Baixar Planta</span>
+                      <BtnArrow variant="light" size="lg" icon={Download} />
                     </SmartLink>
                   )}
                 </div>

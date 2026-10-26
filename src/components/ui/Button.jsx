@@ -1,56 +1,70 @@
 import React from 'react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import SmartLink from './SmartLink';
 
-// Tamanhos e estilos padrão dos botões do site (um lugar só).
+// PADRÃO ÚNICO DE BOTÃO DO SITE (mesmo do "Enviar mensagem" do Contato):
+// pílula com texto em caixa alta e a seta dentro de um círculo à direita.
+// No hover a cor muda, o círculo fica branco e a seta gira levemente.
+// (Painel admin e tela de login têm componentes próprios.)
+//
+// Variantes (todas com o mesmo formato):
+//   primary  → verde-escuro, hover verde SIF   (padrão, sobre fundo claro)
+//   light    → branco, hover verde-folha        (sobre fundo escuro / foto)
+//   outline  → contorno verde, hover preenchido  (ação secundária no claro)
+//   ghostLight → contorno branco, hover vidro   (ação secundária no escuro)
+// Aliases antigos: accent/solidWhite → light; glass → ghostLight.
 const SIZES = {
-  sm: 'px-4 py-2 text-[11px]',
-  md: 'px-8 py-3.5 text-[12px]',
-  lg: 'px-10 py-4 text-[13px]',
+  sm: { box: 'pl-5 pr-1.5 py-1.5 text-[11px] gap-2.5', circle: 'w-8 h-8', icon: 15 },
+  md: { box: 'pl-7 pr-2 py-2 text-[12.5px] gap-3', circle: 'w-10 h-10', icon: 18 },
+  lg: { box: 'pl-8 pr-2 py-2 text-[13px] gap-3.5', circle: 'w-11 h-11', icon: 19 },
 };
 
 const VARIANTS = {
-  primary: 'bg-gradient-to-br from-[#1B5E20] from-30% to-[#7FBA00] text-white shadow-[0_10px_20px_-10px_rgba(27,94,32,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(146,183,53,0.6)] hover:scale-105 hover:from-[#2a5530] hover:to-[#a3c940]',
-  accent: 'bg-[#7FBA00] text-[#1f2937] shadow-xl hover:bg-[#a3c940] hover:scale-105',
-  outline: 'bg-transparent border-2 border-[#007a3d]/30 text-[#007a3d] hover:border-[#007a3d] hover:bg-[#007a3d] hover:text-white',
-  glass: 'bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20 shadow-lg',
-  solidWhite: 'bg-white text-[#1f2937] shadow-lg hover:bg-gray-50 hover:scale-105',
-  // Sobre fundo verde escuro: branco que fica verde-folha no hover
-  light: 'bg-white text-sif-dark hover:bg-sif-leaf hover:text-white',
-  // Contorno claro sobre fundo escuro
-  ghostLight: 'border border-white/30 text-white hover:bg-white/10',
+  primary: { box: 'bg-sif-dark text-white hover:bg-sif-green', circle: 'bg-white/10 group-hover/btn:bg-white group-hover/btn:text-sif-green' },
+  light: { box: 'bg-white text-sif-dark hover:bg-sif-leaf hover:text-white', circle: 'bg-sif-dark/[0.07] group-hover/btn:bg-white group-hover/btn:text-sif-green' },
+  outline: { box: 'border border-sif-green/35 text-sif-green hover:bg-sif-green hover:text-white hover:border-sif-green', circle: 'bg-sif-green/10 group-hover/btn:bg-white group-hover/btn:text-sif-green' },
+  ghostLight: { box: 'border border-white/30 text-white hover:bg-white/10 hover:border-white/60', circle: 'bg-white/10 group-hover/btn:bg-white group-hover/btn:text-sif-dark' },
 };
+const ALIAS = { accent: 'light', solidWhite: 'light', glass: 'ghostLight' };
+const pick = (v) => VARIANTS[ALIAS[v] || v] || VARIANTS.primary;
 
-const BASE = 'inline-flex items-center justify-center gap-2 font-bold rounded-full uppercase tracking-wider transition-all duration-500 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden';
+const BASE = 'group/btn relative inline-flex items-center justify-center overflow-hidden rounded-full font-bold uppercase tracking-[0.14em] transition-colors duration-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed';
 
-// Mesmo visual do <Button> para usar num link/elemento próprio (ex.: card inteiro clicável)
+// Classes do botão (para usar num link/elemento próprio). Dentro dele,
+// coloque o texto e <BtnArrow /> (o círculo com a seta).
 export const buttonClass = (variant = 'primary', size = 'md') =>
-  `${BASE} ${SIZES[size] || SIZES.md} ${VARIANTS[variant] || VARIANTS.primary}`;
+  `${BASE} ${(SIZES[size] || SIZES.md).box} ${pick(variant).box}`;
+
+// Círculo com a seta (ou outro ícone) no fim do botão
+export function BtnArrow({ variant = 'primary', size = 'md', icon: Icon = ArrowRight, loading = false, rotate = true }) {
+  const s = SIZES[size] || SIZES.md;
+  return (
+    <span className={`flex shrink-0 items-center justify-center rounded-full transition-all duration-500 ${s.circle} ${pick(variant).circle}`} aria-hidden="true">
+      {loading
+        ? <Loader2 size={s.icon} className="animate-spin" />
+        : <Icon size={s.icon} className={`transition-transform duration-500 group-hover/btn:translate-x-0.5 ${rotate && Icon === ArrowRight ? 'group-hover/btn:-rotate-45' : ''}`} />}
+    </span>
+  );
+}
 
 export default function Button({
   children,
   variant = 'primary',
   size = 'md',
   className = '',
-  icon: Icon,
+  icon,
   href,
   isLoading = false,
   ...props
 }) {
-  // Com href: SmartLink (rota interna respeita a subpasta do site; antes
-  // '/contato' virava sif.org.br/contato e caía no site antigo).
+  // Com href: SmartLink (rota interna respeita a subpasta do site)
   const Component = href ? SmartLink : 'button';
   const linkProps = href ? { href, newTabExternal: false } : {};
 
   return (
-    <Component
-      {...linkProps}
-      className={`${buttonClass(variant, size)} ${className}`}
-      {...props}
-    >
-      <span className="relative z-10 flex items-center gap-2">
-        {isLoading ? 'Carregando...' : children}
-        {Icon && !isLoading && <Icon size={size === 'sm' ? 14 : 18} className="transition-transform duration-300 group-hover:translate-x-1" />}
-      </span>
+    <Component {...linkProps} className={`${buttonClass(variant, size)} ${className}`} {...props}>
+      <span className="py-2">{isLoading ? 'Carregando...' : children}</span>
+      <BtnArrow variant={variant} size={size} icon={icon || ArrowRight} loading={isLoading} />
     </Component>
   );
 }

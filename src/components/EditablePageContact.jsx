@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { http } from '../utils/http';
 import { Mail, MessageCircle, ArrowUpRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl, whatsappLink } from '../apiConfig';
+import { buttonClass, BtnArrow } from './ui/Button';
 
 // Card de contato responsável por tipo de página.
 // Configurado em /admin/<page> (Eventos/Treinamentos/GT/Projetos) e exibido
 // em cada postagem do tipo.
 // override: responsável próprio da postagem (ex.: o de cada Grupo Temático).
 // Quando tem nome/e-mail/WhatsApp, é usado no lugar do contato geral da página.
+// pageKey={null}: só o override (sem contato geral; ex.: GT sem responsável não mostra nada).
 // layout: 'compact' (coluna lateral das páginas) ou 'wide' (faixa larga, GT).
 export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com o responsável', override = null, layout = 'compact' }) {
   const hasOverride = !!(override && (override.contact_name || override.contact_email || override.contact_whatsapp));
@@ -48,14 +50,16 @@ export default function EditablePageContact({ pageKey, fallbackTitle = 'Fale com
     <div className={`flex flex-wrap gap-2 ${wide ? 'mt-6' : 'mt-5'}`}>
       {cfg.contact_email && (
         <a href={`mailto:${cfg.contact_email}`} title={cfg.contact_email}
-          className="group/btn inline-flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-[#0b3320] text-white text-xs font-semibold tracking-wide hover:bg-[var(--accent,#007a3d)] transition-colors">
-          <Mail size={15} /> E-mail
+          className={buttonClass('primary', 'sm')}>
+          <span className="py-2">E-mail</span>
+          <BtnArrow variant="primary" size="sm" icon={Mail} />
         </a>
       )}
       {cfg.contact_whatsapp && (
         <a href={whatsappLink(cfg.contact_whatsapp)} target="_blank" rel="noopener noreferrer" title={cfg.contact_whatsapp}
-          className="inline-flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-[#e8f3ec] text-[#0b3320] text-xs font-semibold tracking-wide hover:bg-[#d4ebdb] transition-colors">
-          <MessageCircle size={15} /> WhatsApp
+          className={buttonClass('outline', 'sm')}>
+          <span className="py-2">WhatsApp</span>
+          <BtnArrow variant="outline" size="sm" icon={MessageCircle} />
         </a>
       )}
       {cfg.contact_link && (

@@ -23,7 +23,7 @@ export const SECTION_TYPES = {
   quote:      { label: 'Citação',           icon: 'Quote',       desc: 'Frase em destaque com autor.', create: () => ({ text: '', author: '', role: '' }) },
   cta:        { label: 'Chamada',           icon: 'Megaphone',   desc: 'Faixa com texto e botão (inscrição, contato...).', create: () => ({ text: '', btn_label: '', btn_link: '' }) },
   tabs:       { label: 'Abas',              icon: 'Layers',      desc: 'Conteúdo dividido em abas (programação, módulos...).', create: () => ({ tabs: [] }) },
-  pdfs:       { label: 'Documentos (PDF)',  icon: 'FileText',    desc: 'Lista de arquivos para baixar.', create: () => ({ pdfs: [] }) },
+  pdfs:       { label: 'Arquivos e documentos', icon: 'FileText', desc: 'Arquivos para baixar: PDF, Word, Excel, PowerPoint, planilhas e imagens.', create: () => ({ pdfs: [] }) },
   logos:      { label: 'Carrossel de logos', icon: 'Building2',  desc: 'Logos de empresas, patrocinadores ou parceiros.', create: () => ({ images: [] }) },
   // Blocos especiais da página de Grupo Temático (só posição/título; o conteúdo vem de outro lugar)
   gt_intro:   { label: 'Apresentação do grupo', icon: 'Info',    desc: 'Texto de apresentação do grupo.', only: ['gt'], create: () => ({ content: '' }) },
@@ -94,7 +94,7 @@ export function isSectionEmpty(s) {
     case 'quote':      return !String(s.text || '').trim();
     case 'cta':        return !String(s.text || '').trim() && !s.title && !s.btn_label;
     case 'tabs':       return !(s.tabs || []).some(t => t && (t.title || !blankHtml(t.content)));
-    case 'pdfs':       return !(s.pdfs || []).some(p => p && (p.url || p.pdf_url));
+    case 'pdfs':       return !(s.pdfs || []).some(p => p && (p.url || p.pdf_url)); // arquivos e documentos
     case 'logos':      return !(s.images || []).some(Boolean);
     default:           return false; // gt_blog / gt_contact: o próprio bloco decide
   }

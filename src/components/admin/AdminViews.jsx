@@ -3,7 +3,7 @@ import { jobCategory } from '../../utils/jobCategories';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions } from './kit';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2, RefreshCw } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
-import Button from '../ui/Button';
+import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from './PageHeaderForm';
 import PageContentForm from './PageContentForm';
 

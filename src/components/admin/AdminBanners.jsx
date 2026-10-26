@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useConfirm, AdminPage } from './kit';
 import { Plus, Trash2, Image as ImageIcon, ToggleLeft, ToggleRight, Save, UploadCloud, Edit, X, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
-import Button from '../ui/Button';
+import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { Input } from '../ui/FormElements';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 
@@ -199,7 +199,7 @@ export default function AdminBanners() {
                 </div>
                 
                 <div className="mt-2 text-[11px] text-gray-500 bg-white p-2 rounded border border-gray-100">
-                    <span className="font-bold text-gray-700 block mb-1">ℹ️ Resolução Recomendada:</span>
+                    <span className="font-bold text-gray-700 block mb-1">Resolução recomendada:</span>
                     <strong>1440 x 550 px</strong>. A imagem será adaptada automaticamente.
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MessageSquare, Users, Briefcase, FileText, CalendarDays, BookOpen, ArrowRight, Globe, Inbox } from 'lucide-react';
+import { ArrowRight, Inbox } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../apiConfig';
 import { useAdminUser } from '../../contexts/AdminUserContext';
@@ -31,13 +31,13 @@ export default function PainelInicio() {
 
   const isNew = (s) => !s || ['new', 'novo', 'unread', 'pending', 'pendente'].includes(String(s).toLowerCase());
   const cards = [
-    { tab: 'leads', icon: MessageSquare, label: 'Mensagens novas', value: (data.leads || []).filter(l => isNew(l.status)).length, total: (data.leads || []).length, totalLabel: 'no total' },
-    { tab: 'candidates', icon: Users, label: 'Candidaturas novas', value: (data.candidates || []).filter(c => isNew(c.status)).length, total: (data.candidates || []).length, totalLabel: 'no total' },
-    { tab: 'jobs', icon: Briefcase, label: 'Vagas abertas', value: (data.jobs || []).filter(j => j.active == 1).length },
-    { tab: 'blog', icon: FileText, label: 'Posts publicados', value: (data.blog || []).filter(p => p.active == 1).length },
-    { tab: 'eventos', icon: CalendarDays, label: 'Eventos no site', value: (data.eventos || []).filter(e => e.active == 1).length },
-    { tab: 'treinamentos', icon: BookOpen, label: 'Treinamentos no site', value: (data.treinamentos || []).filter(e => e.active == 1).length },
-    { tab: 'gt', icon: Globe, label: 'Grupos temáticos', value: (data.gt || []).filter(e => e.active == 1).length },
+    { tab: 'leads', label: 'Mensagens novas', value: (data.leads || []).filter(l => isNew(l.status)).length, total: (data.leads || []).length, totalLabel: 'no total' },
+    { tab: 'candidates', label: 'Candidaturas novas', value: (data.candidates || []).filter(c => isNew(c.status)).length, total: (data.candidates || []).length, totalLabel: 'no total' },
+    { tab: 'jobs', label: 'Vagas abertas', value: (data.jobs || []).filter(j => j.active == 1).length },
+    { tab: 'blog', label: 'Posts publicados', value: (data.blog || []).filter(p => p.active == 1).length },
+    { tab: 'eventos', label: 'Eventos no site', value: (data.eventos || []).filter(e => e.active == 1).length },
+    { tab: 'treinamentos', label: 'Treinamentos no site', value: (data.treinamentos || []).filter(e => e.active == 1).length },
+    { tab: 'gt', label: 'Grupos temáticos', value: (data.gt || []).filter(e => e.active == 1).length },
   ].filter(c => can(c.tab) && data[c.tab] !== undefined);
 
   const recentLeads = (data.leads || []).slice(0, 5);
@@ -56,12 +56,10 @@ export default function PainelInicio() {
       {cards.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {cards.map((c, i) => {
-            const Icon = c.icon;
             return (
               <button key={c.tab} type="button" onClick={() => navigate(TAB_PATHS[c.tab])}
                 className={`text-left bg-white rounded-2xl border border-gray-200/80 p-4 md:p-5 shadow-sm hover:shadow-md hover:border-[#007a3d]/40 transition-all ${cards.length % 2 === 1 && i === cards.length - 1 ? 'col-span-2 lg:col-span-1' : ''}`}>
-                <span className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-50 text-[#007a3d] flex items-center justify-center mb-3 md:mb-4"><Icon size={18} /></span>
-                <p className="text-2xl md:text-3xl font-semibold text-gray-900">{c.value}</p>
+                <p className="text-2xl md:text-3xl font-semibold text-gray-900 tabular-nums">{c.value}</p>
                 <p className="text-sm text-gray-500 mt-1">{c.label}{c.total !== undefined && c.total !== c.value ? <span className="text-gray-400"> · {c.total} {c.totalLabel}</span> : null}</p>
               </button>
             );

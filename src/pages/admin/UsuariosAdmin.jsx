@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, Plus, X, ShieldCheck, PenLine } from 'lucide-react';
 import { AdminPage, AdminCard, PrimaryButton, SecondaryButton, SaveButton, ItemActions, useConfirm, useDirty, useCanLeave } from '../../components/admin/kit';
 import { API_BASE_URL } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
-import { MODULE_OPTIONS } from '../../utils/adminModules';
+import { MODULE_OPTIONS, ALL_ITEMS, canOpenTab } from '../../utils/adminModules';
 import { useAdminUser } from '../../contexts/AdminUserContext';
 
 const API = `${API_BASE_URL}/users.php`;
@@ -51,7 +51,7 @@ export default function UsuariosAdmin() {
       <AdminCard>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
           <div className="flex gap-3"><ShieldCheck className="text-[#007a3d] shrink-0" size={20} /><p><strong>Administrador:</strong> acessa tudo, inclusive esta tela de usuários.</p></div>
-          <div className="flex gap-3"><PenLine className="text-[#007a3d] shrink-0" size={20} /><p><strong>Editor:</strong> só as áreas marcadas. Quem é <strong>responsável por um Grupo Temático</strong> pode publicar no blog daquele grupo.</p></div>
+          <div className="flex gap-3"><PenLine className="text-[#007a3d] shrink-0" size={20} /><p><strong>Editor:</strong> só as áreas marcadas, uma a uma (ex.: só Vagas ou só Candidatos). Quem é <strong>responsável por um Grupo Temático</strong> pode publicar no blog daquele grupo.</p></div>
         </div>
       </AdminCard>
 
@@ -151,33 +151,19 @@ function UserForm({ initial, gts, isSelf, onCancel, onSaved }) {
         </div>
       </AdminCard>
 
-      {f.role === 'editor' && (
-        <AdminCard title="Áreas que pode alterar">
-          <div className="space-y-5">
-            {groups.map(g => (
-              <div key={g}>
-                <p className="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-2">{g}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {MODULE_OPTIONS.filter(o => o.group === g).map(o => (
-                    <label key={o.tab} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
-                      <input type="checkbox" className="w-4 h-4 accent-[#007a3d]" checked={f.modules.includes(o.tab)} onChange={() => toggle('modules', o.tab)} />
-                      {o.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </AdminCard>
-      )}
+      <AreasCard f={f} groups={groups} onToggle={(tab) => toggle('modules', tab)} onSetModules={(mods) => set('modules', mods)} />
 
-      <AdminCard title="Responsável por Grupos Temáticos" subtitle="Pode publicar e editar posts no blog destes grupos (mesmo sem a área “Blog” marcada).">
+
+      <AdminCard title="Responsável por Grupos Temáticos" subtitle="Edita a página destes grupos e publica no blog com a tag deles (mesmo sem as áreas marcadas acima). Cada grupo tem um só responsável: marcar aqui substitui o atual.">
         {gts.length === 0 ? <p className="text-sm text-gray-400">Nenhum grupo temático cadastrado.</p> : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {gts.map(g => (
               <label key={g.id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
                 <input type="checkbox" className="w-4 h-4 accent-[#007a3d]" checked={f.gt_ids.includes(Number(g.id))} onChange={() => toggle('gt_ids', Number(g.id))} />
-                {g.title}
+                <span className="min-w-0">
+                  {g.title}
+                  {g.responsavel?.name && Number(g.responsavel_id) !== Number(f.id) && <span className="block text-xs text-gray-400">Hoje: {g.responsavel.name}</span>}
+                </span>
               </label>
             ))}
           </div>
@@ -187,4 +173,78 @@ function UserForm({ initial, gts, isSelf, onCancel, onSaved }) {
       <div className="flex justify-end"><SaveButton onSave={save} saving={saving} label={f.id ? 'Salvar usuário' : 'Criar usuário'} /></div>
     </AdminPage>
   );
+}
+
+// Áreas do painel que um editor pode alterar, agrupadas como no menu lateral.
+// Cada área é independente: dá para liberar só "Vagas", só "Candidatos" etc.
+function AreasCard({ f, groups, onToggle, onSetModules }) {
+  const isAdmin = f.role === 'admin';
+  const mods = f.modules || [];
+  // O que a pessoa vai ver no menu (mesma regra do painel, inclui o efeito de ser responsável por GT)
+  const preview = ALL_ITEMS.filter(i => i.tab !== 'inicio' && canOpenTab({ role: f.role, modules: mods, gt_ids: f.gt_ids || [] }, i.tab));
+  const setGroup = (tabs, on) => onSetModules(on ? [...new Set([...mods, ...tabs])] : mods.filter(m => !tabs.includes(m)));
+
+  return (
+    <AdminCard title="Áreas que pode alterar"
+      subtitle={isAdmin ? undefined : 'Marque só o que a pessoa precisa. Ex.: para alguém que cuida apenas das vagas, marque só “Vagas”.'}>
+      {isAdmin ? (
+        <p className="text-sm text-gray-600">Administradores veem e alteram todas as áreas, inclusive Usuários e permissões. Para limitar o acesso, escolha o perfil <strong>Editor</strong>.</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2 mb-5 text-sm">
+            <button type="button" onClick={() => onSetModules(MODULE_OPTIONS.map(o => o.tab))} className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]">Marcar todas</button>
+            <button type="button" onClick={() => onSetModules([])} className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]">Desmarcar todas</button>
+            <span className="text-gray-400 ml-auto">{mods.filter(m => MODULE_OPTIONS.some(o => o.tab === m)).length} de {MODULE_OPTIONS.length} áreas</span>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {groups.map(g => {
+              const opts = MODULE_OPTIONS.filter(o => o.group === g);
+              const tabs = opts.map(o => o.tab);
+              const n = tabs.filter(t => mods.includes(t)).length;
+              return (
+                <fieldset key={g} className="rounded-xl border border-gray-200 overflow-hidden">
+                  <legend className="sr-only">{g}</legend>
+                  <label className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-200 cursor-pointer">
+                    <GroupCheck checked={n === tabs.length} partial={n > 0 && n < tabs.length} onChange={(on) => setGroup(tabs, on)} />
+                    <span className="text-sm font-semibold text-gray-800 flex-1">{g}</span>
+                    <span className="text-xs text-gray-400">{n === tabs.length ? 'grupo inteiro' : `${n} de ${tabs.length}`}</span>
+                  </label>
+                  <div className="divide-y divide-gray-100">
+                    {opts.map(o => (
+                      <label key={o.tab} className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-emerald-50/40">
+                        <input type="checkbox" className="mt-0.5 w-4 h-4 accent-[#007a3d] shrink-0" checked={mods.includes(o.tab)} onChange={() => onToggle(o.tab)} />
+                        <span className="min-w-0">
+                          <span className="block text-sm text-gray-800">{o.label}</span>
+                          {o.desc && <span className="block text-xs text-gray-500 mt-0.5">{o.desc}</span>}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <div className="mt-5 rounded-xl bg-emerald-50/60 border border-emerald-100 px-4 py-3" aria-live="polite">
+        <p className="text-xs font-semibold text-emerald-800 mb-1.5">Este usuário verá no menu:</p>
+        {isAdmin ? (
+          <p className="text-sm text-gray-700">Todas as telas do painel.</p>
+        ) : (
+          <p className="text-sm text-gray-700">
+            Início{preview.length ? ', ' + preview.map(i => i.label).join(', ') : ''}.
+            {preview.length === 0 && <span className="text-amber-700"> Nenhuma área marcada: a pessoa entra no painel, mas não consegue alterar nada.</span>}
+          </p>
+        )}
+      </div>
+    </AdminCard>
+  );
+}
+
+// Caixa "marcar grupo inteiro" (fica com traço quando só parte do grupo está marcada)
+function GroupCheck({ checked, partial, onChange }) {
+  const ref = useRef(null);
+  useEffect(() => { if (ref.current) ref.current.indeterminate = partial; }, [partial]);
+  return <input ref={ref} type="checkbox" className="w-4 h-4 accent-[#007a3d]" checked={checked} aria-label="Marcar grupo inteiro" onChange={e => onChange(e.target.checked)} />;
 }

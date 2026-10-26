@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminPage, AdminCard, SaveButton, SaveStatus, useDirty } from '../../components/admin/kit';
 import { Save, Check, Loader2 } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError } from '../../utils/adminApi';
@@ -118,7 +118,7 @@ export default function ContatoAdmin() {
 
       <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
         <p className="text-xs text-emerald-800">
-          <strong>📌 Sobre o formulário:</strong> O formulário em si não é editável (campos fixos: Nome, E-mail, Telefone, Assunto, Mensagem). As mensagens recebidas aparecem na aba <strong>"Leads / Contato"</strong>.
+          <strong>Sobre o formulário:</strong> os campos do formulário são fixos (Nome, E-mail, Telefone, Assunto e Mensagem). As mensagens recebidas aparecem em <strong>Mensagens de contato</strong>.
         </p>
       </div>
     </AdminPage>

@@ -12,6 +12,7 @@ import ApplicationModal from '../components/jobs/ApplicationModal';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { API_BASE_URL } from '../apiConfig';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -151,9 +152,9 @@ export default function Jobs() {
               <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-gray-500">
                 Enquanto isso, deixe seu currículo no banco de talentos. Quando surgir uma vaga com o seu perfil, falamos com você.
               </p>
-              <button type="button" onClick={openBanco} className="group mt-8 inline-flex items-center gap-2 text-sm font-bold text-sif-green">
-                <span className="border-b border-sif-green/30 transition-colors group-hover:border-sif-green">Cadastrar meu currículo</span>
-                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+              <button type="button" onClick={openBanco} className={`mt-8 ${buttonClass('primary')}`}>
+                <span className="py-2">Cadastrar meu currículo</span>
+                <BtnArrow variant="primary" />
               </button>
             </div>
           ) : (

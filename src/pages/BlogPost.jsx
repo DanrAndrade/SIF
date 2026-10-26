@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, ChevronLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
+import { Calendar, ChevronLeft, ArrowLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
@@ -111,7 +111,7 @@ export default function BlogPost() {
       <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4 text-center">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Artigo não encontrado</h2>
         <p className="text-gray-500 mb-6 max-w-md">{error || 'Este artigo não está mais disponível.'}</p>
-        <Button href="/blog" variant="primary" className="rounded-xl">Voltar ao Blog</Button>
+        <Button href="/blog" variant="primary" icon={ArrowLeft}>Voltar ao Blog</Button>
       </div>
     );
   }

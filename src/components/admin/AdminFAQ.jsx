@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useConfirm } from './kit';
 import axios from 'axios';
 import { Plus, Trash2, Edit, X, Save, ChevronUp, ChevronDown, ToggleLeft, ToggleRight, AlertTriangle, HelpCircle, Loader2 } from 'lucide-react';
-import Button from '../ui/Button';
+import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { Input, TextArea } from '../ui/FormElements';
 import { API_BASE_URL } from '../../apiConfig';
 

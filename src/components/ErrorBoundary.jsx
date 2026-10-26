@@ -1,4 +1,6 @@
 import React from 'react';
+import { RefreshCw } from 'lucide-react';
+import { buttonClass, BtnArrow } from './ui/Button';
 
 // Rede de segurança: se uma página quebrar (ou o arquivo dela não carregar
 // porque saiu versão nova do site), mostra um aviso com botão de recarregar
@@ -44,8 +46,9 @@ export default class ErrorBoundary extends React.Component {
           <h1 className="text-2xl font-semibold text-[#1f2937] mb-3">Não foi possível abrir esta página</h1>
           <p className="text-gray-500 mb-8">Pode ter saído uma versão nova do site. Recarregue para continuar.</p>
           <button type="button" onClick={() => window.location.reload()}
-            className="inline-flex items-center px-7 py-3.5 rounded-full bg-[#007a3d] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#1B5E20]">
-            Recarregar
+            className={buttonClass('primary')}>
+            <span className="py-2">Recarregar</span>
+            <BtnArrow variant="primary" icon={RefreshCw} />
           </button>
         </div>
       </div>

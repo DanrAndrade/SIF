@@ -7,7 +7,7 @@ import {
   Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase,
 } from 'lucide-react';
 import { Input, TextArea } from '../ui/FormElements';
-import Button from '../ui/Button';
+import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { uploadImageNow, toastError, apiRequest } from '../../utils/adminApi';
 import AdminFAQ from './AdminFAQ';

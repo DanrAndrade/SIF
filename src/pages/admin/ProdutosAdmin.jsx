@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, SecondaryButton } from '../../components/admin/kit';
 import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';

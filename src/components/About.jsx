@@ -1,8 +1,11 @@
-import React from 'react';
-import { toVideoEmbed } from '../apiConfig';
-import { CheckCircle, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import SectionHeader from './ui/SectionHeader';
+import React, { useState } from 'react';
+import { Play } from 'lucide-react';
+import { getImageUrl } from '../apiConfig';
+import Button from './ui/Button';
+import VideoModal from './ui/VideoModal';
+import useParallax from './about/useParallax';
+
+const PENDING = '[aguardando conteúdo da SIF]';
 
 const DEFAULTS = {
   tag: 'Quem Somos',
@@ -17,72 +20,110 @@ const DEFAULTS = {
   badge_label: 'De excelência',
 };
 
+// Fotos de exemplo (o painel ainda não tem campo de foto para esta seção;
+// se um dia existir "image" / "image_2" no config, elas passam a valer).
+const PHOTO_MAIN = 'https://images.unsplash.com/photo-1639051119236-475ab61f5bc3?q=80&w=1600&auto=format&fit=crop';
+const PHOTO_ALT = 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1200&auto=format&fit=crop';
+
+// Capa do vídeo: miniatura do próprio YouTube; senão, a foto de apoio.
+const youtubeId = (url = '') => (url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i) || [])[1];
+
 export default function About({ config = {} }) {
   const c = { ...DEFAULTS, ...config };
+  const txt = (v) => (v && String(v).trim()) || PENDING;
+  const [video, setVideo] = useState(false);
+  const compRef = useParallax();
+
+  const ytId = youtubeId(c.video_url);
+  const poster = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : getImageUrl(c.image_2 || PHOTO_ALT, 800);
+  const mainPhoto = getImageUrl(c.image || PHOTO_MAIN, 1100);
 
   return (
-      <div className="w-full max-w-[1280px] mx-auto px-3 md:px-12 mt-12">
-        <section className="w-full py-14 px-5 md:py-24 md:px-16 lg:px-24 mt-4 relative bg-white rounded-card md:rounded-panel shadow-sm border border-gray-50 overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full blur-[120px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-
-            <SectionHeader
-                tag={c.tag}
-                title={c.title}
-                align="left"
+    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-12 mt-12">
+      <section className="relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Texto */}
+          <div className="lg:col-span-6 xl:col-span-5 min-w-0">
+            <span className="sif-eyebrow mb-5">{txt(c.tag)}</span>
+            <h2
+              className="sif-title sif-h2 lg:text-6xl leading-[1.05] tracking-tight text-sif-ink mb-8"
+              dangerouslySetInnerHTML={{ __html: txt(c.title) }}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start relative z-10 mb-16">
-                <div className="lg:col-span-5 flex flex-col justify-start">
-                    <p className="text-gray-500 text-base leading-relaxed mb-8 font-medium">
-                        {c.paragraph_1}
-                    </p>
+            <p className="text-lg md:text-xl leading-relaxed text-sif-ink/85 mb-10">
+              {txt(c.paragraph_1)}
+            </p>
 
-                    <div className="flex flex-col sm:flex-row gap-6">
-                        <Link
-                            to={c.cta_link}
-                            className="inline-flex items-center justify-center gap-3 bg-sif-dark hover:bg-[#007a3d] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all hover:scale-105 shadow-xl shadow-sif-dark/10"
-                        >
-                            {c.cta_label} <ArrowRight size={18} />
-                        </Link>
-                    </div>
-                </div>
+            {/* Selo (valor + legenda do painel) */}
+            {(c.badge_value || c.badge_label) && (
+              <div className="flex items-end gap-5 mb-10 pb-10 border-b border-sif-dark/10">
+                <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">
+                  {c.badge_value}
+                </span>
+                {c.badge_label && (
+                  <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55 leading-snug">
+                    {c.badge_label}
+                  </span>
+                )}
+              </div>
+            )}
 
-                <div className="lg:col-span-7 relative">
-                    <div className="relative w-full aspect-video rounded-panel overflow-hidden border border-gray-100 group shadow-2xl bg-black">
-                        <iframe
-                            className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
-                            src={toVideoEmbed(c.video_url) || c.video_url}
-                            title="Vídeo Institucional SIF"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                        ></iframe>
-                        <div className="absolute inset-0 pointer-events-none border-[12px] border-white/5 rounded-panel"></div>
-                    </div>
+            <Button href={c.cta_link || '/institucional'} variant="primary" size="lg">
+              {txt(c.cta_label)}
+            </Button>
+          </div>
 
-                    <div className="absolute -bottom-8 -left-8 bg-white p-8 rounded-card shadow-2xl border border-gray-50 hidden md:block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-[#007a3d]">
-                                <CheckCircle size={24} />
-                            </div>
-                            <div>
-                                <span className="block text-2xl font-black text-[#1f2937] leading-none">{c.badge_value}</span>
-                                <span className="text-[10px] uppercase font-black tracking-widest text-gray-400">{c.badge_label}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          {/* Composição de fotos com leve parallax */}
+          <div ref={compRef} className="lg:col-span-6 xl:col-span-7 relative min-w-0 pb-16 sm:pb-20 lg:pb-10 lg:pl-10">
+            <div data-speed="-0.05" className="will-change-transform">
+              <div className="relative ml-auto w-[88%] sm:w-[80%] aspect-[5/4] sm:aspect-[4/5] rounded-card md:rounded-panel overflow-hidden bg-sif-dark/10 shadow-card">
+                <img
+                  src={mainPhoto}
+                  alt="Floresta plantada"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
             </div>
 
-            <div className="w-full relative z-10 mt-8">
-                <p className="text-gray-500 text-base leading-relaxed mb-4 font-medium">
-                    {c.paragraph_2}
-                </p>
-                <p className="text-gray-500 text-base leading-relaxed mb-0 font-medium">
-                    {c.paragraph_3}
-                </p>
+            {/* Vídeo institucional (abre em janela) */}
+            <div data-speed="0.06" className="absolute left-0 bottom-0 w-[64%] sm:w-[58%] lg:w-[56%] will-change-transform">
+              <button
+                type="button"
+                onClick={() => setVideo(true)}
+                aria-label="Assistir ao vídeo institucional"
+                className="group relative block w-full aspect-video rounded-card overflow-hidden bg-sif-dark ring-[6px] md:ring-8 ring-[#f6f8f7] shadow-card"
+              >
+                <img
+                  src={poster}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover scale-[1.02] transition-transform duration-700 group-hover:scale-[1.06]"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-sif-dark/80 via-sif-dark/20 to-transparent" />
+                <span className="absolute left-4 bottom-4 md:left-5 md:bottom-5 flex items-center gap-3 text-white text-left">
+                  <span className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white text-sif-dark flex items-center justify-center transition-colors group-hover:bg-sif-leaf group-hover:text-white">
+                    <Play size={18} className="ml-0.5" fill="currentColor" />
+                  </span>
+                  <span className="text-[11px] md:text-xs font-bold uppercase tracking-[0.16em] leading-snug">
+                    Vídeo<br className="sm:hidden" /> institucional
+                  </span>
+                </span>
+              </button>
             </div>
-        </section>
-      </div>
+          </div>
+        </div>
+
+        {/* Texto de apoio em duas colunas */}
+        <div className="mt-14 lg:mt-20 pt-10 border-t border-sif-dark/10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
+          <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_2)}</p>
+          <p className="text-base leading-relaxed text-gray-600">{txt(c.paragraph_3)}</p>
+        </div>
+      </section>
+
+      {video && <VideoModal url={c.video_url} title="Vídeo Institucional SIF" onClose={() => setVideo(false)} />}
+    </div>
   );
 }

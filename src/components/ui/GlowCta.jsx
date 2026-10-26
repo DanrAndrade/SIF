@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { ArrowRight } from 'lucide-react';
+
 import SmartLink from './SmartLink';
-import { buttonClass } from './Button';
+import { buttonClass, BtnArrow } from './Button';
 
 // Card de chamada escuro (verde da SIF) com um brilho desfocado que segue o
 // mouse e cresce no hover. Usado em "Trabalhe Conosco" (Home) e "Quer
@@ -39,8 +39,7 @@ export default function GlowCta({ eyebrow, title, highlight, text, btnLabel, hre
         </div>
         {btnLabel && (
           <span className={`shrink-0 w-fit ${buttonClass('light')}`}>
-            {btnLabel}
-            <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+            <span className="py-2">{btnLabel}</span><BtnArrow variant="light" />
           </span>
         )}
       </div>

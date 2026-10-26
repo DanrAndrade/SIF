@@ -10,6 +10,7 @@ import { useSeo } from '../hooks/useSeo';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
 import DetailHero from '../components/DetailHero';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 import { FlaskConical } from 'lucide-react';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
@@ -111,8 +112,9 @@ export default function ProjetoDetalhe() {
               {projeto.pdf_url && (
                 <div className="mt-12 flex justify-center border-b border-gray-100 pb-12">
                   <a href={getImageUrl(projeto.pdf_url)} target="_blank" rel="noreferrer"
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-[#007a3d] text-white rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-[#007a3d]/30 hover:bg-[#006030] hover:shadow-xl hover:-translate-y-1 transition-all">
-                    Baixar Documento do Projeto (PDF) <Download size={16}/>
+                    className={buttonClass('primary', 'lg')}>
+                    <span className="py-2">Baixar Documento do Projeto (PDF)</span>
+                    <BtnArrow variant="primary" size="lg" icon={Download} />
                   </a>
                 </div>
               )}
@@ -146,9 +148,10 @@ export default function ProjetoDetalhe() {
                 href={toExternalUrl(projeto.link_url) || undefined} 
                 target="_blank" 
                 rel="noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-sif-dark text-white rounded-2xl font-bold uppercase tracking-widest text-xs hover:bg-[#007a3d] hover:shadow-lg transition-all hover:-translate-y-1"
+                className={buttonClass('primary', 'lg')}
               >
-                Visitar Página Externa do Projeto <ExternalLink size={16} />
+                <span className="py-2">Visitar Página Externa do Projeto</span>
+                <BtnArrow variant="primary" size="lg" icon={ExternalLink} />
               </a>
             </div>
           )}

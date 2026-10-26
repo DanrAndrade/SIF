@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useConfirm, ItemActions, moveItem } from '../../../components/admin/kit';
-import { Plus, Trash2, Save, Image as ImageIcon, X, Phone, Mail, DownloadCloud } from 'lucide-react';
+import { Plus, Trash2, Save, Image as ImageIcon, X, DownloadCloud } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
 import { validateImageSize } from '../../../utils/toast';
@@ -145,11 +145,11 @@ function MemberCard({ member, groupList, onDelete, onUpdate, onMove, isFirst, is
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1 flex items-center gap-1"><Mail size={10} /> E-mail</label>
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">E-mail</label>
               <input className="w-full p-2 bg-white border rounded-lg text-sm outline-none focus:border-[#007a3d]" value={form.link_email || ''} onChange={e => setForm(p => ({ ...p, link_email: e.target.value }))} placeholder="nome@sif.org.br" />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1 flex items-center gap-1"><Phone size={10} /> WhatsApp</label>
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">WhatsApp</label>
               <input className="w-full p-2 bg-white border rounded-lg text-sm outline-none focus:border-[#007a3d]" value={form.link_whatsapp || ''} onChange={e => setForm(p => ({ ...p, link_whatsapp: e.target.value }))} placeholder="31999999999" />
             </div>
           </div>

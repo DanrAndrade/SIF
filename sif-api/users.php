@@ -26,6 +26,12 @@ function sif_user_row(array $u): array {
         'gt_ids'     => array_map('intval', sif_json_list($u['gt_ids'] ?? null)),
         'active'     => (int)($u['active'] ?? 1),
         'last_login' => $u['last_login'] ?? null,
+        // perfil público (card de responsável por GT)
+        'photo'         => $u['photo'] ?? '',
+        'whatsapp'      => $u['whatsapp'] ?? '',
+        'link'          => $u['link'] ?? '',
+        'link_label'    => $u['link_label'] ?? '',
+        'contact_email' => $u['contact_email'] ?? '',
     ];
 }
 
@@ -39,9 +45,14 @@ if ($method === 'GET') {
     if (!sif_is_admin()) { http_response_code(401); echo json_encode(['success' => false, 'error' => 'nao_autorizado', 'message' => 'Faça login.']); exit; }
 
     if (isset($_GET['responsaveis'])) {
-        $rows = $pdo->query("SELECT id, name, cargo FROM admins WHERE COALESCE(active,1) = 1 ORDER BY name, id")->fetchAll(PDO::FETCH_ASSOC);
+        // Inclui o perfil público (usado ao escolher o responsável de um GT); nunca o e-mail de acesso
+        $rows = $pdo->query("SELECT * FROM admins WHERE COALESCE(active,1) = 1 ORDER BY name, id")->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(array_map(fn($r) => [
             'id' => (int)$r['id'], 'name' => $r['name'] ?: ('Usuário #' . $r['id']), 'cargo' => $r['cargo'] ?? '',
+            'role' => ($r['role'] ?? 'editor') === 'admin' ? 'admin' : 'editor',
+            'photo' => $r['photo'] ?? '', 'whatsapp' => $r['whatsapp'] ?? '', 'link' => $r['link'] ?? '',
+            'link_label' => $r['link_label'] ?? '', 'contact_email' => $r['contact_email'] ?? '',
+            'gt_ids' => array_map('intval', sif_json_list($r['gt_ids'] ?? null)),
         ], $rows));
         exit;
     }
@@ -106,6 +117,8 @@ if ($action === 'save') {
     }
     if ($id === $me['id'] && !$active) $fail('Você não pode desativar o seu próprio usuário.');
 
+    $oldGt = [];
+    if ($id) { $st = $pdo->prepare("SELECT gt_ids FROM admins WHERE id = ?"); $st->execute([$id]); $oldGt = array_map('intval', sif_json_list($st->fetchColumn())); }
     $mods = json_encode($role === 'admin' ? [] : $modules);
     $gts  = json_encode($gtIds);
     if ($id) {
@@ -117,6 +130,8 @@ if ($action === 'save') {
             ->execute([$name, $cargo, $email, password_hash($pass, PASSWORD_DEFAULT), $role, $mods, $gts, $active]);
         $id = (int)$pdo->lastInsertId();
     }
+    // Cada GT tem um só responsável: marcar aqui troca o responsável do GT
+    sif_gt_sync_user($pdo, $id, $gtIds, $oldGt);
     $st = $pdo->prepare("SELECT * FROM admins WHERE id = ?");
     $st->execute([$id]);
     echo json_encode(['success' => true, 'user' => sif_user_row($st->fetch(PDO::FETCH_ASSOC))]);
@@ -129,6 +144,7 @@ if ($action === 'delete') {
     if ($id === $me['id']) { http_response_code(400); echo json_encode(['success' => false, 'message' => 'Você não pode excluir o seu próprio usuário.']); exit; }
     if (sif_active_admin_count($pdo, $id) === 0) { http_response_code(400); echo json_encode(['success' => false, 'message' => 'Não é possível excluir o último administrador.']); exit; }
     $pdo->prepare("DELETE FROM admins WHERE id = ?")->execute([$id]);
+    $pdo->prepare("UPDATE gt SET responsavel_id = NULL WHERE responsavel_id = ?")->execute([$id]); // GT fica sem responsável
     echo json_encode(['success' => true]);
     exit;
 }

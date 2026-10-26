@@ -1,5 +1,6 @@
 import React from 'react';
 import { WifiOff, RefreshCw } from 'lucide-react';
+import { buttonClass, BtnArrow } from './Button';
 
 // Aviso padrão quando uma lista do site não carrega (servidor fora do ar,
 // internet caiu). Antes a página mostrava "nenhum item", como se não
@@ -14,9 +15,10 @@ export default function LoadError({ onRetry, className = '' }) {
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#007a3d] text-white text-sm font-bold hover:bg-[#1B5E20] transition-colors"
+          className={buttonClass('primary')}
         >
-          <RefreshCw size={16} /> Tentar novamente
+          <span className="py-2">Tentar novamente</span>
+          <BtnArrow variant="primary" icon={RefreshCw} />
         </button>
       )}
     </div>

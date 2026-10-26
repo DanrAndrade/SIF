@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
-import { ChevronLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ArrowLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
@@ -62,7 +62,7 @@ export default function EventoDetalhe() {
     return (
       <div className="min-h-screen sif-page flex flex-col items-center justify-center p-4">
         <h2 className="sif-title text-2xl text-gray-800 mb-4 tracking-tighter">Evento não encontrado</h2>
-        <Button href="/eventos" variant="primary" className="rounded-xl font-bold tracking-tight">Voltar para Eventos</Button>
+        <Button href="/eventos" variant="primary" icon={ArrowLeft}>Voltar para Eventos</Button>
       </div>
     );
   }

@@ -4,12 +4,13 @@ import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
   Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check, Upload,
 } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
 import TeamManager from './inst/TeamManager';
 import TimelineManager from './inst/TimelineManager';
 import Field from '../../components/admin/kit/Field'; // campo padrão do painel
+import IconPicker from '../../components/admin/kit/IconPicker'; // escolha de ícone por clique
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -328,7 +329,7 @@ function AreasForm({ cfg, set }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Título" value={area.title} onChange={v => updateArea(idx, { title: v })} />
-              <Field label="Ícone (Sprout/Map/Leaf/Shield/Settings/Microscope/Globe/Users)" value={area.icon} onChange={v => updateArea(idx, { icon: v })} />
+              <IconPicker label="Ícone" value={area.icon} onChange={v => updateArea(idx, { icon: v })} options={["Sprout", "Leaf", "Map", "Globe", "Microscope", "Settings", "Shield", "Users"]} />
             </div>
             <div className="mt-3">
               <Field label="Descrição" type="textarea" rows={3} value={area.desc} onChange={v => updateArea(idx, { desc: v })} />
@@ -463,10 +464,10 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onPdfDone, onRemov
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Lado ESQUERDO — textos */}
         <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">📝 Textos (lado esquerdo)</p>
+          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">Textos (lado esquerdo)</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field label="Título do bloco" value={block.title} onChange={v => onUpdate({ title: v })} />
-            <Field label="Ícone (Scale/FileText/FileBadge/Shield)" value={block.icon} onChange={v => onUpdate({ icon: v })} />
+            <IconPicker label="Ícone" value={block.icon} onChange={v => onUpdate({ icon: v })} options={["Scale", "FileText", "FileBadge", "Shield"]} />
           </div>
           <Field label="Subtítulo (texto verde — opcional)" value={block.subtitle} onChange={v => onUpdate({ subtitle: v })} />
           <div className="space-y-2">
@@ -493,7 +494,7 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onPdfDone, onRemov
 
         {/* Lado DIREITO — PDFs */}
         <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">📄 PDFs (lado direito)</p>
+          <p className="text-[10px] font-bold uppercase text-emerald-700 tracking-widest">PDFs (lado direito)</p>
           {pdfs.map((pdf, i) => (
             <div key={i} className="p-3 bg-white border border-gray-200 rounded-xl space-y-2">
               <div className="flex justify-between items-center">
@@ -505,7 +506,7 @@ function BlockEditor({ idx, block, isFirst, isLast, onUpdate, onPdfDone, onRemov
                 </div>
               </div>
               <Field label="Título do PDF" value={pdf.label} onChange={v => updatePdf(i, { label: v })} />
-              <Field label="Ícone (FileText/FileBadge/Shield/Scale)" value={pdf.icon} onChange={v => updatePdf(i, { icon: v })} />
+              <IconPicker label="Ícone" value={pdf.icon} onChange={v => updatePdf(i, { icon: v })} options={["FileText", "FileBadge", "Shield", "Scale"]} />
               <div>
                 <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Arquivo PDF</label>
                 {pdf.url && (

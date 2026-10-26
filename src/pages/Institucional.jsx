@@ -14,7 +14,7 @@ import Button from '../components/ui/Button';
 import SmartLink from '../components/ui/SmartLink';
 import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
-import { buttonClass } from '../components/ui/Button';
+import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
@@ -340,6 +340,16 @@ export default function Institucional() {
     ? resolveTeamGroups(cfg.team_groups, Object.keys(teamFromApi))
         .filter((g) => teamFromApi[g.key] && teamFromApi[g.key].length > 0)
     : [];
+  // Filtro de "Nossa Gente": todos os grupos ou só um, e busca por nome
+  const [teamFilter, setTeamFilter] = useState('todos');
+  const [teamQuery, setTeamQuery] = useState('');
+  const norm = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase(); // sem acentos
+  const shownGroups = teamGroups
+    .filter((g) => teamFilter === 'todos' || g.key === teamFilter)
+    .map((g) => ({ ...g, data: teamQuery.trim()
+      ? teamFromApi[g.key].filter((m) => norm(m.name + ' ' + (m.role || '')).includes(norm(teamQuery.trim())))
+      : teamFromApi[g.key] }))
+    .filter((g) => g.data.length > 0);
 
   // Scroll automático para a seção SOMENTE quando há hash explícito na URL
   // (ex: /institucional#nossa-gente). Sem hash (reload normal), vai para o topo
@@ -387,7 +397,7 @@ export default function Institucional() {
         <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
           <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{cfg.hero_badge}</span>
 
-          <h1 className="sif-title text-5xl md:text-8xl text-white leading-[0.9] tracking-tighter mb-8">
+          <h1 className="sif-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] tracking-tighter mb-8">
               {cfg.hero_title_line1} <br/>
               <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
           </h1>
@@ -414,7 +424,7 @@ export default function Institucional() {
       </div>
 
       {/* QUEM SOMOS */}
-      <div id="quem-somos" className="py-24 bg-white">
+      <div id="quem-somos" className="py-24">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 <div className="space-y-8 animate-in slide-in-from-left duration-1000">
@@ -452,25 +462,48 @@ export default function Institucional() {
         <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-20">
-                    <span className="sif-eyebrow mb-4 underline underline-offset-8">{cfg.team_tag}</span>
+                    <span className="sif-eyebrow mb-4">{cfg.team_tag}</span>
                     <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.team_title}</h2>
                     <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
                 </div>
 
+                {/* FILTRO: grupo e busca por nome */}
+                {teamGroups.length > 0 && (
+                  <div className="flex flex-col gap-6 mb-14" data-no-reveal>
+                    <div className="flex flex-wrap gap-x-6 gap-y-3 border-b border-gray-200" role="tablist" aria-label="Filtrar por grupo">
+                      {[{ key: 'todos', label: 'Todos' }, ...teamGroups.map((g) => ({ key: g.key, label: g.label || g.key }))].map((t) => (
+                        <button key={t.key} type="button" role="tab" aria-selected={teamFilter === t.key} onClick={() => setTeamFilter(t.key)}
+                          className={`relative shrink-0 pb-3 text-sm font-semibold transition-colors ${teamFilter === t.key ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
+                          {t.label}
+                          <span className={`absolute left-0 right-0 -bottom-px h-[2px] bg-[#007a3d] transition-transform duration-300 origin-left ${teamFilter === t.key ? 'scale-x-100' : 'scale-x-0'}`} />
+                        </button>
+                      ))}
+                    </div>
+                    <label className="relative block w-full md:w-80 md:self-end">
+                      <span className="sr-only">Buscar pessoa</span>
+                      <input type="search" value={teamQuery} onChange={(e) => setTeamQuery(e.target.value)} placeholder="Buscar por nome ou cargo"
+                        className="w-full bg-transparent border-b border-gray-300 focus:border-[#007a3d] outline-none py-2.5 text-sm text-[#1f2937] placeholder:text-gray-400 transition-colors" />
+                    </label>
+                  </div>
+                )}
+
                 {/* CARROSSEIS — dados 100% do banco (admin → Equipe), via getImageUrl */}
-                {teamGroups.map((g) => (
-                    <GalleryCarousel key={g.key} title={g.label || g.key} data={teamFromApi[g.key]} />
+                {shownGroups.map((g) => (
+                    <GalleryCarousel key={g.key + teamQuery} title={g.label || g.key} data={g.data} />
                 ))}
+                {teamGroups.length > 0 && shownGroups.length === 0 && (
+                  <p className="text-center text-gray-400 py-12">Ninguém encontrado com esse nome.</p>
+                )}
             </div>
         </div>
         
         {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
-        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 border-t border-gray-50 overflow-hidden`}>
+        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 overflow-hidden`}>
             {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
         </div>
 
         {/* ESTATUTO E NORMAS */}
-        <div id="estatutos-normas" className="bg-transparent py-24 md:py-32 border-t border-gray-100">
+        <div id="estatutos-normas" className="bg-transparent py-24 md:py-32">
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
 
                 {/* Cabeçalho */}
@@ -541,7 +574,7 @@ export default function Institucional() {
             </div>
         </div>
 
-        <div id="historia" className="history-container py-24 bg-white" ref={mainRef}>
+        <div id="historia" className="history-container py-24" ref={mainRef}>
             <div className="container mx-auto px-6 md:px-12 max-w-7xl">
                 <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                     <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
@@ -604,7 +637,7 @@ export default function Institucional() {
                           <div className="mt-8">
                             <SmartLink href={cfg.cta_card_btn_link || '/contato'}
                               className={buttonClass('light')}>
-                              {cfg.cta_card_btn_label} <ArrowRight size={16} />
+                              <span className="py-2">{cfg.cta_card_btn_label}</span><BtnArrow variant="light" />
                             </SmartLink>
                           </div>
                         )}

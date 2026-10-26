@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  FileText, Download, ArrowRight, Play, Quote as QuoteIcon, X, ExternalLink, ChevronLeft, ChevronRight,
+  Download, ArrowRight, Play, Quote as QuoteIcon, X, ExternalLink, ChevronLeft, ChevronRight,
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
   Factory, FlaskConical, HeartHandshake, Rocket, Droplets, Flame, Recycle, Truck, Settings, Map,
 } from 'lucide-react';
@@ -9,8 +9,9 @@ import SectionTitle from './SectionTitle';
 import LogoCarousel from './LogoCarousel';
 import SmartLink from '../ui/SmartLink';
 import { videoEmbedUrl } from '../ui/VideoModal';
-import { buttonClass } from '../ui/Button';
+import { buttonClass, BtnArrow } from '../ui/Button';
 import CountUp from '../ui/CountUp';
+import { fileExt, fileIcon, fileMetaLabel, fileUrl } from './fileMeta';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
@@ -263,7 +264,7 @@ export function CtaBlock({ sec }) {
         </div>
         {sec.btn_label && (
           <SmartLink href={sec.btn_link || '/contato'} className={`shrink-0 ${buttonClass('light')}`}>
-            {sec.btn_label} <ArrowRight size={16} />
+            <span className="py-2">{sec.btn_label}</span><BtnArrow variant="light" />
           </SmartLink>
         )}
       </div>
@@ -297,20 +298,28 @@ export function TabsBlock({ sec, dark }) {
   );
 }
 
+// Arquivos e documentos (tipo 'pdfs'): nome, ícone pelo tipo, extensão e tamanho
 export function PdfsBlock({ sec, dark }) {
-  const pdfs = (sec.pdfs || []).filter(p => p && (p.url || p.pdf_url));
+  const files = (sec.pdfs || []).filter(p => fileUrl(p));
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {pdfs.map((p, i) => (
-          <a key={i} href={getImageUrl(p.url || p.pdf_url)} target="_blank" rel="noopener noreferrer"
-            className={`group flex items-center gap-4 p-5 rounded-2xl transition-all ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.12]' : 'sif-card sif-card-hover border border-gray-100 hover:-translate-y-0.5'}`}>
-            <span className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)]'}`}><FileText size={20} /></span>
-            <span className={`flex-1 min-w-0 font-semibold text-sm leading-snug line-clamp-2 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{p.title || `Documento ${i + 1}`}</span>
-            <Download size={18} className={`shrink-0 transition-transform group-hover:translate-y-0.5 ${dark ? 'text-white/50' : 'text-gray-300 group-hover:text-[var(--accent,#007a3d)]'}`} />
-          </a>
-        ))}
+        {files.map((p, i) => {
+          const Icon = fileIcon(fileExt(p));
+          const meta = fileMetaLabel(p);
+          return (
+            <a key={i} href={getImageUrl(fileUrl(p))} target="_blank" rel="noopener noreferrer"
+              className={`group flex items-center gap-4 p-5 rounded-2xl transition-all ${dark ? 'bg-white/[0.06] border border-white/10 hover:bg-white/[0.12]' : 'sif-card sif-card-hover border border-gray-100 hover:-translate-y-0.5'}`}>
+              <span className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)]'}`}><Icon size={20} aria-hidden="true" /></span>
+              <span className="flex-1 min-w-0">
+                <span className={`block font-semibold text-sm leading-snug line-clamp-2 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{p.title || `Arquivo ${i + 1}`}</span>
+                {meta && <span className={`block mt-1 text-xs ${dark ? 'text-white/55' : 'text-gray-400'}`}>{meta}</span>}
+              </span>
+              <Download size={18} aria-hidden="true" className={`shrink-0 transition-transform group-hover:translate-y-0.5 ${dark ? 'text-white/50' : 'text-gray-300 group-hover:text-[var(--accent,#007a3d)]'}`} />
+            </a>
+          );
+        })}
       </div>
     </div>
   );

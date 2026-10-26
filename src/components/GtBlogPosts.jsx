@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { BlockHeader } from './sections/SectionBlocks';
+import { buttonClass, BtnArrow } from './ui/Button';
 import { htmlExcerpt } from './sections/sectionTypes';
 
 const fmt = (d) => (d ? new Date(String(d).replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '');
@@ -29,8 +30,9 @@ export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null,
     <div>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
         <BlockHeader sec={header} dark={dark} className="mb-0" />
-        <Link to="/blog" className={`group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)]'}`}>
-          Ver o blog completo <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+        <Link to="/blog" className={`shrink-0 self-start md:self-auto ${buttonClass(dark ? 'ghostLight' : 'outline', 'sm')}`}>
+          <span className="py-2">Ver o blog completo</span>
+          <BtnArrow variant={dark ? 'ghostLight' : 'outline'} size="sm" />
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
