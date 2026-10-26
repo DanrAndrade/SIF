@@ -160,7 +160,7 @@ export default function Treinamentos() {
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
             <h2 className="sif-title sif-h2 text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
             <p className="text-gray-400 text-base mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
-            <Button href="/treinamentos-in-company" variant="light" size="lg">Consultar Projeto Customizado</Button>
+            <Button href="/treinamentos-in-company" variant="light">Consultar Projeto Customizado</Button>
          </div>
       </section>
 

@@ -141,7 +141,7 @@ export default function ContactForm({ tag, titleLine1, titleLine2 }) {
               type="submit"
               disabled={loading}
               aria-busy={loading}
-              className="group relative inline-flex w-full sm:w-auto items-center justify-center gap-3 overflow-hidden rounded-full bg-sif-dark pl-8 pr-2 py-2 text-[13px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-500 hover:bg-sif-green disabled:cursor-wait active:scale-[0.98]"
+              className="group relative inline-flex self-start sm:self-auto items-center justify-center gap-3 overflow-hidden rounded-full bg-sif-dark pl-8 pr-2 py-2 text-[13px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-500 hover:bg-sif-green disabled:cursor-wait active:scale-[0.98]"
             >
               <span className="py-2">{loading ? 'Enviando' : status === 'error' ? 'Tentar novamente' : 'Enviar mensagem'}</span>
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-500 group-hover:bg-white group-hover:text-sif-green">

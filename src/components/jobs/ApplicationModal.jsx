@@ -32,7 +32,7 @@ const MOTION_CSS = `
 `;
 
 // Botão principal no mesmo estilo do formulário de contato
-const PRIMARY = 'group relative inline-flex w-full sm:w-auto items-center justify-center gap-3 overflow-hidden rounded-full bg-sif-dark pl-8 pr-2 py-2 text-[13px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-500 hover:bg-sif-green disabled:cursor-wait active:scale-[0.98]';
+const PRIMARY = 'group relative inline-flex self-start sm:self-auto items-center justify-center gap-3 overflow-hidden rounded-full bg-sif-dark pl-8 pr-2 py-2 text-[13px] font-bold uppercase tracking-[0.14em] text-white transition-colors duration-500 hover:bg-sif-green disabled:cursor-wait active:scale-[0.98]';
 const PRIMARY_ICON = 'flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-500 group-hover:bg-white group-hover:text-sif-green';
 
 // Janela da vaga em dois passos: 1) detalhes  2) candidatura.

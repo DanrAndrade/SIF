@@ -8,6 +8,20 @@ import { whatsappLink } from '../../apiConfig';
 // groups: [{ key, label, data: [{ id, name, role, image, link_email, link_whatsapp, link_phone }] }]
 
 const norm = (s) => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase(); // sem acentos
+const words = (s) => norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+
+// Quão bem a pessoa combina com a busca (menor = melhor; -1 = não aparece):
+// 0 primeiro nome começa com o texto, 1 outro nome começa, 2 cargo começa
+// (a partir de 2 letras), 3 o texto aparece no meio (a partir de 3 letras).
+function matchScore(m, q) {
+  if (q.includes(' ')) return norm(m.name).includes(q) ? 1 : (norm(m.role).includes(q) ? 2 : -1);
+  const name = words(m.name);
+  if (name[0]?.startsWith(q)) return 0;
+  if (name.some((w) => w.startsWith(q))) return 1;
+  if (q.length >= 2 && words(m.role).some((w) => w.startsWith(q))) return 2;
+  if (q.length >= 3 && norm(`${m.name} ${m.role || ''}`).includes(q)) return 3;
+  return -1;
+}
 
 // Carrossel de um grupo: centralizado quando cabe; com setas quando não cabe.
 export function TeamCarousel({ title, data }) {
@@ -94,11 +108,19 @@ export default function TeamDirectory({ groups = [] }) {
   const visible = groups.filter((g) => g.data && g.data.length > 0);
   if (visible.length === 0) return null;
 
-  const q = norm(query.trim());
-  const shown = visible
-    .filter((g) => filter === 'todos' || g.key === filter)
-    .map((g) => ({ ...g, data: q ? g.data.filter((m) => norm(`${m.name} ${m.role || ''}`).includes(q)) : g.data }))
-    .filter((g) => g.data.length > 0);
+  const q = norm(query.trim()).replace(/\s+/g, ' ');
+  const inFilter = visible.filter((g) => filter === 'todos' || g.key === filter);
+  // Com busca: uma lista só, quem combina melhor primeiro (ex.: "E" traz a Edna no começo)
+  const results = q
+    ? inFilter.flatMap((g) => g.data)
+        .map((m) => [matchScore(m, q), m])
+        .filter(([sc]) => sc >= 0)
+        .sort((a, b) => a[0] - b[0] || norm(a[1].name).localeCompare(norm(b[1].name)))
+        .map(([, m]) => m)
+    : [];
+  const shown = q
+    ? (results.length ? [{ key: 'busca', label: `${results.length} ${results.length === 1 ? 'resultado' : 'resultados'}`, data: results }] : [])
+    : inFilter;
   const tabs = visible.length > 1 ? [{ key: 'todos', label: 'Todos' }, ...visible.map((g) => ({ key: g.key, label: g.label || g.key }))] : [];
 
   return (
@@ -123,7 +145,7 @@ export default function TeamDirectory({ groups = [] }) {
       </div>
 
       {shown.map((g) => (
-        <TeamCarousel key={g.key + query} title={visible.length > 1 ? (g.label || g.key) : ''} data={g.data} />
+        <TeamCarousel key={g.key + query} title={q || visible.length > 1 ? (g.label || g.key) : ''} data={g.data} />
       ))}
       {shown.length === 0 && <p className="text-center text-gray-400 py-12">Ninguém encontrado com esse nome.</p>}
     </>

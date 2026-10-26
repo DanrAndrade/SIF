@@ -88,7 +88,7 @@ export default function ProjetosEmbrapii() {
   };
 
   return (
-    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-clip selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       <EditablePageHero pageKey="embrapii" defaults={EMBRAPII_HERO_DEFAULTS} scrollTargetId="embrapii-intro" />
 

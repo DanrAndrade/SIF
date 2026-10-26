@@ -102,8 +102,9 @@ export default function Process({ config = {} }) {
               return (
                 <StepLink key={i} step={step}
                   onMouseEnter={() => hoverTo(i)} onMouseLeave={cancelHover} onFocus={() => setActive(i)}
-                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[1000ms] ease-[cubic-bezier(.25,.8,.25,1)] [contain:layout_paint]"
-                  style={{ flexGrow: isActive ? 2.8 : 1, flexBasis: 0 }}>
+                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime [contain:layout_paint]"
+                  // transição no próprio card: a regra global de links arredondados (levantar no hover) anulava a da largura
+                  style={{ flexGrow: isActive ? 2.8 : 1, flexBasis: 0, transition: 'flex-grow 900ms cubic-bezier(.33,1,.68,1)', transform: 'none' }}>
                   <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)}
                     className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-[min(820px,62vw)] max-w-none object-cover" />
                   {/* fechado: escurece a foto (só opacidade, leve até em aparelhos fracos) */}

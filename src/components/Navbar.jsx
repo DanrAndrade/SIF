@@ -36,6 +36,16 @@ export default function Navbar({ scrolled: forceScrolled }) {
   }, [hidden, mobileMenuOpen]);
   useEffect(() => () => { document.documentElement.dataset.navHidden = '0'; }, []);
 
+  // Menu do celular aberto: página parada atrás e Esc fecha
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => { if (e.key === 'Escape') { setMobileMenuOpen(false); setMobileExpanded(null); } };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
+  }, [mobileMenuOpen]);
+
   const scrolled = forceScrolled || isScrolled;
   
   // Se estivermos em uma página que NÃO inicia com Hero escuro, podemos forçar o estado 'scrolled'
@@ -203,108 +213,81 @@ export default function Navbar({ scrolled: forceScrolled }) {
         </div>
       </header>
 
-      {/* --- MOBILE DRAWER --- */}
-      <div 
-        className={`fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
-        onClick={closeMenu}
-      ></div>
+      {/* --- MENU DO CELULAR: tela cheia, cinza-escuro translúcido com desfoque, texto branco --- */}
+      <div
+        role="dialog" aria-modal="true" aria-label="Menu"
+        className={`fixed inset-0 z-[70] lg:hidden flex flex-col bg-[#121614]/85 backdrop-blur-xl text-white transition-[opacity,visibility] duration-300 ease-out ${mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
+      >
+        <div className="flex justify-between items-center px-6 h-20 shrink-0">
+          <Link to="/" onClick={closeMenu}><img src={logoSif} alt="SIF" className="h-9 w-auto object-contain" /></Link>
+          <button onClick={closeMenu} aria-label="Fechar menu" className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center text-white active:bg-white/15 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
 
-      <div className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out lg:hidden flex flex-col ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                <img src={logoSif} alt="SIF" className="h-8 w-auto object-contain" />
-                <button onClick={closeMenu} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#007a3d] hover:text-white transition-colors">
-                    <X size={20} />
-                </button>
-            </div>
+        <nav className="flex-1 overflow-y-auto px-6 pt-2 pb-8">
+          <ul className="divide-y divide-white/10 border-y border-white/10">
+            {navLinks.map((link, idx) => {
+              const open = mobileExpanded === link.name;
+              const enter = { transitionDelay: mobileMenuOpen ? `${80 + idx * 45}ms` : '0ms' };
+              const item = `transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`;
+              return (
+                <li key={link.name} style={enter} className={item}>
+                  {link.submenu ? (
+                    <>
+                      <button onClick={() => toggleMobileExpanded(link.name)} aria-expanded={open}
+                        className="w-full flex items-center justify-between py-4 text-left text-lg font-semibold tracking-tight">
+                        <span className={open ? 'text-sif-lime' : ''}>{link.name}</span>
+                        <ChevronDown size={18} className={`shrink-0 transition-transform duration-300 ${open ? 'rotate-180 text-sif-lime' : 'text-white/40'}`} />
+                      </button>
+                      <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                        <div className="overflow-hidden">
+                          <div className="pb-4 pl-4 border-l border-white/15 ml-1 flex flex-col">
+                            {link.submenu.map((sub) => {
+                              const cls = 'py-2.5 text-[15px] text-white/70 hover:text-white transition-colors';
+                              return sub.external
+                                ? <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className={cls}>{sub.name}</a>
+                                : <Link key={sub.name} to={sub.href} onClick={closeMenu} className={cls}>{sub.name}</Link>;
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <Link to={link.href} onClick={closeMenu} className="group flex items-center justify-between py-4 text-lg font-semibold tracking-tight">
+                      {link.name}
+                      <ChevronRight size={18} className="shrink-0 text-white/40 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sif-lime" />
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
 
-            <div className="flex-1 overflow-y-auto py-6 px-6 flex flex-col gap-2">
-                {navLinks.map((link) => (
-                    <div key={link.name}>
-                        {link.submenu ? (
-                            <>
-                                <button 
-                                    onClick={() => toggleMobileExpanded(link.name)}
-                                    className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm transition-colors"
-                                >
-                                    {link.name}
-                                    <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === link.name ? 'rotate-180 text-[#007a3d]' : 'text-gray-300'}`} />
-                                </button>
-                                <div className={`overflow-hidden transition-all duration-300 bg-gray-50 rounded-lg ${mobileExpanded === link.name ? 'max-h-80 opacity-100 my-2' : 'max-h-0 opacity-0'}`}>
-                                    {link.submenu.map((sub) => (
-                                        sub.external ? (
-                                            <a
-                                                key={sub.name}
-                                                href={sub.href}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={closeMenu}
-                                                className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
-                                            >
-                                                {sub.name}
-                                            </a>
-                                        ) : (
-                                            <Link
-                                                key={sub.name}
-                                                to={sub.href}
-                                                onClick={closeMenu}
-                                                className="block p-4 pl-8 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#007a3d]"
-                                            >
-                                                {sub.name}
-                                            </Link>
-                                        )
-                                    ))}
-                                </div>
-                            </>
-                        ) : (
-                            <Link to={link.href} onClick={closeMenu} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 text-[#1f2937] font-bold uppercase tracking-widest text-sm group transition-colors">
-                                {link.name}
-                                <ChevronRight size={16} className="text-gray-300 group-hover:text-[#007a3d]" />
-                            </Link>
-                        )}
-                    </div>
-                ))}
-            </div>
-
-            <div className="p-8 bg-gray-50 border-t border-gray-100">
-                <div className="flex flex-col gap-4">
-                    <button 
-                        onClick={() => toggleMobileExpanded('associado')}
-                        className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl text-[#1f2937] font-bold uppercase tracking-widest text-xs shadow-sm"
-                    >
-                        <div className="flex items-center gap-2">
-                            <User size={16} className="text-[#007a3d]" />
-                            Conveniar
-                        </div>
-                        <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-[#007a3d]' : 'text-gray-300'}`} />
-                    </button>
-                    
-                    <div className={`overflow-hidden transition-all duration-300 ${mobileExpanded === 'associado' ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="flex flex-col gap-2 mt-2">
-                            {associadoLinks.map((sub) => (
-                                <a 
-                                    key={sub.name} 
-                                    href={sub.href} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="p-3 pl-6 bg-white border border-gray-100 rounded-lg text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:text-[#007a3d]"
-                                >
-                                    {sub.name}
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 mt-4 px-2">
-                        <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[#007a3d] shadow-sm">
-                            <Phone size={18} />
-                        </div>
-                        <div>
-                            <span className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold">Contato</span>
-                            <span className="text-sm font-bold text-[#1f2937]">(31) 3612-3950</span>
-                        </div>
-                    </div>
+          {/* Conveniar */}
+          <div style={{ transitionDelay: mobileMenuOpen ? `${80 + navLinks.length * 45}ms` : '0ms' }}
+            className={`mt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+            <button onClick={() => toggleMobileExpanded('associado')} aria-expanded={mobileExpanded === 'associado'}
+              className="w-full flex items-center justify-between rounded-full border border-white/20 pl-5 pr-4 py-3 text-xs font-bold uppercase tracking-[0.18em]">
+              <span className="flex items-center gap-2"><User size={15} className="text-sif-lime" /> Conveniar</span>
+              <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-sif-lime' : 'text-white/40'}`} />
+            </button>
+            <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${mobileExpanded === 'associado' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+              <div className="overflow-hidden">
+                <div className="flex flex-col pt-3 pl-5">
+                  {associadoLinks.map((sub) => (
+                    <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" className="py-2.5 text-[15px] text-white/70 hover:text-white transition-colors">{sub.name}</a>
+                  ))}
                 </div>
+              </div>
             </div>
+          </div>
+        </nav>
+
+        <a href="tel:+553136123950" className="shrink-0 flex items-center gap-3 px-6 py-5 border-t border-white/10 text-white/80 hover:text-white">
+          <Phone size={17} className="text-sif-lime" />
+          <span className="text-sm"><span className="text-white/50 mr-2">Contato</span>(31) 3612-3950</span>
+        </a>
       </div>
     </>
   );

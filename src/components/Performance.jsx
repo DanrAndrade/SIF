@@ -8,8 +8,7 @@ const DEFAULT_ITEMS = [
 
 const EASE = 'ease-[cubic-bezier(.22,1,.36,1)]';
 
-// Entrada em sequência quando o bloco aparece na tela; ao sair da tela ele
-// "rearma" e anima de novo na volta. Só opacity/transform (leve).
+// Entrada rápida em sequência quando o bloco aparece. Só opacity/transform (leve).
 function useInView() {
   const ref = useRef(null);
   const [shown, setShown] = useState(false);
@@ -20,10 +19,12 @@ function useInView() {
       setShown(true);
       return;
     }
+    // Entra quando o bloco chega a 85% da tela; só "rearma" quando sai por
+    // baixo (rolando para cima depois de passar, ele fica parado, sem piscar).
     const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && e.intersectionRatio >= 0.2) setShown(true);
-      else if (!e.isIntersecting) setShown(false);
-    }, { threshold: [0, 0.2] });
+      if (e.isIntersecting) setShown(true);
+      else if (e.boundingClientRect.top > (window.innerHeight || 0)) setShown(false);
+    }, { rootMargin: '0px 0px -15% 0px' });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -42,14 +43,14 @@ export default function Performance({ config = {} }) {
           {items.map((item, idx) => (
             <div
               key={idx}
-              style={{ transitionDelay: shown ? `${idx * 140}ms` : '0ms' }}
-              className={`relative pt-8 transition-[opacity,transform] duration-[900ms] ${EASE} ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+              style={{ transitionDelay: shown ? `${idx * 90}ms` : '0ms' }}
+              className={`relative pt-8 transition-[opacity,transform] duration-[650ms] ${EASE} ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             >
               {/* linha de topo: entra desenhando */}
               <span
                 aria-hidden="true"
-                style={{ transitionDelay: shown ? `${idx * 140 + 200}ms` : '0ms' }}
-                className={`absolute top-0 inset-x-0 h-px bg-white/25 origin-left transition-transform duration-[1100ms] ${EASE} ${shown ? 'scale-x-100' : 'scale-x-0'}`}
+                style={{ transitionDelay: shown ? `${idx * 90 + 100}ms` : '0ms' }}
+                className={`absolute top-0 inset-x-0 h-px bg-white/25 origin-left transition-transform duration-[800ms] ${EASE} ${shown ? 'scale-x-100' : 'scale-x-0'}`}
               />
               <h3 className="mb-4 text-2xl font-semibold font-heading text-white tracking-wide leading-tight">{item.title}</h3>
               <p className="text-sm text-white/85 font-medium leading-relaxed">{item.text}</p>

@@ -78,11 +78,11 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
                         {subtitle}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
-                        <Button href={cta1Link} variant="light" size="sm" className="w-full sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
+                        <Button href={cta1Link} variant="light" size="sm">
                             {cta1Label}
                         </Button>
-                        <Button href={cta2Link} variant="glass" size="sm" className="w-full sm:w-auto">
+                        <Button href={cta2Link} variant="glass" size="sm">
                             {cta2Label}
                         </Button>
                     </div>

@@ -269,7 +269,7 @@ export function EmbTextDoc({ sec, docs }) {
   return (
     <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
       <div className="container mx-auto px-6 max-w-7xl">
-        <div className="max-w-4xl">
+        <div>
           <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-8 md:mb-10" />
           <div className={`${prose(false)} prose-base md:prose-lg`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(sec.content || '') }} />
         </div>
