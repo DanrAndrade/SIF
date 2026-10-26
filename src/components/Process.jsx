@@ -58,6 +58,9 @@ export default function Process({ config = {} }) {
     title: s.title || '',
     img: s.img ? getImageUrl(s.img, 1280) : '',
     fallback: getImageUrl(DEFAULT_PHOTOS[i % DEFAULT_PHOTOS.length], 1280),
+    // versões pequenas só para o fundo desfocado (leves de abrir e desfocar)
+    imgSmall: s.img ? getImageUrl(s.img, 480) : '',
+    fallbackSmall: getImageUrl(DEFAULT_PHOTOS[i % DEFAULT_PHOTOS.length], 480),
     shortDesc: s.shortDesc || '',
     fullDesc: s.fullDesc || '',
     benefits: typeof s.benefits === 'string'
@@ -67,7 +70,7 @@ export default function Process({ config = {} }) {
     external: !!s.external,
   }));
   // Fundo da faixa: a foto do painel em destaque (no celular, a do card visível)
-  const slides = steps.map((s, i) => (failed[i] || !s.img ? s.fallback : s.img));
+  const slides = steps.map((s, i) => (failed[i] || !s.img ? s.fallbackSmall : s.imgSmall));
   const markFail = (i) => setFailed(f => (f[i] ? f : { ...f, [i]: true }));
 
   const onMobileScroll = () => {
@@ -98,11 +101,12 @@ export default function Process({ config = {} }) {
               return (
                 <StepLink key={i} step={step}
                   onMouseEnter={() => hoverTo(i)} onMouseLeave={cancelHover} onFocus={() => setActive(i)}
-                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[900ms] ease-[cubic-bezier(.65,0,.35,1)]"
-                  style={{ flexGrow: isActive ? 3.4 : 1, flexBasis: 0 }}>
+                  className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[650ms] ease-[cubic-bezier(.4,0,.2,1)] [contain:layout_paint]"
+                  style={{ flexGrow: isActive ? 2.8 : 1, flexBasis: 0 }}>
                   <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)}
-                    className="absolute inset-0 w-full h-full object-cover transition-[transform,filter] duration-[1400ms] ease-[cubic-bezier(.22,1,.36,1)]"
-                    style={{ transform: isActive ? 'scale(1)' : 'scale(1.08)', filter: isActive ? 'saturate(1.1) brightness(1.02)' : 'saturate(.55) brightness(.55)' }} />
+                    className="absolute inset-0 w-full h-full object-cover" />
+                  {/* fechado: escurece a foto (só opacidade, leve até em aparelhos fracos) */}
+                  <div className={`absolute inset-0 bg-[#06190f]/55 transition-opacity duration-500 ${isActive ? 'opacity-0' : 'opacity-100'}`} />
                   <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f]/95 via-[#06190f]/40 to-transparent ${isActive ? 'opacity-100' : 'opacity-0'}`} />
                   <div className={`absolute inset-0 transition-opacity duration-700 bg-gradient-to-t from-[#06190f] via-[#06190f]/75 to-[#06190f]/30 ${isActive ? 'opacity-0' : 'opacity-100'}`} />
 

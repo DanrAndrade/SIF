@@ -463,14 +463,12 @@ a.rounded-card:hover, a.rounded-3xl:hover, a.shadow-card:hover { transform: tran
   transform: translate3d(0, calc((var(--p, .5) - .5) * 240px), 0);
   will-change: transform;
 }
-/* Desfoque leve + zoom controlado pela rolagem (aproxima ao entrar na tela) */
+/* Desfoque leve; a foto só se move com o parallax (sem zoom) */
 .sif-photo-band__bg img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   filter: blur(3px) brightness(.58) saturate(.95);
-  transform: scale(calc(1.24 - var(--p, .5) * .2));
-  will-change: transform;
+  transform: scale(1.06); /* folga para o desfoque não mostrar borda (sem zoom ao rolar) */
 }
-@media (prefers-reduced-motion: reduce) { .sif-photo-band__bg img { transform: scale(1.06); } }
 /* véu verde da SIF por cima da foto */
 .sif-photo-band::before {
   content: ''; position: absolute; inset: 0; z-index: -2; pointer-events: none;
@@ -536,4 +534,6 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 
 /* Faixa de foto parada (sem parallax nem zoom), ex.: "Explore nossos recursos" */
 .sif-photo-band--still .sif-photo-band__bg { transform: none; top: 0; bottom: 0; left: 0; right: 0; }
-.sif-photo-band--still .sif-photo-band__bg img { transform: scale(1.04); }
+.sif-photo-band--still .sif-photo-band__bg img { transform: scale(1.04); filter: brightness(.62) saturate(.95); } /* sem blur calculado: a foto pequena ampliada já fica suave */
+/* "Explore nossos recursos": sem o véu verde (só um escurecimento neutro para o texto) */
+.sif-photo-band--still::before { background: linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.45) 100%); }

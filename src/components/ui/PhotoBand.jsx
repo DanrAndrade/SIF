@@ -36,7 +36,7 @@ export default function PhotoBand({ photo, slides, active = 0, still = false, as
     <Tag ref={ref} className={`${src ? 'sif-photo-band' : 'sif-glow-dark'} ${still ? 'sif-photo-band--still' : ''} text-white ${className}`} {...rest}>
       {slides && slides.length ? slides.map((s, i) => (
         <div key={s + i} className="sif-photo-band__bg transition-opacity duration-1000 ease-in-out" style={{ opacity: i === active ? 1 : 0 }} aria-hidden="true">
-          <img src={s} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+          <img src={s} alt="" loading="eager" decoding="async" />
         </div>
       )) : src && (
         <div className="sif-photo-band__bg" aria-hidden="true">

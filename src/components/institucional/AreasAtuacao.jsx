@@ -197,9 +197,9 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{
-                  transform: isActive ? 'scale(1.03)' : 'scale(1.15)',
+                  transform: 'none', // sem zoom (só a troca de brilho)
                   filter: isActive ? 'saturate(1) brightness(0.85)' : 'saturate(0.6) brightness(0.7)',
-                  transition: reduced ? 'none' : 'transform 1400ms cubic-bezier(0.22,1,0.36,1), filter 900ms',
+                  transition: reduced ? 'none' : 'filter 700ms ease',
                 }}
               />
               {/* Véus */}
