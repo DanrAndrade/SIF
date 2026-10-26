@@ -511,18 +511,15 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 .sif-cta-glow:hover::before { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .sif-cta-glow, .sif-cta-glow::before { transition: none; } .sif-cta-glow:hover { transform: none; } }
 
-/* Benefícios (Associadas): troca do card grande ao rolar */
-.sif-benefit { transition: transform .9s cubic-bezier(.65,0,.35,1), opacity .7s ease, filter .7s ease, clip-path .9s cubic-bezier(.65,0,.35,1); will-change: transform, opacity; }
-.sif-benefit.is-active { transform: none; opacity: 1; filter: none; clip-path: inset(0 0 0 0 round 40px); z-index: 2; }
-.sif-benefit.is-past   { transform: translateY(-8%) scale(.92); opacity: 0; filter: blur(6px); clip-path: inset(0 0 0 0 round 40px); z-index: 1; pointer-events: none; }
-.sif-benefit.is-next   { transform: translateY(6%); opacity: 1; clip-path: inset(100% 0 0 0 round 40px); z-index: 3; pointer-events: none; }
-.sif-benefit .sif-benefit__img { transform: scale(1.15); transition: transform 1.4s cubic-bezier(.2,.7,.2,1); }
-.sif-benefit.is-active .sif-benefit__img { transform: scale(1); }
-.sif-benefit .sif-benefit__num, .sif-benefit .sif-benefit__text { opacity: 0; transform: translateY(24px); transition: opacity .6s ease .25s, transform .8s cubic-bezier(.2,.7,.2,1) .25s; }
-.sif-benefit.is-active .sif-benefit__num { opacity: 1; transform: none; }
-.sif-benefit.is-active .sif-benefit__text { opacity: 1; transform: none; transition-delay: .4s; }
-.sif-benefit .sif-benefit__bar { width: 0; transition: width 1.2s cubic-bezier(.2,.7,.2,1) .4s; }
-.sif-benefit.is-active .sif-benefit__bar { width: 100%; }
+/* Benefícios (Associadas): troca do card ao rolar. O atual sobe e some; o
+   próximo entra de baixo. Movimento curto e suave. */
+.sif-benefit { transition: transform .9s cubic-bezier(.22,1,.36,1), opacity .7s ease, filter .7s ease; will-change: transform, opacity; }
+.sif-benefit.is-active { transform: none; opacity: 1; filter: none; z-index: 2; }
+.sif-benefit.is-past   { transform: translateY(-36px) scale(.97); opacity: 0; filter: blur(3px); z-index: 1; pointer-events: none; }
+.sif-benefit.is-next   { transform: translateY(44px); opacity: 0; z-index: 1; pointer-events: none; }
+.sif-benefit .sif-benefit__text { opacity: 0; transform: translateY(14px); transition: opacity .6s ease .15s, transform .8s cubic-bezier(.22,1,.36,1) .15s; }
+.sif-benefit.is-active .sif-benefit__text { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .sif-benefit, .sif-benefit .sif-benefit__text { transition: none; } }
 
 /* Texto que SOBE ao passar o mouse (cards de Objetivos do GT, lista de GTs).
    Só em telas com mouse; no celular o texto aparece sempre. */

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../apiConfig';
@@ -31,16 +31,23 @@ function StepLink({ step, className, children, ...rest }) {
   return <Link to={step.link} className={className} {...rest}>{children}</Link>;
 }
 
-// Foto do painel: se falhar, cai na foto padrão
-function StepPhoto({ src, fallback, className, style }) {
+// Foto do painel: se falhar, cai na foto padrão (e avisa, para o fundo usar a mesma)
+function StepPhoto({ src, fallback, className, style, onFail }) {
   const [failed, setFailed] = useState(false);
-  return <img src={failed || !src ? fallback : src} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} className={className} style={style} />;
+  return <img src={failed || !src ? fallback : src} alt="" loading="lazy" decoding="async" onError={() => { setFailed(true); onFail?.(); }} className={className} style={style} />;
 }
 
 export default function Process({ config = {} }) {
   const [active, setActive] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [failed, setFailed] = useState({}); // fotos do painel que não carregaram
   const scrollRef = useRef(null);
+  // Pequena espera antes de trocar de painel: passar o mouse rápido por
+  // cima não faz os painéis ficarem "pulando"
+  const hoverTimer = useRef(0);
+  const hoverTo = (i) => { clearTimeout(hoverTimer.current); hoverTimer.current = setTimeout(() => setActive(i), 110); };
+  const cancelHover = () => clearTimeout(hoverTimer.current);
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
 
   const sectionTag = config.section_tag || 'Inovação e Transparência';
   const sectionTitle = config.section_title || 'Explore nossos recursos';
@@ -60,7 +67,8 @@ export default function Process({ config = {} }) {
     external: !!s.external,
   }));
   // Fundo da faixa: a foto do painel em destaque (no celular, a do card visível)
-  const slides = steps.map(s => s.img || s.fallback);
+  const slides = steps.map((s, i) => (failed[i] || !s.img ? s.fallback : s.img));
+  const markFail = (i) => setFailed(f => (f[i] ? f : { ...f, [i]: true }));
 
   const onMobileScroll = () => {
     const el = scrollRef.current;
@@ -89,21 +97,21 @@ export default function Process({ config = {} }) {
               const isActive = active === i;
               return (
                 <StepLink key={i} step={step}
-                  onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)}
+                  onMouseEnter={() => hoverTo(i)} onMouseLeave={cancelHover} onFocus={() => setActive(i)}
                   className="group relative h-full min-w-0 rounded-card overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-sif-lime transition-[flex-grow] duration-[900ms] ease-[cubic-bezier(.65,0,.35,1)]"
                   style={{ flexGrow: isActive ? 3.4 : 1, flexBasis: 0 }}>
-                  <StepPhoto src={step.img} fallback={step.fallback}
+                  <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)}
                     className="absolute inset-0 w-full h-full object-cover transition-[transform,filter] duration-[1400ms] ease-[cubic-bezier(.22,1,.36,1)]"
                     style={{ transform: isActive ? 'scale(1.03)' : 'scale(1.15)', filter: isActive ? 'brightness(.8)' : 'saturate(.6) brightness(.6)' }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06190f] via-[#06190f]/75 to-[#06190f]/25" />
 
                   {/* Fechado: título na vertical */}
-                  <div className={`absolute left-6 bottom-6 origin-bottom-left -rotate-90 translate-x-6 whitespace-nowrap transition-all duration-500 ${isActive ? 'opacity-0 -translate-y-2' : 'opacity-100'}`}>
+                  <div className={`absolute left-6 bottom-6 origin-bottom-left -rotate-90 translate-x-6 whitespace-nowrap transition-opacity ${isActive ? 'opacity-0 duration-200' : 'opacity-100 duration-500 delay-300'}`}>
                     <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white/85">{step.title}</span>
                   </div>
 
                   {/* Aberto: conteúdo completo */}
-                  <div className={`absolute inset-x-0 bottom-0 p-8 xl:p-10 text-white transition-all duration-700 ${isActive ? 'opacity-100 translate-y-0 delay-200' : 'opacity-0 translate-y-6 pointer-events-none'}`}>
+                  <div className={`absolute left-0 bottom-0 w-[min(640px,62vw)] p-8 xl:p-10 text-white transition-[opacity,transform] ${isActive ? 'opacity-100 translate-y-0 duration-700 delay-300' : 'opacity-0 translate-y-4 duration-200 pointer-events-none'}`}>
                     {step.shortDesc && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-3">{step.shortDesc}</span>}
                     <h3 className="text-3xl xl:text-4xl font-semibold leading-tight mb-4 max-w-xl">{step.title}</h3>
                     {step.fullDesc && <p className="text-white/80 leading-relaxed max-w-xl mb-6">{step.fullDesc}</p>}
@@ -111,7 +119,7 @@ export default function Process({ config = {} }) {
                       {step.benefits.map((b, j) => (
                         <span key={j} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-white/90">{b}</span>
                       ))}
-                      <span className="ml-auto inline-flex items-center gap-2 pl-5 pr-4 py-2.5 rounded-full bg-white text-sif-dark text-xs font-bold uppercase tracking-wider transition-colors group-hover:bg-sif-lime">
+                      <span className="ml-3 inline-flex items-center gap-2 pl-5 pr-4 py-2.5 rounded-full bg-white text-sif-dark text-xs font-bold uppercase tracking-wider transition-colors group-hover:bg-sif-lime">
                         Acessar <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </span>
                     </div>
@@ -126,7 +134,7 @@ export default function Process({ config = {} }) {
             <div ref={scrollRef} onScroll={onMobileScroll} className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-6 px-6 pb-2" data-no-reveal>
               {steps.map((step, i) => (
                 <StepLink key={i} step={step} className="relative shrink-0 w-[85%] sm:w-[60%] snap-center rounded-card overflow-hidden min-h-[420px] flex flex-col justify-end">
-                  <StepPhoto src={step.img} fallback={step.fallback} className="absolute inset-0 w-full h-full object-cover brightness-75" />
+                  <StepPhoto src={step.img} fallback={step.fallback} onFail={() => markFail(i)} className="absolute inset-0 w-full h-full object-cover brightness-75" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06190f] via-[#06190f]/80 to-[#06190f]/20" />
                   <div className="relative p-6 text-white">
                     {step.shortDesc && <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-sif-lime mb-2">{step.shortDesc}</span>}

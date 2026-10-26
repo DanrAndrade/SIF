@@ -271,7 +271,7 @@ const BENEFIT_PHOTOS = [
   'https://images.unsplash.com/photo-1627278631921-874a70b5f973?q=80&w=1600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1624905918163-bd455354cfed?q=80&w=1600&auto=format&fit=crop',
 ];
-const EXIT_SLACK = 0.6;  // folga depois do último card (em "cards")
+const EXIT_SLACK = 1.1;  // folga depois do último card (em "cards"): saída suave
 const STEP_VH = 80;      // rolagem usada por card (vh)
 
 function BenefitCard({ b }) {
@@ -286,12 +286,12 @@ function BenefitCard({ b }) {
 // Card grande de texto (computador)
 function BenefitBig({ b, state }) {
   return (
-    <article className={`sif-benefit absolute inset-0 rounded-panel bg-[#1f2622]/95 border border-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)] p-12 xl:p-16 flex flex-col justify-center ${state}`}
+    <article className={`sif-benefit absolute inset-0 rounded-panel bg-[#1f2622]/95 border border-white/10 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)] p-10 xl:p-14 flex flex-col justify-center overflow-y-auto no-scrollbar ${state}`}
       aria-hidden={state !== 'is-active'}>
       <div className="sif-benefit__text max-w-2xl">
-        <span className="block w-12 h-[3px] rounded-full bg-sif-lime mb-8" aria-hidden="true" />
-        <h3 className="text-4xl xl:text-5xl font-semibold font-heading leading-[1.1] mb-6">{b.title}</h3>
-        <p className="text-white/75 text-xl leading-relaxed">{b.description}</p>
+        <span className="block w-10 h-[3px] rounded-full bg-sif-lime mb-6" aria-hidden="true" />
+        <h3 className="text-2xl xl:text-3xl font-semibold font-heading leading-snug mb-4">{b.title}</h3>
+        <p className="text-white/80 text-base xl:text-lg leading-relaxed whitespace-pre-line">{b.description}</p>
       </div>
     </article>
   );
@@ -301,6 +301,7 @@ function BenefitsScroller({ cfg }) {
   const items = (cfg.benefits || []).filter(b => b && (b.title || b.description));
   const n = items.length;
   const wrap = useRef(null);
+  const inner = useRef(null);
   const [active, setActive] = useState(0);
   const canPin = () => typeof window !== 'undefined'
     && !!window.matchMedia?.('(min-width: 1024px)').matches
@@ -331,6 +332,12 @@ function BenefitsScroller({ cfg }) {
       const p = Math.min(1, Math.max(0, -r.top / dist));
       const u = p * ((n - 1) + EXIT_SLACK);
       setActive(Math.min(n - 1, Math.floor(u + 0.15)));
+      // Saída: depois do último card, o conteúdo sobe e some aos poucos
+      const k = Math.min(1, Math.max(0, (u - (n - 1) - 0.35) / (EXIT_SLACK - 0.35)));
+      if (inner.current) {
+        inner.current.style.opacity = String(1 - k);
+        inner.current.style.transform = `translate3d(0, ${(-k * 80).toFixed(1)}px, 0) scale(${(1 - k * 0.04).toFixed(3)})`;
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
     paint();
@@ -377,7 +384,7 @@ function BenefitsScroller({ cfg }) {
     <section id="beneficios" ref={wrap} className="relative"
       style={{ height: `calc(100vh + ${((n - 1) + EXIT_SLACK) * STEP_VH}vh)` }}>
       <PhotoBand as="div" slides={slides} active={active} className="sticky top-0 h-screen flex items-center">
-        <div className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full">
+        <div ref={inner} className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full will-change-transform">
           <div className="col-span-5">
             {title}
             <ol className="mt-10 space-y-1" data-no-reveal>
@@ -392,7 +399,7 @@ function BenefitsScroller({ cfg }) {
               ))}
             </ol>
           </div>
-          <div className="col-span-7 relative h-[min(460px,58vh)]" data-no-reveal>
+          <div className="col-span-7 relative h-[min(400px,54vh)]" data-no-reveal>
             {items.map((b, i) => (
               <BenefitBig key={i} b={b}
                 state={i === active ? 'is-active' : i < active ? 'is-past' : 'is-next'} />

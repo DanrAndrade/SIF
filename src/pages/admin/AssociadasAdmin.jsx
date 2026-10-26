@@ -462,7 +462,7 @@ function EmpresasManager({ partners, loading, reload, onImport }) {
             />
             <input
               className="w-full p-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:border-emerald-600"
-              placeholder="Site da empresa (opcional) — ex: www.empresa.com.br"
+              placeholder="Link do site (opcional, abre ao clicar no logo) ex.: www.empresa.com.br"
               value={newWebsite}
               onChange={e => setNewWebsite(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
@@ -493,7 +493,7 @@ function EmpresasManager({ partners, loading, reload, onImport }) {
             {onImport && <button type="button" onClick={onImport} className="mt-4 px-4 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]">Importar as empresas do site antigo</button>}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-4">
             {partners.map((p, i) => (
               <PartnerCard
                 key={p.id}
@@ -556,15 +556,21 @@ function PartnerCard({ partner, onToggle, onDelete, onSave, onUploadLogo, onMove
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { if (e.target.files[0]) onUploadLogo(partner.id, e.target.files[0]); }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm text-gray-800 truncate" title={partner.name}>{partner.name}</p>
+          <p className="font-bold text-sm text-gray-800 line-clamp-2 break-words" title={partner.name}>{partner.name}</p>
           {partner.address && (
             <p className="text-[11px] text-gray-500 truncate" title={partner.address}>{partner.address}</p>
           )}
-          {partner.website && (
+          {/* Link do site: abre ao clicar no logo (Home e página Associadas) */}
+          {partner.website ? (
             <a href={toExternalUrl(partner.website)} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[11px] text-emerald-700 hover:underline truncate" title={partner.website}>
+              className="flex items-center gap-1 text-[11px] text-emerald-700 hover:underline truncate" title={`Ao clicar no logo, abre: ${partner.website}`}>
               <Globe size={11} className="shrink-0" /> <span className="truncate">{partner.website}</span>
             </a>
+          ) : (
+            <button type="button" onClick={() => setExpanded(true)}
+              className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 hover:text-emerald-700">
+              <Globe size={11} className="shrink-0" /> Adicionar link do site
+            </button>
           )}
         </div>
         <ItemActions
@@ -602,7 +608,7 @@ function PartnerCard({ partner, onToggle, onDelete, onSave, onUploadLogo, onMove
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Site da empresa</label>
+            <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Link do site (abre ao clicar no logo)</label>
             <input
               className="w-full p-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-emerald-600"
               placeholder="www.empresa.com.br"
