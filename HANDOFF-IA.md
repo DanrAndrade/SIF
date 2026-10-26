@@ -258,3 +258,11 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
 - **Ambiente local:** o Vite do SIF roda em **http://localhost:3000**
   (`.claude/launch.json`). A porta 5173 está ocupada por outro projeto (G3
   Clinic) e o login do painel não funciona por 127.0.0.1 (cookie).
+
+## 11. Rodada EMBRAPII / celular (out/2026)
+
+- **Mensagens da EMBRAPII**: mesma tabela `leads`, com a coluna `source` ('site' | 'embrapii') + `empresa` e `cargo` (migração v6 no `api_guard.php`; o `leads.php` chama `sif_ensure_schema` sozinho). Painel: aba "Mensagens EMBRAPII" (`/admin/leads-embrapii`, módulo `leads_embrapii`).
+- **Página EMBRAPII** (`ProjetosEmbrapii.jsx` + `components/embrapii/`): ordem da página de referência; o 1º bloco de vídeo vai para a apresentação; formulário próprio (`EmbrapiiForm.jsx`) no fim, abaixo dos logos. A página usa `overflow-x-clip` (com `overflow-x-hidden` o `sticky` não funciona).
+- **Equipe**: `components/team/TeamDirectory.jsx` é o padrão (Institucional › Nossa Gente e EMBRAPII). Pessoas da EMBRAPII têm o campo "Grupo" para o filtro.
+- **Toque**: `tailwind.config.js` com `hoverOnlyWhenSupported` (hover só com mouse); campos com 16px no celular (index.css).
+- **Regra global** `a.rounded-card` (levantar no hover) sobrescreve `transition` de links arredondados: para animar outra coisa num link assim, ponha a `transition` no `style` (ver `Process.jsx`).
