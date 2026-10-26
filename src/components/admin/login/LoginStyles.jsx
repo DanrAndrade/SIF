@@ -37,9 +37,9 @@ const CSS = `
   46%  { transform: translateX(-130%); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
 }
-/* seta do botão: sai pela direita e volta pela esquerda enquanto o mouse/foco está no botão */
+/* seta do botão: desliza um pouco para a direita no hover/foco e para (sem loop) */
 .group:hover:not(:disabled) .lg-arrow,
-.group:focus-visible:not(:disabled) .lg-arrow { animation: lg-arrow 1.15s cubic-bezier(.65,0,.35,1) .35s infinite; }
+.group:focus-visible:not(:disabled) .lg-arrow { transform: translateX(5px); }
 .lg-kenburns { animation: lg-kenburns 38s ease-in-out infinite; will-change: transform; }
 .lg-light    { animation: lg-light 14s ease-in-out infinite; }
 .lg-rise     { opacity: 0; animation: lg-rise .9s cubic-bezier(.2,.7,.2,1) forwards; }

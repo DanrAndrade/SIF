@@ -118,7 +118,10 @@ function GtCard({ gt, Icon }) {
 
       <div className="absolute inset-x-0 bottom-0 p-7 md:p-8 text-white">
         <h3 className="text-2xl font-semibold leading-tight mb-2">{gt.title}</h3>
-        <p className="text-white/75 text-sm leading-relaxed line-clamp-2 mb-5">{gtSummary(gt) || htmlToText(gt.description, 160)}</p>
+        {/* Resumo: sobe ao passar o mouse (no celular aparece sempre) */}
+        <div className="sif-reveal-more">
+          <div><p className="text-white/80 text-sm leading-relaxed pb-5">{gtSummary(gt) || htmlToText(gt.description, 220)}</p></div>
+        </div>
         <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-sif-lime">
           Saiba mais <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
         </span>

@@ -110,7 +110,7 @@ export const htmlExcerpt = (html = '', max = 180) => {
 // O que ficar vazio não aparece no site; a ordem e os títulos podem mudar.
 export const PAGE_TEMPLATES = {
   gt: [
-    ['gt_intro', 'Sobre o grupo'], ['cards', 'Objetivos'], ['stats', ''], ['cards', 'Linhas de pesquisa'],
+    ['gt_intro', 'Sobre o grupo'], ['cards', 'Objetivos'], ['stats', 'O grupo em números'], ['cards', 'Linhas de pesquisa'],
     ['people', 'Coordenação'], ['logos', 'Empresas participantes'], ['pdfs', 'Documentos e relatórios'],
     ['gt_blog', 'Blog do grupo'], ['gt_contact', 'Fale com o responsável'],
   ],

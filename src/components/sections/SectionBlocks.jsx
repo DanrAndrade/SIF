@@ -70,22 +70,19 @@ export function CardsBlock({ sec, dark }) {
       <BlockHeader sec={sec} dark={dark} />
       <div className={row ? 'flex flex-col md:flex-row gap-4 md:gap-5' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}>
         {items.map((it, i) => {
-          const Icon = BLOCK_ICONS[it.icon] || Target;
           return (
             <article key={i} tabIndex={0}
               className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden border-t-[3px] border-[var(--accent,#007a3d)] p-7 md:p-9 md:min-h-[340px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
-              <div className="flex items-center justify-between">
-                <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
-                <span className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-colors duration-500 ${dark ? 'bg-white/10 text-[#b5e05c]' : 'bg-[var(--accent-soft,#e8f3ec)] text-[var(--accent,#007a3d)] group-hover:bg-white/10 group-hover:text-[#b5e05c] group-focus:bg-white/10 group-focus:text-[#b5e05c]'}`}>
-                  <Icon size={20} />
-                </span>
-              </div>
+              <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[40px]" />
-              {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight mb-3 max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
-              {/* Texto: mostra as primeiras linhas; no hover/foco o restante sobe com animação */}
+              {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
+              {/* Texto: no computador fica escondido e SOBE ao passar o mouse
+                  (ou focar pelo teclado); no celular aparece sempre */}
               {it.text && (
-                <div className="relative overflow-hidden max-h-[4.9em] group-hover:max-h-[24em] group-focus:max-h-[24em] transition-[max-height] duration-700 ease-[cubic-bezier(.65,0,.35,1)]">
-                  <p className={`leading-relaxed whitespace-pre-line max-w-[22rem] transition-[color,transform] duration-700 ease-[cubic-bezier(.2,.7,.2,1)] translate-y-1 group-hover:translate-y-0 ${dark ? 'text-white/70' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
+                <div className="sif-reveal-more">
+                  <div className="overflow-hidden">
+                    <p className={`pt-3 leading-relaxed whitespace-pre-line max-w-[22rem] ${dark ? 'text-white/75' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
+                  </div>
                 </div>
               )}
             </article>

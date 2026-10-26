@@ -43,7 +43,8 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
         {heroBgUrl && <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div></ParallaxLayer>}
         <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-20 rounded-tr-[80px] z-10" style={{ backgroundColor: bgColor }}></div>
+      {/* Curva no fim do topo: mesma cor e granulado do fundo da página (ou a cor pedida, ex.: branco) */}
+      <div className={`absolute bottom-0 left-0 right-0 h-20 rounded-tr-[80px] z-10 ${bgColor === '#f6f8f7' ? 'sif-pinned-bg' : ''}`} style={bgColor === '#f6f8f7' ? undefined : { backgroundColor: bgColor }}></div>
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         {c.hero_badge && (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">

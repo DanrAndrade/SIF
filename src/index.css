@@ -523,3 +523,16 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 .sif-benefit.is-active .sif-benefit__text { opacity: 1; transform: none; transition-delay: .4s; }
 .sif-benefit .sif-benefit__bar { width: 0; transition: width 1.2s cubic-bezier(.2,.7,.2,1) .4s; }
 .sif-benefit.is-active .sif-benefit__bar { width: 100%; }
+
+/* Texto que SOBE ao passar o mouse (cards de Objetivos do GT, lista de GTs).
+   Só em telas com mouse; no celular o texto aparece sempre. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .sif-reveal-more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .8s cubic-bezier(.65,0,.35,1); }
+  .sif-reveal-more > * { min-height: 0; overflow: hidden; }
+  .sif-reveal-more p { opacity: 0; transform: translateY(18px); transition: opacity .3s ease, transform .5s ease; }
+  .group:hover .sif-reveal-more, .group:focus .sif-reveal-more, .group:focus-within .sif-reveal-more { grid-template-rows: 1fr; }
+  .group:hover .sif-reveal-more p, .group:focus .sif-reveal-more p, .group:focus-within .sif-reveal-more p {
+    opacity: 1; transform: none;
+    transition: opacity .6s ease .2s, transform .8s cubic-bezier(.22,1,.36,1) .15s;
+  }
+}
