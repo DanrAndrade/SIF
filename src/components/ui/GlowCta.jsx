@@ -9,7 +9,7 @@ import { buttonClass, BtnArrow } from './Button';
 //
 //   <GlowCta eyebrow="Trabalhe Conosco" title="Faça parte" highlight="da SIF"
 //     text="..." btnLabel="Ver vagas" href="/trabalhe-conosco">{chips}</GlowCta>
-export default function GlowCta({ eyebrow, title, highlight, text, btnLabel, href, children, className = '' }) {
+export default function GlowCta({ eyebrow, title, highlight, text, btnLabel, href, children, className = '', stack = false }) {
   const ref = useRef(null);
   const raf = useRef(0);
 
@@ -28,10 +28,10 @@ export default function GlowCta({ eyebrow, title, highlight, text, btnLabel, hre
   return (
     <SmartLink href={href} ref={ref} onPointerMove={onMove}
       className={`sif-cta-glow sif-glow-dark group block rounded-panel text-white p-8 sm:p-10 md:p-14 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#7FBA00] ${className}`}>
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-12">
+      <div className={`relative flex flex-col justify-between gap-8 ${stack ? 'h-full' : 'md:flex-row md:items-center md:gap-12'}`}>
         <div className="max-w-2xl transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:-translate-y-1">
           {eyebrow && <span className="block mb-4 text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{eyebrow}</span>}
-          <h3 className="sif-title text-3xl md:text-5xl leading-tight">
+          <h3 className={`sif-title leading-tight ${stack ? 'text-3xl md:text-4xl' : 'text-3xl md:text-5xl'}`}>
             {title}{highlight && <> <span className="text-sif-lime">{highlight}</span></>}
           </h3>
           {text && <p className="mt-4 text-white/70 text-base md:text-lg leading-relaxed">{text}</p>}

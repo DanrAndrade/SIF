@@ -9,7 +9,7 @@ import SmartLink from './SmartLink';
 //
 // Variantes (todas com o mesmo formato):
 //   primary  → verde-escuro, hover verde SIF   (padrão, sobre fundo claro)
-//   light    → branco, hover verde-folha        (sobre fundo escuro / foto)
+//   light    → verde-folha, hover verde mais escuro (sobre fundo escuro / foto)
 //   outline  → contorno verde, hover preenchido  (ação secundária no claro)
 //   ghostLight → contorno branco, hover vidro   (ação secundária no escuro)
 // Aliases antigos: accent/solidWhite → light; glass → ghostLight.
@@ -22,7 +22,7 @@ const SIZES = {
 
 const VARIANTS = {
   primary: { box: 'bg-sif-dark text-white hover:bg-sif-green', circle: 'bg-white/10 group-hover/btn:bg-white group-hover/btn:text-sif-green' },
-  light: { box: 'bg-white text-sif-dark hover:bg-sif-leaf hover:text-white', circle: 'bg-sif-dark/[0.07] group-hover/btn:bg-white group-hover/btn:text-sif-green' },
+  light: { box: 'bg-sif-leaf text-white hover:bg-[#6a9c00]', circle: 'bg-white text-sif-green' },
   outline: { box: 'border border-sif-green/35 text-sif-green hover:bg-sif-green hover:text-white hover:border-sif-green', circle: 'bg-sif-green/10 group-hover/btn:bg-white group-hover/btn:text-sif-green' },
   ghostLight: { box: 'border border-white/30 text-white hover:bg-white/10 hover:border-white/60', circle: 'bg-white/10 group-hover/btn:bg-white group-hover/btn:text-sif-dark' },
 };

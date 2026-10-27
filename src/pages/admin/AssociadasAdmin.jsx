@@ -237,10 +237,9 @@ function HeroForm({ cfg, set, onFile, preview }) {
     <div className="space-y-5">
       <ImageField label="Imagem de fundo do Hero" currentUrl={cfg.hero_image} previewUrl={preview} fieldName="hero_image" onFile={onFile} hint="Atualmente: a imagem mostrada acima. Clique para trocar." />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Badge (etiqueta verde acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
-        <Field label="Texto do botão de scroll" value={cfg.hero_scroll_label} onChange={v => set('hero_scroll_label', v)} />
-        <Field label="Título — linha 1" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
-        <Field label="Título — destaque em verde" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
+        <Field label="Etiqueta (acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
+        <Field label="Título (começo)" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
+        <Field label="Título (continuação, opcional)" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
       </div>
       <Field label="Subtítulo" type="textarea" rows={2} value={cfg.hero_subtitle} onChange={v => set('hero_subtitle', v)} />
     </div>

@@ -38,9 +38,10 @@ export default function About({ config = {} }) {
   const hasBadge = !!(c.badge_value || c.badge_label);
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-12 mt-12">
-      {/* Um bloco só: texto à esquerda, vídeo à direita, tudo no mesmo cartão */}
-      <section className="relative bg-white shadow-card rounded-card md:rounded-panel px-6 py-10 sm:px-10 md:px-14 md:py-16">
+    <div className="w-full px-4 mt-12">
+      {/* Um bloco só, na mesma largura do conteúdo da página (como os números abaixo):
+          texto e vídeo lado a lado e, embaixo, os dois parágrafos de apoio */}
+      <section className="relative max-w-[1280px] mx-auto bg-white shadow-card rounded-card md:rounded-panel px-6 py-10 sm:px-10 md:px-14 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           <div className="lg:col-span-6 min-w-0">
             <span className="sif-eyebrow mb-5">{txt(c.tag)}</span>
@@ -49,8 +50,6 @@ export default function About({ config = {} }) {
               dangerouslySetInnerHTML={{ __html: txt(c.title) }}
             />
             <p className="mt-7 text-lg leading-relaxed text-sif-ink/80">{txt(c.paragraph_1)}</p>
-            <p className="mt-5 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_2)}</p>
-            <p className="mt-4 text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_3)}</p>
             <div className="mt-9">
               <Button href={c.cta_link || '/institucional'} variant="primary">{txt(c.cta_label)}</Button>
             </div>
@@ -62,7 +61,7 @@ export default function About({ config = {} }) {
                 type="button"
                 onClick={() => setVideo(true)}
                 aria-label="Assistir ao vídeo institucional"
-                className="group relative block w-full aspect-video overflow-hidden rounded-card bg-sif-dark shadow-card-hover text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sif-lime"
+                className="group relative block w-full aspect-video lg:aspect-[16/10] overflow-hidden rounded-card bg-sif-dark shadow-card-hover text-left focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sif-lime"
               >
                 {poster && (
                   <img src={poster} onError={posterFallback} alt="" loading="lazy" decoding="async"
@@ -87,6 +86,12 @@ export default function About({ config = {} }) {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Parágrafos de apoio: abaixo, lado a lado */}
+        <div className="mt-10 md:mt-12 pt-8 md:pt-10 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
+          <p className="text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_2)}</p>
+          <p className="text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_3)}</p>
         </div>
       </section>
 

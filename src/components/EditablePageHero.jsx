@@ -1,40 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowDown } from 'lucide-react';
 import DetailHero from './DetailHero';
-import { buttonClass, BtnArrow } from './ui/Button';
 import { getImageUrl } from '../apiConfig';
 import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
 // Topo das páginas secundárias, no MESMO formato do topo das páginas de
 // detalhe (Grupo Temático): capa com degradê, trilha de navegação, etiqueta,
-// título, resumo e botão para descer até o conteúdo.
+// título e resumo.
 // Conteúdo editável em Painel › <página> › Cabeçalho (campos hero_*).
-
-const scrollToId = (id, offset = 100) => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - offset, behavior: 'smooth' });
-};
 
 // Versão "só visual": recebe os campos prontos (usada também no Institucional)
 export function PageHeroView({ cfg, scrollTargetId }) {
   const img = cfg.hero_image || '';
   const cover = img ? (img.startsWith('http') ? img : getImageUrl(img, 1920)) : '';
   const title = [cfg.hero_title_line1, cfg.hero_title_highlight].filter(Boolean).join(' ').trim();
-  const label = String(cfg.hero_scroll_label || '').trim();
-  const actions = scrollTargetId ? (
-    label ? (
-      <button type="button" onClick={() => scrollToId(scrollTargetId)} className={buttonClass('light', 'sm')}>
-        <span className="py-2">{label}</span><BtnArrow variant="light" size="sm" icon={ArrowDown} rotate={false} />
-      </button>
-    ) : (
-      <button type="button" onClick={() => scrollToId(scrollTargetId)} aria-label="Ir para o conteúdo"
-        className="w-11 h-11 rounded-full border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors">
-        <ArrowDown size={18} />
-      </button>
-    )
-  ) : null;
-  return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} summary={cfg.hero_subtitle} actions={actions} />;
+  // Sem botão: o de "descer" só levava a uma seção da própria página
+  return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} summary={cfg.hero_subtitle} />;
 }
 
 // pageKey -> chave em page_content.php; defaults -> textos usados se o painel estiver vazio

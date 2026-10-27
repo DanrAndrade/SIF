@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { http } from '../utils/http';
 import { ChevronDown } from 'lucide-react';
 import SectionHeader from './ui/SectionHeader';
+import GlowCta from './ui/GlowCta';
 import Button from './ui/Button';
 import { API_BASE_URL } from '../apiConfig';
 
@@ -43,15 +44,10 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
 
         <div className="flex flex-col lg:flex-row gap-16 items-start mt-12">
             <div className="w-full lg:w-[40%] shrink-0">
-                <div className="h-auto lg:aspect-[4/3] w-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d] rounded-card p-8 md:p-10 flex flex-col justify-between text-white relative shadow-2xl overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
-                    <div className="relative z-10 mb-8 lg:mb-0">
-                        <h3 className="text-2xl font-semibold mb-2 leading-tight" dangerouslySetInnerHTML={{ __html: side.title }}></h3>
-                        <p className="text-white/80 text-sm font-medium">{side.subtitle}</p>
-                    </div>
-
-                    <Button href={side.cta_link} variant="light" className="w-full relative z-10">{side.cta_label}</Button>
-                </div>
+                {/* Mesmo card do Trabalhe Conosco (brilho que segue o mouse), na versão vertical */}
+                <GlowCta stack className="lg:aspect-[4/3]"
+                  title={<span dangerouslySetInnerHTML={{ __html: side.title }} />}
+                  text={side.subtitle} btnLabel={side.cta_label} href={side.cta_link || '/contato'} />
             </div>
 
             <div className="w-full lg:w-[60%] space-y-3">

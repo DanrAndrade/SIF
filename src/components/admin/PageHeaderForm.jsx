@@ -82,10 +82,9 @@ export default function PageHeaderForm({ pageKey, defaults, title = 'Cabeçalho 
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Badge (etiqueta verde acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
-          <Field label="Texto do botão de rolar a página" value={cfg.hero_scroll_label} onChange={v => set('hero_scroll_label', v)} />
-          <Field label="Título — linha 1" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
-          <Field label="Título — destaque em verde" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
+          <Field label="Etiqueta (acima do título)" value={cfg.hero_badge} onChange={v => set('hero_badge', v)} />
+          <Field label="Título (começo)" value={cfg.hero_title_line1} onChange={v => set('hero_title_line1', v)} />
+          <Field label="Título (continuação, opcional)" value={cfg.hero_title_highlight} onChange={v => set('hero_title_highlight', v)} />
         </div>
         <Field label="Subtítulo" type="textarea" rows={2} value={cfg.hero_subtitle} onChange={v => set('hero_subtitle', v)} />
       </div>
