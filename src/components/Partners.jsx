@@ -75,9 +75,9 @@ export default function Partners() {
       <section className="relative overflow-hidden bg-white border-y border-gray-200/70 py-16 md:py-20 my-16 md:my-24 px-4 md:px-8">
 
         <div className="text-center mb-14">
-            <h3 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-400">
+            <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">
                 Nossos Parceiros
-            </h3>
+            </h2>
         </div>
 
         <div className="relative w-full overflow-hidden group">
