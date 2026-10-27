@@ -33,9 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate file type using mime type
         $allowedTypes = [
             'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-            'image/bmp', 'image/x-ms-bmp', 'image/avif', 'image/heic', 'image/heif'
+            'image/bmp', 'image/x-ms-bmp'
             // SVG removido: pode conter script (risco de segurança)
+            // HEIC/HEIF fora: o servidor não converte para WebP
         ];
+        if (function_exists('imagecreatefromavif') && function_exists('imagewebp')) $allowedTypes[] = 'image/avif';
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             http_response_code(400);
             echo json_encode([
                 "success" => false,
-                "message" => "Tipo de arquivo não permitido: {$mimeType}. Use JPG, PNG, GIF, WebP, BMP, AVIF ou HEIC."
+                "message" => "Tipo de imagem não permitido. Use JPG, PNG, GIF, WebP ou BMP (fotos de iPhone em HEIC: exporte como JPG)."
             ]);
             exit;
         }

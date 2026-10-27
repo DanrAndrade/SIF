@@ -62,7 +62,8 @@ function compressImage(string $filePath, int $maxWidth = 1920, int $quality = 82
  * em caso de sucesso, ou NULL se não puder converter (mantém o original).
  *
  * Tolerante a falha: se GD/imagewebp não existir, ou o formato não for
- * convertível (SVG/AVIF/HEIC), retorna NULL e o chamador mantém o original.
+ * convertível (SVG, ou AVIF sem suporte no servidor), retorna NULL e o
+ * chamador mantém o original.
  */
 function convertToWebp(string $filePath, int $maxWidth = 1920, int $quality = 80): ?string {
     if (!extension_loaded('gd') || !function_exists('imagewebp')) return null;
@@ -109,7 +110,11 @@ function convertToWebp(string $filePath, int $maxWidth = 1920, int $quality = 80
             if (!function_exists('imagecreatefrombmp')) return null;
             $src = @imagecreatefrombmp($filePath);
             break;
-        default: return null; // svg/avif/heic/tiff: não converte
+        case 'image/avif':
+            if (!function_exists('imagecreatefromavif')) return null;
+            $src = @imagecreatefromavif($filePath);
+            break;
+        default: return null; // svg/tiff: não converte
     }
     if (!$src) return null;
 

@@ -55,7 +55,12 @@ if (move_uploaded_file($file['tmp_name'], $target)) {
         $pExt = sif_safe_ext($_FILES['poster']['tmp_name'], 'image', $_FILES['poster']['name']);
         if ($pExt) {
             $pTarget = $dir . sif_safe_name($pExt);
-            if (move_uploaded_file($_FILES['poster']['tmp_name'], $pTarget)) $poster = $pTarget;
+            if (move_uploaded_file($_FILES['poster']['tmp_name'], $pTarget)) {
+                $poster = $pTarget;
+                require_once __DIR__ . '/image_utils.php';
+                $pw = convertToWebp($pTarget, 1920);
+                if ($pw) $poster = $pw;
+            }
         }
     }
     // Trecho curto e sem som para o fundo (gerado no painel junto com o vídeo)

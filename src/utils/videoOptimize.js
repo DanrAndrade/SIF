@@ -11,8 +11,8 @@ const MAX_W = 1280;
 const VIDEO_BPS = 2_500_000; // ~2,5 Mbps: bom para 720p
 const AUDIO_BPS = 128_000;
 const LOOP_SECONDS = 20;     // trecho do fundo (sem áudio)
-const LOOP_MAX_W = 1920;     // fundo em Full HD (fica nítido em telas grandes)
-const LOOP_BPS = 4_500_000;  // ~4,5 Mbps: boa qualidade, ~10 MB para 20 s
+const LOOP_MAX_W = 1280;     // fundo em 1280px (leve; o vídeo completo continua em melhor qualidade)
+const LOOP_BPS = 900_000;    // ~0,9 Mbps: cerca de 2 MB para 20 s
 
 const MIME_OPTIONS = [
   'video/mp4;codecs=avc1.42E01F,mp4a.40.2',

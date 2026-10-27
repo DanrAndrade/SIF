@@ -95,8 +95,7 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
         'image' => [
             'image/jpeg' => 'jpg', 'image/pjpeg' => 'jpg', 'image/png' => 'png',
             'image/gif' => 'gif', 'image/webp' => 'webp', 'image/bmp' => 'bmp',
-            'image/x-ms-bmp' => 'bmp', 'image/avif' => 'avif',
-            'image/heic' => 'heic', 'image/heif' => 'heif',
+            'image/x-ms-bmp' => 'bmp',
         ],
         'pdf' => ['application/pdf' => 'pdf'],
         'video' => ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/x-matroska' => 'webm', 'video/quicktime' => 'mov'],
@@ -116,6 +115,11 @@ function sif_safe_ext(string $tmpPath, string $kinds, string $originalName = '')
             'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
         ],
     ];
+    // AVIF só quando o servidor consegue converter para WebP (HEIC/HEIF nunca:
+    // o servidor não converte e a maioria dos navegadores não mostra)
+    if (function_exists('sif_can_read_avif') ? sif_can_read_avif() : (function_exists('imagecreatefromavif') && function_exists('imagewebp'))) {
+        $map['image']['image/avif'] = 'avif';
+    }
     foreach (explode(',', $kinds) as $k) {
         $k = trim($k);
         if (isset($map[$k][$mime])) return $map[$k][$mime];
@@ -490,7 +494,8 @@ function sif_gt_public_profile(array $a): array {
         'id'         => (int)$a['id'],
         'name'       => $a['name'] ?? '',
         'role'       => $a['cargo'] ?? '',
-        'email'      => ($a['contact_email'] ?? '') !== '' ? $a['contact_email'] : ($a['email'] ?? ''),
+        // só o e-mail de CONTATO; nunca o e-mail de acesso ao painel (vazio = não mostra)
+        'email'      => $a['contact_email'] ?? '',
         'whatsapp'   => $a['whatsapp'] ?? '',
         'photo'      => $a['photo'] ?? '',
         'link'       => $a['link'] ?? '',

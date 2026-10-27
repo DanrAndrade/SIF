@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { jobCategory } from '../../utils/jobCategories';
-import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions } from './kit';
+import { useConfirm, useDirty, AdminPage, PrimaryButton, SecondaryButton, ItemActions } from './kit';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2, RefreshCw } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -278,6 +278,13 @@ export const JobsManagerView = () => {
     useEffect(() => { fetchJobs(); }, []);
 
     const [savingJob, setSavingJob] = useState(false);
+    // Aviso de alterações não salvas (selo + modal ao fechar ou sair da tela)
+    const { dirty: jobDirty, markClean: markJobClean } = useDirty(currentJob, { ready: isEditing, extra: !!tempReq.trim() });
+    const closeEditor = async () => {
+        if (jobDirty && !(await confirm({ title: 'Descartar alterações?', message: 'As alterações não salvas desta vaga serão perdidas.', confirmLabel: 'Descartar', danger: true }))) return;
+        setTempReq('');
+        setIsEditing(false);
+    };
     const handleSave = async (e) => {
         e.preventDefault();
         if (savingJob) return; // clique duplo não cria duas vagas
@@ -287,6 +294,7 @@ export const JobsManagerView = () => {
                 method: 'POST',
                 body: JSON.stringify(currentJob)
             });
+            markJobClean(currentJob); setTempReq('');
             fetchJobs(); setIsEditing(false);
             window.showToast?.('Vaga salva com sucesso.');
         } catch (err) { toastError(err); } // em erro o formulário continua aberto
@@ -308,7 +316,7 @@ export const JobsManagerView = () => {
     if (isEditing) {
         return (
             <div className="max-w-3xl bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100 animate-in zoom-in-95">
-                <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold uppercase">{currentJob.id?'Editar':'Nova'} Vaga</h3><button onClick={()=>setIsEditing(false)}><XCircle className="text-gray-400 hover:text-red-500"/></button></div>
+                <div className="flex justify-between items-center mb-6"><div className="flex items-center gap-3"><h3 className="text-xl font-bold uppercase">{currentJob.id?'Editar':'Nova'} Vaga</h3>{jobDirty && <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold">Alterações não salvas</span>}</div><button type="button" aria-label="Fechar" onClick={closeEditor}><XCircle className="text-gray-400 hover:text-red-500"/></button></div>
                 <form onSubmit={handleSave} className="space-y-5">
                     <div className="grid md:grid-cols-2 gap-5">
                         <Input label="Título" value={currentJob.title} onChange={e=>setCurrentJob({...currentJob, title:e.target.value})} required/>
@@ -338,7 +346,7 @@ export const JobsManagerView = () => {
                         <div className="flex gap-2 mb-3"><input className="flex-1 border p-2 rounded" value={tempReq} onChange={e=>setTempReq(e.target.value)} /><button type="button" onClick={addRequirement} className="bg-black text-white px-4 rounded">Add</button></div>
                         <ul className="space-y-2">{currentJob.requirements?.map((r,i)=>(<li key={i} className="flex justify-between bg-white p-2 border rounded"><span>{r}</span><button type="button" onClick={()=>removeRequirement(i)} className="text-red-500"><Trash2 size={14}/></button></li>))}</ul>
                     </div>
-                    <div className="flex justify-end gap-3 pt-4"><Button size="sm" variant="outline" type="button" onClick={()=>setIsEditing(false)}>Cancelar</Button><Button size="sm" variant="primary" type="submit" disabled={savingJob} isLoading={savingJob}>Salvar</Button></div>
+                    <div className="flex justify-end gap-3 pt-4"><Button size="sm" variant="outline" type="button" onClick={closeEditor}>Cancelar</Button><Button size="sm" variant="primary" type="submit" disabled={savingJob} isLoading={savingJob}>Salvar</Button></div>
                 </form>
             </div>
         )

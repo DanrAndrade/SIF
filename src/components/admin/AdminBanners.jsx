@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConfirm, AdminPage } from './kit';
+import { useConfirm, useDirty, AdminPage } from './kit';
 import { Plus, Trash2, Image as ImageIcon, ToggleLeft, ToggleRight, Save, UploadCloud, Edit, X, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -20,6 +20,11 @@ export default function AdminBanners() {
   // Estados de controle e feedback
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  // Aviso de alterações não salvas (selo + modal ao cancelar, trocar de banner ou sair da tela)
+  const formState = { editingId, linkUrl, isActive };
+  const { dirty, markClean } = useDirty(formState, { extra: !!selectedFile });
+  const canDiscard = async () => !dirty || confirm({ title: 'Descartar alterações?', message: 'As alterações não salvas deste banner serão perdidas.', confirmLabel: 'Descartar', danger: true });
 
   // --- NOVO: Estado para o Modal de Exclusão ---
 
@@ -62,7 +67,9 @@ export default function AdminBanners() {
     setError('');
   };
 
-  const handleEditClick = (banner) => {
+  const handleEditClick = async (banner) => {
+    if (!(await canDiscard())) return;
+    markClean({ editingId: banner.id, linkUrl: banner.link_url || '', isActive: banner.active == 1 });
     setEditingId(banner.id);
     setLinkUrl(banner.link_url || '');
     setIsActive(banner.active == 1);
@@ -139,6 +146,7 @@ export default function AdminBanners() {
   };
 
   const resetForm = () => {
+    markClean({ editingId: null, linkUrl: '', isActive: true });
     setEditingId(null);
     setLinkUrl('');
     setSelectedFile(null);
@@ -160,14 +168,15 @@ export default function AdminBanners() {
     <div className="bg-white p-6 rounded-xl border border-gray-200 relative">
 
       {/* FORMULÁRIO */}
-      <div className={`p-6 rounded-xl mb-8 border transition-colors ${editingId ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
+      <div className={`p-6 rounded-xl mb-8 border transition-colors ${editingId ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`}>
         <div className="flex justify-between items-center mb-4">
-            <h3 className={`text-sm font-bold uppercase flex items-center gap-2 ${editingId ? 'text-blue-600' : 'text-gray-500'}`}>
+            <h3 className={`text-sm font-bold uppercase flex items-center gap-2 ${editingId ? 'text-emerald-700' : 'text-gray-500'}`}>
                 {editingId ? <Edit size={16} /> : <Plus size={16} />} 
                 {editingId ? 'Editando Banner' : 'Adicionar Novo'}
+                {dirty && <span className="ml-2 normal-case px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold">Alterações não salvas</span>}
             </h3>
             {editingId && (
-                <button onClick={resetForm} className="text-xs font-bold text-gray-500 hover:text-red-500 flex items-center gap-1">
+                <button onClick={async () => { if (await canDiscard()) resetForm(); }} className="text-xs font-bold text-gray-500 hover:text-red-500 flex items-center gap-1">
                     <X size={14} /> Cancelar
                 </button>
             )}
@@ -244,7 +253,7 @@ export default function AdminBanners() {
       {/* LISTAGEM */}
       <div className="space-y-3">
         {banners.map((banner) => (
-            <div key={banner.id} className={`group flex items-center gap-4 p-3 border rounded-lg bg-white transition-all ${editingId === banner.id ? 'border-blue-400 ring-1 ring-blue-400' : 'border-gray-100 hover:border-gray-300'}`}>
+            <div key={banner.id} className={`group flex items-center gap-4 p-3 border rounded-lg bg-white transition-all ${editingId === banner.id ? 'border-emerald-400 ring-1 ring-emerald-100' : 'border-gray-100 hover:border-gray-300'}`}>
                 <div className="w-32 h-14 rounded bg-gray-100 overflow-hidden relative border border-gray-200">
                     <img src={getImageUrl(banner.image_url)} alt="Banner" className="w-full h-full object-cover" />
                     {(banner.active == 0 || banner.active === false) && (
@@ -272,7 +281,7 @@ export default function AdminBanners() {
                     
                     <button 
                         onClick={() => handleEditClick(banner)}
-                        className="p-2 rounded-full text-blue-500 bg-blue-50 hover:bg-blue-100 transition-colors"
+                        className="p-2 rounded-full text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
                         title="Editar"
                     >
                         <Edit size={18} />

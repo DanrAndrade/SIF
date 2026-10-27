@@ -48,6 +48,13 @@ if (!is_dir($dir) && !mkdir($dir, 0755, true)) $fail('Erro ao criar a pasta de e
 $target = $dir . time() . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
 if (!move_uploaded_file($file['tmp_name'], $target)) $fail('Erro ao salvar o arquivo no servidor.', 500);
 
+// Imagem: converte para WebP (mais leve); documentos ficam como vieram
+if (in_array($ext, ['jpg', 'png', 'gif', 'bmp', 'webp', 'avif'], true)) {
+    require_once __DIR__ . '/image_utils.php';
+    $webp = convertToWebp($target);
+    if ($webp) { $target = $webp; $ext = 'webp'; }
+}
+
 // Nome amigável sugerido (o painel deixa editar): nome original sem extensão
 $name = pathinfo((string)$file['name'], PATHINFO_FILENAME);
 $name = trim(preg_replace('/[_]+/', ' ', strip_tags($name)));

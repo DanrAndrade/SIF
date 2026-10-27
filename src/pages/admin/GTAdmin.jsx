@@ -369,7 +369,7 @@ function ProfileFields({ value, onChange, onUploading, readOnly, withLogin }) {
         <Field label="Cargo / função" value={v.cargo} onChange={set('cargo')} placeholder="Ex.: Coordenador(a) do GT" />
         {withLogin && <LoginInput label="E-mail de acesso ao painel" type="email" autoComplete="off" value={v.email} onChange={set('email')} hint="Também aparece no site, se o e-mail de contato ficar vazio." />}
         {withLogin && <LoginInput label="Senha inicial" type="password" autoComplete="new-password" value={v.password} onChange={set('password')} hint="Mínimo de 8 caracteres. Envie para a pessoa trocar no primeiro acesso." />}
-        <Field label="E-mail de contato no site" type="email" value={v.contact_email ?? ''} onChange={set('contact_email')} hint={withLogin ? 'Opcional.' : 'Vazio: mostra o e-mail de acesso.'} />
+        <Field label="E-mail de contato no site" type="email" value={v.contact_email ?? ''} onChange={set('contact_email')} hint="Opcional. Vazio: o site não mostra e-mail (o e-mail de acesso nunca aparece)." />
         <Field label="WhatsApp" value={v.whatsapp} onChange={set('whatsapp')} placeholder="Somente números, com DDD" />
         <Field label="Link (Lattes, LinkedIn...)" value={v.link} onChange={set('link')} placeholder="https://" />
         <Field label="Texto do link" value={v.link_label} onChange={set('link_label')} placeholder="Ver perfil" />
