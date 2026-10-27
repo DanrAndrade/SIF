@@ -8,6 +8,8 @@ import EditablePageHero from '../components/EditablePageHero';
 import { ArrowRight, Layers, Target, Activity, ShieldCheck, Zap, Globe, Microscope } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, htmlToText } from '../apiConfig';
 import GlowCta from '../components/ui/GlowCta';
+import { usePageConfig } from '../hooks/usePageConfig';
+import { GT_LIST_TEXTS, withTexts } from '../utils/pageTextDefaults';
 
 const HERO_DEFAULTS = {
   hero_image: '',
@@ -32,6 +34,9 @@ const iconMap = {
 const gtSummary = (gt) => { try { return (JSON.parse(gt.extra_data || '{}') || {}).summary || ''; } catch { return ''; } };
 
 export default function GruposTematicos() {
+  // Textos da página (Painel › Grupos Temáticos › Textos da página)
+  const { config: pageCfg } = usePageConfig('gt');
+  const t = withTexts(GT_LIST_TEXTS, pageCfg);
   const [loadError, setLoadError] = useState(false);
   usePageTitle('Grupos Temáticos'); // título da aba do navegador / Google
   const [gts, setGts] = useState([]);
@@ -66,8 +71,11 @@ export default function GruposTematicos() {
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 md:mb-20">
-            <h2 className="lg:col-span-7 sif-title sif-h2 text-[#1f2937] leading-[0.95] tracking-tight">Onde a <span className="text-[#007a3d]">ciência</span><br/>encontra o campo.</h2>
-            <p className="lg:col-span-5 text-gray-500 text-lg leading-relaxed">Os Grupos Temáticos da SIF representam parcerias estratégicas entre a academia e as empresas associadas, focadas em solucionar desafios reais do setor por meio de pesquisa aplicada.</p>
+            <h2 className="lg:col-span-7 sif-title sif-h2 text-[#1f2937] leading-[0.95] tracking-tight">
+              {t.intro_title_before} {t.intro_title_highlight && <span className="text-[#007a3d]">{t.intro_title_highlight}</span>}
+              {t.intro_title_after && <><br />{t.intro_title_after}</>}
+            </h2>
+            {t.intro_text && <p className="lg:col-span-5 text-gray-500 text-lg leading-relaxed whitespace-pre-line">{t.intro_text}</p>}
           </div>
 
           {/* GRADE DE GTS */}
@@ -87,9 +95,8 @@ export default function GruposTematicos() {
 
           {/* CHAMADA (mesmo card do Trabalhe Conosco da Home) */}
           <div className="mt-20 md:mt-24">
-            <GlowCta title="Quer tornar sua empresa" highlight="parceira de um GT?"
-              text="Participe ativamente das pesquisas e tenha acesso prioritário aos resultados e tecnologias geradas."
-              btnLabel="Quero ser associado" href="/associadas" />
+            <GlowCta title={t.cta_title} highlight={t.cta_highlight} text={t.cta_text}
+              btnLabel={t.cta_btn_label} href={t.cta_btn_link || '/associadas'} />
           </div>
         </div>
       </main>

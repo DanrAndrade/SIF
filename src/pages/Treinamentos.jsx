@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
+import { TREINAMENTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { Calendar, MapPin, ArrowRight, BookOpen, Clock, Award, X, MessageSquare, Play, ChevronDown } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
@@ -19,6 +21,9 @@ const HERO_DEFAULTS = {
 };
 
 export default function Treinamentos() {
+  // Textos da chamada final (Painel › Treinamentos › Textos da página)
+  const { config: pageCfg } = usePageConfig('treinamentos');
+  const t = withTexts(TREINAMENTOS_TEXTS, pageCfg);
   const [loadError, setLoadError] = useState(false);
   usePageTitle('Treinamentos'); // título da aba do navegador / Google
   const [trainings, setTrainings] = useState([]);
@@ -158,9 +163,9 @@ export default function Treinamentos() {
          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
-            <h2 className="sif-title sif-h2 text-white tracking-tighter mb-8 italic">Sua empresa quer <br/><span className="text-[#007a3d]">capacitar a equipe?</span></h2>
-            <p className="text-gray-400 text-base mb-12 max-w-2xl mx-auto font-medium">Realizamos treinamentos customizados (In-Company) adaptados às necessidades específicas do seu negócio florestal.</p>
-            <Button href="/treinamentos-in-company" variant="light">Consultar Projeto Customizado</Button>
+            <h2 className="sif-title sif-h2 text-white tracking-tight mb-8">{t.cta_title}{t.cta_highlight && <><br /><span className="text-sif-lime">{t.cta_highlight}</span></>}</h2>
+            {t.cta_text && <p className="text-white/70 text-base mb-12 max-w-2xl mx-auto font-medium whitespace-pre-line">{t.cta_text}</p>}
+            {t.cta_btn_label && <Button href={t.cta_btn_link || '/treinamentos-in-company'} variant="light">{t.cta_btn_label}</Button>}
          </div>
       </section>
 

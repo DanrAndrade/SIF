@@ -136,22 +136,15 @@ export default function GrupoTematicoDetalhe() {
         title={gt.title} summary={summary}
         actions={<>
           {contactSec && (
-            <button type="button" onClick={() => go(sectionAnchor(contactSec))} className={buttonClass('light')}>
-              <span className="py-2">Falar com o responsável</span><BtnArrow variant="light" icon={MessageCircle} />
+            // mesmo tamanho dos botões do topo da Home (o responsável fica só no card lá embaixo)
+            <button type="button" onClick={() => go(sectionAnchor(contactSec))} className={buttonClass('light', 'sm')}>
+              <span className="py-2">Falar com o responsável</span><BtnArrow variant="light" size="sm" icon={MessageCircle} />
             </button>
           )}
           {blogSec && (
-            <button type="button" onClick={() => go(sectionAnchor(blogSec))} className={buttonClass('ghostLight')}>
-              <span className="py-2">{posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}</span><BtnArrow variant="ghostLight" icon={Newspaper} />
+            <button type="button" onClick={() => go(sectionAnchor(blogSec))} className={buttonClass('ghostLight', 'sm')}>
+              <span className="py-2">{posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}</span><BtnArrow variant="ghostLight" size="sm" icon={Newspaper} />
             </button>
-          )}
-          {responsavel?.contact_name && (
-            <span className="inline-flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-white/85 text-sm">
-              {responsavel.contact_photo
-                ? <img src={getImageUrl(responsavel.contact_photo, 160)} alt="" className="w-8 h-8 rounded-full object-cover" />
-                : <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">{responsavel.contact_name.charAt(0)}</span>}
-              <span>Responsável: <strong className="font-semibold text-white">{responsavel.contact_name}</strong></span>
-            </span>
           )}
         </>}
       />

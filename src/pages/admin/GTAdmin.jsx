@@ -5,6 +5,8 @@ import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import { withGtDefaults, normalizeSections, htmlExcerpt } from '../../components/sections/sectionTypes';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
+import PageTextsForm from '../../components/admin/PageTextsForm';
+import { GT_LIST_TEXTS } from '../../utils/pageTextDefaults';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { apiRequest, toastError, uploadImageNow } from '../../utils/adminApi';
@@ -221,6 +223,7 @@ export default function GTAdmin() {
     >
 
       {view === 'list' && full && <PageHeaderForm pageKey="gt" defaults={HERO_DEFAULTS} title="Cabeçalho da página /grupos-tematicos" />}
+      {view === 'list' && full && <PageTextsForm pageKey="gt" spec={GT_LIST_TEXTS} title="Textos da página /grupos-tematicos" />}
 
       {/* LISTA */}
       {view === 'list' && (

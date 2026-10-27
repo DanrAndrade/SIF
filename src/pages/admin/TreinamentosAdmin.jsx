@@ -5,6 +5,8 @@ import Button from '../../components/admin/kit/AdminButton'; // botão do painel
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
+import PageTextsForm from '../../components/admin/PageTextsForm';
+import { TREINAMENTOS_TEXTS } from '../../utils/pageTextDefaults';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -201,6 +203,7 @@ export default function TreinamentosAdmin() {
     >
 
       {view === 'list' && <PageHeaderForm pageKey="treinamentos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /treinamentos" />}
+      {view === 'list' && <PageTextsForm pageKey="treinamentos" spec={TREINAMENTOS_TEXTS} title="Textos da página /treinamentos" />}
       {view === 'list' && <PageContactForm pageKey="treinamentos" title="Contato responsável por Treinamentos" />}
 
       {/* LISTA */}
