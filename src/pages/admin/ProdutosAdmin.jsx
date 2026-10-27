@@ -62,6 +62,11 @@ const CONTENT_DEFAULTS = {
   comercial_intro: 'Oferecemos sementes de alta qualidade genética e a tecnologia Ellepot para otimização do seu viveiro, além de oportunidades exclusivas de patrocínio nos maiores eventos do setor.',
   comercial_sections: [],
 
+  germinar_card_tag: 'Oportunidades',
+  germinar_card_title: 'Conheça as vagas do',
+  germinar_card_highlight: 'Programa Germinar',
+  germinar_card_text: 'Estamos sempre buscando novos talentos. Veja todas as vagas abertas e como se candidatar.',
+  germinar_card_btn: 'Ver vagas abertas',
   germinar_title_line1: 'Programa',
   germinar_title_highlight: 'Germinar',
   germinar_intro: 'Conectar a formação universitária à prática do setor privado, oferecendo aos estudantes a oportunidade de vivenciar a rotina das empresas, entender sua cultura organizacional e se preparar para futuras oportunidades de atuação profissional.',
@@ -195,6 +200,19 @@ export default function ProdutosAdmin() {
           set={set}
           onUploading={setUploading}
         />
+      )}
+
+      {activeTab === 'germinar' && (
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Card de vagas no fim da aba (leva para Trabalhe Conosco)</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Field label="Etiqueta" value={config.germinar_card_tag ?? ''} onChange={v => set('germinar_card_tag', v)} />
+            <Field label="Título" value={config.germinar_card_title ?? ''} onChange={v => set('germinar_card_title', v)} />
+            <Field label="Título: parte em verde" value={config.germinar_card_highlight ?? ''} onChange={v => set('germinar_card_highlight', v)} />
+            <div className="md:col-span-2"><Field label="Texto" value={config.germinar_card_text ?? ''} onChange={v => set('germinar_card_text', v)} /></div>
+            <Field label="Botão: texto" value={config.germinar_card_btn ?? ''} onChange={v => set('germinar_card_btn', v)} />
+          </div>
+        </div>
       )}
 
       {activeTab === 'boletim' && (

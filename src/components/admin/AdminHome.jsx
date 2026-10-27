@@ -47,6 +47,8 @@ const DEFAULTS = {
     video_url: 'https://www.youtube.com/embed/9AWrRQWYIcw?rel=0&modestbranding=1',
     badge_value: '+50 Anos',
     badge_label: 'De excelência',
+    video_tag: 'Vídeo institucional',
+    video_caption: 'Conheça a SIF em poucos minutos',
   },
   services: {
     section_tag: 'Áreas de Atuação',
@@ -582,6 +584,10 @@ function AboutForm({ config, update }) {
         <Input label="Link botão" value={config.cta_link} onChange={(e) => update({ cta_link: e.target.value })} />
       </div>
       <Input label="URL do vídeo (YouTube)" value={config.video_url} onChange={(e) => update({ video_url: e.target.value })} hint="Cole qualquer link do YouTube: normal (watch?v=...), curto (youtu.be/...) ou embed" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Input label="Vídeo: etiqueta (sobre a capa)" value={config.video_tag ?? ''} onChange={(e) => update({ video_tag: e.target.value })} />
+        <Input label="Vídeo: legenda (sobre a capa)" value={config.video_caption ?? ''} onChange={(e) => update({ video_caption: e.target.value })} />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Input label="Badge — valor (canto)" value={config.badge_value} onChange={(e) => update({ badge_value: e.target.value })} />
         <Input label="Badge — legenda" value={config.badge_label} onChange={(e) => update({ badge_label: e.target.value })} />

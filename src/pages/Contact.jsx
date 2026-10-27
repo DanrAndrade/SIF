@@ -62,6 +62,8 @@ export default function Contact() {
             <div className="lg:col-span-5">
               <ContactChannels
                 title={cfg.canais_title}
+                phrase={cfg.canais_frase ?? 'Prefere falar direto?'}
+                phraseMuted={cfg.canais_frase_suave ?? 'Ligue, escreva ou venha até nós.'}
                 phoneLabel={cfg.phone_label}
                 phoneValue={cfg.phone_value}
                 emailLabel={cfg.email_label}

@@ -21,6 +21,8 @@ const HERO_DEFAULTS = {
 
 const CONTENT_DEFAULTS = {
   canais_title: 'Canais Diretos',
+  canais_frase: 'Prefere falar direto?',
+  canais_frase_suave: 'Ligue, escreva ou venha até nós.',
   phone_label: 'Telefone Centex',
   phone_value: '+55 (31) 3612-3950',
   email_label: 'E-mail Corporativo',
@@ -86,6 +88,10 @@ export default function ContatoAdmin() {
         {loading ? <div className="text-center py-6"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div> : (
           <div className="space-y-5">
             <Field label="Título da seção lateral" value={cfg.canais_title} onChange={v => set('canais_title', v)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Frase (branca)" value={cfg.canais_frase} onChange={v => set('canais_frase', v)} />
+              <Field label="Frase (continuação, mais clara)" value={cfg.canais_frase_suave} onChange={v => set('canais_frase_suave', v)} />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
               <Field label="Rótulo Telefone" value={cfg.phone_label} onChange={v => set('phone_label', v)} />

@@ -71,12 +71,17 @@ body { font-family: var(--sif-font-sans); overflow-x: hidden; -webkit-tap-highli
   .sif-title-strong { font-weight: var(--sif-title-weight-strong); }
 }
 
-a { text-decoration: none; color: inherit; transition: 0.2s ease; }
-ul { list-style: none; }
+/* Padrões dos elementos (camada base, antes das classes).
+   Botão: zera só a LARGURA da borda. Antes era "border: none", que zerava também
+   o estilo, e aí a classe "border" de qualquer botão não mostrava o contorno. */
+@layer base {
+  a { text-decoration: none; color: inherit; transition: 0.2s ease; }
+  ul { list-style: none; }
+  img { max-width: 100%; display: block; }
+  button { font-family: inherit; cursor: pointer; border-width: 0; }
+}
 .prose ul { list-style-type: disc; }
 .prose ol { list-style-type: decimal; }
-img { max-width: 100%; display: block; }
-button { font-family: inherit; cursor: pointer; border: none; }
 
 /* Classes de Layout */
 /* Dentro de @layer e só nas laterais: assim py-*, pt-*, mt-*... das páginas

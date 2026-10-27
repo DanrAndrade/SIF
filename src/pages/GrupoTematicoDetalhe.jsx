@@ -141,11 +141,6 @@ export default function GrupoTematicoDetalhe() {
               <span className="py-2">Falar com o responsável</span><BtnArrow variant="light" size="sm" icon={MessageCircle} />
             </button>
           )}
-          {blogSec && (
-            <button type="button" onClick={() => go(sectionAnchor(blogSec))} className={buttonClass('ghostLight', 'sm')}>
-              <span className="py-2">{posts.length} {posts.length === 1 ? 'publicação' : 'publicações'}</span><BtnArrow variant="ghostLight" size="sm" icon={Newspaper} />
-            </button>
-          )}
         </>}
       />
 

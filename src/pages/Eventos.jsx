@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
+import { EVENTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { Calendar, MapPin, ArrowRight, Clock, Sparkles } from 'lucide-react';
 import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import { useEincolActive } from '../hooks/useEincolActive';
@@ -112,6 +114,9 @@ function SectionTitle({ title, accent }) {
 }
 
 export default function Eventos() {
+  // Textos do card do EINCOL (Painel › Eventos › Textos da página)
+  const { config: evCfg } = usePageConfig('eventos');
+  const et = withTexts(EVENTOS_TEXTS, evCfg);
   const [loadError, setLoadError] = useState(false);
   usePageTitle('Eventos'); // título da aba do navegador / Google
   const [events, setEvents] = useState([]);
@@ -160,16 +165,12 @@ export default function Eventos() {
 
                 <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
                   <div className="flex-1 text-center md:text-left">
-                    <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-4">Evento Especial</span>
-                    <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-3">
-                      EINCOL
-                    </h2>
-                    <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-xl font-medium">
-                      Encontro Internacional de Ciência Florestal — conheça a programação completa, palestrantes e como participar.
-                    </p>
+                    {et.eincol_card_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-4">{et.eincol_card_tag}</span>}
+                    <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-3">{et.eincol_card_title}</h2>
+                    {et.eincol_card_text && <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-xl font-medium">{et.eincol_card_text}</p>}
                   </div>
                   <div className={`${buttonClass('light', 'lg')} flex-shrink-0`}>
-                    <span className="py-2">Acessar Página</span>
+                    <span className="py-2">{et.eincol_card_btn || 'Acessar página'}</span>
                     <BtnArrow variant="light" size="lg" />
                   </div>
                 </div>

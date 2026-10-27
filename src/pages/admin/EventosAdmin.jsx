@@ -8,6 +8,8 @@ import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
+import PageTextsForm from '../../components/admin/PageTextsForm';
+import { EVENTOS_TEXTS } from '../../utils/pageTextDefaults';
 import PageContactForm from '../../components/admin/PageContactForm';
 
 const HERO_DEFAULTS = {
@@ -175,6 +177,7 @@ export default function EventosAdmin() {
 
       {/* Cabeçalho da página /eventos (hero editável) */}
       {view === 'list' && <PageHeaderForm pageKey="eventos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /eventos" />}
+      {view === 'list' && <PageTextsForm pageKey="eventos" spec={EVENTOS_TEXTS} title="Textos da página /eventos" />}
       {view === 'list' && <PageContactForm pageKey="eventos" title="Contato responsável por Eventos" />}
 
       {/* LISTA */}

@@ -16,6 +16,8 @@ const DEFAULTS = {
   video_url: 'https://www.youtube.com/embed/9AWrRQWYIcw?rel=0&modestbranding=1',
   badge_value: '+50 Anos',
   badge_label: 'De excelência',
+  video_tag: 'Vídeo institucional',
+  video_caption: 'Conheça a SIF em poucos minutos',
 };
 
 // ID do YouTube para usar a capa do próprio vídeo.
@@ -73,8 +75,8 @@ export default function About({ config = {} }) {
                   </span>
                 </span>
                 <span className="absolute left-5 bottom-4 md:left-6 md:bottom-5 text-white">
-                  <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-sif-lime mb-1">Vídeo institucional</span>
-                  <span className="block text-sm md:text-base font-semibold">Conheça a SIF em poucos minutos</span>
+                  {c.video_tag && <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-sif-lime mb-1">{c.video_tag}</span>}
+                  {c.video_caption && <span className="block text-sm md:text-base font-semibold">{c.video_caption}</span>}
                 </span>
               </button>
             )}

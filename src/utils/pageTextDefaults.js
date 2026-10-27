@@ -54,6 +54,24 @@ export const TREINAMENTOS_TEXTS = {
   ],
 };
 
+// Página /eventos (chave "eventos"): card do EINCOL (aparece quando o EINCOL está ativo)
+export const EVENTOS_TEXTS = {
+  defaults: {
+    eincol_card_tag: 'Evento especial',
+    eincol_card_title: 'EINCOL',
+    eincol_card_text: 'Encontro Internacional de Ciência Florestal: conheça a programação completa, os palestrantes e como participar.',
+    eincol_card_btn: 'Acessar página',
+  },
+  groups: [
+    { title: 'Card do EINCOL (aparece quando o EINCOL está ativo)', fields: [
+      { key: 'eincol_card_tag', label: 'Etiqueta' },
+      { key: 'eincol_card_title', label: 'Título' },
+      { key: 'eincol_card_btn', label: 'Botão: texto' },
+      { key: 'eincol_card_text', label: 'Texto', type: 'textarea', rows: 2, wide: true },
+    ] },
+  ],
+};
+
 // Junta o que veio do painel com o padrão. Campo apagado no painel ("") fica vazio
 // de propósito; campo que nunca foi salvo (null/ausente) usa o texto padrão.
 export const withTexts = (spec, config) => {

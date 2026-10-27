@@ -65,6 +65,11 @@ const CONTENT_DEFAULTS = {
 
   germinar_title_line1: 'Programa',
   germinar_title_highlight: 'Germinar',
+  germinar_card_tag: 'Oportunidades',
+  germinar_card_title: 'Conheça as vagas do',
+  germinar_card_highlight: 'Programa Germinar',
+  germinar_card_text: 'Estamos sempre buscando novos talentos. Veja todas as vagas abertas e como se candidatar.',
+  germinar_card_btn: 'Ver vagas abertas',
   germinar_intro: 'Conectar a formação universitária à prática do setor privado, oferecendo aos estudantes a oportunidade de vivenciar a rotina das empresas, entender sua cultura organizacional e se preparar para futuras oportunidades de atuação profissional.',
   germinar_sections: GERMINAR_SECTIONS_DEFAULT,
 
@@ -229,19 +234,18 @@ export default function ProdutosServicos() {
 
             <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
               <div className="flex-1 text-center md:text-left">
-                <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">Oportunidades</span>
+                {/* textos editáveis em Painel › Produtos e serviços › aba Germinar */}
+                {cfg.germinar_card_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">{cfg.germinar_card_tag}</span>}
                 <h2 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95] mb-4">
-                  Conheça as vagas do <span className="text-[#7FBA00]">Programa Germinar</span>
+                  {cfg.germinar_card_title} {cfg.germinar_card_highlight && <span className="text-[#7FBA00]">{cfg.germinar_card_highlight}</span>}
                 </h2>
-                <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">
-                  Estamos sempre buscando novos talentos. Veja todas as vagas abertas e como se candidatar.
-                </p>
+                {cfg.germinar_card_text && <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">{cfg.germinar_card_text}</p>}
               </div>
               <Link
                 to="/trabalhe-conosco"
                 className={`${buttonClass('light', 'lg')} flex-shrink-0`}
               >
-                <span className="py-2">Ver Vagas Abertas</span>
+                <span className="py-2">{cfg.germinar_card_btn || 'Ver vagas abertas'}</span>
                 <BtnArrow variant="light" size="lg" />
               </Link>
             </div>

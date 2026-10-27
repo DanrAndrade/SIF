@@ -58,7 +58,7 @@ function CopyButton({ text }) {
 
 // Lado escuro do painel de contato: canais diretos (telefone, e-mail) e
 // endereço. Todos os textos vêm do painel (/admin/contato).
-export default function ContactChannels({ title, phoneLabel, phoneValue, emailLabel, emailValue, addressLabel, addressValue }) {
+export default function ContactChannels({ title, phrase, phraseMuted, phoneLabel, phoneValue, emailLabel, emailValue, addressLabel, addressValue }) {
   const phoneDigits = String(phoneValue || '').replace(/[^\d+]/g, '');
   const mapsUrl = addressValue
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(addressValue).replace(/\s*\n\s*/g, ', ').replace(/\s*\|\s*/g, ', '))}`
@@ -68,9 +68,11 @@ export default function ContactChannels({ title, phoneLabel, phoneValue, emailLa
     <PhotoBand as="aside" photo={PANEL_PHOTO} className="h-full px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
       <div>
         {title && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-4">{title}</span>}
-        <p className="text-2xl md:text-[28px] leading-snug tracking-tight text-white max-w-sm mb-10">
-          Prefere falar direto? <span className="text-white/55">Ligue, escreva ou venha até nós.</span>
-        </p>
+        {(phrase || phraseMuted) && (
+          <p className="text-2xl md:text-[28px] leading-snug tracking-tight text-white max-w-sm mb-10">
+            {phrase} {phraseMuted && <span className="text-white/55">{phraseMuted}</span>}
+          </p>
+        )}
       </div>
 
       <div className="border-b border-white/15">
