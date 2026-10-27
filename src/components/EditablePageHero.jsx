@@ -1,14 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import ParallaxLayer from './ui/ParallaxLayer';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
+import DetailHero from './DetailHero';
+import { buttonClass, BtnArrow } from './ui/Button';
 import { getImageUrl } from '../apiConfig';
 import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
-// Hero reutilizável editável via /admin/<page>.
-// pageKey -> chave em page_content.php (eventos, treinamentos, gt, projetos, blog)
-// defaults -> { hero_image, hero_badge, hero_title_line1, hero_title_highlight, hero_subtitle, hero_scroll_label }
-// scrollTargetId -> id do elemento abaixo para o botão de scroll
-export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bgColor = '#f6f8f7' }) {
+// Topo das páginas secundárias, no MESMO formato do topo das páginas de
+// detalhe (Grupo Temático): capa com degradê, trilha de navegação, etiqueta,
+// título, resumo e botão para descer até o conteúdo.
+// Conteúdo editável em Painel › <página> › Cabeçalho (campos hero_*).
+
+const scrollToId = (id, offset = 100) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - offset, behavior: 'smooth' });
+};
+
+// Versão "só visual": recebe os campos prontos (usada também no Institucional)
+export function PageHeroView({ cfg, scrollTargetId }) {
+  const img = cfg.hero_image || '';
+  const cover = img ? (img.startsWith('http') ? img : getImageUrl(img, 1920)) : '';
+  const title = [cfg.hero_title_line1, cfg.hero_title_highlight].filter(Boolean).join(' ').trim();
+  const label = String(cfg.hero_scroll_label || '').trim();
+  const actions = scrollTargetId ? (
+    label ? (
+      <button type="button" onClick={() => scrollToId(scrollTargetId)} className={buttonClass('light', 'sm')}>
+        <span className="py-2">{label}</span><BtnArrow variant="light" size="sm" icon={ArrowDown} rotate={false} />
+      </button>
+    ) : (
+      <button type="button" onClick={() => scrollToId(scrollTargetId)} aria-label="Ir para o conteúdo"
+        className="w-11 h-11 rounded-full border border-white/30 text-white flex items-center justify-center hover:bg-white hover:text-sif-dark transition-colors">
+        <ArrowDown size={18} />
+      </button>
+    )
+  ) : null;
+  return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} summary={cfg.hero_subtitle} actions={actions} />;
+}
+
+// pageKey -> chave em page_content.php; defaults -> textos usados se o painel estiver vazio
+// scrollTargetId -> id da seção logo abaixo (botão de descer)
+export default function EditablePageHero({ pageKey, defaults, scrollTargetId }) {
   // Boot (HTML) ou cache local -> renderiza na hora, com a imagem real (já pré-carregada).
   const initial = readBootOrCache(pageKey);
   const [cfg, setCfg] = useState(initial);
@@ -25,52 +56,11 @@ export default function EditablePageHero({ pageKey, defaults, scrollTargetId, bg
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageKey]);
 
-  // Enquanto o conteúdo real não chega, mostra um placeholder neutro —
-  // nunca o conteúdo de exemplo (evita o "flash" de texto/imagem provisória).
-  if (!ready) {
-    return <div className="relative min-h-[85vh] bg-[#0f1f11] overflow-hidden" />;
-  }
+  // Enquanto o conteúdo real não chega: fundo neutro do mesmo tamanho (sem
+  // "flash" de texto ou imagem de exemplo).
+  if (!ready) return <div className="min-h-[64vh] bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]" />;
 
-  const c = { ...defaults, ...(cfg || {}) };
-  // A imagem vem SOMENTE do banco (imagem enviada pelo admin). Nunca usa
-  // imagem de exemplo dos defaults — se o banco não tiver, fica o fundo escuro.
-  const bancoImg = cfg && cfg.hero_image ? cfg.hero_image : '';
-  const heroBgUrl = bancoImg ? (bancoImg.startsWith('http') ? bancoImg : getImageUrl(bancoImg, 1920)) : '';
-
-  return (
-    <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
-      <div className="absolute inset-0 z-0">
-        {heroBgUrl && <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroBgUrl}')` }}></div></ParallaxLayer>}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-      </div>
-      {/* Curva no fim do topo: mesma cor e granulado do fundo da página (ou a cor pedida, ex.: branco) */}
-      <div className={`absolute bottom-0 left-0 right-0 h-20 rounded-tr-[80px] z-10 ${bgColor === '#f6f8f7' ? 'sif-pinned-bg' : ''}`} style={bgColor === '#f6f8f7' ? undefined : { backgroundColor: bgColor }}></div>
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
-        {c.hero_badge && (
-          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{c.hero_badge}</span>
-        )}
-        <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl text-white leading-[1.05] tracking-tighter mb-6 md:mb-8">
-          {c.hero_title_line1} <br/>
-          <span className="text-[#007a3d]">{c.hero_title_highlight}</span>
-        </h1>
-        {c.hero_subtitle && (
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-8 md:mb-12">{c.hero_subtitle}</p>
-        )}
-        {scrollTargetId && (
-          <button
-            onClick={() => {
-              const section = document.getElementById(scrollTargetId);
-              if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className="group flex items-center gap-4 text-white font-bold uppercase tracking-widest text-[10px] hover:text-[#007a3d] transition-colors"
-          >
-            <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] transition-all">
-              <ChevronDown size={20} className="animate-bounce" />
-            </div>
-            {c.hero_scroll_label || ''}
-          </button>
-        )}
-      </div>
-    </div>
-  );
+  // A imagem vem SOMENTE do banco (nunca a de exemplo dos defaults)
+  const c = { ...defaults, ...(cfg || {}), hero_image: cfg?.hero_image || '' };
+  return <PageHeroView cfg={c} scrollTargetId={scrollTargetId} />;
 }

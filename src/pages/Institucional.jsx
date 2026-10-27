@@ -17,6 +17,7 @@ import { resolveTeamGroups } from '../utils/teamGroups';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
 import TeamDirectory from '../components/team/TeamDirectory';
+import { PageHeroView } from '../components/EditablePageHero';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -252,40 +253,10 @@ export default function Institucional() {
     <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
-      <div className="relative min-h-[85vh] flex items-center pt-28 md:pt-32 pb-40 overflow-hidden bg-[#0f1f11]">
-        <div className="absolute inset-0 z-0">
-          <ParallaxLayer><div className="absolute inset-0 bg-cover bg-center transition-opacity duration-500" style={{ backgroundImage: heroReady && cfg.hero_image ? `url('${cfg.hero_image.startsWith('http') ? cfg.hero_image : getImageUrl(cfg.hero_image, 1920)}')` : 'none' }}></div></ParallaxLayer>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/80 to-transparent"></div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-tr-[80px] z-10"></div>
-        <div className={`container mx-auto px-6 md:px-12 relative z-10 transition-opacity duration-500 ${heroReady ? 'opacity-100' : 'opacity-0'}`}>
-          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{cfg.hero_badge}</span>
-
-          <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl text-white leading-[1.05] tracking-tighter mb-8">
-              {cfg.hero_title_line1} <br/>
-              <span className="text-[#007a3d]">{cfg.hero_title_highlight}</span>
-          </h1>
-
-          <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-medium mb-12">
-              {cfg.hero_subtitle}
-          </p>
-
-          <button 
-              onClick={() => {
-                  const section = document.getElementById('quem-somos');
-                  if (section) {
-                      const y = section.getBoundingClientRect().top + window.pageYOffset - 120;
-                      window.scrollTo({top: y, behavior: 'smooth'});
-                  }
-              }} 
-              className="group flex flex-col items-start gap-4 text-white font-black uppercase tracking-widest text-[10px] transition-all hover:text-[#007a3d]"
-          >
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] group-hover:text-white transition-all shadow-sm">
-                  <ChevronDown className="animate-bounce" size={20} />
-              </div>
-          </button>
-        </div>
-      </div>
+      {/* Topo no mesmo formato das outras páginas (components/EditablePageHero) */}
+      {heroReady
+        ? <PageHeroView cfg={cfg} scrollTargetId="quem-somos" />
+        : <div className="min-h-[64vh] bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]" />}
 
       {/* QUEM SOMOS */}
       <div id="quem-somos" className="py-24">
