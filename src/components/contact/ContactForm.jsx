@@ -118,11 +118,11 @@ export default function ContactForm({ tag, titleLine1, titleLine2 }) {
       ) : (
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">
-            <LineField label="Nome completo" name="name" autoComplete="name" value={data.name} onChange={handleChange} onBlur={handleBlur} required error={show("name")} />
-            <LineField label="E-mail" name="email" type="email" autoComplete="email" value={data.email} onChange={handleChange} onBlur={handleBlur} required error={show("email")} />
+            <LineField label="Nome completo" name="name" maxLength={100} autoComplete="name" value={data.name} onChange={handleChange} onBlur={handleBlur} required error={show("name")} />
+            <LineField label="E-mail" name="email" maxLength={100} type="email" autoComplete="email" value={data.email} onChange={handleChange} onBlur={handleBlur} required error={show("email")} />
             <LineField label="Telefone" name="phone" type="tel" inputMode="numeric" autoComplete="tel" maxLength={15} value={data.phone} onChange={handleChange} onBlur={handleBlur} required error={show("phone")} />
             <LineField label="Assunto" name="subject" value={data.subject} onChange={handleChange} options={SUBJECTS} />
-            <LineField className="md:col-span-2" multiline label="Como podemos ajudar?" name="message" value={data.message} onChange={handleChange} onBlur={handleBlur} required error={show("message")} />
+            <LineField className="md:col-span-2" multiline label="Como podemos ajudar?" name="message" maxLength={5000} value={data.message} onChange={handleChange} onBlur={handleBlur} required error={show("message")} />
           </div>
 
           {status === 'error' && (

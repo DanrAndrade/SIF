@@ -553,15 +553,17 @@ $sif_script_module = [
     'faqs.php' => 'home', 'institucional.php' => 'institucional', 'associadas.php' => 'associadas',
     'treinamentos_in_company.php' => 'in_company', 'eincol.php' => 'eincol',
 ];
+// Admin gravando: garante que a estrutura do banco está atualizada ANTES de
+// conferir a permissão (1 consulta rápida; os ALTERs só rodam uma vez). Depois
+// relê o usuário: antes da migração ele ainda não tinha perfil e módulos.
+if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)) {
+    sif_ensure_schema($pdo);
+    sif_user(true);
+}
 if ($sif_is_write && sif_is_admin() && isset($sif_script_module[$sif_script])) {
     sif_require($sif_script_module[$sif_script]);
 }
 
-// Admin gravando: garante que a estrutura do banco está atualizada (1 consulta
-// rápida; os ALTERs só rodam uma vez).
-if (!in_array($sif_method, ['GET', 'HEAD', 'OPTIONS'], true) && sif_is_admin() && isset($pdo)) {
-    sif_ensure_schema($pdo);
-}
 
 // SEO: depois de qualquer gravação de conteúdo no painel, atualiza o índice
 // usado nas metatags, no sitemap.xml e no llms.txt (roda no fim do pedido).

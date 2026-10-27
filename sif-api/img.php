@@ -6,7 +6,8 @@
  *
  * - Reduz a largura (nunca aumenta), converte para WebP (ou JPEG, se o
  *   servidor não tiver WebP) e guarda o resultado em cache/img/.
- * - Só aceita arquivos de imagem dentro de uploads/ e banners/ desta pasta.
+ * - Só aceita arquivos de imagem dentro de uploads/ e banners/ desta pasta e
+ *   de nossa-gente/ (fotos da equipe, na pasta do site, ao lado de sif-api/).
  * - Sem a extensão GD no servidor, redireciona para a imagem original
  *   (o site continua funcionando, só fica mais pesado).
  */
@@ -21,19 +22,25 @@ $wanted = $w;
 foreach ($ALLOWED_W as $opt) { $w = $opt; if ($opt >= $wanted) break; }
 
 $src = ltrim(str_replace('\\', '/', $src), '/');
-if ($src === '' || strpos($src, '..') !== false || !preg_match('#^(uploads|banners)/[\w\-./ ]+\.(jpe?g|png|webp|gif)$#i', $src)) {
+// letras com acento são aceitas (nomes de arquivo da equipe: "Serviços", "Ângela"...)
+if ($src === '' || strpos($src, '..') !== false || !preg_match('#^(uploads|banners|nossa-gente)/[\p{L}\p{N}_\-./ ]+\.(jpe?g|png|webp|gif)$#iu', $src)) {
     http_response_code(400);
     exit;
 }
 
-$base = realpath(__DIR__);
-$file = realpath(__DIR__ . '/' . $src);
+// nossa-gente/ (fotos da equipe) fica na pasta do site, ao lado de sif-api/;
+// uploads/ e banners/ ficam aqui dentro. O arquivo precisa estar DENTRO da pasta certa.
+$inSite = strpos($src, 'nossa-gente/') === 0;
+$base = $inSite ? realpath(dirname(__DIR__) . '/nossa-gente') : realpath(__DIR__);
+$file = realpath(($inSite ? dirname(__DIR__) : __DIR__) . '/' . $src);
+if (!$base) { http_response_code(404); exit; }
 if (!$file || strpos(str_replace('\\', '/', $file), str_replace('\\', '/', $base) . '/') !== 0 || !is_file($file)) {
     http_response_code(404);
     exit;
 }
 
-$origUrl = $src; // relativo a esta pasta
+// original (para quando o servidor não consegue reduzir), relativo a esta pasta
+$origUrl = $inSite ? '../' . implode('/', array_map('rawurlencode', explode('/', $src))) : $src;
 $canWebp = extension_loaded('gd') && function_exists('imagewebp');
 $canJpeg = extension_loaded('gd') && function_exists('imagejpeg');
 if (!$canWebp && !$canJpeg) {

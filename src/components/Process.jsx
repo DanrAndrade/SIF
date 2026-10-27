@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-import { Link } from 'react-router-dom';
+import SmartLink from './ui/SmartLink';
 import { getImageUrl } from '../apiConfig';
 import PhotoBand from './ui/PhotoBand';
 import { buttonClass, BtnArrow } from './ui/Button';
@@ -27,9 +27,9 @@ const DEFAULT_STEPS = [
 ];
 
 // Link interno, externo ou nada
+// SmartLink decide sozinho: rota interna (respeita a subpasta do site), arquivo ou link externo
 function StepLink({ step, className, children, ...rest }) {
-  if (step.external) return <a href={step.link} target="_blank" rel="noopener noreferrer" className={className} {...rest}>{children}</a>;
-  return <Link to={step.link} className={className} {...rest}>{children}</Link>;
+  return <SmartLink href={step.link} className={className} {...rest}>{children}</SmartLink>;
 }
 
 // Foto do painel: se falhar, cai na foto padrão (e avisa, para o fundo usar a mesma)

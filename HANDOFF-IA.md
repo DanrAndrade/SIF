@@ -266,3 +266,11 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
 - **Equipe**: `components/team/TeamDirectory.jsx` é o padrão (Institucional › Nossa Gente e EMBRAPII). Pessoas da EMBRAPII têm o campo "Grupo" para o filtro.
 - **Toque**: `tailwind.config.js` com `hoverOnlyWhenSupported` (hover só com mouse); campos com 16px no celular (index.css).
 - **Regra global** `a.rounded-card` (levantar no hover) sobrescreve `transition` de links arredondados: para animar outra coisa num link assim, ponha a `transition` no `style` (ver `Process.jsx`).
+
+## 12. Revisão antes da publicação de 27/10/2026
+
+- **Fotos da equipe (`nossa-gente/`)**: passam pelo `img.php` (reduz e converte para WebP; aceita nomes com acento). O arquivo original continua na pasta e é usado se a versão reduzida falhar. Localmente, `C:\xampp\htdocs\nossa-gente` é um atalho (junction) para `SIF/public/nossa-gente`, para o `img.php` achar os arquivos como no servidor.
+- **Fotos grandes** (topos, banners, carrossel da EMBRAPII) usam `heroW()` (`src/apiConfig.js`): 960px no celular.
+- **GSAP** carrega sob demanda na Home, só em telas de 768px ou mais.
+- **Segurança**: linha do tempo do Institucional e EINCOL limpam HTML ao gravar; `api_guard.php` migra o banco antes de conferir permissão.
+- **Publicação**: script SQL `atualizacao-banco-*.sql` (migrações 1 a 6, idempotente) + pacote com site, API alterada e uploads da EMBRAPII, sem comentários nos arquivos de código.

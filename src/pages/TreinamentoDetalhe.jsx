@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import { Clock, MapPin, ChevronLeft, Play, FileText, Calendar, CheckCircle2, MessageSquare, Layers, Award } from 'lucide-react';
 import Button, { buttonClass, BtnArrow } from '../components/ui/Button';
 import { Download, ArrowLeft } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed, heroW } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import { useSeo } from '../hooks/useSeo';
 import EditablePageContact from '../components/EditablePageContact';
@@ -73,7 +73,7 @@ export default function TreinamentoDetalhe() {
 
       {/* TOPO (padrão das páginas de detalhe) */}
       <DetailHero
-        cover={training.image_url ? getImageUrl(training.image_url, 1920) : ''}
+        cover={training.image_url ? getImageUrl(training.image_url, heroW()) : ''}
         crumbs={[{ label: 'Treinamentos', to: '/treinamentos' }]}
         eyebrow="Treinamento" icon={BookOpen}
         title={training.title}

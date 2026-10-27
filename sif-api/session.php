@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_action'] ?? '') === 'logo
 }
 
 // Admin abrindo o painel: aplica ajustes pendentes na estrutura do banco
-if (sif_is_admin()) sif_ensure_schema($pdo);
+if (sif_is_admin()) { sif_ensure_schema($pdo); sif_user(true); } // relê o perfil depois da migração
 
 $me = sif_user();
 if ($me) {

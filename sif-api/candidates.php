@@ -23,11 +23,13 @@ elseif ($method === 'POST') {
     if (isset($_FILES['cv']) || isset($_POST['job_title'])) {
         // ... Lógica de Upload (CÓDIGO ORIGINAL MANTIDO ABAIXO) ...
         $str = fn($k, $max) => is_scalar($_POST[$k] ?? null) ? mb_substr(trim((string)$_POST[$k]), 0, $max) : '';
-        $name = $str('name', 120);
-        $email = $str('email', 150);
-        $phone = $str('phone', 40);
-        $linkedin = $str('linkedin', 300);
-        $jobTitle = $str('job_title', 200) ?: 'Banco de Talentos';
+        // Limites = tamanho das colunas da tabela candidates (texto maior dava "Data too long")
+        $name = $str('name', 100);
+        $email = $str('email', 100);
+        $phone = $str('phone', 20);
+        // LinkedIn: sem os parâmetros de rastreio (?utm=...), para o link não ser cortado no meio
+        $linkedin = mb_substr(preg_replace('/[?#].*$/', '', $str('linkedin', 2000)), 0, 255);
+        $jobTitle = $str('job_title', 150) ?: 'Banco de Talentos';
         $jobId = isset($_POST['job_id']) && ctype_digit((string)$_POST['job_id']) ? (int)$_POST['job_id'] : null;
 
         // Robôs: campo escondido preenchido = finge que deu certo e descarta
@@ -101,7 +103,7 @@ elseif ($method === 'POST') {
             http_response_code(401); exit;
         }
 
-        if (isset($data['id']) && isset($data['status'])) {
+        if (isset($data['id']) && isset($data['status']) && in_array($data['status'], ['unread', 'viewed'], true)) {
             $stmt = $pdo->prepare("UPDATE candidates SET status=? WHERE id=?");
             $stmt->execute([$data['status'], $data['id']]);
             echo json_encode(['success' => true]);

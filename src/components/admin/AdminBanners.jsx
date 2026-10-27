@@ -97,6 +97,7 @@ export default function AdminBanners() {
             withCredentials: true 
         });
         
+        window.showToast?.(editingId ? 'Banner atualizado.' : 'Banner adicionado.');
         resetForm();
         fetchBanners(); 
     } catch (err) {

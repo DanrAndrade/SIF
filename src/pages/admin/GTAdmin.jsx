@@ -86,7 +86,7 @@ export default function GTAdmin() {
     return {
       ...emptyResp, origId: id, id,
       // gt.php devolve "role" = cargo
-      profile: id ? { name: src.name || '', cargo: src.role || '', photo: src.photo || '', whatsapp: src.whatsapp || '', link: src.link || '', link_label: src.link_label || '', contact_email: '' } : {},
+      profile: id ? { name: src.name || '', cargo: src.role || '', photo: src.photo || '', whatsapp: src.whatsapp || '', link: src.link || '', link_label: src.link_label || '', contact_email: undefined } : {}, // e-mail de contato vem da lista de usuários; sem ela, não é enviado
     };
   };
 
@@ -178,7 +178,8 @@ export default function GTAdmin() {
     const willHaveUser = mode === 'new' || (mode !== 'none' && r.id);
     fd.append('responsavel_mode', mode);
     if (mode === 'existing') fd.append('responsavel_id', String(r.id));
-    const putProfile = (p) => PROFILE_KEYS.forEach(k => fd.append(`resp_${k}`, p[k] || ''));
+    // campo que não foi carregado (undefined) não vai: assim não apaga o que está salvo
+    const putProfile = (p) => PROFILE_KEYS.forEach(k => { if (p[k] !== undefined) fd.append(`resp_${k}`, p[k] || ''); });
     if (mode === 'new') {
       putProfile(r.novo);
       fd.append('resp_email', r.novo.email.trim());
@@ -368,7 +369,7 @@ function ProfileFields({ value, onChange, onUploading, readOnly, withLogin }) {
         <Field label="Cargo / função" value={v.cargo} onChange={set('cargo')} placeholder="Ex.: Coordenador(a) do GT" />
         {withLogin && <LoginInput label="E-mail de acesso ao painel" type="email" autoComplete="off" value={v.email} onChange={set('email')} hint="Também aparece no site, se o e-mail de contato ficar vazio." />}
         {withLogin && <LoginInput label="Senha inicial" type="password" autoComplete="new-password" value={v.password} onChange={set('password')} hint="Mínimo de 8 caracteres. Envie para a pessoa trocar no primeiro acesso." />}
-        <Field label="E-mail de contato no site" type="email" value={v.contact_email} onChange={set('contact_email')} hint={withLogin ? 'Opcional.' : 'Vazio: mostra o e-mail de acesso.'} />
+        <Field label="E-mail de contato no site" type="email" value={v.contact_email ?? ''} onChange={set('contact_email')} hint={withLogin ? 'Opcional.' : 'Vazio: mostra o e-mail de acesso.'} />
         <Field label="WhatsApp" value={v.whatsapp} onChange={set('whatsapp')} placeholder="Somente números, com DDD" />
         <Field label="Link (Lattes, LinkedIn...)" value={v.link} onChange={set('link')} placeholder="https://" />
         <Field label="Texto do link" value={v.link_label} onChange={set('link_label')} placeholder="Ver perfil" />

@@ -13,7 +13,7 @@ require 'db.php';
 require_once 'api_guard.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-if (sif_is_admin()) sif_ensure_schema($pdo);
+if (sif_is_admin()) { sif_ensure_schema($pdo); sif_user(true); } // relê o perfil depois da migração
 
 function sif_user_row(array $u): array {
     return [

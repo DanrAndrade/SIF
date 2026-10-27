@@ -12,7 +12,7 @@ import { BlockHeader } from '../components/sections/SectionBlocks';
 import { withGtDefaults, htmlExcerpt } from '../components/sections/sectionTypes';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useSeo } from '../hooks/useSeo';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, heroW } from '../apiConfig';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 // Página de um Grupo Temático: topo com capa, menu da página (âncoras) e
@@ -33,6 +33,7 @@ export default function GrupoTematicoDetalhe() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
+    setPosts(null); // não mostrar o blog do GT anterior enquanto o novo carrega
     fetch(`${API_BASE_URL}/gt.php?slug=${encodeURIComponent(slug)}`)
       .then(r => r.json())
       .then(d => setGt(d && d.title ? d : null))
@@ -116,7 +117,7 @@ export default function GrupoTematicoDetalhe() {
     '--accent-soft': `color-mix(in srgb, ${color} 12%, #ffffff)`,
     '--accent-tint': `color-mix(in srgb, ${color} 6%, #ffffff)`,
   };
-  const cover = gt.image_url ? getImageUrl(gt.image_url, 1920) : '';
+  const cover = gt.image_url ? getImageUrl(gt.image_url, heroW()) : '';
   // Fundo das faixas escuras: capa do grupo; sem capa, a 1ª foto da página
   const pagePhotos = (sections || []).flatMap(s => [s.image, ...(s.images || [])]).filter(Boolean);
   const bandPhoto = [gt.image_url, ...pagePhotos].filter(Boolean).slice(0, 6).map(p => getImageUrl(p, 1280));

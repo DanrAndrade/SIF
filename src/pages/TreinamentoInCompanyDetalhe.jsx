@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Clock, ChevronLeft, ArrowLeft, Play, Layers, Award } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed, heroW } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import { useSeo } from '../hooks/useSeo';
 import EditablePageContact from '../components/EditablePageContact';
@@ -61,7 +61,7 @@ export default function TreinamentoInCompanyDetalhe() {
 
       {/* TOPO (padrão das páginas de detalhe) */}
       <DetailHero
-        cover={training.image_url ? getImageUrl(training.image_url, 1920) : ''}
+        cover={training.image_url ? getImageUrl(training.image_url, heroW()) : ''}
         crumbs={[{ label: 'Treinamentos In-Company', to: '/treinamentos-in-company' }]}
         eyebrow="Treinamento In-Company" icon={Award}
         title={training.title}

@@ -237,8 +237,8 @@ export default function ApplicationModal({ job, catLabel, onClose }) {
                 Preencha seus dados e anexe o currículo. Levamos menos de dois minutos.
               </p>
               <div className="grid grid-cols-1 gap-x-10 gap-y-1 md:grid-cols-2">
-                <LineField label="Nome completo" name="name" autoComplete="name" value={data.name} onChange={handleChange} onBlur={handleBlur} required error={show('name')} />
-                <LineField label="E-mail" name="email" type="email" autoComplete="email" value={data.email} onChange={handleChange} onBlur={handleBlur} required error={show('email')} />
+                <LineField label="Nome completo" name="name" maxLength={100} autoComplete="name" value={data.name} onChange={handleChange} onBlur={handleBlur} required error={show('name')} />
+                <LineField label="E-mail" name="email" maxLength={100} type="email" autoComplete="email" value={data.email} onChange={handleChange} onBlur={handleBlur} required error={show('email')} />
                 <LineField label="Telefone / WhatsApp" name="phone" type="tel" inputMode="numeric" autoComplete="tel" maxLength={15} value={data.phone} onChange={handleChange} onBlur={handleBlur} required error={show('phone')} />
                 <LineField label="LinkedIn" name="linkedin" autoComplete="url" value={data.linkedin} onChange={handleChange} hint="Opcional" />
               </div>

@@ -183,7 +183,7 @@ if ($resource === 'team') {
         foreach ($textFields as $f) {
             if (isset($_POST[$f])) {
                 $fields[] = "$f = ?";
-                $values[] = trim($_POST[$f]);
+                $values[] = in_array($f, ['title', 'content'], true) ? sif_clean_html(trim($_POST[$f])) : trim($_POST[$f]);
             }
         }
 
@@ -273,7 +273,8 @@ if ($resource === 'timeline') {
 
     if ($method === 'POST' && empty($_POST['_method'])) {
         $year  = trim($_POST['year'] ?? '');
-        $title = trim($_POST['title'] ?? '');
+        // título e texto podem ter HTML do editor: limpos (sem scripts) antes de gravar
+        $title = sif_clean_html(trim($_POST['title'] ?? ''));
 
         if (!$year || !$title) {
             http_response_code(400);
@@ -297,7 +298,7 @@ if ($resource === 'timeline') {
         $stmt->execute([
             $year,
             $title,
-            trim($_POST['content'] ?? ''),
+            sif_clean_html(trim($_POST['content'] ?? '')),
             $imageUrl,
             in_array($_POST['layout'] ?? '', ['image-left', 'image-right']) ? $_POST['layout'] : 'image-left',
             $maxOrder + 1
@@ -321,7 +322,7 @@ if ($resource === 'timeline') {
         foreach (['year', 'title', 'content', 'layout'] as $f) {
             if (isset($_POST[$f])) {
                 $fields[] = "$f = ?";
-                $values[] = trim($_POST[$f]);
+                $values[] = in_array($f, ['title', 'content'], true) ? sif_clean_html(trim($_POST[$f])) : trim($_POST[$f]);
             }
         }
 

@@ -30,15 +30,18 @@ export default function Services({ sectionRef, trackRef, config = {} }) {
           const scrollPosition = trackRef.current.scrollLeft;
           const cardWidth = trackRef.current.children[0]?.offsetWidth || 300;
           const indexyb = Math.round(scrollPosition / cardWidth);
-          setActiveIndex(indexyb);
+          setActiveIndex(i => (i === indexyb ? i : indexyb));
       }
   };
 
   useEffect(() => {
       const ref = trackRef.current;
       if (ref) {
-          ref.addEventListener('scroll', handleScroll);
-          return () => ref.removeEventListener('scroll', handleScroll);
+          // no máximo 1 cálculo por quadro, sem travar a rolagem (passive)
+          let raf = 0;
+          const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; handleScroll(); }); };
+          ref.addEventListener('scroll', onScroll, { passive: true });
+          return () => { ref.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
       }
   }, [trackRef]);
 

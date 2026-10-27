@@ -8,7 +8,7 @@ import { visibleSections, isSectionEmpty } from '../components/sections/sectionT
 import { EmbIntro, EmbAreas, EmbSteps, EmbTextDoc, EmbTeam, EmbCommittee, EmbLogos, EmbContact, matchBios } from '../components/embrapii/EmbrapiiBlocks';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { usePageConfig } from '../hooks/usePageConfig';
-import { API_BASE_URL, getImageUrl } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, heroW } from '../apiConfig';
 import { getEffectiveProjectStatus } from '../utils/helpers';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../utils/embrapiiDefaults';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
@@ -66,7 +66,7 @@ export default function ProjetosEmbrapii() {
   }, [c.projects_enabled]);
 
   const shownProjects = projetos.slice(0, Number(c.projects_limit) || 6);
-  const bandPhoto = [c.band_photo, c.hero_image, c.intro_image].filter(Boolean).map(p => getImageUrl(p, 1600));
+  const bandPhoto = [c.band_photo, c.hero_image, c.intro_image].filter(Boolean).map(p => getImageUrl(p, heroW(1600)));
   // O primeiro vídeo fica na apresentação, ao lado do texto (como na página de referência)
   const video = visibleSections(sections).find(s => s.type === 'video' && !isSectionEmpty(s));
   // Lado verde do formulário: mesma foto do painel da página de Contato

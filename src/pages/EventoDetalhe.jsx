@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import EditablePageContact from '../components/EditablePageContact';
 import { ChevronLeft, ArrowLeft, MapPin, FileText, Info, Users, Calendar, ArrowRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toVideoEmbed, heroW } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import DetailHero from '../components/DetailHero';
@@ -73,7 +73,7 @@ export default function EventoDetalhe() {
 
       {/* TOPO (padrão das páginas de detalhe) */}
       <DetailHero
-        cover={event.image_url ? getImageUrl(event.image_url, 1920) : ''}
+        cover={event.image_url ? getImageUrl(event.image_url, heroW()) : ''}
         crumbs={[{ label: 'Eventos', to: '/eventos' }]}
         eyebrow="Evento" icon={CalendarDays}
         title={event.title}

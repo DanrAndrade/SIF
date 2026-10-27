@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DetailHero from './DetailHero';
-import { getImageUrl } from '../apiConfig';
+import { getImageUrl, heroW } from '../apiConfig';
 import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot';
 
 // Topo das páginas secundárias, no MESMO formato do topo das páginas de
@@ -11,7 +11,7 @@ import { readBootOrCache, writeCache, fetchPageContent } from '../utils/pageBoot
 // Versão "só visual": recebe os campos prontos (usada também no Institucional)
 export function PageHeroView({ cfg, scrollTargetId }) {
   const img = cfg.hero_image || '';
-  const cover = img ? (img.startsWith('http') ? img : getImageUrl(img, 1920)) : '';
+  const cover = img ? (img.startsWith('http') ? img : getImageUrl(img, heroW())) : '';
   const title = [cfg.hero_title_line1, cfg.hero_title_highlight].filter(Boolean).join(' ').trim();
   // Sem botão: o de "descer" só levava a uma seção da própria página
   return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} summary={cfg.hero_subtitle} />;

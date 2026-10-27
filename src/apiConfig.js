@@ -106,6 +106,11 @@ export const sanitizeHtml = (html) => {
   // noscript/template/textarea/title/xmp...: conteúdo "cru" que pode virar HTML ativo ao ser reinserido (mXSS)
   root.querySelectorAll('script,style,object,embed,form,meta,link,base,svg,math,noscript,template,textarea,title,xmp,noembed,noframes,plaintext').forEach(n => n.remove());
   root.querySelectorAll('iframe').forEach(n => { if (!SAFE_IFRAME.test(n.getAttribute('src') || '')) n.remove(); });
+  // Imagens do texto: carregam só perto da tela, sem travar a página
+  root.querySelectorAll('img').forEach(img => {
+    if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+    if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+  });
   root.querySelectorAll('*').forEach(el => {
     for (const a of [...el.attributes]) {
       const name = a.name.toLowerCase();
@@ -159,8 +164,14 @@ export const toDate = (v) => {
 // Com "w" (largura em px), fotos enviadas pelo painel passam pelo
 // sif-api/img.php, que entrega uma versão reduzida em WebP (bem mais leve).
 // Fotos do Unsplash recebem a largura no próprio link.
-const RESIZABLE = /^\/?(uploads|banners)\/[^?#]+\.(jpe?g|png|webp|gif)$/i;
+// (nossa-gente/ = fotos da equipe, pasta estática do site: também reduzidas)
+const RESIZABLE = /^\/?(uploads|banners|nossa-gente)\/[^?#]+\.(jpe?g|png|webp|gif)$/i;
 const UNSPLASH = /^https:\/\/images\.unsplash\.com\//;
+// Largura para fotos grandes: no celular (< 768px) usa no máximo 960px
+// (a tela tem ~390px; 960 cobre até 2,5x de densidade). Computador: a pedida.
+export const heroW = (desk = 1920) =>
+  (typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(desk, 960) : desk);
+
 export const getImageUrl = (path, w) => {
   if (!path) return null;
   if (w && UNSPLASH.test(path)) return /[?&]w=\d+/.test(path) ? path.replace(/([?&])w=\d+/, `$1w=${w}`) : path;

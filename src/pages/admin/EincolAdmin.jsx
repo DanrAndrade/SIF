@@ -150,10 +150,10 @@ export default function EincolAdmin() {
         setForm(f => ({ ...f, active: novo }));
         if (!dirty) markCleanSoon(); // já salvo no servidor: não é alteração pendente
       } else {
-        window.showToast('Erro ao alterar visibilidade.');
+        window.showToast('Erro ao alterar visibilidade.', 'error');
       }
     } catch {
-      window.showToast('Erro de conexão ao alterar visibilidade.');
+      window.showToast('Erro de conexão ao alterar visibilidade.', 'error');
     }
   };
 
@@ -229,7 +229,7 @@ export default function EincolAdmin() {
     try {
       res = await fetch(API_URL, { method: 'POST', body: fd });
     } catch (err) {
-      window.showToast('Sem conexão com o servidor. Verifique a internet e tente de novo.');
+      window.showToast('Sem conexão com o servidor. Verifique a internet e tente de novo.', 'error');
       setLoading(false);
       return;
     }
@@ -245,11 +245,11 @@ export default function EincolAdmin() {
         setTimeout(() => setSaved(false), 3000);
         fetchConfig();
       } else if (data?.message) {
-        window.showToast(data.message);
+        window.showToast(data.message, 'error');
       } else if (res.status === 406 || res.status === 403) {
-        window.showToast(`O servidor bloqueou o envio (erro ${res.status} – firewall da hospedagem).`);
+        window.showToast(`O servidor bloqueou o envio (erro ${res.status} – firewall da hospedagem).`, 'error');
       } else {
-        window.showToast(`Erro ao salvar (resposta ${res.status} do servidor).`);
+        window.showToast(`Erro ao salvar (resposta ${res.status} do servidor).`, 'error');
       }
     } finally {
       setLoading(false);

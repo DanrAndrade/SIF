@@ -4,7 +4,7 @@ import VideoModal from './ui/VideoModal';
 import ParallaxLayer from './ui/ParallaxLayer';
 import iconLogo from '../assets/sif.svg';
 import Button from './ui/Button';
-import { getImageUrl } from '../apiConfig';
+import { getImageUrl, heroW } from '../apiConfig';
 
 export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}, bgImage, gradient }) {
   const scrollToExplore = () => window.scrollTo({top: 800, behavior: 'smooth'});
@@ -22,7 +22,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const gFrom = gradient?.from || '#007a3d';
   const gTo   = gradient?.to   || '#1B5E20';
   // Imagem vem só do admin (sem imagem de exemplo). Sem ela, fica o fundo verde do container.
-  const resolvedBg  = bgImage ? (getImageUrl(bgImage, 1920)) : '';
+  const resolvedBg  = bgImage ? (getImageUrl(bgImage, heroW())) : '';
   // Fundo do topo: "image" ou "video" (escolhido no painel). Painéis antigos
   // sem a escolha: vídeo se houver vídeo cadastrado.
   // Vídeo do topo: UM arquivo enviado pelo painel (já otimizado no envio).
@@ -33,7 +33,7 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const useVideo  = bgMode === 'video' && !!loopFile;
   // Fundo: trecho curto e leve (se houver); o completo só carrega no botão
   const loopSrc   = useVideo ? getImageUrl(config.video_loop_short || loopFile) : '';
-  const poster    = config.video_poster ? getImageUrl(config.video_poster) : resolvedBg;
+  const poster    = config.video_poster ? getImageUrl(config.video_poster, heroW()) : resolvedBg;
   const fullUrl   = useVideo ? loopFile : '';
   const fullLabel = config.video_full_label || 'Assistir vídeo';
   const [showFull, setShowFull] = useState(false);

@@ -9,7 +9,7 @@ import { Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, heroW } from '../apiConfig';
 
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
@@ -63,7 +63,7 @@ export default function Eincol() {
           {config?.hero_image && (
             <ParallaxLayer>
               <img
-                src={getImageUrl(config.hero_image, 1920)}
+                src={getImageUrl(config.hero_image, heroW())}
                 alt={title}
                 className="w-full h-full object-cover opacity-70"
               />

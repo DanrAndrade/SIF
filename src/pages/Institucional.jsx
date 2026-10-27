@@ -2,8 +2,6 @@ import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import ParallaxLayer from '../components/ui/ParallaxLayer';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useLocation } from 'react-router-dom';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Leaf, Sprout, Microscope, Globe, Users, Download, FileText, FileBadge, Scale, X as CloseIcon, ChevronDown, Check, Map, Settings, Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
 import { http } from '../utils/http';
 
@@ -12,7 +10,7 @@ import Footer from '../components/Footer';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
 import SmartLink from '../components/ui/SmartLink';
-import { API_BASE_URL, getImageUrl, whatsappLink } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, whatsappLink, cleanRichHtml } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
@@ -130,7 +128,7 @@ const HistoryItem = ({ year, title, children, imgSrc, layout = "image-left" }) =
                      <div className="flex items-center gap-4 group-hover/item:pl-2 transition-all">
                         {!isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
                         <h2 className="sif-title sif-h2 text-[#1f2937]">
-                            <span dangerouslySetInnerHTML={{ __html: title }} />
+                            <span dangerouslySetInnerHTML={{ __html: cleanRichHtml(title) }} />
                         </h2>
                         {isRight && <div className="timeline-marker w-4 h-4 rounded-full bg-gray-300 group-hover/item:bg-[#007a3d] transition-colors"></div>}
                      </div>
@@ -199,6 +197,7 @@ export default function Institucional() {
             name: m.name,
             role: m.role,
             image: m.photo_url ? getImageUrl(m.photo_url, 480) : null,
+            fallback: m.photo_url ? getImageUrl(m.photo_url) : null, // original, se a versão reduzida falhar
             link_email: m.link_email,
             link_whatsapp: m.link_whatsapp,
           });
@@ -240,14 +239,6 @@ export default function Institucional() {
     const timer = setTimeout(scrollToSection, 350);
     return () => clearTimeout(timer);
   }, [location.hash]);
-
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, []);
 
   return (
     <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">

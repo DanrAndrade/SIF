@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { resolveGradient, TEXTURES } from '../utils/homeVisual';
 import NumbersBento from '../components/NumbersBento';
 import JobsCtaSection from '../components/JobsCtaSection';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -17,10 +15,6 @@ import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
 
 import { usePageConfig } from '../hooks/usePageConfig';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -38,6 +32,7 @@ export default function Home() {
   // Refs para o componente Services
   const servicesSectionRef = useRef(null);
   const servicesTrackRef = useRef(null);
+  const scrollTriggerRef = useRef(null); // ScrollTrigger, depois de carregado
 
   // "Pin" horizontal dos Serviços.
   // Roda UMA vez por visita à Home (antes dependia de [scrolled] e era
@@ -56,9 +51,22 @@ export default function Home() {
     };
     window.addEventListener('scroll', onNativeScroll, { passive: true });
 
-    // Contexto local: no fim, desfaz SÓ as animações desta página
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 768px)", () => {
+    // O GSAP (biblioteca de animação) só é baixado quando a tela tem 768px ou
+    // mais: no celular o pin não roda e ele ficava pesando em toda página.
+    let mm = null, cancelled = false;
+    const refresh = () => scrollTriggerRef.current?.refresh();
+    const mq = window.matchMedia('(min-width: 768px)');
+    const load = () => {
+      mq.removeEventListener?.('change', onChange);
+      Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([g, st]) => {
+        if (cancelled) return;
+        const gsap = g.default || g.gsap;
+        const { ScrollTrigger } = st;
+        gsap.registerPlugin(ScrollTrigger);
+        scrollTriggerRef.current = ScrollTrigger;
+        // Contexto local: no fim, desfaz SÓ as animações desta página
+        mm = gsap.matchMedia();
+        mm.add("(min-width: 768px)", () => {
       const section = servicesSectionRef.current;
       const track = servicesTrackRef.current;
       if (!section || !track) return;
@@ -77,25 +85,30 @@ export default function Home() {
           invalidateOnRefresh: true,
         },
       });
-    });
-
-    // Recalcula depois que fontes e imagens terminam de carregar
-    const refresh = () => ScrollTrigger.refresh();
-    document.fonts?.ready?.then(refresh);
+        });
+        // Recalcula depois que fontes e imagens terminam de carregar
+        document.fonts?.ready?.then(refresh);
+        refresh();
+      }).catch(() => {});
+    };
+    const onChange = (e) => { if (e.matches) load(); };
+    if (mq.matches) load(); else mq.addEventListener?.('change', onChange);
     window.addEventListener('load', refresh);
 
     return () => {
+      cancelled = true;
       if (rafId) cancelAnimationFrame(rafId);
+      mq.removeEventListener?.('change', onChange);
       window.removeEventListener('load', refresh);
       window.removeEventListener('scroll', onNativeScroll);
-      mm.revert();
+      mm?.revert();
     };
   }, []);
 
   // Conteúdo da Home chegou do banco (cards de Serviços podem mudar de
   // quantidade/tamanho): recalcula o tamanho do pin.
   useEffect(() => {
-    const id = setTimeout(() => ScrollTrigger.refresh(), 100);
+    const id = setTimeout(() => scrollTriggerRef.current?.refresh(), 100);
     return () => clearTimeout(id);
   }, [config]);
 

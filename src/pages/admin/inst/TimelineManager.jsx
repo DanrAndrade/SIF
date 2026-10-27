@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useConfirm, ItemActions, moveItem } from '../../../components/admin/kit';
 import { Plus, Trash2, Save, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
-import { API_BASE_URL, getImageUrl } from '../../../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml } from '../../../apiConfig';
 import { apiRequest, toastError } from '../../../utils/adminApi';
 
 const API = `${API_BASE_URL}/institucional.php`;
@@ -171,7 +171,7 @@ export default function TimelineManager() {
                     <img src={item.image_url.startsWith('http') ? item.image_url : getImageUrl(item.image_url)} alt="" className="w-16 h-12 object-cover rounded-xl shrink-0" onError={e => e.target.style.display='none'} />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[#1f2937] text-sm">{item.year} — <span dangerouslySetInnerHTML={{ __html: item.title }} /></p>
+                    <p className="font-bold text-[#1f2937] text-sm">{item.year} — <span dangerouslySetInnerHTML={{ __html: cleanRichHtml(item.title) }} /></p>
                     <p className="text-xs text-gray-400 truncate">{item.content}</p>
                     <p className="text-[10px] text-gray-300 mt-0.5">{item.layout === 'image-left' ? 'Imagem à esquerda' : 'Imagem à direita'}</p>
                   </div>

@@ -241,8 +241,10 @@ if ($method === 'POST') {
     if ($mode === 'none') sif_gt_set_responsavel($pdo, (int)$id, null);
     if ($profileTarget) {
         $f = sif_gt_profile_fields();
-        $sets = ['cargo=?', 'photo=?', 'whatsapp=?', 'link=?', 'link_label=?', 'contact_email=?'];
-        $vals = [$f['cargo'], $f['photo'], $f['whatsapp'], $f['link'], $f['link_label'], $f['contact_email']];
+        $sets = ['cargo=?', 'photo=?', 'whatsapp=?', 'link=?', 'link_label=?'];
+        $vals = [$f['cargo'], $f['photo'], $f['whatsapp'], $f['link'], $f['link_label']];
+        // e-mail de contato só muda quando o painel envia o campo (senão ficaria vazio sem querer)
+        if (isset($_POST['resp_contact_email'])) { $sets[] = 'contact_email=?'; $vals[] = $f['contact_email']; }
         if ($f['name'] !== '') { $sets[] = 'name=?'; $vals[] = $f['name']; }
         $vals[] = $profileTarget;
         $pdo->prepare("UPDATE admins SET " . implode(', ', $sets) . " WHERE id = ?")->execute($vals);

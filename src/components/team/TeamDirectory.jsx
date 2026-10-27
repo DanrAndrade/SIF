@@ -71,7 +71,12 @@ export function TeamCarousel({ title, data }) {
               {m.image ? (
                 <img src={m.image} alt={m.name} loading="lazy" decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  onError={(e) => {
+                    // 1º erro: tenta a foto original; 2º: esconde
+                    const el = e.currentTarget;
+                    if (m.fallback && el.dataset.fb !== '1') { el.dataset.fb = '1'; el.src = m.fallback; }
+                    else el.style.display = 'none';
+                  }} />
               ) : (
                 <span className="text-2xl font-semibold text-[#007a3d]">{String(m.name || '').trim().charAt(0)}</span>
               )}

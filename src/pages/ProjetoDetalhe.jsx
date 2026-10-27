@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl, htmlToText } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl, htmlToText, heroW } from '../apiConfig';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import { useSeo } from '../hooks/useSeo';
@@ -74,7 +74,7 @@ export default function ProjetoDetalhe() {
         const es = getEffectiveProjectStatus(projeto);
         return (
           <DetailHero
-            cover={projeto.image_url ? getImageUrl(projeto.image_url, 1920) : ''}
+            cover={projeto.image_url ? getImageUrl(projeto.image_url, heroW()) : ''}
             crumbs={[{ label: 'Projetos', to: '/projetos' }]}
             eyebrow="Projeto de P&D" icon={FlaskConical}
             title={projeto.title}

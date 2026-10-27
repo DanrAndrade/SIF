@@ -46,7 +46,10 @@ if ($method === 'POST') {
     foreach ($textFields as $f) {
         if (isset($_POST[$f])) {
             $fields[] = "$f = ?";
-            $values[] = $_POST[$f];
+            // HTML do editor e JSON das abas/seções: limpos (sem scripts) antes de gravar
+            if ($f === 'main_content') $values[] = sif_clean_html($_POST[$f]);
+            elseif ($f === 'tabs_json' || $f === 'sections_json') $values[] = sif_clean_json($_POST[$f]);
+            else $values[] = $_POST[$f];
         }
     }
 

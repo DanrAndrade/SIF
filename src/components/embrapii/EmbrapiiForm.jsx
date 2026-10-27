@@ -71,11 +71,11 @@ export default function EmbrapiiForm({ buttonLabel = 'Quero uma demonstração' 
       {/* Campo escondido contra robôs */}
       <input type="text" name="website" value={data.website} onChange={onChange} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] w-px h-px opacity-0" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2">
-        <LineField label="Nome" name="name" autoComplete="name" value={data.name} onChange={onChange} onBlur={onBlur} required error={show('name')} />
-        <LineField label="E-mail" name="email" type="email" autoComplete="email" value={data.email} onChange={onChange} onBlur={onBlur} required error={show('email')} />
-        <LineField label="Empresa" name="empresa" autoComplete="organization" value={data.empresa} onChange={onChange} onBlur={onBlur} required error={show('empresa')} />
-        <LineField label="Cargo" name="cargo" autoComplete="organization-title" value={data.cargo} onChange={onChange} onBlur={onBlur} required error={show('cargo')} />
-        <LineField className="md:col-span-2" multiline label="Como podemos te ajudar?" name="message" value={data.message} onChange={onChange} onBlur={onBlur} required error={show('message')} />
+        <LineField label="Nome" name="name" maxLength={100} autoComplete="name" value={data.name} onChange={onChange} onBlur={onBlur} required error={show('name')} />
+        <LineField label="E-mail" name="email" maxLength={100} type="email" autoComplete="email" value={data.email} onChange={onChange} onBlur={onBlur} required error={show('email')} />
+        <LineField label="Empresa" name="empresa" maxLength={120} autoComplete="organization" value={data.empresa} onChange={onChange} onBlur={onBlur} required error={show('empresa')} />
+        <LineField label="Cargo" name="cargo" maxLength={120} autoComplete="organization-title" value={data.cargo} onChange={onChange} onBlur={onBlur} required error={show('cargo')} />
+        <LineField className="md:col-span-2" multiline label="Como podemos te ajudar?" name="message" maxLength={5000} value={data.message} onChange={onChange} onBlur={onBlur} required error={show('message')} />
       </div>
 
       {status === 'error' && (

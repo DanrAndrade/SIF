@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Play, X, Plus, Download, ArrowLeft, ArrowRight } from 'lucide-react';
-import { getImageUrl, cleanRichHtml, htmlToText } from '../../apiConfig';
+import { getImageUrl, cleanRichHtml, htmlToText, heroW } from '../../apiConfig';
 import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass, BtnArrow } from '../ui/Button';
 import PhotoBand from '../ui/PhotoBand';
@@ -125,7 +125,7 @@ export function EmbAreas({ c, frentes }) {
     const b = box.getBoundingClientRect();
     const r = card.getBoundingClientRect();
     busy.current = true;
-    setFlight({ i, src: img(frentes[i].image, 1600), full: false, from: { left: r.left - b.left, top: r.top - b.top, width: r.width, height: r.height } });
+    setFlight({ i, src: img(frentes[i].image, heroW(1600)), full: false, from: { left: r.left - b.left, top: r.top - b.top, width: r.width, height: r.height } });
   }, [active, frentes]);
 
   // Monta a foto no lugar do card e, no quadro seguinte, manda para o fundo
@@ -164,7 +164,7 @@ export function EmbAreas({ c, frentes }) {
         {/* Fundo: a foto da vez (sem transição; quem anima é a foto que voa) */}
         {frentes.map((f, i) => (
           f.image ? (
-            <img key={i} src={img(f.image, 1600)} alt="" loading="eager" decoding="async"
+            <img key={i} src={img(f.image, heroW(1600))} alt="" loading={i === 0 ? 'eager' : 'lazy'} decoding="async"
               className={`absolute inset-0 w-full h-full object-cover ${i === bg ? 'opacity-100' : 'opacity-0'}`} />
           ) : null
         ))}
