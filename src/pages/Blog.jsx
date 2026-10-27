@@ -57,7 +57,7 @@ export default function Blog() {
 
       <EditablePageHero pageKey="blog" defaults={HERO_DEFAULTS} scrollTargetId="blog-posts" />
 
-      <main id="blog-posts" className="container mx-auto px-6 pt-16 pb-40 flex-grow scroll-mt-32">
+      <main id="blog-posts" className="container mx-auto px-6 pt-16 md:pt-24 pb-40 flex-grow scroll-mt-32">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-3xl p-8 mb-12 flex items-start gap-4">
             <AlertCircle className="text-red-600 flex-shrink-0 mt-1" size={24} />

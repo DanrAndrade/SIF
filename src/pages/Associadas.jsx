@@ -136,6 +136,8 @@ export default function Associadas() {
       {/* HERO (mesmo topo padrão das outras páginas) */}
       <EditablePageHero pageKey="associadas" defaults={DEFAULTS} scrollTargetId="beneficios" />
 
+      {/* Respiro entre o topo e as faixas de largura total (texto e benefícios) */}
+      <div className="pt-16 md:pt-24">
       {/* TEXTO CORRIDO — editável em Painel › Associadas › Texto */}
       {cfg.texto_enabled !== false && hasText(cfg.texto_html) && (
         <section className="py-20 md:py-24 bg-white">
@@ -150,6 +152,7 @@ export default function Associadas() {
 
       {/* BENEFÍCIOS: título fixo à esquerda + cards que passam com a rolagem */}
       <BenefitsScroller cfg={cfg} />
+      </div>
 
       {/* GRID DE LOGOS */}
       <div className="py-16 md:py-24">

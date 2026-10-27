@@ -56,7 +56,7 @@ export default function Contact() {
 
       <EditablePageHero pageKey="contato" defaults={HERO_DEFAULTS} bgColor="#f6f8f7" scrollTargetId="contact-form" />
 
-      <main className="flex-grow pt-4 pb-24 md:pt-6 md:pb-32">
+      <main className="flex-grow pt-16 pb-24 md:pt-24 md:pb-32">
         <div id="contact-form" className="sif-container px-4 sm:px-6 md:px-10 scroll-mt-32">
           <div className="grid grid-cols-1 lg:grid-cols-12 bg-white rounded-panel shadow-card overflow-hidden">
             <div className="lg:col-span-5">

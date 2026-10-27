@@ -50,9 +50,6 @@ export default function About({ config = {} }) {
               dangerouslySetInnerHTML={{ __html: txt(c.title) }}
             />
             <p className="mt-7 text-lg leading-relaxed text-sif-ink/80">{txt(c.paragraph_1)}</p>
-            <div className="mt-9">
-              <Button href={c.cta_link || '/institucional'} variant="primary">{txt(c.cta_label)}</Button>
-            </div>
           </div>
 
           <div className="lg:col-span-6 min-w-0">
@@ -79,12 +76,6 @@ export default function About({ config = {} }) {
                 </span>
               </button>
             )}
-            {hasBadge && (
-              <div className="mt-6 flex flex-wrap items-end gap-x-4 gap-y-1 border-t border-gray-100 pt-6">
-                <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
-                {c.badge_label && <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>}
-              </div>
-            )}
           </div>
         </div>
 
@@ -92,6 +83,17 @@ export default function About({ config = {} }) {
         <div className="mt-10 md:mt-12 pt-8 md:pt-10 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
           <p className="text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_2)}</p>
           <p className="text-[15px] leading-relaxed text-gray-500">{txt(c.paragraph_3)}</p>
+        </div>
+
+        {/* Fechamento: botão à esquerda e "+50 Anos" à direita, abaixo dos parágrafos */}
+        <div className="mt-10 md:mt-12 flex flex-col-reverse sm:flex-row sm:items-end sm:justify-between gap-8">
+          <Button href={c.cta_link || '/institucional'} variant="primary">{txt(c.cta_label)}</Button>
+          {hasBadge && (
+            <div className="flex flex-wrap items-end gap-x-4 gap-y-1">
+              <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
+              {c.badge_label && <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>}
+            </div>
+          )}
         </div>
       </section>
 

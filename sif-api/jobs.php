@@ -22,6 +22,13 @@ if ($method === 'POST') {
         exit;
     }
 
+    // Vaga sem título não é salva (aparecia como card vazio no site)
+    if (trim((string)($data['title'] ?? '')) === '') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Informe o título da vaga.']);
+        exit;
+    }
+
     $reqs      = isset($data['requirements']) ? json_encode($data['requirements']) : '[]';
     $active    = isset($data['active']) ? (int)$data['active'] : 1;
     $tipo_vaga = $data['tipo_vaga'] ?? 'Interna';
