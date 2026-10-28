@@ -60,7 +60,7 @@ function FactsStrip({ facts }) {
   const list = facts.filter(f => f && String(f.value || '').trim());
   if (!list.length) return null;
   const n = list.length;
-  const cols = { 1: 'sm:grid-cols-1', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }[n] || (n === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3');
+  const cols = { 1: 'sm:grid-cols-1', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }[n] || (n === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : n === 5 ? 'sm:grid-cols-3 lg:grid-cols-5' : 'sm:grid-cols-3');
   return (
     <div className="relative z-20 -mt-10 md:-mt-14 max-w-6xl mx-auto px-4 sm:px-6 w-full">
       {/* com 1 ou 2 itens a faixa fica do tamanho do conteúdo (não uma barra larga vazia) */}
@@ -68,7 +68,8 @@ function FactsStrip({ facts }) {
         {list.map((f, i) => {
           const Icon = f.icon;
           // número ímpar de itens: no celular o último ocupa a linha inteira
-          const wide = n % 2 === 1 && i === n - 1 ? 'col-span-2 sm:col-span-1' : '';
+          // 5 itens: no computador ficam numa linha só; na tela média o último ocupa 2 colunas (sem buraco)
+          const wide = n % 2 === 1 && i === n - 1 ? (n === 5 ? 'col-span-2 sm:col-span-2 lg:col-span-1' : 'col-span-2 sm:col-span-1') : '';
           return (
             <div key={i} className={`min-w-0 bg-white px-5 py-5 md:px-7 md:py-7 ${wide}`}>
               <dt className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">
