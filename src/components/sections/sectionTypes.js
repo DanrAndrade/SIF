@@ -25,6 +25,7 @@ export const SECTION_TYPES = {
   tabs:       { label: 'Abas',              icon: 'Layers',      desc: 'Conteúdo dividido em abas (programação, módulos...).', create: () => ({ tabs: [] }) },
   pdfs:       { label: 'Arquivos e documentos', icon: 'FileText', desc: 'Arquivos para baixar: PDF, Word, Excel, PowerPoint, planilhas e imagens.', create: () => ({ pdfs: [] }) },
   logos:      { label: 'Carrossel de logos', icon: 'Building2',  desc: 'Logos de empresas, patrocinadores ou parceiros.', create: () => ({ images: [] }) },
+  highlights: { label: 'Destaques com foto', icon: 'Presentation',    desc: 'Painel escuro com foto de fundo que troca entre os itens (eixos temáticos, módulos, áreas...). Mesmo estilo de "Áreas de atuação".', create: () => ({ items: [{ title: '', text: '', image: '' }, { title: '', text: '', image: '' }, { title: '', text: '', image: '' }] }) },
   // Blocos especiais da página de Grupo Temático (só posição/título; o conteúdo vem de outro lugar)
   gt_intro:   { label: 'Apresentação do grupo', icon: 'Info',    desc: 'Texto de apresentação do grupo.', only: ['gt'], create: () => ({ content: '' }) },
   gt_blog:    { label: 'Blog do grupo',     icon: 'Newspaper',   desc: 'Últimos posts do blog deste grupo (automático).', only: ['gt'], unique: true, create: () => ({ limit: 3 }) },
@@ -96,6 +97,7 @@ export function isSectionEmpty(s) {
     case 'tabs':       return !(s.tabs || []).some(t => t && (t.title || !blankHtml(t.content)));
     case 'pdfs':       return !(s.pdfs || []).some(p => p && (p.url || p.pdf_url)); // arquivos e documentos
     case 'logos':      return !(s.images || []).some(Boolean);
+    case 'highlights': return !(s.items || []).some(i => i && String(i.title || '').trim());
     default:           return false; // gt_blog / gt_contact: o próprio bloco decide
   }
 }
@@ -114,16 +116,20 @@ export const PAGE_TEMPLATES = {
     ['people', 'Coordenação'], ['logos', 'Empresas participantes'], ['pdfs', 'Documentos e relatórios'],
     ['gt_blog', 'Blog do grupo'], ['gt_contact', 'Fale com o responsável'],
   ],
+  // Eventos: o texto "Sobre o evento" é o campo Descrição do formulário
+  // (aparece sempre primeiro na página), por isso não entra aqui.
   eventos: [
-    ['editor', 'Sobre o evento'], ['tabs', 'Programação'], ['editor', 'Local e inscrições'],
-    ['logos', 'Patrocinadores e apoio'], ['pdfs', 'Materiais'],
+    ['highlights', 'Eixos temáticos'], ['tabs', 'Programação'], ['stats', 'O evento em números'],
+    ['people', 'Palestrantes'], ['gallery', 'Fotos'], ['logos', 'Patrocinadores e apoio'], ['pdfs', 'Materiais'],
   ],
+  // Treinamentos: o 1º bloco de texto vira o "Sobre" (duas colunas) na página
   treinamentos: [
-    ['editor', 'Objetivos'], ['editor', 'Público-alvo'], ['tabs', 'Conteúdo programático'],
-    ['people', 'Instrutores'], ['pdfs', 'Materiais'],
+    ['editor', 'Sobre o treinamento'], ['cards', 'Objetivos'], ['editor', 'Público-alvo'],
+    ['tabs', 'Conteúdo programático'], ['people', 'Instrutores'], ['pdfs', 'Materiais'],
   ],
   in_company: [
-    ['editor', 'Objetivos'], ['editor', 'Para quem é'], ['tabs', 'Conteúdo programático'], ['pdfs', 'Materiais'],
+    ['editor', 'Sobre o treinamento'], ['cards', 'Objetivos'], ['editor', 'Para quem é'],
+    ['tabs', 'Conteúdo programático'], ['pdfs', 'Materiais'],
   ],
   projetos: [
     ['editor', 'Objetivos'], ['editor', 'Metodologia'], ['editor', 'Resultados'],

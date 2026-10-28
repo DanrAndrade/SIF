@@ -31,6 +31,8 @@ const normStatus = (s) => (!s || s === 'Automático (por data)' ? '' : s);
 const emptyForm = {
   title: '', description: '', date: '', event_date: '', time: '', location: '', video_url: '',
   status: '', image_url: '', imageFile: null, sections: [],
+  // guardados em extra_data (não precisam de coluna nova no banco)
+  cta_url: '', cta_label: '', summary: '',
 };
 
 export default function EventosAdmin() {
@@ -88,6 +90,7 @@ export default function EventosAdmin() {
       location: event.location || '', video_url: event.video_url || '',
       status: normStatus(event.status),
       image_url: event.image_url || '', imageFile: null, sections,
+      cta_url: extra.cta_url || '', cta_label: extra.cta_label || '', summary: extra.summary || '',
     });
     setPreview(event.image_url || null);
     setView('form');
@@ -130,7 +133,12 @@ export default function EventosAdmin() {
     fd.append('location', formData.location);
     fd.append('video_url', formData.video_url);
     fd.append('status', formData.status);
-    fd.append('extra_data', JSON.stringify({ sections: formData.sections, time: formData.time }));
+    // extra_data: mantém chaves desconhecidas que já existiam e grava os campos do formulário.
+    // Programação e PDFs antigos (tabs, pdf1..3) já foram trazidos para os blocos ao abrir; saem daqui
+    // para não voltarem a aparecer se a equipe apagar todos os blocos.
+    const prevExtra = (() => { try { const o = JSON.parse(events.find(x => x.id == editingId)?.extra_data || '{}') || {}; ['tabs', 'pdf1_url', 'pdf1_title', 'pdf2_url', 'pdf2_title', 'pdf3_url', 'pdf3_title'].forEach(k => delete o[k]); return o; } catch { return {}; } })();
+    fd.append('extra_data', JSON.stringify({ ...(editingId ? prevExtra : {}), sections: formData.sections, time: formData.time,
+      cta_url: formData.cta_url.trim(), cta_label: formData.cta_label.trim(), summary: formData.summary.trim() }));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     else if (formData.image_url) fd.append('image_url', formData.image_url);
@@ -254,6 +262,21 @@ export default function EventosAdmin() {
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: Viçosa - MG" value={formData.location} onChange={e => setFormData(f => ({...f, location: e.target.value}))} />
                   </div>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link de inscrição (opcional)</label>
+                    <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-sm outline-none border focus:border-[#007a3d]" placeholder="https://..." value={formData.cta_url} onChange={e => setFormData(f => ({...f, cta_url: e.target.value}))} />
+                    <p className="text-[9px] text-gray-400 ml-1">Link externo (Sympla, formulário...). Aparece como botão no topo da página, ao lado de "Falar com a equipe".</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Texto do botão</label>
+                    <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-sm outline-none border focus:border-[#007a3d]" placeholder="Fazer inscrição" value={formData.cta_label} onChange={e => setFormData(f => ({...f, cta_label: e.target.value}))} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Frase de apresentação no topo (opcional)</label>
+                  <textarea rows={2} maxLength={260} className="w-full p-4 bg-gray-50 rounded-xl font-medium text-sm outline-none border focus:border-[#007a3d] resize-y" placeholder="Uma ou duas frases que aparecem embaixo do título" value={formData.summary} onChange={e => setFormData(f => ({...f, summary: e.target.value}))} />
+                </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link do Vídeo (YouTube)</label>
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-sm outline-none border focus:border-[#007a3d]" placeholder="https://youtube.com/..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
@@ -270,7 +293,8 @@ export default function EventosAdmin() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Descrição do Evento</label>
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Sobre o evento (texto principal)</label>
+              <p className="text-[11px] text-gray-400 ml-1">Aparece logo depois das informações rápidas, em duas colunas. Os demais conteúdos (eixos, programação, palestrantes, fotos...) entram nos blocos abaixo.</p>
               <QuillEditor
                 value={formData.description}
                 onChange={val => setFormData(f => ({...f, description: val}))}
@@ -279,7 +303,8 @@ export default function EventosAdmin() {
             </div>
 
             <ContentSections
-              template="eventos" autoTemplate={!editingId}
+              template="eventos" autoTemplate={!editingId} bands
+              title="Blocos da página do evento"
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

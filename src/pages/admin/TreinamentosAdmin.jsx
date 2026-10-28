@@ -4,6 +4,7 @@ import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Eye, EyeOff,
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import DetailExtraFields, { readDetailExtra, buildDetailExtra } from '../../components/admin/DetailExtraFields';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageTextsForm from '../../components/admin/PageTextsForm';
 import { TREINAMENTOS_TEXTS } from '../../utils/pageTextDefaults';
@@ -26,6 +27,8 @@ const HERO_DEFAULTS = {
 const emptyForm = {
   title: '', segment: 'Silvicultura', hours: '', location: '', start_date: '', end_date: '',
   video_url: '', image_url: '', imageFile: null, sections: [],
+  // guardados em extra_data (formato, botão de inscrição, frase do topo)
+  modality: '', cta_url: '', cta_label: '', summary: '',
 };
 
 const segmentsDefault = ['Silvicultura', 'Gestão', 'Tecnologia', 'Sustentabilidade'];
@@ -108,6 +111,7 @@ export default function TreinamentosAdmin() {
       start_date: training.start_date || '', end_date: training.end_date || '',
       video_url: training.video_url || '',
       image_url: training.image_url, imageFile: null, sections,
+      ...readDetailExtra(training.extra_data),
     });
     setPreview(training.image_url);
     setView('form');
@@ -148,7 +152,7 @@ export default function TreinamentosAdmin() {
     fd.append('start_date', formData.start_date || '');
     fd.append('end_date', formData.end_date || '');
     fd.append('video_url', formData.video_url);
-    fd.append('extra_data', JSON.stringify({ sections: formData.sections }));
+    fd.append('extra_data', buildDetailExtra(editingId ? trainings.find(x => x.id == editingId)?.extra_data : null, formData));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     if (editingId && formData.removeImage && !formData.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
@@ -278,6 +282,7 @@ export default function TreinamentosAdmin() {
                     <input type="date" className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" value={formData.end_date || ''} min={formData.start_date || undefined} onChange={e => setFormData(f => ({...f, end_date: e.target.value}))} />
                   </div>
                 </div>
+                <DetailExtraFields value={formData} onChange={(patch) => setFormData(f => ({ ...f, ...patch }))} ctaHint="Quero me inscrever" />
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link do Vídeo (YouTube)</label>
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-xs outline-none border focus:border-[#007a3d]" placeholder="YouTube URL..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
@@ -323,7 +328,8 @@ export default function TreinamentosAdmin() {
             </div>
 
             <ContentSections
-              template="treinamentos" autoTemplate={!editingId}
+              template="treinamentos" autoTemplate={!editingId} bands
+              title="Blocos da página do treinamento"
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

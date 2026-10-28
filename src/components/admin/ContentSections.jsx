@@ -2,12 +2,12 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { UploadTrackerContext, useUploadTracker, useLatest } from './sections/uploadTracker';
 import { useConfirm, ItemActions, moveItem } from './kit';
 import { SECTION_TYPES, BAND_STYLES, createSection, normalizeSections, PAGE_TEMPLATES, createTemplate, typesFor } from '../sections/sectionTypes';
-import { TextImageEditor, CardsEditor, StatsEditor, PeopleEditor, GalleryEditor, VideoEditor, QuoteEditor, CtaEditor, SpecialNote } from './sections/BlockEditors';
+import { TextImageEditor, CardsEditor, StatsEditor, PeopleEditor, GalleryEditor, VideoEditor, QuoteEditor, CtaEditor, HighlightsEditor, SpecialNote } from './sections/BlockEditors';
 import { Type, Image as ImageIcon, LayoutGrid, BarChart3, Users, GalleryHorizontal as Images, PlayCircle, Quote, Megaphone, Layers, FileText as FileTextIcon, Building2, Info, Newspaper, UserCircle2 as UserRound, Square } from 'lucide-react';
-const Icons = { Type, ImageIcon, LayoutGrid, BarChart3, Users, Images, PlayCircle, Quote, Megaphone, Layers, FileText: FileTextIcon, Building2, Info, Newspaper, UserRound, Square };
+const Icons = { Presentation, Type, ImageIcon, LayoutGrid, BarChart3, Users, Images, PlayCircle, Quote, Megaphone, Layers, FileText: FileTextIcon, Building2, Info, Newspaper, UserRound, Square };
 import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
 import LogosEditor from './sections/LogosEditor';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2, Presentation } from 'lucide-react';
 import FilesEditor from './sections/FilesEditor';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
@@ -66,6 +66,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
         {section.type === 'video' && <VideoEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'quote' && <QuoteEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'cta' && <CtaEditor sec={section} onUpdate={onUpdate} />}
+        {section.type === 'highlights' && <HighlightsEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'tabs' && (
           <TabManager tabs={section.tabs || []} onChange={tabs => onUpdate({ tabs })} title="" itemLabel="Aba" />
         )}

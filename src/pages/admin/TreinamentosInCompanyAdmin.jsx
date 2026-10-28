@@ -4,6 +4,7 @@ import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Eye, EyeOff 
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import DetailExtraFields, { readDetailExtra, buildDetailExtra } from '../../components/admin/DetailExtraFields';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug } from '../../utils/helpers';
@@ -25,6 +26,8 @@ const HERO_DEFAULTS = {
 const emptyForm = {
   title: '', segment: 'Corporativo', hours: '', location: '',
   video_url: '', image_url: '', imageFile: null, sections: [],
+  // guardados em extra_data (formato, botão de inscrição, frase do topo)
+  modality: '', cta_url: '', cta_label: '', summary: '',
 };
 
 const segmentsDefault = ['Corporativo', 'Gestão Florestal', 'Segurança', 'Operações'];
@@ -80,13 +83,18 @@ export default function TreinamentosInCompanyAdmin() {
     if (training.extra_data) {
       try { const s = JSON.parse(training.extra_data).sections; sections = Array.isArray(s) && s.length > 0 ? s : null; } catch {}
     }
-    if (!sections) sections = [];
+    if (!sections) {
+      // In-company antigo só com descrição: o texto vira o 1º bloco ("Sobre" na página), para não se perder ao salvar
+      sections = [];
+      if (String(training.description || '').replace(/<[^>]*>/g, '').trim()) sections.push({ id: `${Date.now()}-sobre`, type: 'editor', title: 'Sobre o treinamento', content: training.description });
+    }
     setEditingId(training.id);
     setFormData({
       title: training.title, segment: training.segment || '',
       hours: training.hours || '', location: training.location || '',
       video_url: training.video_url || '',
       image_url: training.image_url || '', imageFile: null, sections,
+      ...readDetailExtra(training.extra_data),
     });
     setPreview(training.image_url ? getImageUrl(training.image_url) : null);
     setView('form');
@@ -125,7 +133,7 @@ export default function TreinamentosInCompanyAdmin() {
     fd.append('hours', formData.hours);
     fd.append('location', formData.location);
     fd.append('video_url', formData.video_url);
-    fd.append('extra_data', JSON.stringify({ sections: formData.sections }));
+    fd.append('extra_data', buildDetailExtra(editingId ? trainings.find(x => x.id == editingId)?.extra_data : null, formData));
     if (editingId) fd.append('id', editingId);
     if (formData.imageFile) fd.append('image', formData.imageFile);
     if (editingId && formData.removeImage && !formData.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
@@ -242,6 +250,7 @@ export default function TreinamentosInCompanyAdmin() {
                     <input className="w-full p-4 bg-gray-50 rounded-xl font-bold text-sm outline-none border focus:border-[#007a3d]" placeholder="Ex: 24h" value={formData.hours} onChange={e => setFormData(f => ({...f, hours: e.target.value}))} />
                   </div>
                 </div>
+                <DetailExtraFields value={formData} onChange={(patch) => setFormData(f => ({ ...f, ...patch }))} ctaHint="Solicitar proposta" />
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Link do Vídeo (YouTube)</label>
                   <input className="w-full p-4 bg-gray-50 rounded-xl font-medium text-xs outline-none border focus:border-[#007a3d]" placeholder="YouTube URL..." value={formData.video_url} onChange={e => setFormData(f => ({...f, video_url: e.target.value}))} />
@@ -280,7 +289,8 @@ export default function TreinamentosInCompanyAdmin() {
             </div>
 
             <ContentSections
-              template="in_company" autoTemplate={!editingId}
+              template="in_company" autoTemplate={!editingId} bands
+              title="Blocos da página do treinamento"
               sections={formData.sections}
               onChange={sections => setFormData(f => ({...f, sections}))}
               onUploading={setSectionsUploading}

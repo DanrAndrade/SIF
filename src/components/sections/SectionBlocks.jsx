@@ -12,6 +12,7 @@ import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass, BtnArrow } from '../ui/Button';
 import CountUp from '../ui/CountUp';
 import { fileExt, fileIcon, fileMetaLabel, fileUrl } from './fileMeta';
+import HighlightsBlock from './HighlightsBlock';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
@@ -74,7 +75,7 @@ export function CardsBlock({ sec, dark }) {
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden border-t-[3px] border-[var(--accent,#007a3d)] p-7 md:p-8 md:min-h-[260px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 md:p-8 md:min-h-[260px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
               <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[28px]" />
               {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
@@ -352,5 +353,5 @@ export function LogosBlock({ sec, dark }) {
 export const BLOCKS = {
   editor: EditorBlock, gt_intro: EditorBlock, text_image: TextImageBlock, cards: CardsBlock, stats: StatsBlock,
   people: PeopleBlock, gallery: GalleryBlock, video: VideoBlock, quote: QuoteBlock, cta: CtaBlock,
-  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock,
+  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock, highlights: HighlightsBlock,
 };

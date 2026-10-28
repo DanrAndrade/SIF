@@ -89,22 +89,37 @@ function sif_seo_build(PDO $pdo): array {
     if ($eincol) $add('eincol', ['title' => 'EINCOL', 'description' => 'Encontro técnico promovido pela SIF.', 'priority' => 0.6]);
 
     // --- Conteúdo dinâmico
-    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, date, event_date, location, created_at FROM eventos WHERE active = 1") as $r) {
+    // Eventos e treinamentos: frase do topo (extra_data.summary); sem ela, a
+    // descrição; sem descrição, o 1º bloco de texto da página.
+    $detailDesc = function (array $r): string {
+        $extra = json_decode((string)($r['extra_data'] ?? ''), true) ?: [];
+        $t = sif_seo_text($extra['summary'] ?? '') ?: sif_seo_text($r['description'] ?? '');
+        if ($t === '' && !empty($extra['sections']) && is_array($extra['sections'])) {
+            foreach ($extra['sections'] as $sec) {
+                if (is_array($sec) && ($sec['type'] ?? '') === 'editor' && ($sec['visible'] ?? true) !== false) {
+                    $t = sif_seo_text($sec['content'] ?? '');
+                    if ($t !== '') break;
+                }
+            }
+        }
+        return $t;
+    };
+    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, extra_data, date, event_date, location, created_at FROM eventos WHERE active = 1") as $r) {
         $add('eventos/' . $r['slug'], [
-            'title' => $r['title'], 'description' => sif_seo_text($r['description']) ?: 'Evento promovido pela SIF.',
+            'title' => $r['title'], 'description' => $detailDesc($r) ?: 'Evento promovido pela SIF.',
             'image' => $r['image_url'], 'type' => 'Event', 'lastmod' => $r['created_at'], 'priority' => 0.7,
             'event' => ['start' => $r['event_date'] ?: $r['date'], 'location' => $r['location']],
         ]);
     }
-    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, start_date, end_date, location, created_at FROM treinamentos WHERE active = 1") as $r) {
+    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, extra_data, start_date, end_date, location, created_at FROM treinamentos WHERE active = 1") as $r) {
         $add('treinamentos/' . $r['slug'], [
-            'title' => $r['title'], 'description' => sif_seo_text($r['description']) ?: 'Treinamento oferecido pela SIF.',
+            'title' => $r['title'], 'description' => $detailDesc($r) ?: 'Treinamento oferecido pela SIF.',
             'image' => $r['image_url'], 'type' => 'Course', 'lastmod' => $r['created_at'], 'priority' => 0.7,
         ]);
     }
-    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, created_at FROM treinamentos_in_company WHERE active = 1") as $r) {
+    foreach (sif_seo_rows($pdo, "SELECT slug, title, description, image_url, extra_data, created_at FROM treinamentos_in_company WHERE active = 1") as $r) {
         $add('treinamentos-in-company/' . $r['slug'], [
-            'title' => $r['title'], 'description' => sif_seo_text($r['description']) ?: 'Treinamento in-company da SIF.',
+            'title' => $r['title'], 'description' => $detailDesc($r) ?: 'Treinamento in-company da SIF.',
             'image' => $r['image_url'], 'type' => 'Course', 'lastmod' => $r['created_at'], 'priority' => 0.6,
         ]);
     }

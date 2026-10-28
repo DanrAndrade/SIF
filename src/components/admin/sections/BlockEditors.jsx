@@ -158,6 +158,32 @@ export function PeopleEditor({ sec, onUpdate }) {
   );
 }
 
+// Destaques com foto (eixos temáticos, módulos...): título, texto curto e foto de fundo
+export function HighlightsEditor({ sec, onUpdate }) {
+  const track = useUploadTracker();
+  return (
+    <div className="space-y-3">
+      <SpecialNote>No site vira um painel escuro: a foto do item da vez fica no fundo e os outros aparecem como cards ao lado (troca sozinho a cada 7 segundos). Item sem título não aparece. Use fotos na horizontal.</SpecialNote>
+      <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} grid addLabel="Adicionar destaque"
+        empty="Nenhum destaque." newItem={() => ({ _id: newItemId(), title: '', text: '', image: '' })}
+        render={(it, set) => (
+          <div className="grid grid-cols-[110px_1fr] gap-3">
+            <ImageField label="Foto" value={it.image} onFile={(f) => {
+              // id estável: a foto vai para este item mesmo se a lista mudar durante o envio
+              const id = it._id || newItemId();
+              if (!it._id) set({ _id: id });
+              upload(track, f, (image) => onUpdate(cur => ({ items: (cur.items || []).map(p => (p._id === id ? { ...p, image } : p)) })));
+            }} onRemove={() => set({ image: '' })} aspect="h-28" />
+            <div className="space-y-2">
+              <Field label="Título" value={it.title} onChange={(title) => set({ title })} placeholder="Ex.: Restauração ecológica" />
+              <Field label="Texto curto" textarea rows={3} value={it.text} onChange={(text) => set({ text })} />
+            </div>
+          </div>
+        )} />
+    </div>
+  );
+}
+
 export function GalleryEditor({ sec, onUpdate }) {
   const images = sec.images || [];
   const track = useUploadTracker();
