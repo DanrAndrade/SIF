@@ -67,7 +67,7 @@ export default function GruposTematicos() {
       
       <EditablePageHero pageKey="gt" defaults={HERO_DEFAULTS} scrollTargetId="gt-content" />
 
-      <main className="flex-grow py-24" id="gt-content">
+      <main className="flex-grow py-14 md:py-24" id="gt-content">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* INTRODUÇÃO */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-16 md:mb-20">

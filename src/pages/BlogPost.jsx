@@ -227,7 +227,7 @@ export default function BlogPost() {
 
       {/* LEIA TAMBÉM */}
       {relatedPosts.length > 0 && (
-        <section className="pb-24">
+        <section className="pb-14 md:pb-24">
           <div className="container mx-auto px-6">
             <h3 className="text-2xl font-semibold text-[#007a3d] tracking-tight mb-8">Leia Também</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

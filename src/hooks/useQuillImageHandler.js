@@ -13,7 +13,7 @@ export const DEFAULT_TOOLBAR = [
   ['bold', 'italic', 'underline', 'strike', 'blockquote'],
   [{ align: [] }],
   [{ list: 'ordered' }, { list: 'bullet' }],
-  ['link', 'image', 'video'],
+  ['link', 'image', 'video', 'sifTable'],
   ['clean'],
 ];
 

@@ -301,7 +301,7 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
               <article
                 key={i}
                 data-area-item
-                className="relative shrink-0 snap-start w-[84%] sm:w-[60%] md:w-[46%] min-h-[500px] rounded-card overflow-hidden bg-sif-dark shadow-card flex flex-col justify-end"
+                className="relative shrink-0 snap-start w-[86%] sm:w-[60%] md:w-[46%] min-h-[400px] sm:min-h-[500px] rounded-card overflow-hidden bg-sif-dark shadow-card flex flex-col justify-end"
               >
                 <img
                   src={photoFor(area, i)}
@@ -311,11 +311,11 @@ export default function AreasAtuacao({ cfg, areas, iconMap = {} }) {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-sif-dark/90 via-sif-dark/40 to-transparent" />
-                <div className="relative p-6 sm:p-8">
-                  <h3 className="font-heading font-semibold text-white text-2xl leading-tight tracking-tight mb-3">
+                <div className="relative p-5 sm:p-8">
+                  <h3 className="font-heading font-semibold text-white text-xl sm:text-2xl leading-tight tracking-tight mb-2 sm:mb-3">
                     {area.title}
                   </h3>
-                  <p className="text-white/80 text-[15px] leading-relaxed font-medium">{area.desc}</p>
+                  <p className="text-white/80 text-sm sm:text-[15px] leading-relaxed font-medium">{area.desc}</p>
                 </div>
               </article>
             );

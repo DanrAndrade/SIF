@@ -41,7 +41,7 @@ export default function LineField({ label, name, error, required, multiline = fa
           required={required}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={error ? errId : undefined}
-          rows={multiline ? 4 : undefined}
+          rows={multiline ? 3 : undefined}
           className={`peer block w-full bg-transparent border-0 border-b px-0 pt-2 pb-3 text-[17px] text-sif-ink placeholder-transparent caret-sif-green transition-colors duration-300 focus:outline-none focus:ring-0
             ${multiline ? 'resize-none leading-relaxed overflow-hidden' : ''}
             ${isSelect ? 'appearance-none cursor-pointer pr-10 bg-none' : ''}

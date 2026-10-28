@@ -73,7 +73,7 @@ function VideoCard({ sec }) {
 export function EmbIntro({ c, video }) {
   const [lead, ...rest] = paragraphs(c.intro_text);
   return (
-    <section id="embrapii-intro" className="relative py-20 md:py-28 scroll-mt-24">
+    <section id="embrapii-intro" className="relative py-12 md:py-28 scroll-mt-24">
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <div className="lg:col-span-6">
@@ -235,7 +235,7 @@ export function EmbAreas({ c, frentes }) {
 export function EmbSteps({ sec, photo }) {
   const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
   return (
-    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
+    <section id={`secao-${sec.id}`} className="relative py-12 md:py-28 scroll-mt-28">
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           <div className="lg:col-span-5 lg:sticky lg:top-28">
@@ -267,7 +267,7 @@ export function EmbTextDoc({ sec, docs }) {
   const files = (docs?.pdfs || []).filter(p => fileUrl(p));
   const [main, ...others] = files;
   return (
-    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
+    <section id={`secao-${sec.id}`} className="relative py-12 md:py-28 scroll-mt-28">
       <div className="container mx-auto px-6 max-w-7xl">
         <div>
           <Header eyebrow={sec.eyebrow} title={sec.title} className="mb-8 md:mb-10" />
@@ -322,7 +322,7 @@ export function EmbTeam({ sec }) {
   });
   const groups = order.map(g => ({ key: g, label: g, data: byGroup[g] }));
   return (
-    <section id={`secao-${sec.id}`} className="relative py-20 md:py-28 scroll-mt-28">
+    <section id={`secao-${sec.id}`} className="relative py-12 md:py-28 scroll-mt-28">
       <div className="container mx-auto px-6 md:px-12 max-w-7xl">
         <Header eyebrow={sec.eyebrow} title={sec.title} center className="mb-14 md:mb-16" />
         <TeamDirectory groups={groups} />
@@ -416,7 +416,7 @@ export function EmbCommittee({ intro, people, bios, photo }) {
   const [open, setOpen] = useState(null);
   const anchor = (intro || people).id;
   return (
-    <PhotoBand id={`secao-${anchor}`} photo={photo} className="py-20 md:py-28 scroll-mt-28">
+    <PhotoBand id={`secao-${anchor}`} photo={photo} className="py-12 md:py-28 scroll-mt-28">
       <div className="relative container mx-auto px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {intro && (
@@ -506,16 +506,25 @@ export function EmbLogos({ sec }) {
 /* ─── FALE CONOSCO (texto + formulário próprio) ────────────────────── */
 export function EmbContact({ c, photo }) {
   return (
-    <section id="fale-conosco" className="relative py-20 md:py-28 scroll-mt-24">
+    <section id="fale-conosco" className="relative py-12 md:py-28 scroll-mt-24">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 rounded-card md:rounded-panel overflow-hidden bg-white shadow-card-hover">
-          <PhotoBand as="div" photo={photo} className="lg:col-span-5 px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
-            {c.cta_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">{c.cta_tag}</span>}
-            {c.cta_title && <h2 className="sif-title text-3xl md:text-4xl leading-[1.1] tracking-tight">{c.cta_title}</h2>}
-            {c.cta_text && <p className="mt-6 text-base md:text-[17px] leading-relaxed text-white/75">{c.cta_text}</p>}
-            {c.form_note && <p className="relative mt-10 lg:mt-auto pt-6 border-t border-white/10 text-sm font-semibold text-sif-lime">{c.form_note}</p>}
+          {/* no celular o painel verde fica abaixo do formulário; o título sobe para cima do formulário */}
+          <PhotoBand as="div" photo={photo} className={`order-2 lg:order-1 lg:col-span-5 px-6 py-10 sm:px-10 md:px-12 md:py-14 flex-col ${c.cta_text || c.form_note ? 'flex' : 'hidden lg:flex'}`}>
+            <div className="hidden lg:block">
+              {c.cta_tag && <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-5">{c.cta_tag}</span>}
+              {c.cta_title && <h2 className="sif-title text-3xl md:text-4xl leading-[1.1] tracking-tight">{c.cta_title}</h2>}
+            </div>
+            {c.cta_text && <p className="lg:mt-6 text-base md:text-[17px] leading-relaxed text-white/75">{c.cta_text}</p>}
+            {c.form_note && <p className={`relative ${c.cta_text ? 'mt-8' : ''} lg:mt-auto pt-6 border-t border-white/10 text-sm font-semibold text-sif-lime`}>{c.form_note}</p>}
           </PhotoBand>
-          <div className="lg:col-span-7 px-6 py-10 sm:px-10 md:px-14 md:py-14">
+          <div className="order-1 lg:order-2 lg:col-span-7 px-6 py-10 sm:px-10 md:px-14 md:py-14">
+            {(c.cta_tag || c.cta_title) && (
+              <div className="lg:hidden mb-8">
+                {c.cta_tag && <span className="sif-eyebrow mb-3">{c.cta_tag}</span>}
+                {c.cta_title && <h2 className="sif-title text-3xl leading-[1.1] tracking-tight text-sif-ink">{c.cta_title}</h2>}
+              </div>
+            )}
             <EmbrapiiForm buttonLabel={c.form_button || 'Quero uma demonstração'} />
           </div>
         </div>

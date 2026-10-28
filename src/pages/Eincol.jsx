@@ -108,7 +108,7 @@ export default function Eincol() {
 
         {/* SEÇÃO: TEXTO PRINCIPAL */}
         {config?.main_content && (
-          <section className="py-24 bg-white">
+          <section className="py-14 md:py-24 bg-white">
             <div className="container mx-auto px-6 max-w-4xl">
               <div
                 className="prose prose-lg max-w-none text-gray-700 prose-headings:uppercase prose-headings:tracking-tighter prose-headings:text-[#1f2937] prose-strong:text-[#007a3d] prose-a:text-[#007a3d]"
@@ -132,7 +132,7 @@ export default function Eincol() {
 
         {/* SEÇÃO: PLANTA BAIXA */}
         {(config?.planta_image || config?.planta_url) && (
-          <section className="py-24 bg-sif-dark">
+          <section className="py-14 md:py-24 bg-sif-dark">
             <div className="container mx-auto px-6 max-w-6xl">
               <div className="flex flex-col md:flex-row items-center gap-12">
                 {config.planta_image && (
@@ -199,7 +199,7 @@ export default function Eincol() {
 
         {/* SEÇÃO: ABAS DE PROGRAMAÇÃO */}
         {tabs.length > 0 && (
-          <section className="py-24">
+          <section className="py-14 md:py-24">
             <div className="container mx-auto px-6 max-w-5xl">
               <h2 className="sif-title sif-title-strong text-4xl tracking-tighter text-[#1f2937] mb-12">
                 Programação
@@ -245,7 +245,7 @@ export default function Eincol() {
             const imgs = Array.isArray(sec.images) ? sec.images.filter(Boolean) : [];
             if (imgs.length === 0) return null;
             return (
-              <section key={i} className={`py-20 ${bg}`}>
+              <section key={i} className={`py-12 md:py-20 ${bg}`}>
                 <div className="container mx-auto px-6 max-w-6xl">
                   <SectionTitle sec={sec} defaultSize="md" defaultAlign="center" className="mb-10" />
                   <LogoCarousel images={imgs} altPrefix="Patrocinador" />
@@ -256,7 +256,7 @@ export default function Eincol() {
 
           // Seção de texto padrão
           return (
-            <section key={i} className={`py-20 ${bg}`}>
+            <section key={i} className={`py-12 md:py-20 ${bg}`}>
               <div className="container mx-auto px-6 max-w-4xl">
                 <SectionTitle sec={sec} defaultSize="lg" defaultAlign="left" className="mb-8" />
                 {sec.text && (

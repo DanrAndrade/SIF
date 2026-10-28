@@ -63,11 +63,11 @@ export function TeamCarousel({ title, data }) {
 
       <div
         ref={scrollRef}
-        className={`flex gap-5 sm:gap-6 md:gap-8 snap-x snap-mandatory ${needsScroll ? 'overflow-x-auto no-scrollbar' : 'flex-wrap justify-start overflow-x-visible'}`}
+        className={`flex gap-5 sm:gap-6 md:gap-8 pt-2 pb-6 -mb-4 snap-x snap-mandatory ${needsScroll ? 'overflow-x-auto no-scrollbar' : 'flex-wrap justify-start overflow-x-visible'}`}
       >
         {data.map((m, i) => (
           <div key={m.id ?? i} className="w-[130px] sm:w-[155px] md:w-[180px] shrink-0 snap-start group text-center">
-            <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden mb-3 ring-4 ring-transparent group-hover:ring-[#007a3d] transition-all duration-500 bg-gray-100 flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden mb-3 ring-4 ring-white group-hover:ring-[#007a3d] shadow-card-hover transition-all duration-500 bg-gray-100 flex items-center justify-center">
               {m.image ? (
                 <img src={m.image} alt={m.name} loading="lazy" decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

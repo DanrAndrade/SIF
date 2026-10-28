@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Download, ArrowRight, Play, Quote as QuoteIcon, X, ExternalLink, ChevronLeft, ChevronRight,
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
@@ -56,7 +56,7 @@ export function TextImageBlock({ sec, dark }) {
         <div className={`relative ${left ? 'lg:order-1' : ''}`}>
           <div className="absolute -inset-3 rounded-panel bg-[var(--accent,#007a3d)] opacity-10 rotate-2" aria-hidden="true" />
           <img src={img(sec.image)} alt={sec.title || ''} loading="lazy" decoding="async"
-            className="relative w-full aspect-[4/3] object-cover rounded-card shadow-[var(--sif-shadow-card-hover)]" />
+            className="relative w-full aspect-[4/3] object-cover rounded-card shadow-card-hover" />
         </div>
       )}
     </div>
@@ -127,7 +127,7 @@ export function PeopleBlock({ sec, dark }) {
         {items.map((p, i) => {
           const body = (
             <>
-              <div className="relative w-28 h-28 md:w-36 md:h-36 mx-auto mb-4 rounded-full overflow-hidden ring-4 ring-white shadow-[var(--sif-shadow-card)] bg-gray-100">
+              <div className="relative w-28 h-28 md:w-36 md:h-36 mx-auto mb-4 rounded-full overflow-hidden ring-4 ring-white shadow-card-hover bg-gray-100">
                 {p.photo
                   ? <img src={img(p.photo)} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   : <div className="w-full h-full flex items-center justify-center text-3xl font-semibold text-[var(--accent,#007a3d)] bg-[var(--accent-soft,#e8f3ec)]">{p.name.trim().charAt(0)}</div>}
@@ -177,6 +177,59 @@ function galleryLayout(n) {
   return { cols, span };
 }
 
+// Muitas fotos: carrossel (deslizar no celular, setas no computador) em vez
+// de uma grade longa. Até GALLERY_GRID_MAX fotos continua a grade.
+const GALLERY_GRID_MAX = 4;
+function GalleryCarousel({ imgs, dark, onOpen }) {
+  const ref = useRef(null);
+  const [pos, setPos] = useState({ i: 0, end: false });
+  const step = () => (ref.current?.firstElementChild?.getBoundingClientRect().width || 1) + 16; // largura da foto + espaço
+  const maxLeft = () => (ref.current ? ref.current.scrollWidth - ref.current.clientWidth : 0);
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    setPos({ i: Math.round(el.scrollLeft / step()), end: el.scrollLeft >= maxLeft() - 4 });
+  };
+  const go = (dir) => {
+    const el = ref.current;
+    if (!el) return;
+    const i = Math.max(0, Math.min(imgs.length - 1, Math.round(el.scrollLeft / step()) + dir));
+    const left = Math.min(i * step(), maxLeft());
+    setPos({ i, end: left >= maxLeft() - 4 });
+    el.scrollTo({ left, behavior: 'smooth' });
+  };
+  const total = imgs.length;
+  const cur = pos.end ? total - 1 : pos.i;
+  const arrow = `w-11 h-11 rounded-full border flex items-center justify-center transition-all active:scale-95 disabled:opacity-35 ${dark ? 'border-white/25 text-white hover:bg-white hover:text-sif-dark' : 'border-gray-200 bg-white text-sif-ink hover:bg-sif-green hover:text-white hover:border-sif-green'}`;
+  return (
+    <div>
+      <div ref={ref} onScroll={onScroll} className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+        {imgs.map((src, i) => (
+          <button key={i} type="button" onClick={() => onOpen(i)} aria-label={`Abrir foto ${i + 1} de ${total}`}
+            className="group relative shrink-0 snap-start w-[82%] sm:w-[46%] lg:w-[calc((100%-2rem)/3)] overflow-hidden rounded-2xl md:rounded-3xl bg-gray-100">
+            <img src={img(src)} alt="" loading="lazy" decoding="async" className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-105" />
+          </button>
+        ))}
+      </div>
+      <div className="mt-6 flex items-center gap-4">
+        <div className="flex-1 flex gap-1.5" aria-hidden="true">
+          {imgs.map((_, i) => (
+            <span key={i} className="h-1.5 rounded-full transition-all duration-500"
+              style={{ flexGrow: i === cur ? 4 : 1, flexBasis: 0, background: i <= cur ? (dark ? '#b5e05c' : '#007a3d') : (dark ? 'rgba(255,255,255,.2)' : '#e5e7eb') }} />
+          ))}
+        </div>
+        <span className={`font-heading text-sm font-bold tabular-nums ${dark ? 'text-white' : 'text-sif-ink'}`}>
+          {String(cur + 1).padStart(2, '0')} <span className={dark ? 'text-white/40' : 'text-gray-300'}>/ {String(total).padStart(2, '0')}</span>
+        </span>
+        <div className="flex gap-2">
+          <button type="button" aria-label="Foto anterior" onClick={() => go(-1)} disabled={pos.i === 0} className={arrow}><ChevronLeft size={18} /></button>
+          <button type="button" aria-label="Próxima foto" onClick={() => go(1)} disabled={pos.end} className={arrow}><ChevronRight size={18} /></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function GalleryBlock({ sec, dark }) {
   const imgs = (sec.images || []).filter(Boolean);
   const [open, setOpen] = useState(-1);
@@ -196,6 +249,7 @@ export function GalleryBlock({ sec, dark }) {
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
+      {imgs.length > GALLERY_GRID_MAX ? <GalleryCarousel imgs={imgs} dark={dark} onOpen={setOpen} /> : (
       <div className={`grid grid-cols-2 ${gal.cols} gap-3 md:gap-4`}>
         {imgs.map((src, i) => (
           <button key={i} type="button" onClick={() => setOpen(i)}
@@ -204,6 +258,7 @@ export function GalleryBlock({ sec, dark }) {
           </button>
         ))}
       </div>
+      )}
       {open >= 0 && (
         <div data-lenis-prevent className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4" role="dialog" aria-modal="true" onClick={() => setOpen(-1)}>
           <button type="button" aria-label="Fechar" className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"><X size={22} /></button>
@@ -227,7 +282,7 @@ export function VideoBlock({ sec, dark }) {
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className="relative aspect-video rounded-card overflow-hidden bg-[#0b3320] shadow-[var(--sif-shadow-card-hover)]">
+      <div className="relative aspect-video rounded-card overflow-hidden bg-[#0b3320] shadow-card-hover">
         {!embed ? (
           <video src={getImageUrl(url)} controls preload="metadata" playsInline className="w-full h-full" />
         ) : play ? (
@@ -268,7 +323,7 @@ export function QuoteBlock({ sec, dark }) {
 
 export function CtaBlock({ sec }) {
   return (
-    <div className="relative overflow-hidden rounded-card bg-[#0b3320] text-white px-8 py-12 md:px-16 md:py-16 shadow-[var(--sif-shadow-card-hover)]">
+    <div className="relative overflow-hidden rounded-card bg-[#0b3320] text-white px-8 py-12 md:px-16 md:py-16 shadow-card-hover">
       <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[var(--accent,#007a3d)] blur-[110px] opacity-40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div className="max-w-2xl">

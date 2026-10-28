@@ -65,7 +65,7 @@ export default function Treinamentos() {
       
       <EditablePageHero pageKey="treinamentos" defaults={HERO_DEFAULTS} scrollTargetId="treinamentos-content" />
 
-      <main id="treinamentos-content" className="flex-grow py-24">
+      <main id="treinamentos-content" className="flex-grow py-14 md:py-24">
         <div className="container mx-auto px-6 max-w-7xl">
           
           {/* SELEÇÃO DE SEGMENTO / FILTRO DINÂMICO */}
@@ -159,7 +159,7 @@ export default function Treinamentos() {
       </main>
 
       {/* CTA IN-COMPANY */}
-      <section className="py-24 bg-sif-dark relative overflow-hidden">
+      <section className="py-14 md:py-24 bg-sif-dark relative overflow-hidden">
          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
          </div>
          <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">

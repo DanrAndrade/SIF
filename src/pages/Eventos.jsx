@@ -154,7 +154,7 @@ export default function Eventos() {
 
         {/* ── CARD DESTAQUE EINCOL (some quando desativado no admin) ── */}
         {eincolActive && (
-          <section className="pt-24 pb-12 bg-transparent scroll-mt-24">
+          <section className="pt-14 md:pt-24 pb-8 md:pb-12 bg-transparent scroll-mt-24">
             <div className="container mx-auto px-6 max-w-4xl">
               <Link
                 to="/eincol"
@@ -180,7 +180,7 @@ export default function Eventos() {
         )}
 
         {/* ── EVENTOS EM ANDAMENTO / PRÓXIMOS ── */}
-        <section className={`${eincolActive ? 'pt-12 pb-24' : 'py-24'} bg-transparent scroll-mt-24`}>
+        <section className={`${eincolActive ? 'pt-8 md:pt-12 pb-14 md:pb-24' : 'py-14 md:py-24'} bg-transparent scroll-mt-24`}>
           <div className="container mx-auto px-6 max-w-7xl">
             <SectionTitle title="Eventos em" accent="Andamento" />
 
@@ -206,7 +206,7 @@ export default function Eventos() {
 
         {/* ── EVENTOS CONCLUÍDOS ── */}
         {!loading && concluidos.length > 0 && (
-          <section className="py-24 pb-32">
+          <section className="py-14 md:py-24 pb-16 md:pb-32">
             <div className="container mx-auto px-6 max-w-7xl">
               <SectionTitle title="Eventos" accent="Concluídos" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -149,7 +149,7 @@ export default function Associadas() {
     // TEXTO CORRIDO: editável em Painel › Associadas › Texto
     texto: (
       cfg.texto_enabled !== false && hasText(cfg.texto_html) ? (
-        <section className="py-20 md:py-24 bg-white">
+        <section className="py-12 md:py-24 bg-white">
           <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-5xl">
             {cfg.texto_tag && <span className="sif-eyebrow mb-4">{cfg.texto_tag}</span>}
             {cfg.texto_title && <h2 className="sif-title sif-h2 text-[#1f2937] mb-8 leading-tight">{cfg.texto_title}</h2>}
@@ -370,7 +370,7 @@ function BenefitsScroller({ cfg }) {
   // Celular ou "menos movimento": lista simples sobre a foto
   if (!pinned) {
     return (
-      <PhotoBand id="beneficios" photo={slides[0]} className="scroll-mt-32 py-20">
+      <PhotoBand id="beneficios" photo={slides[0]} className="scroll-mt-32 py-12 md:py-20">
         <div className="container mx-auto px-6">
           <div className="mb-10">{title}</div>
           <div className="space-y-4">

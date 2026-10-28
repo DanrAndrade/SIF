@@ -44,11 +44,10 @@ export default function ContentSectionsRenderer({ sections, layout = 'stack', sp
           if (special[sec.type] && !node) return null;
           // Automático:
           //  - números e depoimento: faixa escura com foto desfocada (destaque)
-          //  - galeria, pessoas e logos: faixa branca (sem cards brancos)
-          //  - textos e cards: fundo da página (cards brancos com sombra)
-          const auto = (sec.type === 'stats' || sec.type === 'quote') ? 'photo'
-            : (['gallery', 'people', 'logos', 'video'].includes(sec.type) ? 'white' : 'plain');
-          const key = sec.bg && sec.bg !== 'auto' ? sec.bg : auto;
+          //  - o resto (textos, cards, fotos, pessoas, vídeo, logos): fundo da página
+          const auto = (sec.type === 'stats' || sec.type === 'quote') ? 'photo' : 'plain';
+          // chamada (CTA) já é um card escuro: fica sempre no fundo da página
+          const key = sec.type === 'cta' ? 'plain' : (sec.bg && sec.bg !== 'auto' ? sec.bg : auto);
           const band = BAND[key] || BAND.plain;
           const Block = BLOCKS[sec.type];
           const inner = (
@@ -58,7 +57,7 @@ export default function ContentSectionsRenderer({ sections, layout = 'stack', sp
           );
           if (band.photo) {
             return (
-              <PhotoBand key={sec.id} id={sectionAnchor(sec)} photo={photos.length ? [...photos.slice(photoN % photos.length), ...photos.slice(0, photoN++ % photos.length)] : ''} className="scroll-mt-28 py-20 md:py-28">
+              <PhotoBand key={sec.id} id={sectionAnchor(sec)} photo={photos.length ? [...photos.slice(photoN % photos.length), ...photos.slice(0, photoN++ % photos.length)] : ''} className="scroll-mt-28 py-12 md:py-28">
                 {inner}
               </PhotoBand>
             );

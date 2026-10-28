@@ -89,8 +89,8 @@ export default function ContactForm({ tag, titleLine1, titleLine2 }) {
   };
 
   return (
-    <div className="px-6 py-10 sm:px-10 md:px-14 md:py-14 xl:px-16">
-      <header className="mb-8 md:mb-10 max-w-xl">
+    <div className="px-6 py-9 sm:px-10 md:px-14 md:py-11 xl:px-16">
+      <header className="mb-6 md:mb-8 max-w-xl">
         {tag && <span className="sif-eyebrow mb-4">{tag}</span>}
         <h2 className="sif-title sif-h2 text-sif-ink tracking-tight">
           {titleLine1}{titleLine2 && <><br /><span className="text-sif-green">{titleLine2}</span></>}
@@ -135,7 +135,7 @@ export default function ContactForm({ tag, titleLine1, titleLine2 }) {
             </div>
           )}
 
-          <div className="mt-8 flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-6 flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[12px] text-gray-400"><span className="text-sif-green">*</span> Campos obrigatórios</p>
             <button
               type="submit"

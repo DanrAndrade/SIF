@@ -109,7 +109,7 @@ export default function Jobs() {
   const blocks = {
     // LISTA DE VAGAS
     vagas: (
-      <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28 scroll-mt-32">
+      <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pt-14 md:pt-20 pb-12 md:pb-28 scroll-mt-32">
         <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
@@ -185,7 +185,7 @@ export default function Jobs() {
 
     // BANCO DE TALENTOS: o card é um link "#"; o clique abre a janela de envio
     banco: (
-      <section className="sif-container px-4 sm:px-6 md:px-10 pb-24 md:pb-32">
+      <section className="sif-container px-4 sm:px-6 md:px-10 pb-14 md:pb-32">
         <div onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); openBanco(); }}>
           <GlowCta
             eyebrow={cfg.banco_tag}

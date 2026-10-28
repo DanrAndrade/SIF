@@ -208,7 +208,7 @@ export default function DetailPage({
       {navItems.length > 1 && (
         <div className="sif-subnav sticky z-30 mt-8">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <nav aria-label="Nesta página" className="flex gap-1 overflow-x-auto no-scrollbar p-1.5 rounded-full bg-white/85 backdrop-blur-md border border-gray-100 shadow-[var(--sif-shadow-card)] w-fit max-w-full">
+            <nav aria-label="Nesta página" className="flex gap-1 overflow-x-auto no-scrollbar p-1.5 rounded-full bg-white/85 backdrop-blur-md border border-gray-100 shadow-card w-fit max-w-full">
               {navItems.map(n => (
                 <button key={n.id} type="button" onClick={() => go(n.id)}
                   className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-colors ${activeId === n.id ? 'bg-sif-green text-white' : 'text-gray-600 hover:text-sif-green'}`}>

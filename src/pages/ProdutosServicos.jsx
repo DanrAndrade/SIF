@@ -169,7 +169,7 @@ export default function ProdutosServicos() {
 
       <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} scrollTargetId="produtos-content" />
 
-      <main className="flex-grow pt-24 pb-12" id="produtos-content">
+      <main className="flex-grow pt-14 md:pt-24 pb-8 md:pb-12" id="produtos-content">
         <div className="container mx-auto px-6 max-w-7xl">
 
           {/* NAVEGAÇÃO DE ABAS: mesmo padrão das abas da equipe (sublinhado verde).
@@ -226,7 +226,7 @@ export default function ProdutosServicos() {
       </main>
 
       {/* ── CARD GERMINAR: sempre visível no final, leva para Trabalhe Conosco ── */}
-      <section className="pb-24 bg-transparent">
+      <section className="pb-14 md:pb-24 bg-transparent">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] via-[#1a3d20] to-[#0f1f11] p-10 md:p-16 shadow-xl">
             <div className="absolute top-0 right-0 w-72 h-72 bg-[#7FBA00]/20 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none" />

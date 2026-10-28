@@ -44,7 +44,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
               <input className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.eyebrow || ''} placeholder="opcional" onChange={e => onUpdate({ eyebrow: e.target.value })} />
             </div>
           )}
-          {bands && (
+          {bands && section.type !== 'cta' && (
             <div className="w-full sm:w-48">
               <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Fundo da faixa</label>
               <select className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.bg || 'auto'} onChange={e => onUpdate({ bg: e.target.value })}>

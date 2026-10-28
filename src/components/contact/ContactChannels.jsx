@@ -65,7 +65,7 @@ export default function ContactChannels({ title, phrase, phraseMuted, phoneLabel
     : null;
 
   return (
-    <PhotoBand as="aside" photo={PANEL_PHOTO} className="h-full px-6 py-10 sm:px-10 md:px-12 md:py-14 flex flex-col">
+    <PhotoBand as="aside" photo={PANEL_PHOTO} className="h-full px-6 py-9 sm:px-10 md:px-12 md:py-11 flex flex-col">
       <div>
         {title && <span className="block text-xs font-bold uppercase tracking-[0.2em] text-sif-lime mb-4">{title}</span>}
         {(phrase || phraseMuted) && (
@@ -81,7 +81,7 @@ export default function ContactChannels({ title, phrase, phraseMuted, phoneLabel
       </div>
 
       {addressValue && (
-        <div className="mt-10 lg:mt-auto lg:pt-12">
+        <div className="mt-10 lg:mt-auto lg:pt-8">
           <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-white/50 mb-3">{addressLabel}</span>
           <p className="whitespace-pre-line text-[15px] md:text-base leading-relaxed text-white/85 mb-6">{addressValue}</p>
           <a

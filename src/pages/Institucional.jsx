@@ -10,7 +10,7 @@ import Footer from '../components/Footer';
 import iconLogo from '../assets/icone.svg';
 import Button from '../components/ui/Button';
 import SmartLink from '../components/ui/SmartLink';
-import { API_BASE_URL, getImageUrl, whatsappLink, cleanRichHtml } from '../apiConfig';
+import { API_BASE_URL, getImageUrl, whatsappLink, cleanRichHtml, heroW } from '../apiConfig';
 import { resolveTeamGroups } from '../utils/teamGroups';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
@@ -246,9 +246,9 @@ export default function Institucional() {
   const blocks = {
     // QUEM SOMOS
     quem_somos: (
-        <div id="quem-somos" className="py-24">
+        <div id="quem-somos" className="py-14 md:py-24">
           <div className="container mx-auto px-6 md:px-12 lg:px-24">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
                   <div className="space-y-8 animate-in slide-in-from-left duration-1000">
                       <div className="w-16 h-1.5 bg-[#007a3d]"></div>
                       <h2 className="sif-title sif-h2 text-[#1f2937] leading-[1.0] tracking-tight">
@@ -259,19 +259,19 @@ export default function Institucional() {
                   </div>
                   <div className="relative animate-in zoom-in duration-1000">
                       <div className="absolute inset-0 bg-emerald-100/50 rounded-panel translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
-                      <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
+                      <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square">
                           {cfg.quem_somos_image ? (
                             <img
-                                src={getImageUrl(cfg.quem_somos_image, 1280)}
+                                src={getImageUrl(cfg.quem_somos_image, heroW(1280))}
                                 alt="Quem Somos"
                                 className="w-full h-full object-cover"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d]" />
                           )}
-                          <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-sif-dark via-transparent to-transparent">
-                              <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
-                              <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
+                          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 bg-gradient-to-t from-sif-dark via-transparent to-transparent">
+                              <p className="text-white text-xs sm:text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-1 sm:mb-2">{cfg.quem_somos_image_caption_top}</p>
+                              <p className="text-white text-xl sm:text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
                           </div>
                       </div>
                   </div>
@@ -282,12 +282,12 @@ export default function Institucional() {
 
     team: (
       // NOSSA GENTE: some inteira quando não há ninguém visível
-      <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
+      <div id="nossa-gente" className={`py-14 md:py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-              <div className="text-center mb-20">
+              <div className="text-center mb-10 md:mb-20">
                   <span className="sif-eyebrow mb-4">{cfg.team_tag}</span>
                   <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.team_title}</h2>
-                  <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
+                  <p className="text-gray-400 mt-4 md:mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
               </div>
 
               {/* FILTRO + CARROSSEIS (componente comum: também usado na EMBRAPII) */}
@@ -298,14 +298,14 @@ export default function Institucional() {
 
     // ÁREAS DE ATUAÇÃO / REGIONAL
     areas: (
-      <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 overflow-hidden`}>
+      <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-14 md:py-32 overflow-hidden`}>
           {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
       </div>
     ),
 
     // ESTATUTO E NORMAS
     estatuto: (
-      <div id="estatutos-normas" className="bg-transparent py-24 md:py-32">
+      <div id="estatutos-normas" className="bg-transparent py-14 md:py-32">
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
 
               {/* Cabeçalho */}
@@ -379,7 +379,7 @@ export default function Institucional() {
 
     // LINHA DO TEMPO + CHAMADA FINAL
     historia: (
-      <div id="historia" className="history-container py-24" ref={mainRef}>
+      <div id="historia" className="history-container py-14 md:py-24" ref={mainRef}>
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
               <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                   <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
@@ -478,7 +478,7 @@ export default function Institucional() {
       {/* Seções na ordem de Painel › Institucional › Ordem das seções */}
       <React.Fragment key={firstKey}>{blocks[firstKey]}</React.Fragment>
 
-      <div className="bg-transparent pt-20">
+      <div className="bg-transparent md:pt-20">
         {restKeys.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
       </div>
 

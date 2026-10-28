@@ -55,7 +55,7 @@ export default function TreinamentosInCompany() {
 
       <EditablePageHero pageKey="treinamentos_in_company" defaults={HERO_DEFAULTS} scrollTargetId="tic-content" />
 
-      <main id="tic-content" className="flex-grow py-24">
+      <main id="tic-content" className="flex-grow py-14 md:py-24">
         <div className="container mx-auto px-6 max-w-7xl">
 
           <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">

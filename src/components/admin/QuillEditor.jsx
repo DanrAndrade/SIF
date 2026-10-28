@@ -5,12 +5,16 @@ import { useQuillImageHandler, DEFAULT_TOOLBAR } from '../../hooks/useQuillImage
 import { BLOG_FONTS, loadBlogFonts } from '../../utils/blogFonts';
 import { API_BASE_URL, getImageUrl, fixUploadUrls } from '../../apiConfig';
 import { quillListsToSemantic } from '../../utils/quillHtml';
+import { registerQuillTable, TABLE_MATCHER } from '../../utils/quillTable';
+import TableDialog from './TableDialog';
+
+registerQuillTable();
 
 // Formatos aceitos = os botões da barra. Texto colado do Word/Google Docs
 // trazia cor, fundo, fonte e tamanho (ex.: texto preto com fundo branco, que
 // some na faixa verde escura do site). Com esta lista, só fica o que a barra
 // oferece (negrito, títulos, listas, links, imagens, vídeo...).
-const FORMATS = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'align', 'list', 'indent', 'link', 'image', 'video', 'imageAlign'];
+const FORMATS = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'align', 'list', 'indent', 'link', 'image', 'video', 'imageAlign', 'sifTable'];
 
 // Escolha de fonte (só no editor do blog, prop "fonts"): salva como class="ql-font-<nome>".
 // Montserrat é o padrão (sem classe).
@@ -30,6 +34,7 @@ const wordListLevel = (node) => {
 };
 const isWordMarker = (el) => /mso-list:\s*ignore/i.test(el.getAttribute('style') || '');
 const WORD_MATCHERS = [
+  TABLE_MATCHER,
   // marcador do Word (·, o, §, 1.) fica num span "mso-list:Ignore": descarta
   ['span', (node, delta) => (isWordMarker(node) ? new Delta() : delta)],
   ['p', (node, delta) => {
@@ -59,7 +64,20 @@ async function uploadDataImage(dataUrl) {
 export default function QuillEditor({ value, onChange, height = 'h-[550px]', className = '', fonts = false }) {
   const { quillRef, modules: baseModules } = useQuillImageHandler(fonts ? FONT_TOOLBAR : undefined);
   useEffect(() => { if (fonts) loadBlogFonts(); }, [fonts]); // prévia das fontes no editor
-  const modules = React.useMemo(() => ({ ...baseModules, clipboard: { ...(baseModules.clipboard || {}), matchers: WORD_MATCHERS } }), [baseModules]);
+  // Tabela: o botão da barra abre a janela; clicar numa tabela do texto também
+  const [tableEdit, setTableEdit] = useState(null); // { index, value } | { index, value: null }
+  const openTable = useRef(null);
+  openTable.current = () => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+    const range = quill.getSelection(true);
+    setTableEdit({ index: range ? range.index : quill.getLength(), value: null });
+  };
+  const modules = React.useMemo(() => ({
+    ...baseModules,
+    toolbar: { ...baseModules.toolbar, handlers: { ...baseModules.toolbar.handlers, sifTable: () => openTable.current() } },
+    clipboard: { ...(baseModules.clipboard || {}), matchers: WORD_MATCHERS },
+  }), [baseModules]);
   // Ao abrir, o editor "arruma" o HTML (ex.: põe <p>) e avisaria mudança sem
   // ninguém mexer — aparecia "Alterações não salvas" à toa. Só repassamos
   // mudanças feitas pela pessoa (digitação, colar, botões, imagem).
@@ -103,7 +121,17 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
 
     quill.on('text-change', replaceDataImages);
     replaceDataImages();
-    return () => quill.off('text-change', replaceDataImages);
+    const onTableClick = (e) => {
+      const wrap = e.target.closest?.('.sif-table-wrap');
+      if (!wrap) return;
+      const blot = Quill.find(wrap);
+      if (!blot) return;
+      setTableEdit({ index: quill.getIndex(blot), value: blot.constructor.value(wrap) });
+    };
+    quill.root.addEventListener('click', onTableClick);
+    const tb = quill.getModule('toolbar')?.container?.querySelector('.ql-sifTable');
+    if (tb) tb.title = 'Inserir tabela';
+    return () => { quill.off('text-change', replaceDataImages); quill.root.removeEventListener('click', onTableClick); };
   }, [quillRef]);
 
   return (
@@ -122,6 +150,27 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
         useSemanticHTML={false}
         className="flex-1 min-h-0 flex flex-col"
       />
+      {tableEdit && (
+        <TableDialog
+          initial={tableEdit.value}
+          onClose={() => setTableEdit(null)}
+          onRemove={() => {
+            const quill = quillRef.current?.getEditor();
+            quill?.deleteText(tableEdit.index, 1, 'user');
+            setTableEdit(null);
+          }}
+          onSave={(v) => {
+            const quill = quillRef.current?.getEditor();
+            if (quill) {
+              const { index } = tableEdit;
+              if (tableEdit.value) quill.deleteText(index, 1, 'user');
+              quill.insertEmbed(index, 'sifTable', v, 'user');
+              quill.setSelection(index + 1, 0, 'silent');
+            }
+            setTableEdit(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -123,7 +123,7 @@ export default function Projetos() {
       <main className="flex-grow">
 
         {/* ── PROJETOS EM ANDAMENTO ── */}
-        <section id="projetos-lista" className="py-24 bg-transparent scroll-mt-24">
+        <section id="projetos-lista" className="py-14 md:py-24 bg-transparent scroll-mt-24">
           <div className="container mx-auto px-6 max-w-7xl">
             <SectionTitle title="Projetos em" accent="Andamento" />
 
@@ -149,7 +149,7 @@ export default function Projetos() {
 
         {/* ── PROJETOS CONCLUÍDOS ── */}
         {!loading && concluidos.length > 0 && (
-          <section className="py-24 pb-32">
+          <section className="py-14 md:py-24 pb-16 md:pb-32">
             <div className="container mx-auto px-6 max-w-7xl">
               <SectionTitle title="Projetos" accent="Concluídos" />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -164,7 +164,7 @@ export default function Projetos() {
         )}
 
         {/* Padding bottom quando sem concluídos */}
-        {!loading && concluidos.length === 0 && <div className="pb-24" />}
+        {!loading && concluidos.length === 0 && <div className="pb-14 md:pb-24" />}
 
       </main>
 

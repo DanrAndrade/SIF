@@ -59,7 +59,8 @@ export default function Contact() {
       <main className="flex-grow pt-16 pb-24 md:pt-24 md:pb-32">
         <div id="contact-form" className="sif-container px-4 sm:px-6 md:px-10 scroll-mt-32">
           <div className="grid grid-cols-1 lg:grid-cols-12 bg-white rounded-panel shadow-card overflow-hidden">
-            <div className="lg:col-span-5">
+            {/* no celular os canais diretos ficam abaixo do formulário */}
+            <div className="order-2 lg:order-1 lg:col-span-5">
               <ContactChannels
                 title={cfg.canais_title}
                 phrase={cfg.canais_frase ?? 'Prefere falar direto?'}
@@ -72,7 +73,7 @@ export default function Contact() {
                 addressValue={cfg.address_value}
               />
             </div>
-            <div className="lg:col-span-7">
+            <div className="order-1 lg:order-2 lg:col-span-7">
               <ContactForm tag={cfg.form_tag} titleLine1={cfg.form_title_line1} titleLine2={cfg.form_title_line2} />
             </div>
           </div>
