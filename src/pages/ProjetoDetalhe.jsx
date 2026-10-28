@@ -11,6 +11,7 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
 import DetailHero from '../components/DetailHero';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
+import { loadBlogFonts } from '../utils/blogFonts';
 import { FlaskConical } from 'lucide-react';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
@@ -30,6 +31,7 @@ export default function ProjetoDetalhe() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [projSections, setProjSections] = useState(null);
+  useEffect(() => { if (projeto?.description) loadBlogFonts(projeto.description); }, [projeto?.description]); // fontes escolhidas no texto
 
   useEffect(() => {
     window.scrollTo(0, 0);

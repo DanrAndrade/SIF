@@ -228,7 +228,8 @@ export default function ProjetosAdmin() {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Descrição do Projeto</label>
-              <QuillEditor value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[550px]" />
+              {/* página em estilo blog (texto livre): permite escolher a fonte, como no Blog */}
+              <QuillEditor fonts value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[550px]" />
             </div>
 
             <ContentSections
