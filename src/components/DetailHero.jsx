@@ -17,9 +17,9 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
     <header className="relative min-h-[64vh] flex items-end pt-32 pb-14 md:pb-20 overflow-hidden bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]">
       {cover && <ParallaxLayer><img src={cover} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" /></ParallaxLayer>}
       {/* Película bem leve (quase invisível): só um escurecimento suave atrás do texto */}
-      {cover && <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,18,11,.55) 0%, rgba(5,18,11,.25) 45%, rgba(5,18,11,.08) 75%)' }} />}
+      {cover && <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,18,11,.7) 0%, rgba(5,18,11,.38) 45%, rgba(5,18,11,.1) 75%)' }} />}
       {/* faixa escura discreta no alto: menu legível sobre qualquer foto */}
-      {cover && <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />}
+      {cover && <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/65 to-transparent" />}
       {cover && <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/30 to-transparent" />}
 
       {/* sombra suave nas letras: texto legível mesmo em foto clara */}
