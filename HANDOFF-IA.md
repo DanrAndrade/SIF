@@ -274,3 +274,8 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
 - **GSAP** carrega sob demanda na Home, só em telas de 768px ou mais.
 - **Segurança**: linha do tempo do Institucional e EINCOL limpam HTML ao gravar; `api_guard.php` migra o banco antes de conferir permissão.
 - **Publicação**: script SQL `atualizacao-banco-*.sql` (migrações 1 a 6, idempotente) + pacote com site, API alterada e uploads da EMBRAPII, sem comentários nos arquivos de código.
+
+## 13. A fazer depois de publicar a atualização no servidor
+
+- **Criar um GT de demonstração** (ex.: "GT Exemplo: novos recursos", oculto do menu ou marcado como exemplo) usando TODOS os blocos novos da página de Grupo Temático: números, cards com texto que sobe no hover, equipe com fotos, galeria, vídeo, arquivos para baixar, abas, logos de empresas, citação, chamada, blog do grupo e card do responsável. Motivo: os 9 GTs reais foram cadastrados no modelo antigo (texto corrido e imagens soltas, estilo blog) e não mostram o que a página nova é capaz. O GT de exemplo serve para a equipe da SIF ver e copiar o formato.
+- Capas dos GTs em produção são artes com letreiro (ex.: "GT COLHEITA"); com a película quase invisível do topo, recomendar trocar por fotos.
