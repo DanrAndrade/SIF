@@ -10,6 +10,7 @@ import JobCard from '../components/jobs/JobCard';
 import JobFilters from '../components/jobs/JobFilters';
 import ApplicationModal from '../components/jobs/ApplicationModal';
 import { usePageConfig } from '../hooks/usePageConfig';
+import { pageSectionOrder } from '../utils/sectionOrder';
 import { API_BASE_URL } from '../apiConfig';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
@@ -102,6 +103,102 @@ export default function Jobs() {
     ...catCounts.map(c => ({ key: c.key, label: jobCategoryLabel(c.key, cfg), count: c.count })),
   ];
 
+  // Seções da página, na ordem de Painel › Trabalhe Conosco › Ordem das
+  // seções (a chave é a mesma salva em section_order). Topo e rodapé fixos.
+  const order = pageSectionOrder('jobs', cfg);
+  const blocks = {
+    // LISTA DE VAGAS
+    vagas: (
+      <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28 scroll-mt-32">
+        <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
+            <h2 className="sif-title sif-h2 text-sif-ink tracking-tight">{cfg.vagas_title}</h2>
+          </div>
+          {!loading && jobs.length > 0 && (
+            <p className="text-[15px] text-gray-500 md:pb-2">
+              <strong className="font-semibold text-sif-ink">{jobs.length}</strong> {jobs.length === 1 ? 'oportunidade aberta' : 'oportunidades abertas'} agora
+            </p>
+          )}
+        </div>
+
+        {catCounts.length > 1 && (
+          <div className="mb-10">
+            <JobFilters items={filterItems} value={catFilter} onChange={(k) => { setCatFilter(k); setCurrentPage(1); }} />
+          </div>
+        )}
+
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Carregando vagas" data-no-reveal>
+            {[0, 1, 2].map(i => (
+              <div key={i} className="h-[300px] rounded-card bg-white/70 p-8 shadow-card">
+                <div className="h-3 w-24 animate-pulse rounded-full bg-sif-ink/10" />
+                <div className="mt-6 h-6 w-4/5 animate-pulse rounded-full bg-sif-ink/10" />
+                <div className="mt-3 h-6 w-3/5 animate-pulse rounded-full bg-sif-ink/10" />
+                <div className="mt-6 h-3 w-full animate-pulse rounded-full bg-sif-ink/5" />
+                <div className="mt-2 h-3 w-2/3 animate-pulse rounded-full bg-sif-ink/5" />
+              </div>
+            ))}
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="rounded-panel bg-white px-6 py-14 text-center shadow-card sm:px-12 md:py-20">
+            <span className="sif-eyebrow mb-4">Nenhuma vaga no momento</span>
+            <p className="sif-title sif-h3 mx-auto max-w-xl text-sif-ink">
+              As próximas oportunidades <span className="text-sif-green">aparecem aqui.</span>
+            </p>
+            <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-gray-500">
+              Enquanto isso, deixe seu currículo no banco de talentos. Quando surgir uma vaga com o seu perfil, falamos com você.
+            </p>
+            <button type="button" onClick={openBanco} className={`mt-8 ${buttonClass('primary')}`}>
+              <span className="py-2">Cadastrar meu currículo</span>
+              <BtnArrow variant="primary" />
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {currentJobs.map(job => (
+              <JobCard key={job.id} job={job} category={jobCategoryLabel(jobCategory(job), cfg)} onOpen={setSelectedJob} />
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <nav className="mt-14 flex items-center justify-center gap-6" aria-label="Paginação das vagas">
+            <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Página anterior"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+              <ArrowLeft size={18} />
+            </button>
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-sif-ink/70 tabular-nums">
+              {currentPage} <span className="text-gray-400">de</span> {totalPages}
+            </span>
+            <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Próxima página"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+              <ArrowRight size={18} />
+            </button>
+          </nav>
+        )}
+      </section>
+    ),
+
+    // PROPÓSITO (missão, visão e valores)
+    proposito: <MissionValues cfg={cfg} />,
+
+    // BANCO DE TALENTOS: o card é um link "#"; o clique abre a janela de envio
+    banco: (
+      <section className="sif-container px-4 sm:px-6 md:px-10 pb-24 md:pb-32">
+        <div onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); openBanco(); }}>
+          <GlowCta
+            eyebrow={cfg.banco_tag}
+            title={cfg.banco_title}
+            text={cfg.banco_text}
+            btnLabel={cfg.banco_btn_label}
+            href="#banco-de-talentos"
+          />
+        </div>
+      </section>
+    ),
+  };
+
   return (
     <div className="sif-page min-h-screen font-sans text-sif-ink overflow-x-hidden selection:bg-sif-green selection:text-white flex flex-col">
       <Navbar />
@@ -109,92 +206,13 @@ export default function Jobs() {
       <EditablePageHero pageKey="jobs" defaults={HERO_DEFAULTS} scrollTargetId="jobs-section" />
 
       <main className="flex-grow">
-        {/* LISTA DE VAGAS */}
-        <section id="jobs-section" className="sif-container px-4 sm:px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28 scroll-mt-32">
-          <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
-            <div>
-              <span className="sif-eyebrow mb-4">{cfg.vagas_tag}</span>
-              <h2 className="sif-title sif-h2 text-sif-ink tracking-tight">{cfg.vagas_title}</h2>
-            </div>
-            {!loading && jobs.length > 0 && (
-              <p className="text-[15px] text-gray-500 md:pb-2">
-                <strong className="font-semibold text-sif-ink">{jobs.length}</strong> {jobs.length === 1 ? 'oportunidade aberta' : 'oportunidades abertas'} agora
-              </p>
-            )}
-          </div>
-
-          {catCounts.length > 1 && (
-            <div className="mb-10">
-              <JobFilters items={filterItems} value={catFilter} onChange={(k) => { setCatFilter(k); setCurrentPage(1); }} />
-            </div>
-          )}
-
-          {loading ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Carregando vagas" data-no-reveal>
-              {[0, 1, 2].map(i => (
-                <div key={i} className="h-[300px] rounded-card bg-white/70 p-8 shadow-card">
-                  <div className="h-3 w-24 animate-pulse rounded-full bg-sif-ink/10" />
-                  <div className="mt-6 h-6 w-4/5 animate-pulse rounded-full bg-sif-ink/10" />
-                  <div className="mt-3 h-6 w-3/5 animate-pulse rounded-full bg-sif-ink/10" />
-                  <div className="mt-6 h-3 w-full animate-pulse rounded-full bg-sif-ink/5" />
-                  <div className="mt-2 h-3 w-2/3 animate-pulse rounded-full bg-sif-ink/5" />
-                </div>
-              ))}
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="rounded-panel bg-white px-6 py-14 text-center shadow-card sm:px-12 md:py-20">
-              <span className="sif-eyebrow mb-4">Nenhuma vaga no momento</span>
-              <p className="sif-title sif-h3 mx-auto max-w-xl text-sif-ink">
-                As próximas oportunidades <span className="text-sif-green">aparecem aqui.</span>
-              </p>
-              <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-gray-500">
-                Enquanto isso, deixe seu currículo no banco de talentos. Quando surgir uma vaga com o seu perfil, falamos com você.
-              </p>
-              <button type="button" onClick={openBanco} className={`mt-8 ${buttonClass('primary')}`}>
-                <span className="py-2">Cadastrar meu currículo</span>
-                <BtnArrow variant="primary" />
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {currentJobs.map(job => (
-                <JobCard key={job.id} job={job} category={jobCategoryLabel(jobCategory(job), cfg)} onOpen={setSelectedJob} />
-              ))}
-            </div>
-          )}
-
-          {totalPages > 1 && (
-            <nav className="mt-14 flex items-center justify-center gap-6" aria-label="Paginação das vagas">
-              <button type="button" onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} aria-label="Página anterior"
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
-                <ArrowLeft size={18} />
-              </button>
-              <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-sif-ink/70 tabular-nums">
-                {currentPage} <span className="text-gray-400">de</span> {totalPages}
-              </span>
-              <button type="button" onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Próxima página"
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
-                <ArrowRight size={18} />
-              </button>
-            </nav>
-          )}
-        </section>
-
-        {/* PROPÓSITO (missão, visão e valores) depois das vagas */}
-        <MissionValues cfg={cfg} />
-
-        {/* BANCO DE TALENTOS: o card é um link "#"; o clique abre a janela de envio */}
-        <section className="sif-container px-4 sm:px-6 md:px-10 pb-24 md:pb-32">
-          <div onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); openBanco(); }}>
-            <GlowCta
-              eyebrow={cfg.banco_tag}
-              title={cfg.banco_title}
-              text={cfg.banco_text}
-              btnLabel={cfg.banco_btn_label}
-              href="#banco-de-talentos"
-            />
-          </div>
-        </section>
+        {order.map((k, i) => (
+          // A lista de vagas já tem espaço em cima; as outras seções, quando
+          // sobem para o primeiro lugar, ganham o mesmo respiro abaixo do topo.
+          <React.Fragment key={k}>
+            {i === 0 && k !== 'vagas' ? <div className="pt-14 md:pt-20">{blocks[k]}</div> : blocks[k]}
+          </React.Fragment>
+        ))}
       </main>
 
       <Footer />

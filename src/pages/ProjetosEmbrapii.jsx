@@ -8,6 +8,7 @@ import { visibleSections, isSectionEmpty } from '../components/sections/sectionT
 import { EmbIntro, EmbAreas, EmbSteps, EmbTextDoc, EmbTeam, EmbCommittee, EmbLogos, EmbContact, matchBios } from '../components/embrapii/EmbrapiiBlocks';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { usePageConfig } from '../hooks/usePageConfig';
+import { pageSectionOrder } from '../utils/sectionOrder';
 import { API_BASE_URL, getImageUrl, heroW } from '../apiConfig';
 import { getEffectiveProjectStatus } from '../utils/helpers';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../utils/embrapiiDefaults';
@@ -87,54 +88,63 @@ export default function ProjetosEmbrapii() {
     }
   };
 
+  // Seções fixas da página, na ordem de Painel › EMBRAPII › Ordem das seções
+  // (a chave é a mesma salva em section_order). Topo e rodapé não se movem.
+  // Os blocos da aba Seções andam juntos, como um conjunto, na ordem da aba.
+  const order = pageSectionOrder('embrapii', c);
+  const blocks = {
+    intro: <EmbIntro c={c} video={video} />,
+    areas: <EmbAreas c={c} frentes={frentes} />,
+    sections: bodyScenes.length > 0 ? bodyScenes.map(renderScene) : null,
+
+    // PROJETOS EM ANDAMENTO (vêm do cadastro de Projetos)
+    projects: (
+      c.projects_enabled !== false && shownProjects.length > 0 ? (
+        <section className="py-20 md:py-28">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+              <div>
+                {c.projects_tag && <span className="sif-eyebrow mb-3">{c.projects_tag}</span>}
+                {c.projects_title && <h2 className="sif-title sif-h2 text-[#1f2937]">{c.projects_title}</h2>}
+              </div>
+              <Link to="/projetos" className={`shrink-0 self-start md:self-auto ${buttonClass('outline', 'sm')}`}>
+                <span className="py-2">Ver todos os projetos</span>
+                <BtnArrow variant="outline" size="sm" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {shownProjects.map(p => (
+                <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-500 flex flex-col">
+                  {p.image_url && (
+                    <div className="h-44 overflow-hidden bg-gray-100">
+                      <img src={getImageUrl(p.image_url, 800)} alt={p.title} loading="lazy" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-7 flex-grow flex flex-col">
+                    {p.tag && <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-3">{p.tag}</span>}
+                    <h3 className="text-lg font-semibold text-[#1f2937] group-hover:text-[#007a3d] transition-colors leading-snug">{p.title}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null
+    ),
+
+    logos: logoScenes.length > 0 ? logoScenes.map(renderScene) : null,
+
+    // FALE CONOSCO: texto + formulário próprio (mensagens em Painel › Mensagens EMBRAPII)
+    contact: (c.cta_title || c.cta_text) ? <EmbContact c={c} photo={contactPhoto} /> : null,
+  };
+
   return (
     <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-clip selection:bg-[#007a3d] selection:text-white">
       <Navbar />
       <EditablePageHero pageKey="embrapii" defaults={EMBRAPII_HERO_DEFAULTS} scrollTargetId="embrapii-intro" />
 
       <main className="flex-grow">
-        <EmbIntro c={c} video={video} />
-        <EmbAreas c={c} frentes={frentes} />
-
-        {bodyScenes.map(renderScene)}
-
-        {/* PROJETOS EM ANDAMENTO (vêm do cadastro de Projetos) */}
-        {c.projects_enabled !== false && shownProjects.length > 0 && (
-          <section className="py-20 md:py-28">
-            <div className="container mx-auto px-6 max-w-7xl">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-                <div>
-                  {c.projects_tag && <span className="sif-eyebrow mb-3">{c.projects_tag}</span>}
-                  {c.projects_title && <h2 className="sif-title sif-h2 text-[#1f2937]">{c.projects_title}</h2>}
-                </div>
-                <Link to="/projetos" className={`shrink-0 self-start md:self-auto ${buttonClass('outline', 'sm')}`}>
-                  <span className="py-2">Ver todos os projetos</span>
-                  <BtnArrow variant="outline" size="sm" />
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {shownProjects.map(p => (
-                  <Link key={p.id} to={`/projetos/${p.slug}`} className="group bg-white rounded-card overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-500 flex flex-col">
-                    {p.image_url && (
-                      <div className="h-44 overflow-hidden bg-gray-100">
-                        <img src={getImageUrl(p.image_url, 800)} alt={p.title} loading="lazy" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="p-7 flex-grow flex flex-col">
-                      {p.tag && <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-3">{p.tag}</span>}
-                      <h3 className="text-lg font-semibold text-[#1f2937] group-hover:text-[#007a3d] transition-colors leading-snug">{p.title}</h3>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {logoScenes.map(renderScene)}
-
-        {/* FALE CONOSCO: texto + formulário próprio (mensagens em Painel › Mensagens EMBRAPII) */}
-        {(c.cta_title || c.cta_text) && <EmbContact c={c} photo={contactPhoto} />}
+        {order.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
       </main>
 
       <Footer />

@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import Button from '../components/ui/Button';
 import PhotoBand from '../components/ui/PhotoBand';
 import EditablePageHero from '../components/EditablePageHero';
+import { pageSectionOrder } from '../utils/sectionOrder';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, toExternalUrl, cleanRichHtml } from '../apiConfig';
 
@@ -129,17 +130,25 @@ export default function Associadas() {
   }, []);
 
 
-  return (
-    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-clip selection:bg-[#007a3d] selection:text-white flex flex-col">
-      <Navbar />
-
-      {/* HERO (mesmo topo padrão das outras páginas) */}
-      <EditablePageHero pageKey="associadas" defaults={DEFAULTS} scrollTargetId="beneficios" />
-
-      {/* Respiro entre o topo e as faixas de largura total (texto e benefícios) */}
-      <div className="pt-16 md:pt-24">
-      {/* TEXTO CORRIDO — editável em Painel › Associadas › Texto */}
-      {cfg.texto_enabled !== false && hasText(cfg.texto_html) && (
+  // Seções móveis da página (a chave é a mesma salva em section_order).
+  // O topo e o rodapé ficam sempre fixos.
+  const order = pageSectionOrder('associadas', cfg);
+  // Card da chamada final ("Seja uma Associada")
+  const ctaCard = (spaced) => (
+          <div className={`${spaced ? 'mt-14 md:mt-24 ' : ''}bg-white shadow-card rounded-card md:rounded-panel p-7 sm:p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10`}>
+            <div className="max-w-xl">
+              <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
+              <p className="text-gray-500 text-lg">{cfg.cta_text}</p>
+            </div>
+            <Button href={cfg.cta_btn_link} variant="primary" icon={ArrowRight} className="shrink-0">
+              {cfg.cta_btn_label}
+            </Button>
+          </div>
+  );
+  const blocks = {
+    // TEXTO CORRIDO: editável em Painel › Associadas › Texto
+    texto: (
+      cfg.texto_enabled !== false && hasText(cfg.texto_html) ? (
         <section className="py-20 md:py-24 bg-white">
           <div className="container mx-auto px-6 md:px-12 lg:px-24 max-w-5xl">
             {cfg.texto_tag && <span className="sif-eyebrow mb-4">{cfg.texto_tag}</span>}
@@ -148,13 +157,15 @@ export default function Associadas() {
               dangerouslySetInnerHTML={{ __html: cleanRichHtml(cfg.texto_html) }} />
           </div>
         </section>
-      )}
+      ) : null
+    ),
 
-      {/* BENEFÍCIOS: título fixo à esquerda + cards que passam com a rolagem */}
-      <BenefitsScroller cfg={cfg} />
-      </div>
+    // BENEFÍCIOS: título fixo à esquerda + cards que passam com a rolagem
+    beneficios: <BenefitsScroller cfg={cfg} />,
 
-      {/* GRID DE LOGOS */}
+    // GRID DE LOGOS (a chamada final vem junto quando está logo abaixo,
+    // como sempre foi: mesmo quadro e mesmo espaçamento)
+    logos: (
       <div className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
           <div className="text-center mb-10 md:mb-20">
@@ -210,18 +221,42 @@ export default function Associadas() {
               );
             })}
           </div>
-
-          <div className="mt-14 md:mt-24 bg-white shadow-card rounded-card md:rounded-panel p-7 sm:p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
-            <div className="max-w-xl">
-              <h3 className="text-2xl md:text-3xl font-bold text-[#1f2937] mb-4">{cfg.cta_title}</h3>
-              <p className="text-gray-500 text-lg">{cfg.cta_text}</p>
-            </div>
-            <Button href={cfg.cta_btn_link} variant="primary" icon={ArrowRight} className="shrink-0">
-              {cfg.cta_btn_label}
-            </Button>
-          </div>
+          {order[order.indexOf('logos') + 1] === 'cta' && ctaCard(true)}
         </div>
       </div>
+    ),
+
+    // CHAMADA FINAL sozinha (quando não está logo abaixo dos logos)
+    cta: order[order.indexOf('cta') - 1] === 'logos' ? null : (
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
+          {ctaCard(false)}
+        </div>
+      </div>
+    ),
+  };
+  // As faixas de largura total (texto e benefícios) que abrem a página ficam
+  // dentro do "respiro" abaixo do topo, como sempre foi.
+  const BANDS = ['texto', 'beneficios'];
+  let lead = 0;
+  while (lead < order.length && BANDS.includes(order[lead])) lead++;
+  const leadKeys = order.slice(0, lead);
+  const restKeys = order.slice(lead);
+
+  return (
+    <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-clip selection:bg-[#007a3d] selection:text-white flex flex-col">
+      <Navbar />
+
+      {/* HERO (mesmo topo padrão das outras páginas) */}
+      <EditablePageHero pageKey="associadas" defaults={DEFAULTS} scrollTargetId="beneficios" />
+
+      {/* Seções na ordem de Painel › Associadas › Ordem das seções */}
+      {leadKeys.length > 0 && (
+        <div className="pt-16 md:pt-24">
+          {leadKeys.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
+        </div>
+      )}
+      {restKeys.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
 
       <Footer />
     </div>
@@ -349,7 +384,9 @@ function BenefitsScroller({ cfg }) {
   return (
     <section id="beneficios" ref={wrap} className="relative"
       style={{ height: `calc(100vh + ${((n - 1) + EXIT_SLACK) * STEP_VH}vh)` }}>
-      <PhotoBand as="div" slides={slides} active={active} className="sticky top-0 h-screen flex items-center">
+      {/* Painel com foto (mais baixo que a tela, cantos arredondados) que fica parado enquanto os benefícios passam */}
+      <div className="sticky top-0 h-screen flex items-center px-4 md:px-6">
+      <PhotoBand as="div" slides={slides} active={active} className="w-full max-w-[1400px] mx-auto rounded-panel h-[clamp(460px,72vh,620px)] flex items-center shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
         <div ref={inner} className="container mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-12 gap-12 xl:gap-16 items-center w-full">
           <div className="col-span-5">
             {title}
@@ -365,7 +402,7 @@ function BenefitsScroller({ cfg }) {
               ))}
             </ol>
           </div>
-          <div className="col-span-7 relative h-[min(400px,54vh)]" data-no-reveal>
+          <div className="col-span-7 relative h-[min(360px,48vh)]" data-no-reveal>
             {items.map((b, i) => (
               <BenefitBig key={i} b={b}
                 state={i === active ? 'is-active' : i < active ? 'is-past' : 'is-next'} />
@@ -373,6 +410,7 @@ function BenefitsScroller({ cfg }) {
           </div>
         </div>
       </PhotoBand>
+      </div>
     </section>
   );
 }

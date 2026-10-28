@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminPage, AdminCard, useDirty, useConfirm } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check, Upload,
+  Home as HomeIcon, FileText, Users, LayoutGrid, Scroll, Sparkles, Calendar, Loader2, Check, Upload, ListOrdered,
 } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -11,6 +11,8 @@ import TeamManager from './inst/TeamManager';
 import TimelineManager from './inst/TimelineManager';
 import Field from '../../components/admin/kit/Field'; // campo padrão do painel
 import IconPicker from '../../components/admin/kit/IconPicker'; // escolha de ícone por clique
+import SectionOrderForm from '../../components/admin/SectionOrderForm';
+import { PAGE_SECTIONS, SECTION_ORDER_FIELD } from '../../utils/sectionOrder';
 
 const API = `${API_BASE_URL}/institucional.php`;
 
@@ -115,6 +117,7 @@ const TABS = [
   { id: 'estatuto',   label: 'Estatutos',     icon: Scroll },
   { id: 'timeline',   label: 'Linha do Tempo',icon: Calendar },
   { id: 'cta',        label: 'CTA Final',     icon: Sparkles },
+  { id: 'ordem',      label: 'Ordem das seções', icon: ListOrdered },
 ];
 
 const mergeCfg = (base, incoming) => {
@@ -180,7 +183,10 @@ export default function InstitucionalAdmin() {
     setError('');
     try {
       const fd = new FormData();
-      fd.append('content_json', JSON.stringify(config));
+      // A ordem das seções tem botão próprio (aba Ordem das seções): não vai
+      // junto aqui, senão uma versão antiga dela apagaria a nova.
+      const { [SECTION_ORDER_FIELD]: _ordem, ...toSave } = config;
+      fd.append('content_json', JSON.stringify(toSave));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const data = await apiRequest(API + '?resource=config', { method: 'POST', body: fd });
       const next = data && data.data ? mergeCfg(DEFAULTS, data.data) : config;
@@ -217,7 +223,7 @@ export default function InstitucionalAdmin() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard>
+     <AdminCard className={activeTab === 'ordem' ? 'hidden' : ''}>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -257,6 +263,10 @@ export default function InstitucionalAdmin() {
         <CtaForm cfg={config} set={set} onFile={handleFile} preview={pendingPreviews.cta_card_image} onRemoveImage={() => { set('cta_card_image', ''); dropPending('cta_card_image'); }} />
       )}
      </AdminCard>
+     {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+     <div className={activeTab === 'ordem' ? '' : 'hidden'}>
+       <SectionOrderForm pageKey="institucional_geral" endpoint={`${API}?resource=config`} sections={PAGE_SECTIONS.institucional} />
+     </div>
     </AdminPage>
   );
 }

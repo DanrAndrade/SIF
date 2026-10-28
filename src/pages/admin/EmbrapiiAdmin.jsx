@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Plus, Info, Layers, FolderKanban, Megaphone } from 'lucide-react';
+import { Loader2, Plus, Info, Layers, FolderKanban, Megaphone, ListOrdered } from 'lucide-react';
 import { AdminPage, AdminCard, SecondaryButton, ItemActions, moveItem, useDirty, useConfirm, ImageField } from '../../components/admin/kit';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
@@ -7,6 +7,8 @@ import { API_BASE_URL } from '../../apiConfig';
 import { savePageConfig, toastError, uploadImageNow } from '../../utils/adminApi';
 import { EMBRAPII_DEFAULTS, EMBRAPII_HERO_DEFAULTS } from '../../utils/embrapiiDefaults';
 import Field from '../../components/admin/kit/Field'; // campo padrão do painel
+import SectionOrderForm from '../../components/admin/SectionOrderForm';
+import { PAGE_SECTIONS } from '../../utils/sectionOrder';
 
 const PAGE_KEY = 'embrapii';
 const TABS = [
@@ -14,6 +16,7 @@ const TABS = [
   { id: 'secoes',   label: 'Seções',       icon: Layers },
   { id: 'projetos', label: 'Projetos',     icon: FolderKanban },
   { id: 'cta',      label: 'Fale conosco', icon: Megaphone },
+  { id: 'ordem',    label: 'Ordem das seções', icon: ListOrdered },
 ];
 const KEYS = Object.keys(EMBRAPII_DEFAULTS);
 
@@ -74,6 +77,8 @@ export default function EmbrapiiAdmin() {
       tabs={TABS} activeTab={tab} onTabChange={setTab}
     >
       <div className={tab === 'intro' ? '' : 'hidden'}><PageHeaderForm pageKey={PAGE_KEY} defaults={EMBRAPII_HERO_DEFAULTS} title="Cabeçalho da página" /></div>
+      {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+      <div className={tab === 'ordem' ? '' : 'hidden'}><SectionOrderForm pageKey={PAGE_KEY} sections={PAGE_SECTIONS.embrapii} /></div>
 
       {loading ? (
         <div className="text-center py-10"><Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto" /></div>

@@ -16,6 +16,7 @@ import { buttonClass, BtnArrow } from '../components/ui/Button';
 import AreasAtuacao from '../components/institucional/AreasAtuacao';
 import TeamDirectory from '../components/team/TeamDirectory';
 import { PageHeroView } from '../components/EditablePageHero';
+import { pageSectionOrder } from '../utils/sectionOrder';
 
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
@@ -240,219 +241,245 @@ export default function Institucional() {
     return () => clearTimeout(timer);
   }, [location.hash]);
 
+  // Seções móveis da página (a chave é a mesma salva em section_order).
+  // O topo e o rodapé ficam sempre fixos.
+  const blocks = {
+    // QUEM SOMOS
+    quem_somos: (
+        <div id="quem-somos" className="py-24">
+          <div className="container mx-auto px-6 md:px-12 lg:px-24">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                  <div className="space-y-8 animate-in slide-in-from-left duration-1000">
+                      <div className="w-16 h-1.5 bg-[#007a3d]"></div>
+                      <h2 className="sif-title sif-h2 text-[#1f2937] leading-[1.0] tracking-tight">
+                          {cfg.quem_somos_title_line1} <br/><span className="text-[#007a3d]">{cfg.quem_somos_title_highlight}</span>
+                      </h2>
+                      <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text1}</p>
+                      <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text2}</p>
+                  </div>
+                  <div className="relative animate-in zoom-in duration-1000">
+                      <div className="absolute inset-0 bg-emerald-100/50 rounded-panel translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
+                      <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
+                          {cfg.quem_somos_image ? (
+                            <img
+                                src={getImageUrl(cfg.quem_somos_image, 1280)}
+                                alt="Quem Somos"
+                                className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d]" />
+                          )}
+                          <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-sif-dark via-transparent to-transparent">
+                              <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
+                              <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+    ),
+
+    team: (
+      // NOSSA GENTE: some inteira quando não há ninguém visível
+      <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
+          <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+              <div className="text-center mb-20">
+                  <span className="sif-eyebrow mb-4">{cfg.team_tag}</span>
+                  <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.team_title}</h2>
+                  <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
+              </div>
+
+              {/* FILTRO + CARROSSEIS (componente comum: também usado na EMBRAPII) */}
+              <TeamDirectory groups={teamGroups.map((g) => ({ ...g, data: teamFromApi[g.key] }))} />
+          </div>
+      </div>
+    ),
+
+    // ÁREAS DE ATUAÇÃO / REGIONAL
+    areas: (
+      <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 overflow-hidden`}>
+          {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
+      </div>
+    ),
+
+    // ESTATUTO E NORMAS
+    estatuto: (
+      <div id="estatutos-normas" className="bg-transparent py-24 md:py-32">
+          <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+
+              {/* Cabeçalho */}
+              <div className="mb-20 max-w-3xl">
+                  <span className="sif-eyebrow mb-6 underline underline-offset-8">{cfg.estatuto_tag}</span>
+                  <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight mb-6">
+                      {cfg.estatuto_title_line1} <br/><span className="text-[#007a3d]">{cfg.estatuto_title_highlight}</span>
+                  </h2>
+                  <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
+              </div>
+
+              {/* BLOCOS DE DOCUMENTOS — vêm de cfg.estatuto_blocks (editáveis no admin) */}
+              {(Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : []).map((block, bIdx) => {
+                  const BlockIcon = AREA_ICON_MAP[block.icon] || FileText;
+                  return (
+                    <div key={bIdx} className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16 pb-16 border-b border-gray-200">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
+                                    <BlockIcon size={20} />
+                                </div>
+                                <h3 className="text-2xl font-semibold text-[#1f2937] font-heading tracking-tight">{block.title}</h3>
+                            </div>
+                            {block.subtitle && (
+                              <p className="text-[#007a3d] text-xs font-black uppercase tracking-[0.2em]">{block.subtitle}</p>
+                            )}
+                            {(block.paragraphs || []).map((p, i) => (
+                              <p key={i} className={i === 0 ? "text-gray-600 text-base leading-relaxed font-medium" : "text-gray-500 text-base leading-relaxed font-medium"}>{p}</p>
+                            ))}
+                        </div>
+                        <div className="flex flex-col gap-4">
+                            {(block.pdfs || []).map((pdf, i) => {
+                              const PdfIcon = AREA_ICON_MAP[pdf.icon] || FileText;
+                              const url = getImageUrl(pdf.url); // getImageUrl já trata /docs/ com a subpasta do site
+                              return (
+                                <a key={i} href={url} download className="group flex items-center gap-4 sm:gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-5 sm:p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
+                                  <div className="hidden sm:flex w-14 h-14 bg-white/15 rounded-xl items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
+                                      <PdfIcon size={24} />
+                                  </div>
+                                  <div className="flex-1 min-w-0 text-left">
+                                      <p className="font-bold uppercase text-[13px] sm:text-sm tracking-wide sm:tracking-widest leading-snug text-white mb-1">{pdf.label}</p>
+                                      <p className="text-[11px] sm:text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Baixar</p>
+                                  </div>
+                                  <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
+                                      <Download size={16} />
+                                  </div>
+                                </a>
+                              );
+                            })}
+                        </div>
+                    </div>
+                  );
+              })}
+
+              {/* Texto de Encerramento — centralizado */}
+              <div className="text-center max-w-3xl mx-auto">
+                  <h3 className="text-2xl md:text-3xl font-medium text-[#1f2937] font-heading leading-tight mb-10">
+                      {cfg.estatuto_footer_title_line1} <span className="text-[#007a3d]">{cfg.estatuto_footer_title_highlight}</span>
+                  </h3>
+                  <div className="space-y-5 text-gray-500 text-base leading-relaxed font-medium text-left">
+                      <p>{cfg.estatuto_footer_p1}</p>
+                      <p>{cfg.estatuto_footer_p2}</p>
+                      <p>{cfg.estatuto_footer_p3}</p>
+                      <p className="text-gray-400 italic border-l-2 border-[#007a3d] pl-4">{cfg.estatuto_footer_quote}</p>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+    ),
+
+    // LINHA DO TEMPO + CHAMADA FINAL
+    historia: (
+      <div id="historia" className="history-container py-24" ref={mainRef}>
+          <div className="container mx-auto px-6 md:px-12 max-w-7xl">
+              <div className="text-center mb-32 relative z-10 flex flex-col items-center">
+                  <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
+                  <span className="sif-eyebrow mb-6">{cfg.historia_tag}</span>
+                  <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] leading-[0.9] tracking-tighter">
+                      {cfg.historia_title_line1} <span className="text-[#007a3d]">{cfg.historia_title_highlight}</span><br/>{cfg.historia_title_line2}
+                  </h2>
+              </div>
+
+              <div className="relative space-y-10">
+                  {(timeline || [
+                      { year: 1974, title: "A <span class='text-[#007a3d]'>Fundação</span>", content: "Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.", image_url: "", layout: "image-left" },
+                      { year: 1975, title: "Revista <span class='text-[#007a3d]'>Árvore</span>", content: "Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.", image_url: "", layout: "image-right" },
+                      { year: 2020, title: "Unidade <span class='text-[#007a3d]'>EMBRAPII</span>", content: "O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.", image_url: "", layout: "image-left" },
+                      { year: 2021, title: "Expansão e <span class='text-[#007a3d]'>Startups</span>", content: "Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.", image_url: "", layout: "image-right" },
+                      { year: 2024, title: "O <span class='text-[#007a3d]'>Cinquentenário</span>", content: "Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.", image_url: "", layout: "image-left" },
+                  ]).map((item, i) => (
+                      <HistoryItem
+                          key={item.id ?? i}
+                          year={item.year}
+                          title={item.title}
+                          imgSrc={item.image_url && !item.image_url.startsWith('http') ? getImageUrl(item.image_url, 1024) : item.image_url}
+                          layout={item.layout || 'image-left'}
+                      >
+                          {item.content}
+                      </HistoryItem>
+                  ))}
+              </div>
+
+              {/* CTA FINAL */}
+              <div className="mt-32 text-center">
+                  <div className="timeline-marker w-1 h-1 bg-transparent mb-12 mx-auto"></div>
+                  <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] mb-12 leading-none">
+                      {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
+                  </h2>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                      {cfg.cta_btn1_label && (
+                        <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
+                            {cfg.cta_btn1_label}
+                        </Button>
+                      )}
+                      {cfg.cta_btn2_label && (
+                        <Button href={cfg.cta_btn2_link} variant="outline">
+                            {cfg.cta_btn2_label}
+                        </Button>
+                      )}
+                  </div>
+              </div>
+
+              {/* CARD DE CHAMADA — editável em Painel › Institucional › CTA Final */}
+              {cfg.cta_card_enabled !== false && (cfg.cta_card_title || cfg.cta_card_text) && (
+                <div className="mt-32 relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
+                  <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
+                  <div className={`relative grid grid-cols-1 ${cfg.cta_card_image ? 'md:grid-cols-2' : ''} items-stretch`}>
+                    <div className="p-10 md:p-16 flex flex-col justify-center">
+                      {cfg.cta_card_tag && <span className="text-[#b5e05c] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.cta_card_tag}</span>}
+                      {cfg.cta_card_title && <h2 className="sif-title sif-h2 leading-tight mb-6">{cfg.cta_card_title}</h2>}
+                      {cfg.cta_card_text && <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-2xl whitespace-pre-line">{cfg.cta_card_text}</p>}
+                      {cfg.cta_card_btn_label && (
+                        <div className="mt-8">
+                          <SmartLink href={cfg.cta_card_btn_link || '/contato'}
+                            className={buttonClass('light')}>
+                            <span className="py-2">{cfg.cta_card_btn_label}</span><BtnArrow variant="light" />
+                          </SmartLink>
+                        </div>
+                      )}
+                    </div>
+                    {cfg.cta_card_image && (
+                      <div className="relative min-h-[260px]">
+                        <img src={cfg.cta_card_image.startsWith('http') ? cfg.cta_card_image : getImageUrl(cfg.cta_card_image, 1024)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+          </div>
+      </div>
+    ),
+  };
+  // Na ordem padrão a 1ª seção (Quem Somos) fica solta e as outras vão
+  // dentro da faixa com respiro em cima (pt-20), como sempre foi.
+  const order = pageSectionOrder('institucional', cfg);
+  const [firstKey, ...restKeys] = order;
+  // Seta do topo: rola até a seção que ficou em primeiro
+  const FIRST_IDS = { quem_somos: 'quem-somos', team: 'nossa-gente', areas: 'areas-atuacao', estatuto: 'estatutos-normas', historia: 'historia' };
+
   return (
     <div className="sif-page min-h-screen font-sans text-[#1f2937] overflow-x-hidden selection:bg-[#007a3d] selection:text-white flex flex-col">
       <Navbar />
 
       {/* Topo no mesmo formato das outras páginas (components/EditablePageHero) */}
       {heroReady
-        ? <PageHeroView cfg={cfg} scrollTargetId="quem-somos" />
+        ? <PageHeroView cfg={cfg} scrollTargetId={FIRST_IDS[firstKey] || 'quem-somos'} />
         : <div className="min-h-[64vh] bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]" />}
 
-      {/* QUEM SOMOS */}
-      <div id="quem-somos" className="py-24">
-        <div className="container mx-auto px-6 md:px-12 lg:px-24">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                <div className="space-y-8 animate-in slide-in-from-left duration-1000">
-                    <div className="w-16 h-1.5 bg-[#007a3d]"></div>
-                    <h2 className="sif-title sif-h2 text-[#1f2937] leading-[1.0] tracking-tight">
-                        {cfg.quem_somos_title_line1} <br/><span className="text-[#007a3d]">{cfg.quem_somos_title_highlight}</span>
-                    </h2>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text1}</p>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium">{cfg.quem_somos_text2}</p>
-                </div>
-                <div className="relative animate-in zoom-in duration-1000">
-                    <div className="absolute inset-0 bg-emerald-100/50 rounded-panel translate-x-10 translate-y-10 -z-10 blur-3xl"></div>
-                    <div className="rounded-panel overflow-hidden shadow-2xl relative aspect-[4/5] lg:aspect-square">
-                        {cfg.quem_somos_image ? (
-                          <img
-                              src={getImageUrl(cfg.quem_somos_image, 1280)}
-                              alt="Quem Somos"
-                              className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[#1B5E20] to-[#007a3d]" />
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-sif-dark via-transparent to-transparent">
-                            <p className="text-white text-sm font-bold uppercase tracking-[0.2em] opacity-80 mb-2">{cfg.quem_somos_image_caption_top}</p>
-                            <p className="text-white text-2xl font-bold uppercase font-heading">{cfg.quem_somos_image_caption_main}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
+      {/* Seções na ordem de Painel › Institucional › Ordem das seções */}
+      <React.Fragment key={firstKey}>{blocks[firstKey]}</React.Fragment>
 
       <div className="bg-transparent pt-20">
-        {/* NOSSA GENTE — some inteira quando não há ninguém visível */}
-        <div id="nossa-gente" className={`py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
-            <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-                <div className="text-center mb-20">
-                    <span className="sif-eyebrow mb-4">{cfg.team_tag}</span>
-                    <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.team_title}</h2>
-                    <p className="text-gray-400 mt-8 max-w-2xl mx-auto font-medium text-base">{cfg.team_subtitle}</p>
-                </div>
-
-                {/* FILTRO + CARROSSEIS (componente comum: também usado na EMBRAPII) */}
-                <TeamDirectory groups={teamGroups.map((g) => ({ ...g, data: teamFromApi[g.key] }))} />
-            </div>
-        </div>
-        
-        {/* ÁREAS DE ATUAÇÃO / REGIONAL */}
-        <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-24 md:py-32 overflow-hidden`}>
-            {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
-        </div>
-
-        {/* ESTATUTO E NORMAS */}
-        <div id="estatutos-normas" className="bg-transparent py-24 md:py-32">
-            <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-
-                {/* Cabeçalho */}
-                <div className="mb-20 max-w-3xl">
-                    <span className="sif-eyebrow mb-6 underline underline-offset-8">{cfg.estatuto_tag}</span>
-                    <h2 className="sif-title sif-h2 text-[#1f2937] leading-tight mb-6">
-                        {cfg.estatuto_title_line1} <br/><span className="text-[#007a3d]">{cfg.estatuto_title_highlight}</span>
-                    </h2>
-                    <p className="text-gray-500 text-base leading-relaxed font-medium max-w-2xl">{cfg.estatuto_subtitle}</p>
-                </div>
-
-                {/* BLOCOS DE DOCUMENTOS — vêm de cfg.estatuto_blocks (editáveis no admin) */}
-                {(Array.isArray(cfg.estatuto_blocks) ? cfg.estatuto_blocks : []).map((block, bIdx) => {
-                    const BlockIcon = AREA_ICON_MAP[block.icon] || FileText;
-                    return (
-                      <div key={bIdx} className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16 pb-16 border-b border-gray-200">
-                          <div className="space-y-4">
-                              <div className="flex items-center gap-3 mb-4">
-                                  <div className="w-10 h-10 rounded-xl bg-[#007a3d]/10 flex items-center justify-center text-[#007a3d]">
-                                      <BlockIcon size={20} />
-                                  </div>
-                                  <h3 className="text-2xl font-semibold text-[#1f2937] font-heading tracking-tight">{block.title}</h3>
-                              </div>
-                              {block.subtitle && (
-                                <p className="text-[#007a3d] text-xs font-black uppercase tracking-[0.2em]">{block.subtitle}</p>
-                              )}
-                              {(block.paragraphs || []).map((p, i) => (
-                                <p key={i} className={i === 0 ? "text-gray-600 text-base leading-relaxed font-medium" : "text-gray-500 text-base leading-relaxed font-medium"}>{p}</p>
-                              ))}
-                          </div>
-                          <div className="flex flex-col gap-4">
-                              {(block.pdfs || []).map((pdf, i) => {
-                                const PdfIcon = AREA_ICON_MAP[pdf.icon] || FileText;
-                                const url = getImageUrl(pdf.url); // getImageUrl já trata /docs/ com a subpasta do site
-                                return (
-                                  <a key={i} href={url} download className="group flex items-center gap-4 sm:gap-6 bg-gradient-to-br from-[#004d26] to-[#00a855] border border-transparent rounded-2xl p-5 sm:p-6 hover:from-[#003d1e] hover:to-[#007a3d] transition-all duration-300 shadow-md">
-                                    <div className="hidden sm:flex w-14 h-14 bg-white/15 rounded-xl items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-110 transition-all shrink-0">
-                                        <PdfIcon size={24} />
-                                    </div>
-                                    <div className="flex-1 min-w-0 text-left">
-                                        <p className="font-bold uppercase text-[13px] sm:text-sm tracking-wide sm:tracking-widest leading-snug text-white mb-1">{pdf.label}</p>
-                                        <p className="text-[11px] sm:text-xs text-white/70 font-bold uppercase tracking-widest group-hover:text-white">PDF • Baixar</p>
-                                    </div>
-                                    <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all shrink-0">
-                                        <Download size={16} />
-                                    </div>
-                                  </a>
-                                );
-                              })}
-                          </div>
-                      </div>
-                    );
-                })}
-
-                {/* Texto de Encerramento — centralizado */}
-                <div className="text-center max-w-3xl mx-auto">
-                    <h3 className="text-2xl md:text-3xl font-medium text-[#1f2937] font-heading leading-tight mb-10">
-                        {cfg.estatuto_footer_title_line1} <span className="text-[#007a3d]">{cfg.estatuto_footer_title_highlight}</span>
-                    </h3>
-                    <div className="space-y-5 text-gray-500 text-base leading-relaxed font-medium text-left">
-                        <p>{cfg.estatuto_footer_p1}</p>
-                        <p>{cfg.estatuto_footer_p2}</p>
-                        <p>{cfg.estatuto_footer_p3}</p>
-                        <p className="text-gray-400 italic border-l-2 border-[#007a3d] pl-4">{cfg.estatuto_footer_quote}</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div id="historia" className="history-container py-24" ref={mainRef}>
-            <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-                <div className="text-center mb-32 relative z-10 flex flex-col items-center">
-                    <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
-                    <span className="sif-eyebrow mb-6">{cfg.historia_tag}</span>
-                    <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] leading-[0.9] tracking-tighter">
-                        {cfg.historia_title_line1} <span className="text-[#007a3d]">{cfg.historia_title_highlight}</span><br/>{cfg.historia_title_line2}
-                    </h2>
-                </div>
-
-                <div className="relative space-y-10">
-                    {(timeline || [
-                        { year: 1974, title: "A <span class='text-[#007a3d]'>Fundação</span>", content: "Criação da SIF através da união entre a UFV e as principais empresas florestais do país, estabelecendo um modelo inédito de parceria universidade-empresa no Brasil.", image_url: "", layout: "image-left" },
-                        { year: 1975, title: "Revista <span class='text-[#007a3d]'>Árvore</span>", content: "Lançamento da Revista Árvore, que se consolidaria como um dos principais periódicos científicos do setor, democratizando o conhecimento gerado em âmbito acadêmico.", image_url: "", layout: "image-right" },
-                        { year: 2020, title: "Unidade <span class='text-[#007a3d]'>EMBRAPII</span>", content: "O credenciamento do Departamento de Engenharia Florestal da UFV como Unidade EMBRAPII Fibras Florestais, sob gestão da SIF, potencializou o aporte de recursos para projetos de alta densidade tecnológica.", image_url: "", layout: "image-left" },
-                        { year: 2021, title: "Expansão e <span class='text-[#007a3d]'>Startups</span>", content: "Início do Ciclo 2 da EMBRAPII, ampliando a atuação da SIF para o suporte a startups e a inserção de novos produtos tecnológicos no mercado.", image_url: "", layout: "image-right" },
-                        { year: 2024, title: "O <span class='text-[#007a3d]'>Cinquentenário</span>", content: "Celebração de 50 anos de história, marcando a maturidade institucional e a renovação dos compromissos com a inovação sustentável e o setor produtivo nacional.", image_url: "", layout: "image-left" },
-                    ]).map((item, i) => (
-                        <HistoryItem
-                            key={item.id ?? i}
-                            year={item.year}
-                            title={item.title}
-                            imgSrc={item.image_url && !item.image_url.startsWith('http') ? getImageUrl(item.image_url, 1024) : item.image_url}
-                            layout={item.layout || 'image-left'}
-                        >
-                            {item.content}
-                        </HistoryItem>
-                    ))}
-                </div>
-
-                {/* CTA FINAL */}
-                <div className="mt-32 text-center">
-                    <div className="timeline-marker w-1 h-1 bg-transparent mb-12 mx-auto"></div>
-                    <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] mb-12 leading-none">
-                        {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
-                    </h2>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        {cfg.cta_btn1_label && (
-                          <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
-                              {cfg.cta_btn1_label}
-                          </Button>
-                        )}
-                        {cfg.cta_btn2_label && (
-                          <Button href={cfg.cta_btn2_link} variant="outline">
-                              {cfg.cta_btn2_label}
-                          </Button>
-                        )}
-                    </div>
-                </div>
-
-                {/* CARD DE CHAMADA — editável em Painel › Institucional › CTA Final */}
-                {cfg.cta_card_enabled !== false && (cfg.cta_card_title || cfg.cta_card_text) && (
-                  <div className="mt-32 relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
-                    <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
-                    <div className={`relative grid grid-cols-1 ${cfg.cta_card_image ? 'md:grid-cols-2' : ''} items-stretch`}>
-                      <div className="p-10 md:p-16 flex flex-col justify-center">
-                        {cfg.cta_card_tag && <span className="text-[#b5e05c] font-bold uppercase tracking-widest text-xs mb-4 block">{cfg.cta_card_tag}</span>}
-                        {cfg.cta_card_title && <h2 className="sif-title sif-h2 leading-tight mb-6">{cfg.cta_card_title}</h2>}
-                        {cfg.cta_card_text && <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-2xl whitespace-pre-line">{cfg.cta_card_text}</p>}
-                        {cfg.cta_card_btn_label && (
-                          <div className="mt-8">
-                            <SmartLink href={cfg.cta_card_btn_link || '/contato'}
-                              className={buttonClass('light')}>
-                              <span className="py-2">{cfg.cta_card_btn_label}</span><BtnArrow variant="light" />
-                            </SmartLink>
-                          </div>
-                        )}
-                      </div>
-                      {cfg.cta_card_image && (
-                        <div className="relative min-h-[260px]">
-                          <img src={cfg.cta_card_image.startsWith('http') ? cfg.cta_card_image : getImageUrl(cfg.cta_card_image, 1024)} alt="" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-            </div>
-        </div>
+        {restKeys.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
       </div>
 
       <Footer />

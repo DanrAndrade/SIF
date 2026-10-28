@@ -15,6 +15,7 @@ import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
 
 import { usePageConfig } from '../hooks/usePageConfig';
+import { pageSectionOrder } from '../utils/sectionOrder';
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -112,6 +113,61 @@ export default function Home() {
     return () => clearTimeout(id);
   }, [config]);
 
+  // Seções móveis da Home (a chave é a mesma salva em section_order).
+  // O bloco verde do topo (vídeo/foto + Missão, Visão e Valores) e o rodapé
+  // ficam sempre fixos no lugar.
+  const order = pageSectionOrder('home', config);
+  const blocks = {
+    banners: <BannerCarousel />,
+
+    // --- SOBRE NÓS ---
+    about: (
+      <div id="quem-somos" className="py-12">
+        <About config={config.about} />
+      </div>
+    ),
+
+    // --- NÚMEROS (bento com contagem animada) ---
+    numbers: (
+      <div>{/* caixa fixa: o bloco aparece/some sem mexer nos vizinhos */}
+        <NumbersBento config={config.numbers} />
+      </div>
+    ),
+
+    // --- PRODUTOS E SERVIÇOS ---
+    // caixa fixa: a animação de travar a rolagem (GSAP) mexe só aqui dentro
+    services: (
+      <div>
+        <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
+      </div>
+    ),
+
+    // --- PARCEIROS ---
+    partners: <Partners />,
+
+    // --- TRABALHE CONOSCO (card para a página de vagas) ---
+    jobs_cta: <JobsCtaSection config={config.jobs_cta} />,
+
+    // --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) ---
+    process: (
+      <div className="py-14 px-0 md:py-24 md:px-6">
+        <div className="w-full max-w-[1280px] mx-auto px-0">
+          <Process config={config.process} />
+        </div>
+      </div>
+    ),
+
+    faq: <FAQ pageKey="home" sideConfig={config.faq_side} />,
+  };
+  const orderSig = order.join(',');
+
+  // Ordem mudou (chegou do banco): as seções andaram de lugar, então o pin
+  // dos Serviços precisa recalcular onde começa e termina.
+  useEffect(() => {
+    const id = setTimeout(() => scrollTriggerRef.current?.refresh(), 150);
+    return () => clearTimeout(id);
+  }, [orderSig]);
+
     return (
         <div className="sif-app sif-page font-sans text-[#1f2937] overflow-x-hidden w-full selection:bg-[#007a3d] selection:text-white">
           <Navbar 
@@ -144,39 +200,12 @@ export default function Home() {
               </div>
           </div>
 
-          <BannerCarousel />
+          {/* Seções abaixo do topo, na ordem de Painel › Home › Ordem das
+              seções (sem nada salvo: a ordem padrão de sempre). Cada uma vai
+              num Fragment com chave: ao trocar a ordem o React só MOVE o
+              bloco, sem recriar (o pin dos Serviços continua montado). */}
+          {order.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
 
-          {/* --- SOBRE NÓS --- */}
-          <div id="quem-somos" className="py-12">
-            <About config={config.about} />
-          </div>
-
-          {/* --- NÚMEROS (bento com contagem animada), abaixo de Quem Somos --- */}
-          <div>{/* caixa fixa: o bloco aparece/some sem mexer nos vizinhos */}
-            <NumbersBento config={config.numbers} />
-          </div>
-
-          {/* --- PRODUTOS E SERVIÇOS --- */}
-          {/* caixa fixa: a animação de travar a rolagem (GSAP) mexe só aqui dentro */}
-          <div>
-            <Services sectionRef={servicesSectionRef} trackRef={servicesTrackRef} config={config.services} />
-          </div>
-
-          {/* --- PARCEIROS --- */}
-          <Partners />
-
-          {/* --- TRABALHE CONOSCO (card para a página de vagas) --- */}
-          <JobsCtaSection config={config.jobs_cta} />
-
-          {/* --- INOVAÇÃO E TRANSPARÊNCIA (PROCESS) --- */}
-      <div className="py-14 px-0 md:py-24 md:px-6">
-        <div className="w-full max-w-[1280px] mx-auto px-0">
-            <Process config={config.process} />
-        </div>
-      </div>
-
-
-      <FAQ pageKey="home" sideConfig={config.faq_side} />
       <Footer />
     </div>
   );

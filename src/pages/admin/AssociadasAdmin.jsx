@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AdminPage, AdminCard, useDirty, useConfirm, ItemActions, moveItem, SaveButton, SecondaryButton, useUnsavedGuard } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft,
+  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft, ListOrdered,
 } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
 import { apiRequest, toastError } from '../../utils/adminApi';
 import Field from '../../components/admin/kit/Field'; // campo padrão do painel
+import SectionOrderForm from '../../components/admin/SectionOrderForm';
+import { PAGE_SECTIONS, SECTION_ORDER_FIELD } from '../../utils/sectionOrder';
 
 const ASSOC_URL = `${API_BASE_URL}/associadas.php`;
 const PAGE_URL = `${API_BASE_URL}/page_content.php`;
@@ -84,6 +86,7 @@ const TABS = [
   { id: 'beneficios', label: 'Benefícios',   icon: Award },
   { id: 'empresas',   label: 'Empresas',     icon: Building2 },
   { id: 'cta',        label: 'CTA Final',    icon: Sparkles },
+  { id: 'ordem',      label: 'Ordem das seções', icon: ListOrdered },
 ];
 
 const mergeCfg = (base, incoming) => {
@@ -171,7 +174,10 @@ export default function AssociadasAdmin() {
     try {
       const fd = new FormData();
       fd.append('page', 'associadas');
-      fd.append('content_json', JSON.stringify(config));
+      // A ordem das seções tem botão próprio (aba Ordem das seções): não vai
+      // junto aqui, senão uma versão antiga dela apagaria a nova.
+      const { [SECTION_ORDER_FIELD]: _ordem, ...toSave } = config;
+      fd.append('content_json', JSON.stringify(toSave));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
       const next = data && data.data ? mergeCfg(DEFAULTS, data.data) : config;
@@ -208,7 +214,7 @@ export default function AssociadasAdmin() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard>
+     <AdminCard className={activeTab === 'ordem' ? 'hidden' : ''}>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -227,6 +233,10 @@ export default function AssociadasAdmin() {
         <CtaForm cfg={config} set={set} />
       )}
      </AdminCard>
+     {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+     <div className={activeTab === 'ordem' ? '' : 'hidden'}>
+       <SectionOrderForm pageKey="associadas" sections={PAGE_SECTIONS.associadas} />
+     </div>
     </AdminPage>
   );
 }

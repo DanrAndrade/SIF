@@ -4,13 +4,15 @@ import { GRADIENT_PRESETS, TEXTURES, resolveGradient } from '../../utils/homeVis
 import axios from 'axios';
 import {
   Save, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase,
+  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase, ListOrdered,
 } from 'lucide-react';
 import { Input, TextArea } from '../ui/FormElements';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
 import { uploadImageNow, toastError, apiRequest } from '../../utils/adminApi';
 import AdminFAQ from './AdminFAQ';
+import SectionOrderForm from './SectionOrderForm';
+import { PAGE_SECTIONS, SECTION_ORDER_FIELD } from '../../utils/sectionOrder';
 
 const PAGE_KEY = 'home';
 const API_URL = `${API_BASE_URL}/page_content.php`;
@@ -141,6 +143,7 @@ const TABS = [
   { id: 'process',     label: 'Explore Recursos', icon: Compass },
   { id: 'jobs_cta',    label: 'Trabalhe Conosco', icon: Briefcase },
   { id: 'faq',         label: 'FAQ',          icon: HelpCircle },
+  { id: 'ordem',       label: 'Ordem das seções', icon: ListOrdered },
 ];
 
 export default function AdminHome() {
@@ -192,7 +195,10 @@ export default function AdminHome() {
     try {
       const fd = new FormData();
       fd.append('page', PAGE_KEY);
-      fd.append('content_json', JSON.stringify(config));
+      // A ordem das seções tem botão próprio (aba Ordem das seções): não vai
+      // junto aqui, senão uma versão antiga dela apagaria a nova.
+      const { [SECTION_ORDER_FIELD]: _ordem, ...toSave } = config;
+      fd.append('content_json', JSON.stringify(toSave));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const res = await axios.post(API_URL, fd);
       const next = res.data && res.data.data ? mergeConfig(DEFAULTS, res.data.data) : config;
@@ -230,7 +236,7 @@ export default function AdminHome() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard>
+     <AdminCard className={activeTab === 'ordem' ? 'hidden' : ''}>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -266,6 +272,10 @@ export default function AdminHome() {
         </div>
       )}
      </AdminCard>
+     {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+     <div className={activeTab === 'ordem' ? '' : 'hidden'}>
+       <SectionOrderForm pageKey={PAGE_KEY} sections={PAGE_SECTIONS.home} fixedTop="Topo verde (vídeo ou foto + Missão, Visão e Valores)" />
+     </div>
     </AdminPage>
   );
 }

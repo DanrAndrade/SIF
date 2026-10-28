@@ -5,6 +5,8 @@ import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from './PageHeaderForm';
+import SectionOrderForm from './SectionOrderForm';
+import { PAGE_SECTIONS } from '../../utils/sectionOrder';
 import PageContentForm from './PageContentForm';
 
 import { API_BASE_URL } from '../../apiConfig';
@@ -357,6 +359,7 @@ export const JobsManagerView = () => {
             actions={<PrimaryButton icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova vaga</PrimaryButton>}>
             <PageHeaderForm pageKey="jobs" defaults={JOBS_HERO_DEFAULTS} title="Cabeçalho da página /trabalhe-conosco" />
             <PageContentForm pageKey="jobs" defaults={JOBS_CONTENT_DEFAULTS} fields={JOBS_CONTENT_FIELDS} title="Textos da página /trabalhe-conosco" />
+            <SectionOrderForm pageKey="jobs" sections={PAGE_SECTIONS.jobs} title="Ordem das seções da página /trabalhe-conosco" />
             <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest pt-2">Vagas cadastradas</h3>
             <div className="grid gap-4">
                 {jobs.map(job => (
