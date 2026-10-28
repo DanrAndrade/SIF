@@ -8,7 +8,7 @@ import { registerQuillImageAlign } from '../utils/quillImageAlign';
 // não há mais como aplicar isso a novo conteúdo.
 registerQuillImageAlign();
 
-const DEFAULT_TOOLBAR = [
+export const DEFAULT_TOOLBAR = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   ['bold', 'italic', 'underline', 'strike', 'blockquote'],
   [{ align: [] }],

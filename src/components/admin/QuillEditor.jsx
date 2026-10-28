@@ -1,7 +1,8 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { useQuillImageHandler } from '../../hooks/useQuillImageHandler';
+import { useQuillImageHandler, DEFAULT_TOOLBAR } from '../../hooks/useQuillImageHandler';
+import { BLOG_FONTS, loadBlogFonts } from '../../utils/blogFonts';
 import { API_BASE_URL, getImageUrl, fixUploadUrls } from '../../apiConfig';
 import { quillListsToSemantic } from '../../utils/quillHtml';
 
@@ -10,6 +11,14 @@ import { quillListsToSemantic } from '../../utils/quillHtml';
 // some na faixa verde escura do site). Com esta lista, só fica o que a barra
 // oferece (negrito, títulos, listas, links, imagens, vídeo...).
 const FORMATS = ['header', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'align', 'list', 'indent', 'link', 'image', 'video', 'imageAlign'];
+
+// Escolha de fonte (só no editor do blog, prop "fonts"): salva como class="ql-font-<nome>".
+// Montserrat é o padrão (sem classe).
+const FontClass = Quill.import('attributors/class/font');
+FontClass.whitelist = BLOG_FONTS.map(f => f.key);
+Quill.register(FontClass, true);
+const FONT_TOOLBAR = [[{ font: [false, ...BLOG_FONTS.map(f => f.key)] }], ...DEFAULT_TOOLBAR];
+const FONT_FORMATS = [...FORMATS, 'font'];
 
 // Listas coladas do Word chegam como parágrafos "·  item". Aqui viram lista de verdade.
 const Delta = Quill.import('delta');
@@ -47,8 +56,9 @@ async function uploadDataImage(dataUrl) {
   return getImageUrl(data.url);
 }
 
-export default function QuillEditor({ value, onChange, height = 'h-[550px]', className = '' }) {
-  const { quillRef, modules: baseModules } = useQuillImageHandler();
+export default function QuillEditor({ value, onChange, height = 'h-[550px]', className = '', fonts = false }) {
+  const { quillRef, modules: baseModules } = useQuillImageHandler(fonts ? FONT_TOOLBAR : undefined);
+  useEffect(() => { if (fonts) loadBlogFonts(); }, [fonts]); // prévia das fontes no editor
   const modules = React.useMemo(() => ({ ...baseModules, clipboard: { ...(baseModules.clipboard || {}), matchers: WORD_MATCHERS } }), [baseModules]);
   // Ao abrir, o editor "arruma" o HTML (ex.: põe <p>) e avisaria mudança sem
   // ninguém mexer — aparecia "Alterações não salvas" à toa. Só repassamos
@@ -108,7 +118,7 @@ export default function QuillEditor({ value, onChange, height = 'h-[550px]', cla
         modules={modules}
         value={local}
         onChange={handleChange}
-        formats={FORMATS}
+        formats={fonts ? FONT_FORMATS : FORMATS}
         useSemanticHTML={false}
         className="flex-1 min-h-0 flex flex-col"
       />

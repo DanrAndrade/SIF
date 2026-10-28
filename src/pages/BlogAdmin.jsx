@@ -323,6 +323,7 @@ export default function BlogAdmin() {
             </div>
 
             <QuillEditor
+              fonts
               value={formData.content}
               onChange={val => setFormData(f => ({...f, content: val}))}
               height="h-[800px]"

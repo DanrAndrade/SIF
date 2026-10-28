@@ -285,13 +285,15 @@ export function CtaBlock({ sec }) {
 }
 
 export function TabsBlock({ sec, dark }) {
-  const tabs = (sec.tabs || []).filter(t => t && (t.title || htmlToText(t.content || '').trim()));
+  // aba vale se tem título, texto ou mídia (conteúdo antigo às vezes é só uma imagem)
+  const tabs = (sec.tabs || []).filter(t => t && (t.title || htmlToText(t.content || '').trim() || /<(img|iframe|video)/i.test(t.content || '')));
   const [active, setActive] = useState(0);
   const cur = tabs[Math.min(active, tabs.length - 1)];
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className="flex flex-wrap gap-2 mb-6" role="tablist">
+      {/* uma aba só e sem título: mostra o conteúdo direto, sem a barra */}
+      {!(tabs.length === 1 && !tabs[0].title) && <div className="flex flex-wrap gap-2 mb-6" role="tablist">
         {tabs.map((t, i) => (
           <button key={i} type="button" role="tab" aria-selected={active === i} onClick={() => setActive(i)}
             className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all border ${active === i
@@ -300,7 +302,7 @@ export function TabsBlock({ sec, dark }) {
             {t.title || `Aba ${i + 1}`}
           </button>
         ))}
-      </div>
+      </div>}
       {cur && (
         <div className={`rounded-card p-6 md:p-10 ${dark ? 'bg-white/[0.06] border border-white/10' : 'sif-card border border-gray-100'}`}>
           <div className={proseCls(dark)} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />

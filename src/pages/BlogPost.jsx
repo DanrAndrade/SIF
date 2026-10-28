@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { loadBlogFonts } from '../utils/blogFonts';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, ChevronLeft, ArrowLeft, Tag as TagIcon, ArrowRight, AlertCircle, Newspaper } from 'lucide-react';
@@ -30,6 +31,7 @@ export default function BlogPost() {
   const [post, setPost] = useState(null);
   usePageTitle(post?.title); // título da aba do navegador / Google
   useSeo({ description: post?.content, image: post?.image_url ? getImageUrl(post.image_url) : undefined, type: 'article' });
+  useEffect(() => { if (post?.content) loadBlogFonts(post.content); }, [post?.content]); // fontes escolhidas no texto
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

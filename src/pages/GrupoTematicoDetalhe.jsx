@@ -76,7 +76,8 @@ export default function GrupoTematicoDetalhe() {
 
   // Menu da página: blocos que aparecem e têm título
   const visible = renderableSections(sections, special)
-    .filter(s => !(s.type === 'gt_blog' && !(posts && posts.length)));
+    .filter(s => !(s.type === 'gt_blog' && !(posts && posts.length)))
+    .filter(s => !(s.type === 'gt_contact' && !hasContact)); // sem responsável: sem botão, menu e card
   const navItems = visible.filter(s => s.title).map(s => ({ id: sectionAnchor(s), title: s.title }));
 
   useEffect(() => {

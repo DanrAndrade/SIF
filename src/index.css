@@ -551,3 +551,14 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 .sif-area-in { animation: sif-area-in .8s cubic-bezier(.22,1,.36,1) both; }
 .sif-card-in { animation: sif-card-in .8s cubic-bezier(.22,1,.36,1) both; }
 @media (prefers-reduced-motion: reduce) { .sif-area-in, .sif-card-in { animation: none; } }
+
+/* Fontes do texto dos posts do blog (src/utils/blogFonts.js) */
+.ql-font-merriweather { font-family: 'Merriweather', Georgia, serif; }
+.ql-font-playfair { font-family: 'Playfair Display', Georgia, serif; }
+.ql-toolbar.ql-snow .ql-picker.ql-font { width: 150px; }
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-label::before,
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Montserrat'; }
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="merriweather"]::before,
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="merriweather"]::before { content: 'Merriweather'; font-family: 'Merriweather', Georgia, serif; }
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
+.ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Playfair Display'; font-family: 'Playfair Display', Georgia, serif; }
