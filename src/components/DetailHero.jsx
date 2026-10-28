@@ -16,10 +16,12 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
   return (
     <header className="relative min-h-[64vh] flex items-end pt-32 pb-14 md:pb-20 overflow-hidden bg-[#0b2116] rounded-bl-[40px] md:rounded-bl-[80px]">
       {cover && <ParallaxLayer><img src={cover} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover" /></ParallaxLayer>}
-      <div className="absolute inset-0" style={{ background: `linear-gradient(100deg, rgba(5,18,11,.92) 0%, rgba(5,18,11,.72) 45%, ${color}55 100%)` }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Película bem leve (quase invisível): só um escurecimento suave atrás do texto */}
+      {cover && <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,18,11,.42) 0%, rgba(5,18,11,.16) 45%, rgba(5,18,11,0) 75%)' }} />}
+      {cover && <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/30 to-transparent" />}
 
-      <div className="relative w-full sif-container">
+      {/* sombra suave nas letras: texto legível mesmo em foto clara */}
+      <div className="relative w-full sif-container [text-shadow:0_2px_18px_rgba(0,0,0,.45)]">
         <nav aria-label="Você está em" className="flex flex-wrap items-center gap-2 text-xs text-white/60 mb-8">
           <Link to="/" className="hover:text-white">Início</Link>
           {crumbs.map((c, i) => (
