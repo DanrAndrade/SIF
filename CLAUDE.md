@@ -1,9 +1,14 @@
 # Manual de setup automatizado — SIF
 
 > **⚠️ IA: ANTES DE QUALQUER COISA, leia `HANDOFF-IA.md` na raiz.** Ele tem o
-> contexto da conversa anterior, as regras de deploy da HostGator e o bug
-> aberto no momento. Se o ambiente local já estiver rodando, pule o setup
-> abaixo.
+> contexto da conversa anterior e as regras de deploy da HostGator. A seção
+> 14 resume o estado atual (nov/2026), e **`PEDIDOS-SIF.md`** lista todos os
+> pedidos da SIF, feitos e pendentes. Se o ambiente local já estiver rodando,
+> pule o setup abaixo.
+>
+> **Ambiente local atual:** o site roda em `http://localhost:3000` e o MySQL na
+> porta 3307 com o banco `sif_producao`, uma cópia de produção (ver HANDOFF-IA
+> §14). As portas 5173 e 3306 abaixo são do setup original.
 
 > **Para a IA que está lendo isto:** este documento descreve como deixar
 > o projeto SIF rodando localmente do zero. Execute cada etapa em ordem,

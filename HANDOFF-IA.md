@@ -3,7 +3,7 @@
 > **Para a IA que está lendo isto (no notebook de trabalho):** esta conversa
 > começou em outro PC. Este arquivo tem tudo o que você precisa pra continuar
 > de onde paramos. Leia inteiro antes de mexer em qualquer coisa.
-> Escrito em 2026-09-29.
+> Escrito em 2026-09-29; atualizado em 2026-11-24 (ver seção 14 e `PEDIDOS-SIF.md`).
 
 ---
 
@@ -279,3 +279,82 @@ Tudo commitado localmente; **não publicado**. Resumo do que mudou e onde:
 
 - **Criar um GT de demonstração** (ex.: "GT Exemplo: novos recursos", oculto do menu ou marcado como exemplo) usando TODOS os blocos novos da página de Grupo Temático: números, cards com texto que sobe no hover, equipe com fotos, galeria, vídeo, arquivos para baixar, abas, logos de empresas, citação, chamada, blog do grupo e card do responsável. Motivo: os 9 GTs reais foram cadastrados no modelo antigo (texto corrido e imagens soltas, estilo blog) e não mostram o que a página nova é capaz. O GT de exemplo serve para a equipe da SIF ver e copiar o formato.
 - Capas dos GTs em produção são artes com letreiro (ex.: "GT COLHEITA"); com a película quase invisível do topo, recomendar trocar por fotos.
+
+## 14. Novembro/2026: pedidos da SIF, Produtos e Serviços e revisão de design
+
+> Lista completa de pedidos (feitos e pendentes): **`PEDIDOS-SIF.md`** na raiz.
+
+### Como o Dan trabalha agora (preferências confirmadas)
+- Responder **sempre em português**; o Dan não lê inglês.
+- Textos do site sem travessão "—" e sem "cara de IA": nada de pílula com bolinha, borda
+  colorida no topo de card, ícone quadrado ou degradê roxo/azul. **Só tons de verde** e
+  site claro.
+- Não mudar conteúdo nem ordem sem autorização e não inventar conteúdo. Ao refazer uma
+  página, usar os textos que a SIF já cadastrou; títulos curtos podem sair do próprio texto.
+- Sem comentários nem rastros de IA no build de produção. Os PHP do pacote vão **sem
+  comentários**.
+- Commit e push frequentes, porque o notebook tem problema de boot. O push está liberado;
+  **nunca** usar `--force`.
+- Subagentes só com o modelo **sonnet**, porque opus é caro.
+- Todo arquivo gerado (zip, SQL, PDF) vai no chat **e** fica em `Downloads`.
+- Zip de deploy: `index.html`, `assets/` e `sif-api/` **direto na raiz do zip**, sem
+  pasta por fora. Extrair em `public_html/sif-novo-h7k2x9/`.
+- **Nunca** entregar `sif-api/db.php`, arquivos já existentes de `uploads/` nem
+  `nossa-gente/`. Não mexer no resto do `public_html`, onde está o WordPress antigo.
+- O banco baixado de produção tem dados pessoais: não compartilhar nem subir no GitHub.
+
+### Ambiente local desta fase
+- Site: `http://localhost:3000` (`.claude/launch.json`, "vite-dev").
+- MySQL na porta **3307**, banco **`sif_producao`** (cópia de produção):
+  `C:/xampp/mysql/bin/mysqld.exe --defaults-file=/c/xampp/mysql/bin/my.ini --standalone --port=3307`.
+  Apache: `C:/xampp/apache/bin/httpd.exe`. Eles caem entre sessões; suba de novo antes de testar.
+- PHP alterado: copiar para `C:\xampp\htdocs\sif-api` (nunca o `db.php`).
+- Para gerar SQL use o PHP do XAMPP (`C:/xampp/php/php.exe`); o PHP do winget não tem
+  `pdo_mysql`.
+- Usuário de teste do painel: copiar `teste-local@sif.test` de `sif_db.admins` para
+  `sif_producao.admins` e apagar depois. A senha fica num arquivo local fora do repo e
+  **nunca vai no chat**.
+
+### Conteúdo de Produtos e Serviços (como regenerar o SQL)
+Arquivos em `database/atualizacoes/`:
+- `produtos_live.json`: conteúdo da página **como está no ar**
+  (`page_content.php?page=produtos`). Baixe de novo antes de regenerar, se o painel foi
+  usado no servidor.
+- `2026-11-produtos-servicos-gerador.cjs`: monta as abas (Comercial, Germinar, P&D,
+  Cultivares, Importação e documentos do Boletim) a partir do conteúdo ao vivo e grava
+  `produtos_novo.json`.
+- `gera_sql_produtos.php`: gera o SQL com `JSON_MERGE_PATCH` (só troca as chaves
+  listadas; o resto da página fica). Uso:
+  `C:/xampp/php/php.exe gera_sql_produtos.php saida.sql`.
+- `2026-11-produtos-servicos.sql`: o SQL pronto, o mesmo que está em
+  `Downloads/atualizacao-banco-2026-11-24.sql`.
+
+Fotos usadas: `sif-api/uploads/pages/produtos/slides/*.webp` (slides e Unsplash). Elas
+vivem só no XAMPP local e no zip, porque `uploads/` não é versionado.
+
+### Peças novas do código
+- `src/pages/ProdutosServicos.jsx`:
+  - abas comercial, germinar, boletim, pd, cultivares e importacao;
+  - `?aba=` e `#atalho` (campo "Atalho no topo da aba", `nav_label`);
+  - aba oculta com `<aba>_hidden`;
+  - barra de abas fixa (`.sif-tabbar`) e `scrollBelowBar`.
+- `src/components/Navbar.jsx`: submenu de Produtos com grupo Comercial, itens recuados e
+  itens ocultos conforme `<aba>_hidden`. Projetos tem só "Projetos SIF" e "Embrapii".
+- `src/components/sections/SectionBlocks.jsx`:
+  - `LeafMark` (marca d'água);
+  - `CardsBlock` (fileira; fileira deslizante a partir de 5 itens);
+  - `TabsBlock` (lista vertical; variante larga quando há `.sif-table`);
+  - `CompareBlock`;
+  - registro do `BrazilMapBlock`.
+- Tipos novos em `sectionTypes.js`: `compare` e `brazil_map`. Editores em
+  `BlockEditors.jsx` (`CompareEditor`) e `BrazilMapEditor.jsx`, ligados no
+  `ContentSections.jsx`.
+- `src/components/detail/PageNav.jsx`: `scrollToSection()`, pílula "Nesta página" fixa e
+  acompanhando o menu. Wrappers com `overflow-x-clip`, porque `overflow-x-hidden` quebra o
+  `sticky`.
+- `src/index.css`:
+  - `--sif-nav-h`, `.sif-subnav`, `.sif-tabbar` e `.sif-tab-wide` no fim do arquivo;
+  - tabelas do editor `.sif-table-wrap`.
+- Tabelas no editor rico: `src/utils/quillTable.js`.
+- Títulos de topo em duas linhas: `DetailHero` (`titleLines`) e `EditablePageHero`.
+  Títulos no meio da página **não** quebram linha.

@@ -11,7 +11,6 @@ let n = 0; const id = (p) => `prod-${p}-${++n}`;
 // Texto original das sub-abas; títulos grandes (h1) viram subtítulo e o alinhamento volta para a esquerda
 const tidy = (h) => String(h || '').replace(/<h1(\s[^>]*)?>/g, '<h3>').replace(/<\/h1>/g, '</h3>').replace(/ class="ql-align-center"/g, '');
 const tabC = Object.fromEntries((live.comercial_sections[0].tabs || []).map(t => [t.title, t.content]));
-const editorFinal = live.comercial_sections[1]; // "Não perca tempo..." (conteúdo original da SIF)
 
 // ── COMERCIAL ─────────────────────────────────────────────────────────
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Anual'];
@@ -67,13 +66,13 @@ const comercial = [
     { title: 'Eficiência operacional', text: 'Eliminação de etapas, agilidade na produção e personalização exclusiva.', image: IMG('ellepot-tubetes-comparativo-viveiro') },
     { title: 'Qualidade de mudas', text: 'Aumento de 25% na sobrevivência das mudas no campo e melhoria do sistema radicular.', image: IMG('ellepot-muda-na-mao') },
   ] },
-  { id: id('tubetes'), type: 'editor', title: 'Tubete plástico x tubete Ellepot',
-    content: tidy(tabC['Tubetes Biodegradáveis Ellepots']).replace(/<p[^>]*>\s*Entre em contato[\s\S]*$/i, '') +
-      table(['', 'Tubete de plástico', 'Tubete Ellepot biodegradável'], [
-        ['Impacto ambiental', 'Gera resíduos plásticos persistentes (não degradáveis)', 'Degrada-se no solo em curto prazo, reduzindo a poluição'],
-        ['Custos operacionais', 'Exige retorno, desinfecção, reposição e armazenamento', 'Elimina custos com retorno, desinfecção, logística reversa e armazenamento'],
-        ['Eficiência no plantio', 'Necessidade de remoção antes do plantio', 'Plantio direto com o tubete'],
-      ]) },
+  { id: id('tubetes'), type: 'text_image', eyebrow: 'Do viveiro ao campo', title: 'Tecnologia Ellepot', image: IMG('ellepot-raizes-na-mao'), image_side: 'right',
+    content: tidy(tabC['Tubetes Biodegradáveis Ellepots']).replace(/<(p|h[1-6])[^>]*>(\s|<[^>]+>)*Entre[\s ]+em[\s ]+contato[\s\S]*$/i, '') },
+  { id: id('tubetes'), type: 'compare', title: 'Tubete plástico x tubete Ellepot', a_label: 'Tubete de plástico', b_label: 'Tubete Ellepot biodegradável', items: [
+    { label: 'Impacto ambiental', a: 'Gera resíduos plásticos persistentes (não degradáveis)', b: 'Degrada-se no solo em curto prazo, reduzindo a poluição' },
+    { label: 'Custos operacionais', a: 'Exige retorno, desinfecção, reposição e armazenamento', b: 'Elimina custos com retorno, desinfecção, logística reversa e armazenamento' },
+    { label: 'Eficiência no plantio', a: 'Necessidade de remoção antes do plantio', b: 'Plantio direto com o tubete' },
+  ] },
   { id: id('tubetes'), type: 'stats', eyebrow: 'Fonte: Ellepot®', title: 'Estudos e resultados', items: [
     { value: '+350%', label: 'de crescimento em raízes secundárias' },
     { value: '+35%', label: 'de crescimento na altura das plantas' },
@@ -104,8 +103,6 @@ const comercial = [
     text: 'Veja os programas disponíveis e leve um treinamento alinhado às necessidades da sua equipe.',
     btn_label: 'Ver treinamentos', btn_link: '/treinamentos-in-company' },
 
-  // Bloco final original da SIF ("Não perca tempo...")
-  editorFinal,
 ];
 
 // ── GERMINAR ──────────────────────────────────────────────────────────
@@ -126,8 +123,10 @@ const germinar = [
     { value: '2', label: 'modalidades: estagiário e trainee' },
     { value: '6', label: 'estados com talentos do programa' },
   ] },
-  { id: id('germinar'), type: 'text_image', eyebrow: 'Presença nacional', title: 'Agregando talentos ao longo do país', image: IMG('germinar-mapa-brasil'), image_side: 'right',
-    content: ul(['<strong>Bahia:</strong> Alagoinhas', '<strong>Maranhão:</strong> Imperatriz e região', '<strong>Minas Gerais:</strong> Capelinha, Itamarandiba e Três Marias', '<strong>Mato Grosso do Sul:</strong> Bataguassu e Três Lagoas', '<strong>Rio Grande do Sul:</strong> Guaíba', '<strong>São Paulo:</strong> Jacareí e Lençóis Paulista']) },
+  { id: id('germinar'), type: 'brazil_map', eyebrow: 'Presença nacional', title: 'Agregando talentos ao longo do país', content: '', items: [
+    { uf: 'BA', text: 'Alagoinhas' }, { uf: 'MA', text: 'Imperatriz e região' }, { uf: 'MG', text: 'Capelinha, Itamarandiba e Três Marias' },
+    { uf: 'MS', text: 'Bataguassu e Três Lagoas' }, { uf: 'RS', text: 'Guaíba' }, { uf: 'SP', text: 'Jacareí e Lençóis Paulista' },
+  ] },
   { id: id('germinar'), type: 'quote', title: 'Exportando talentos para o mundo',
     text: 'No Germinar, encontrei na CMPC Chile a ponte entre a pesquisa do meu doutorado e a escala operacional. Hoje lidero um projeto de otimização da micropropagação de Eucalyptus nitens e aprendi a transitar entre ciência, gestão e trabalho em outro idioma e país. É uma experiência que recomendo a quem quer ver a ciência florestal acontecer na prática.',
     author: 'Paloma Brás', role: 'Pesquisadora Trainee · CMPC Chile' },
@@ -156,8 +155,53 @@ const germinar = [
 ];
 
 // ── Abas novas: conteúdo que estava nas sub-abas do Comercial ────────
-const cultivares = [{ id: id('cultivares'), type: 'editor', title: '', content: tabC['Proteção de Cultivares'] || '' }];
-const importacao = [{ id: id('importacao'), type: 'editor', title: '', content: tabC['Importação e Exportação Florestal'] || '' }];
+const WA_SIF = 'https://api.whatsapp.com/send/?phone=553184201412';
+const pd = [
+  { id: id('pd'), type: 'text_image', eyebrow: 'Pesquisa e desenvolvimento', title: 'Execução técnica e conhecimento científico de ponta', image: IMG('germinar-laboratorio-madeira'), image_side: 'right',
+    content: '<p>Projetos de alta complexidade exigem execução técnica impecável e conhecimento científico de ponta. Os Serviços de Pesquisa e Desenvolvimento da Sociedade de Investigações Florestais não entregam soluções genéricas.</p><p>Nossas entregas são conduzidas por profissionais especialistas dedicados e pesquisadores da SIF, garantindo rigor metodológico e padrão superior de qualidade em cada etapa operacional no campo ou no laboratório.</p><p>Conectamos a infraestrutura científica da Universidade Federal de Viçosa às demandas estratégicas da sua empresa.</p>' },
+  { id: id('pd'), type: 'highlights', title: 'Portfólio completo de serviços especializados', items: [
+    { title: 'Enxertia e resgate de material genético', text: '', image: IMG('germinar-laboratorio-micropropagacao') },
+    { title: 'Análises laboratoriais de solos e nutrição foliar', text: '', image: IMG('pd-analise-solo') },
+    { title: 'Coleta e análise de qualidade de sementes', text: '', image: IMG('sementes-folhas-eucalipto') },
+    { title: 'Consultoria técnica e operacional em viveiros', text: '', image: IMG('germinar-mudas-irrigacao') },
+    { title: 'Diagnósticos de sanidade e proteção florestal', text: '', image: IMG('pd-sanidade-folha') },
+    { title: 'Mensuração, inventário e modelagem de precisão', text: '', image: IMG('germinar-drone-floresta') },
+  ] },
+  { id: id('pd'), type: 'cta', title: 'Leve a excelência científica para o seu projeto',
+    text: 'Sua operação precisa de previsibilidade e suporte técnico especializado para gerar resultados consistentes. Entre em contato com a equipe da SIF.',
+    btn_label: 'Falar pelo WhatsApp', btn_link: WA_SIF },
+];
+const cultivares = [
+  { id: id('cultivares'), type: 'text_image', eyebrow: 'Proteção de cultivares', title: 'Liderança e rigor técnico na proteção de cultivares do setor florestal', image: IMG('cultivares-eucalipto-flores'), image_side: 'right',
+    content: '<p>Com a tradição de unir a excelência acadêmica da UFV às demandas reais do mercado, a Sociedade de Investigações Florestais atua diretamente na salvaguarda de materiais genéticos estratégicos.</p><p>Desde a fundamentação científica até o registro e proteção formal, garantimos a segurança jurídica e a valorização da inovação desenvolvida por nossas empresas parceiras.</p>' },
+  { id: id('cultivares'), type: 'stats', title: 'Proteção de cultivares em números', items: [
+    { value: '36', label: 'empresas atendidas' }, { value: '40', label: 'cultivares registradas' },
+    { value: '25', label: 'cultivares protegidas' }, { value: '14', label: 'cultivares do projeto Tolerância à Seca em processo de proteção' },
+  ] },
+  { id: id('cultivares'), type: 'text_image', eyebrow: 'Portfólio de espécies e parcerias', title: 'Gêneros de extrema relevância para a silvicultura nacional', image: IMG('cultivares-plantio-eucalipto'), image_side: 'left',
+    content: '<p>Nosso trabalho abrange gêneros de extrema relevância para a silvicultura nacional, como Eucalyptus, Corymbia, Pinus e Elaeis guineensis (Dendê).</p><p>O alcance dessa atuação é comprovado pela confiança das maiores corporações do setor, que contam com a SIF para proteger seus ativos biológicos.</p>' },
+  { id: id('cultivares'), type: 'cards', title: 'Gêneros atendidos', items: [
+    { title: 'Eucalyptus', subtitle: 'Gênero', text: '' }, { title: 'Corymbia', subtitle: 'Gênero', text: '' },
+    { title: 'Pinus', subtitle: 'Gênero', text: '' }, { title: 'Elaeis guineensis', subtitle: 'Dendê', text: '' },
+  ] },
+  { id: id('cultivares'), type: 'cta', title: 'Proteja os ativos genéticos da sua empresa',
+    text: 'Proteja os ativos genéticos da sua empresa com quem é referência nacional no setor florestal. Entre em contato com a nossa coordenação de inovação e projetos.',
+    btn_label: 'Fale conosco', btn_link: '/contato' },
+];
+const importacao = [
+  { id: id('importacao'), type: 'text_image', eyebrow: 'Importação e exportação florestal', title: 'Agilidade e segurança regulatória na importação e exportação florestal', image: IMG('importacao-aviao-pista'), image_side: 'right',
+    content: '<p>O avanço da pesquisa e do desenvolvimento tecnológico no setor florestal exige trânsito rápido e seguro de insumos biológicos.</p><p>A SIF atua como ponte estratégica para viabilizar esse fluxo, garantindo que materiais genéticos e amostras cheguem ao destino com máxima eficiência operacional e conformidade legal.</p>' },
+  { id: id('importacao'), type: 'text_image', eyebrow: 'Nosso diferencial', title: 'Uma unidade do MAPA dentro do campus da UFV', image: IMG('germinar-ufv-campus'), image_side: 'left',
+    content: '<p>Nossa atuação estratégica junto ao Ministério da Agricultura e Pecuária (MAPA) conta com um diferencial decisivo: a presença de uma unidade do próprio Ministério instalada no campus da UFV.</p><p>Essa proximidade geográfica e institucional permite realizar etapas cruciais, como a inspeção e a lacração de cargas, diretamente nas dependências da universidade.</p>' },
+  { id: id('importacao'), type: 'cards', title: 'Impacto direto na sua operação', items: [
+    { title: 'Inspeção e lacração', subtitle: 'Nas dependências da UFV', text: 'Etapas cruciais, como a inspeção e a lacração de cargas, são realizadas diretamente na universidade.' },
+    { title: 'Embarque direto', subtitle: 'Sem intermediários', text: 'Ao viabilizar o embarque direto, eliminamos intermediários desnecessários.' },
+    { title: 'Menos burocracia', subtitle: 'Conformidade legal', text: 'Mitigamos riscos burocráticos e garantimos que materiais genéticos e amostras cheguem ao destino com conformidade legal.' },
+  ] },
+  { id: id('importacao'), type: 'cta', title: 'Otimize a logística internacional dos seus materiais genéticos e pesquisas',
+    text: 'Fale com a equipe técnica da SIF e garanta embarques diretos sem complicações.',
+    btn_label: 'Fale conosco', btn_link: '/contato' },
+];
 
 // ── Boletim: documentos para autores ─────────────────────────────────
 const boletimDocs = [{ id: id('boletim'), type: 'pdfs', eyebrow: 'Para autores', title: 'Envie seu boletim', pdfs: [
@@ -170,9 +214,10 @@ const out = {
   germinar_sections: germinar,
   cultivares_sections: cultivares,
   importacao_sections: importacao,
+  pd_sections: pd,
   boletim_sections: boletimDocs,
 };
-for (const k of ['cultivares', 'importacao']) if (!out[k + '_sections'][0].content) throw new Error('conteúdo vazio: ' + k);
+if (!tabC['Proteção de Cultivares'] || !tabC['Importação e Exportação Florestal']) throw new Error('sub-abas não encontradas');
 if (!tabC['Treinamentos'] || !tabC['Tubetes Biodegradáveis Ellepots']) throw new Error('sub-abas não encontradas');
 fs.writeFileSync(__dirname + '/produtos_novo.json', JSON.stringify(out));
 console.log('ok', Object.keys(out).join(', '), '| comercial', comercial.length, 'blocos | germinar', germinar.length, 'blocos');

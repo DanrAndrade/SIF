@@ -28,3 +28,4 @@ dist/
 
 # Pacotes zip de build/deploy gerados localmente
 *.zip
+database/atualizacoes/produtos_novo.json
