@@ -358,3 +358,20 @@ vivem só no XAMPP local e no zip, porque `uploads/` não é versionado.
 - Tabelas no editor rico: `src/utils/quillTable.js`.
 - Títulos de topo em duas linhas: `DetailHero` (`titleLines`) e `EditablePageHero`.
   Títulos no meio da página **não** quebram linha.
+
+### Banco local sincronizado com o site no ar (24/11/2026)
+- O `sif_producao` local foi atualizado com o que está no ar:
+  - todas as `page_configs` (Produtos = versão do ar + o patch novo);
+  - GTs, eventos, treinamentos, blog, associadas, equipe e EINCOL;
+  - os arquivos que faltavam (vídeo novo do topo, fotos novas).
+- O firewall da HostGator recusa o curl padrão com **406**. Para baixar dados públicos,
+  mande um User-Agent de navegador e `Accept: */*`.
+- Leitura pública: `page_content.php?page=<chave>`, `gt.php`, `eventos.php`,
+  `treinamentos.php`, `blog.php`, `associadas.php`, `eincol.php` e
+  `institucional.php?resource=team|timeline|documents`.
+- Ao gravar JSON baixado no banco, regrave com `JSON_UNESCAPED_SLASHES`. Com `\/` no
+  texto, as buscas por `uploads/...` deixam de achar os arquivos.
+- Pacote do banco e dos arquivos para outro PC: `Downloads/sif-conteudo-local-*.zip`,
+  com o passo a passo no LEIA-ME. Ele tem dados pessoais e **não vai para o GitHub**.
+- Vídeo do topo: no computador toca o `video_loop` (arquivo principal); o
+  `video_loop_short` (leve) só entra no celular ou com economia de dados.
