@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { TREINAMENTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { useParams } from 'react-router-dom';
 import { CalendarDays, Clock, MapPin, Layers, MonitorSmartphone } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -14,6 +16,8 @@ export default function TreinamentoDetalhe() {
   const { slug } = useParams();
   const [training, setTraining] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('treinamentos');
+  const tx = withTexts(TREINAMENTOS_TEXTS, pageCfg); // Painel › Treinamentos › Textos da página
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -44,22 +48,24 @@ export default function TreinamentoDetalhe() {
     <DetailPage
       cover={cover}
       crumbs={[{ label: 'Treinamentos', to: '/treinamentos' }]}
-      eyebrow="Treinamento"
+      eyebrow={tx.detail_eyebrow}
       title={training.title}
       summary={extra.summary || ""}
       chips={[{ icon: CalendarDays, text: period }, { icon: MapPin, text: training.location }, { icon: Clock, text: hours }]}
       facts={[
-        { icon: Layers, label: 'Área', value: training.segment },
-        { icon: MonitorSmartphone, label: 'Formato', value: extra.modality },
-        { icon: Clock, label: 'Carga horária', value: hours },
-        { icon: CalendarDays, label: 'Período', value: period },
-        { icon: MapPin, label: 'Local', value: training.location },
+        { icon: Layers, label: tx.fact_area, value: training.segment },
+        { icon: MonitorSmartphone, label: tx.fact_format, value: extra.modality },
+        { icon: Clock, label: tx.fact_hours, value: hours },
+        { icon: CalendarDays, label: tx.fact_period, value: period },
+        { icon: MapPin, label: tx.fact_place, value: training.location },
       ]}
-      about={{ title: 'Sobre o treinamento', html: legacy.aboutHtml }}
+      about={{ title: tx.detail_about_title, html: legacy.aboutHtml }}
       sections={legacy.sections}
       videoUrl={training.video_url}
       cta={ctaFrom(extra, 'Quero me inscrever')}
       pageKey="treinamentos"
+      contactTitle={tx.contact_title}
+      contactButton={tx.contact_btn}
       bandPhotos={training.image_url ? [getImageUrl(training.image_url, 1280)] : []}
     />
   );

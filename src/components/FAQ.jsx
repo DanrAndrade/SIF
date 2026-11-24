@@ -20,7 +20,7 @@ const DEFAULT_SIDE = {
   cta_link: '/contato',
 };
 
-export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
+export default function FAQ({ pageKey = 'home', sideConfig = {}, tag = 'Tire suas Dúvidas', title = 'Perguntas Frequentes' }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [items, setItems] = useState(DEFAULT_FAQ);
   const side = { ...DEFAULT_SIDE, ...sideConfig };
@@ -38,8 +38,8 @@ export default function FAQ({ pageKey = 'home', sideConfig = {} }) {
   return (
       <section id="faq" className="bg-transparent w-full py-12 md:py-20 px-6 md:px-12 lg:px-24 overflow-visible pb-14 md:pb-24">
         <SectionHeader
-            tag="Tire suas Dúvidas"
-            title="Perguntas Frequentes"
+            tag={tag}
+            title={title}
         />
 
         <div className="flex flex-col lg:flex-row gap-16 items-start mt-12">

@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { EVENTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { useParams } from 'react-router-dom';
 import { CalendarDays, Clock, MapPin, Flag } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -15,6 +17,8 @@ export default function EventoDetalhe() {
   const { slug } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('eventos');
+  const tx = withTexts(EVENTOS_TEXTS, pageCfg); // Painel › Eventos › Textos da página
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -46,21 +50,23 @@ export default function EventoDetalhe() {
     <DetailPage
       cover={cover}
       crumbs={[{ label: 'Eventos', to: '/eventos' }]}
-      eyebrow="Evento"
+      eyebrow={tx.detail_eyebrow}
       title={event.title}
       summary={extra.summary || ""}
       chips={[{ icon: CalendarDays, text: dateText }, { icon: MapPin, text: event.location }]}
       facts={[
-        { icon: CalendarDays, label: 'Data', value: dateText || 'A confirmar', sub: day ? weekday(day) : '' },
-        { icon: Clock, label: 'Horário', value: time },
-        { icon: MapPin, label: 'Local', value: event.location || 'A definir' },
-        { icon: Flag, label: 'Situação', value: situation },
+        { icon: CalendarDays, label: tx.fact_date, value: dateText || tx.fact_date_empty, sub: day ? weekday(day) : '' },
+        { icon: Clock, label: tx.fact_time, value: time },
+        { icon: MapPin, label: tx.fact_place, value: event.location || tx.fact_place_empty },
+        { icon: Flag, label: tx.fact_status, value: situation },
       ]}
-      about={{ title: extra.about_title || 'Sobre o evento', html: event.description || '' }}
+      about={{ title: extra.about_title || tx.detail_about_title, html: event.description || '' }}
       sections={sections}
       videoUrl={event.video_url}
       cta={ctaFrom(extra, 'Fazer inscrição')}
       pageKey="eventos"
+      contactTitle={tx.contact_title}
+      contactButton={tx.contact_btn}
       bandPhotos={event.image_url ? [getImageUrl(event.image_url, 1280)] : []}
     />
   );

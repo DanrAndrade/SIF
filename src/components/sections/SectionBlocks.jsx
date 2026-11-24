@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Download, ArrowRight, Play, Quote as QuoteIcon, X, ExternalLink, ChevronLeft, ChevronRight,
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
@@ -340,13 +341,32 @@ export function CtaBlock({ sec }) {
   );
 }
 
+// "Venda de Sementes" -> "venda-de-sementes" (endereço de cada aba, usado nos links do menu)
+export const tabSlug = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
 export function TabsBlock({ sec, dark }) {
   // aba vale se tem título, texto ou mídia (conteúdo antigo às vezes é só uma imagem)
   const tabs = (sec.tabs || []).filter(t => t && (t.title || htmlToText(t.content || '').trim() || /<(img|iframe|video)/i.test(t.content || '')));
   const [active, setActive] = useState(0);
   const cur = tabs[Math.min(active, tabs.length - 1)];
+  const boxRef = useRef(null);
+  const { hash } = useLocation();
+  // Endereço com #nome-da-aba (ex.: link do menu): abre essa aba e rola até ela
+  useEffect(() => {
+    const want = decodeURIComponent((hash || '').replace(/^#/, ''));
+    if (!want) return;
+    const i = tabs.findIndex(t => t.title && tabSlug(t.title) === want);
+    if (i < 0) return;
+    setActive(i);
+    const t = setTimeout(() => {
+      const el = boxRef.current;
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+    }, 150);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash, tabs.length]);
   return (
-    <div>
+    <div ref={boxRef}>
       <BlockHeader sec={sec} dark={dark} />
       {/* uma aba só e sem título: mostra o conteúdo direto, sem a barra */}
       {!(tabs.length === 1 && !tabs[0].title) && <div className="flex flex-wrap gap-2 mb-6" role="tablist">

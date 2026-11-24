@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { IN_COMPANY_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Image as ImageIcon, Trash2, Edit3, X, Plus, Clock, Layers, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -187,6 +189,7 @@ export default function TreinamentosInCompanyAdmin() {
     >
 
       {view === 'list' && <PageHeaderForm pageKey="treinamentos_in_company" defaults={HERO_DEFAULTS} title="Cabeçalho da página /treinamentos-in-company" />}
+      {view === 'list' && <PageTextsForm pageKey="treinamentos_in_company" spec={IN_COMPANY_TEXTS} title="Textos da página e de cada treinamento" />}
       {view === 'list' && <PageContactForm pageKey="treinamentos_in_company" title="Contato responsável por Treinamentos In-Company" />}
 
       {/* LISTA DE TREINAMENTOS PUBLICÁVEIS */}

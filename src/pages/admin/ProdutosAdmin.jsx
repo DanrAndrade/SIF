@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { PRODUTOS_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, SecondaryButton } from '../../components/admin/kit';
-import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown, Type } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
@@ -90,6 +92,7 @@ const SECTION_TABS = [
   { id: 'germinar',  label: 'Programa Germinar',  icon: Briefcase },
   { id: 'boletim',   label: 'Boletim Técnico',    icon: FileText  },
   { id: 'pd',        label: 'Serviços de P&D',    icon: Microscope},
+  { id: 'textos',    label: 'Textos',             icon: Type },
 ];
 
 const CONTENT_IDS = ['comercial', 'germinar', 'boletim', 'pd'];
@@ -141,7 +144,7 @@ export default function ProdutosAdmin() {
       fd.append('page', PAGE_KEY);
       // O hero desta página é salvo pelo PageHeaderForm (aba Cabeçalho):
       // não reenviar hero_* aqui, senão a cópia antiga desta tela o desfaz.
-      const content = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_')));
+      const content = Object.fromEntries(Object.entries(config).filter(([k]) => !k.startsWith('hero_') && !(k in PRODUTOS_TEXTS.defaults)));
       fd.append('content_json', JSON.stringify(content));
       const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
       const next = data?.data ? mergeCfg(CONTENT_DEFAULTS, data.data) : config;
@@ -173,12 +176,13 @@ export default function ProdutosAdmin() {
       subtitle={activeTab === 'hero'
         ? 'O cabeçalho tem o próprio botão de salvar, logo abaixo.'
         : 'O botão Salvar vale para todas as abas de conteúdo.'}
-      save={activeTab !== 'hero' ? { onSave: handleSave, saving, dirty, savedAt, disabled: uploading || loadError } : undefined}
+      save={activeTab !== 'hero' && activeTab !== 'textos' ? { onSave: handleSave, saving, dirty, savedAt, disabled: uploading || loadError } : undefined}
       tabs={SECTION_TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard>
+     <div className={activeTab === 'textos' ? '' : 'hidden'}><PageTextsForm pageKey={PAGE_KEY} spec={PRODUTOS_TEXTS} title="Nomes das abas e outros textos" /></div>
+     <AdminCard className={activeTab === 'textos' ? 'hidden' : ''}>
       {error && (
         <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>
       )}
@@ -244,7 +248,7 @@ function BoletimEditor({ config, set, onUploading }) {
         />
       </div>
       <Field
-        label="Parágrafo de introdução (caixa verde)"
+        label="Apresentação (aparece ao lado do título)"
         type="textarea"
         rows={3}
         value={config.boletim_intro || ''}
@@ -459,6 +463,8 @@ function SectionEditor({ prefix, config, set, onUploading }) {
       />
       <ContentSections
         template="produtos"
+        bands
+        title="Blocos da aba"
         sections={config[k('sections')] || []}
         onChange={v => set(k('sections'), v)}
         onUploading={onUploading}

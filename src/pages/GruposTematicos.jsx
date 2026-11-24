@@ -89,7 +89,7 @@ export default function GruposTematicos() {
             ) : gts.length === 0 ? (
               <p className="col-span-full py-16 text-center text-gray-400 font-bold uppercase tracking-widest italic">Nenhum grupo temático publicado no momento.</p>
             ) : (
-              gts.map((gt) => <GtCard key={gt.id} gt={gt} Icon={iconMap[gt.icon] || Target} />)
+              gts.map((gt) => <GtCard key={gt.id} gt={gt} Icon={iconMap[gt.icon] || Target} btnLabel={t.card_btn} />)
             )}
           </div>
 
@@ -108,7 +108,7 @@ export default function GruposTematicos() {
 
 // Card do grupo: foto (ou a cor do grupo) ocupando o card todo, com o texto
 // por cima. Foto quebrada cai na versão com a cor do grupo.
-function GtCard({ gt, Icon }) {
+function GtCard({ gt, Icon, btnLabel = 'Saiba mais' }) {
   const [imgOk, setImgOk] = useState(!!gt.image_url);
   const color = gt.color || '#007a3d';
   return (
@@ -130,7 +130,7 @@ function GtCard({ gt, Icon }) {
           <div><p className="text-white/80 text-sm leading-relaxed pb-5">{gtSummary(gt) || htmlToText(gt.description, 220)}</p></div>
         </div>
         <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-sif-lime">
-          Saiba mais <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+          {btnLabel} <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
         </span>
       </div>
     </Link>

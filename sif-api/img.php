@@ -22,8 +22,8 @@ $wanted = $w;
 foreach ($ALLOWED_W as $opt) { $w = $opt; if ($opt >= $wanted) break; }
 
 $src = ltrim(str_replace('\\', '/', $src), '/');
-// letras com acento são aceitas (nomes de arquivo da equipe: "Serviços", "Ângela"...)
-if ($src === '' || strpos($src, '..') !== false || !preg_match('#^(uploads|banners|nossa-gente)/[\p{L}\p{N}_\-./ ]+\.(jpe?g|png|webp|gif)$#iu', $src)) {
+// letras com acento e parênteses são aceitos (nomes de arquivo da equipe: "Serviços", "Foto (1)"...)
+if ($src === '' || strpos($src, '..') !== false || !preg_match('#^(uploads|banners|nossa-gente)/[\p{L}\p{N}_\-./ ()]+\.(jpe?g|png|webp|gif)$#iu', $src)) {
     http_response_code(400);
     exit;
 }

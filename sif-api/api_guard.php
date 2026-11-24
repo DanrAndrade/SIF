@@ -511,6 +511,7 @@ function sif_page_module(string $page): ?string {
         'eventos' => 'eventos', 'treinamentos' => 'treinamentos', 'gt' => 'gt',
         'projetos' => 'projetos', 'jobs' => 'jobs', 'blog' => 'blog',
         'treinamentos_in_company' => 'in_company', 'in_company' => 'in_company',
+        'eincol' => 'eincol',
     ];
     return $map[$page] ?? null; // desconhecida → só admin
 }

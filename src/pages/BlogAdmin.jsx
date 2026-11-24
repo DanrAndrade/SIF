@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { BLOG_TEXTS } from '../utils/pageTextDefaults';
+import PageTextsForm from '../components/admin/PageTextsForm';
 import { apiRequest, toastError } from '../utils/adminApi';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, useCanLeave } from '../components/admin/kit';
 import PageContactForm from '../components/admin/PageContactForm';
@@ -191,6 +193,7 @@ export default function BlogAdmin() {
       )}
 
       {view === 'list' && fullBlog && <PageHeaderForm pageKey="blog" defaults={HERO_DEFAULTS} title="Cabeçalho da página /blog" />}
+      {view === 'list' && fullBlog && <PageTextsForm pageKey="blog" spec={BLOG_TEXTS} title="Textos da página de cada publicação" />}
       {view === 'list' && fullBlog && <PageContactForm pageKey="blog" title="Contato responsável pelo Blog" />}
       {view === 'list' && !fullBlog && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { BLOG_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { loadBlogFonts } from '../utils/blogFonts';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useParams, Link } from 'react-router-dom';
@@ -34,6 +36,8 @@ export default function BlogPost() {
   useEffect(() => { if (post?.content) loadBlogFonts(post.content); }, [post?.content]); // fontes escolhidas no texto
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('blog');
+  const tx = withTexts(BLOG_TEXTS, pageCfg); // Painel › Blog › Textos da página
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -157,7 +161,7 @@ export default function BlogPost() {
           </Link>
 
           <div className="max-w-4xl flex flex-col gap-6">
-            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime w-fit">Blog &amp; Notícias</span>
+            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime w-fit">{tx.post_tag}</span>
             <h1 className="sif-title sif-h2 text-white tracking-tighter leading-[0.95]">
               {post.title}
             </h1>
@@ -187,8 +191,8 @@ export default function BlogPost() {
                   <Newspaper size={32} />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-medium text-gray-900 tracking-tight">Artigo</h3>
-                  <p className="text-xs font-black text-gray-300 uppercase tracking-widest mt-1">SIF Media Center</p>
+                  <h3 className="text-3xl font-medium text-gray-900 tracking-tight">{tx.post_box_title}</h3>
+                  <p className="text-xs font-black text-gray-300 uppercase tracking-widest mt-1">{tx.post_box_sub}</p>
                 </div>
               </div>
 
@@ -229,7 +233,7 @@ export default function BlogPost() {
       {relatedPosts.length > 0 && (
         <section className="pb-14 md:pb-24">
           <div className="container mx-auto px-6">
-            <h3 className="text-2xl font-semibold text-[#007a3d] tracking-tight mb-8">Leia Também</h3>
+            <h3 className="text-2xl font-semibold text-[#007a3d] tracking-tight mb-8">{tx.related_title}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedPosts.map(relPost => (
                 <Link

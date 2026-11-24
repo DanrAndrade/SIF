@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { PROJETOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import LoadError from '../components/ui/LoadError';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -95,6 +97,8 @@ function SectionTitle({ title, accent }) {
 export default function Projetos() {
   usePageTitle('Projetos');
   const [loadError, setLoadError] = useState(false);
+  const { config: pageCfg } = usePageConfig('projetos');
+  const tx = withTexts(PROJETOS_TEXTS, pageCfg); // Painel › Projetos P&D › Textos da página
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -125,7 +129,7 @@ export default function Projetos() {
         {/* ── PROJETOS EM ANDAMENTO ── */}
         <section id="projetos-lista" className="py-14 md:py-24 bg-transparent scroll-mt-24">
           <div className="container mx-auto px-6 max-w-7xl">
-            <SectionTitle title="Projetos em" accent="Andamento" />
+            <SectionTitle title={tx.open_title} accent={tx.open_accent} />
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -151,7 +155,7 @@ export default function Projetos() {
         {!loading && concluidos.length > 0 && (
           <section className="py-14 md:py-24 pb-16 md:pb-32">
             <div className="container mx-auto px-6 max-w-7xl">
-              <SectionTitle title="Projetos" accent="Concluídos" />
+              <SectionTitle title={tx.done_title} accent={tx.done_accent} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {concluidos.map(proj => (
                   <div key={proj.id} className="opacity-80 hover:opacity-100 transition-opacity">

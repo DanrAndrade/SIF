@@ -135,8 +135,10 @@ export const PAGE_TEMPLATES = {
     ['editor', 'Objetivos'], ['editor', 'Metodologia'], ['editor', 'Resultados'],
     ['logos', 'Empresas parceiras'], ['pdfs', 'Publicações'],
   ],
+  // Abas de Produtos e Serviços: mesmo modelo de blocos dos GTs e eventos
   produtos: [
-    ['editor', 'Como funciona'], ['editor', 'Benefícios para a empresa'], ['pdfs', 'Materiais'],
+    ['text_image', 'Como funciona'], ['cards', 'Benefícios para a empresa'], ['highlights', 'Produtos e serviços'],
+    ['stats', 'Em números'], ['pdfs', 'Materiais'], ['cta', 'Fale com a equipe comercial'],
   ],
   blog: [
     ['pdfs', 'Arquivos para download'],

@@ -10,7 +10,9 @@ import ParallaxLayer from './ui/ParallaxLayer';
 //   <DetailHero cover={url} accent="#007a3d" crumbs={[{label:'Eventos', to:'/eventos'}]}
 //     eyebrow="Evento" icon={CalendarDays} title="..." summary="..."
 //     chips={[{ icon: MapPin, text: 'Viçosa' }]} actions={<Button .../>} />
-export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eyebrow, icon: Icon, title, summary, chips = [], actions, children }) {
+// titleLines (páginas secundárias): título em duas linhas e subtítulo mais estreito,
+// deixando o lado direito livre para a foto aparecer.
+export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eyebrow, icon: Icon, title, titleLines, summary, chips = [], actions, children }) {
   const color = /^#[0-9a-f]{6}$/i.test(accent || '') ? accent : '#007a3d';
   const items = chips.filter(c => c && c.text);
   return (
@@ -38,8 +40,12 @@ export default function DetailHero({ cover, accent = '#007a3d', crumbs = [], eye
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-sif-lime">{eyebrow}</span>
           </div>
         )}
-        <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl leading-[1.05] tracking-tight text-white max-w-4xl">{title}</h1>
-        {summary && <p className="mt-6 text-lg md:text-xl text-white/75 leading-relaxed max-w-2xl">{summary}</p>}
+        <h1 className="sif-title text-[34px] sm:text-[44px] md:text-[52px] lg:text-6xl leading-[1.05] tracking-tight text-white max-w-4xl">
+          {titleLines && titleLines.length > 1
+            ? titleLines.map((l, i) => <span key={i} className="block">{l}</span>)
+            : title}
+        </h1>
+        {summary && <p className={`mt-6 text-lg md:text-xl text-white/75 leading-relaxed ${titleLines ? 'max-w-md' : 'max-w-2xl'}`}>{summary}</p>}
 
         {items.length > 0 && (
           <ul className="mt-8 flex flex-wrap gap-2">

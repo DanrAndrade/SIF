@@ -19,7 +19,7 @@ const validate = (d) => {
   return e;
 };
 
-export default function EmbrapiiForm({ buttonLabel = 'Quero uma demonstração' }) {
+export default function EmbrapiiForm({ buttonLabel = 'Quero uma demonstração', successTitle = 'Mensagem enviada.', successText = 'Obrigado pelo interesse. A equipe da Unidade EMBRAPII Fibras Florestais vai retornar o contato.' }) {
   const [data, setData] = useState(EMPTY);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -56,8 +56,8 @@ export default function EmbrapiiForm({ buttonLabel = 'Quero uma demonstração' 
     return (
       <div role="status" className="py-6 md:py-10">
         <div className="w-16 h-16 rounded-full bg-sif-green text-white flex items-center justify-center mb-8"><Check size={30} strokeWidth={2.5} /></div>
-        <p className="sif-h3 sif-title text-sif-ink mb-3">Mensagem enviada.</p>
-        <p className="text-gray-500 leading-relaxed max-w-md mb-10">Obrigado pelo interesse. A equipe da Unidade EMBRAPII Fibras Florestais vai retornar o contato.</p>
+        <p className="sif-h3 sif-title text-sif-ink mb-3">{successTitle}</p>
+        <p className="text-gray-500 leading-relaxed max-w-md mb-10">{successText}</p>
         <button type="button" onClick={() => setStatus(null)} className="group inline-flex items-center gap-2 text-sm font-bold text-sif-green">
           <RotateCcw size={15} className="transition-transform duration-500 group-hover:-rotate-180" />
           <span className="border-b border-sif-green/30 group-hover:border-sif-green transition-colors">Enviar outra mensagem</span>

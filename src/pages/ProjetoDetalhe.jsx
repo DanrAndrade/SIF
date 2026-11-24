@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { usePageConfig } from '../hooks/usePageConfig';
+import { PROJETOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -29,6 +31,8 @@ export default function ProjetoDetalhe() {
   usePageTitle(projeto?.title);
   useSeo({ description: projeto?.description, image: projeto?.image_url ? getImageUrl(projeto.image_url) : undefined });
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('projetos');
+  const tx = withTexts(PROJETOS_TEXTS, pageCfg); // Painel › Projetos P&D › Textos da página
   const [activeTab, setActiveTab] = useState(0);
   const [projSections, setProjSections] = useState(null);
   useEffect(() => { if (projeto?.description) loadBlogFonts(projeto.description); }, [projeto?.description]); // fontes escolhidas no texto
@@ -78,7 +82,7 @@ export default function ProjetoDetalhe() {
           <DetailHero
             cover={projeto.image_url ? getImageUrl(projeto.image_url, heroW()) : ''}
             crumbs={[{ label: 'Projetos', to: '/projetos' }]}
-            eyebrow="Projeto de P&D" icon={FlaskConical}
+            eyebrow={tx.detail_eyebrow} icon={FlaskConical}
             title={projeto.title}
             chips={[
               { icon: Tag, text: projeto.tag },
@@ -115,7 +119,7 @@ export default function ProjetoDetalhe() {
                 <div className="mt-12 flex justify-center border-b border-gray-100 pb-12">
                   <a href={getImageUrl(projeto.pdf_url)} target="_blank" rel="noreferrer"
                     className={buttonClass('primary', 'lg')}>
-                    <span className="py-2">Baixar Documento do Projeto (PDF)</span>
+                    <span className="py-2">{tx.pdf_btn}</span>
                     <BtnArrow variant="primary" size="lg" icon={Download} />
                   </a>
                 </div>
@@ -152,7 +156,7 @@ export default function ProjetoDetalhe() {
                 rel="noreferrer"
                 className={buttonClass('primary', 'lg')}
               >
-                <span className="py-2">Visitar Página Externa do Projeto</span>
+                <span className="py-2">{tx.link_btn}</span>
                 <BtnArrow variant="primary" size="lg" icon={ExternalLink} />
               </a>
             </div>
@@ -163,7 +167,7 @@ export default function ProjetoDetalhe() {
       {/* CONTATO RESPONSÁVEL — configurado em /admin/projetos */}
       <section className="py-16 bg-transparent">
         <div className="container mx-auto px-6 max-w-3xl">
-          <EditablePageContact pageKey="projetos" fallbackTitle="Fale com o responsável" />
+          <EditablePageContact pageKey="projetos" fallbackTitle={tx.contact_title} />
         </div>
       </section>
 

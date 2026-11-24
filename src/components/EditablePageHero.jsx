@@ -14,7 +14,8 @@ export function PageHeroView({ cfg, scrollTargetId }) {
   const cover = img ? (img.startsWith('http') ? img : getImageUrl(img, heroW())) : '';
   const title = [cfg.hero_title_line1, cfg.hero_title_highlight].filter(Boolean).join(' ').trim();
   // Sem botão: o de "descer" só levava a uma seção da própria página
-  return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} summary={cfg.hero_subtitle} />;
+  const lines = [cfg.hero_title_line1, cfg.hero_title_highlight].map(t => (t || '').trim()).filter(Boolean);
+  return <DetailHero cover={cover} eyebrow={cfg.hero_badge} title={title} titleLines={lines} summary={cfg.hero_subtitle} />;
 }
 
 // pageKey -> chave em page_content.php; defaults -> textos usados se o painel estiver vazio

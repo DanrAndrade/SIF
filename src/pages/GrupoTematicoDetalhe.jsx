@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { GT_LIST_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { useParams } from 'react-router-dom';
 import { MessageCircle, Newspaper } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -27,6 +29,8 @@ export default function GrupoTematicoDetalhe() {
   const { slug } = useParams();
   const [gt, setGt] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('gt');
+  const tx = withTexts(GT_LIST_TEXTS, pageCfg); // Painel › Grupos Temáticos › Textos da página
   const [posts, setPosts] = useState(null);
   const [activeId, setActiveId] = useState('');
 
@@ -65,11 +69,11 @@ export default function GrupoTematicoDetalhe() {
 
   // Blocos especiais
   const special = {
-    gt_blog: (sec) => (posts && posts.length ? <GtBlogPosts posts={posts} limit={sec.limit || 3} sec={sec} /> : null),
+    gt_blog: (sec) => (posts && posts.length ? <GtBlogPosts posts={posts} limit={sec.limit || 3} sec={sec} btnLabel={tx.blog_btn} /> : null),
     gt_contact: (sec) => (!hasContact ? null :
       <div className="max-w-3xl mx-auto">
         <BlockHeader sec={sec} align="center" size="md" className="mb-8" />
-        <EditablePageContact pageKey={null} fallbackTitle="Responsável pelo grupo" override={responsavel} layout="wide" />
+        <EditablePageContact pageKey={null} fallbackTitle={tx.contact_title} override={responsavel} layout="wide" />
       </div>
     ),
   };
@@ -134,13 +138,13 @@ export default function GrupoTematicoDetalhe() {
       <DetailHero
         cover={cover} accent={color}
         crumbs={[{ label: 'Grupos Temáticos', to: '/grupos-tematicos' }]}
-        eyebrow="Grupo Temático"
+        eyebrow={tx.detail_eyebrow}
         title={gt.title} summary={summary}
         actions={<>
           {contactSec && (
             // mesmo tamanho dos botões do topo da Home (o responsável fica só no card lá embaixo)
             <button type="button" onClick={() => go(sectionAnchor(contactSec))} className={buttonClass('light', 'sm')}>
-              <span className="py-2">Falar com o responsável</span><BtnArrow variant="light" size="sm" icon={MessageCircle} />
+              <span className="py-2">{tx.contact_btn}</span><BtnArrow variant="light" size="sm" icon={MessageCircle} />
             </button>
           )}
         </>}

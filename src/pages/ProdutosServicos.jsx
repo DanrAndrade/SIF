@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
-import { Sprout, Briefcase, FileText, Microscope, ArrowRight, Download } from 'lucide-react';
+import { Sprout, Briefcase, FileText, Microscope, ArrowRight, ArrowLeft, Download, Search, X } from 'lucide-react';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { getImageUrl } from '../apiConfig';
+import { PRODUTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 
 const HERO_DEFAULTS = {
@@ -91,10 +92,32 @@ const TABS = [
   { id: 'pd',        name: 'Serviços de P&D',   icon: Microscope },
 ];
 
-function BoletimGrid({ pdfs, legacySections }) {
+const BOLETINS_POR_PAGINA = 9;
+
+// Busca sem diferenciar maiúsculas e acentos ("protecao" acha "Proteção")
+const semAcento = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function BoletimGrid({ pdfs: all, legacySections, tag = 'Boletim Técnico', searchPlaceholder = 'Buscar boletim pelo título' }) {
+  // Só boletins com PDF (cadastro vazio no painel não vira card em branco)
+  const allPdfs = (all || []).filter(p => p && p.pdf_url);
+  const [query, setQuery] = useState('');
+  const q = semAcento(query.trim());
+  const pdfs = q ? allPdfs.filter(p => semAcento(p.title).includes(q)) : allPdfs;
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [q]);
+  const topRef = useRef(null);
+  const totalPages = Math.max(1, Math.ceil(pdfs.length / BOLETINS_POR_PAGINA));
+  const current = Math.min(page, totalPages);
+  const visible = pdfs.slice((current - 1) * BOLETINS_POR_PAGINA, current * BOLETINS_POR_PAGINA);
+  const goToPage = (n) => {
+    setPage(n);
+    const el = topRef.current;
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+  };
+
   // Se ainda não houver PDFs novos publicados mas existir conteúdo legado
   // (boletim_sections antigo), mostra o legado pra não perder publicação.
-  if (!pdfs || pdfs.length === 0) {
+  if (allPdfs.length === 0) {
     if (Array.isArray(legacySections) && legacySections.length > 0) {
       return <ContentSectionsRenderer sections={legacySections} />;
     }
@@ -106,8 +129,30 @@ function BoletimGrid({ pdfs, legacySections }) {
   }
 
   return (
+    <div ref={topRef}>
+    {/* Busca pelo título */}
+    <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+      <label className="relative flex-1 max-w-xl">
+        <span className="sr-only">Buscar boletim</span>
+        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={searchPlaceholder}
+          className="w-full rounded-full border border-gray-200 bg-white pl-11 pr-11 py-3 text-[15px] text-[#1f2937] placeholder:text-gray-400 outline-none focus:border-[#007a3d] focus:ring-2 focus:ring-[#007a3d]/15 transition" />
+        {query && (
+          <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1f2937] hover:bg-gray-100">
+            <X size={15} />
+          </button>
+        )}
+      </label>
+      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400 tabular-nums" aria-live="polite">
+        {pdfs.length} {pdfs.length === 1 ? 'boletim' : 'boletins'}
+      </span>
+    </div>
+    {pdfs.length === 0 && (
+      <p className="text-gray-500 text-center py-12">Nenhum boletim encontrado para "{query.trim()}".</p>
+    )}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {pdfs.map((p, i) => (
+      {visible.map((p, i) => (
         <a
           key={p.id || i}
           href={getImageUrl(p.pdf_url)}
@@ -130,7 +175,7 @@ function BoletimGrid({ pdfs, legacySections }) {
             </div>
           )}
           <div className="p-6 flex flex-col flex-grow">
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#007a3d] mb-2">Boletim Técnico</span>
+            {tag && <span className="text-[9px] font-black uppercase tracking-widest text-[#007a3d] mb-2">{tag}</span>}
             <h3 className="text-base font-semibold font-heading text-[#1f2937] leading-tight mb-4 group-hover:text-[#007a3d] transition-colors flex-grow">
               {p.title || 'Boletim sem título'}
             </h3>
@@ -142,12 +187,52 @@ function BoletimGrid({ pdfs, legacySections }) {
         </a>
       ))}
     </div>
+    {totalPages > 1 && (
+      <nav className="mt-14 flex items-center justify-center gap-6" aria-label="Paginação dos boletins">
+        <button type="button" onClick={() => goToPage(current - 1)} disabled={current === 1} aria-label="Página anterior"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+          <ArrowLeft size={18} />
+        </button>
+        <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-sif-ink/70 tabular-nums">
+          {current} <span className="text-gray-400">de</span> {totalPages}
+        </span>
+        <button type="button" onClick={() => goToPage(current + 1)} disabled={current === totalPages} aria-label="Próxima página"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-sif-ink/15 text-sif-ink transition-all duration-300 hover:border-sif-dark hover:bg-sif-dark hover:text-white disabled:pointer-events-none disabled:opacity-30">
+          <ArrowRight size={18} />
+        </button>
+      </nav>
+    )}
+    </div>
   );
 }
 
 export default function ProdutosServicos() {
   usePageTitle('Produtos e Serviços'); // título da aba do navegador / Google
-  const [activeTab, setActiveTab] = useState('comercial');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tabFromUrl = () => {
+    const a = new URLSearchParams(location.search).get('aba');
+    return TABS.some(t => t.id === a) ? a : 'comercial';
+  };
+  const [activeTab, setActiveTabState] = useState(tabFromUrl);
+  // Link do menu (?aba=...): troca a aba e leva até o conteúdo
+  useEffect(() => {
+    const a = new URLSearchParams(location.search).get('aba');
+    if (!a || !TABS.some(t => t.id === a)) return;
+    setActiveTabState(a);
+    if (!location.hash) {
+      const t = setTimeout(() => {
+        const el = document.getElementById('produtos-content');
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [location.search, location.hash]);
+  // Clique numa aba: o endereço acompanha (dá para copiar e mandar o link da aba)
+  const setActiveTab = (id) => {
+    setActiveTabState(id);
+    navigate({ pathname: location.pathname, search: `?aba=${id}` }, { replace: true });
+  };
   const { config } = usePageConfig('produtos');
 
   // Merge: para arrays de seções, usa o banco apenas se já tiver conteúdo salvo
@@ -162,6 +247,14 @@ export default function ProdutosServicos() {
     boletim_pdfs:       Array.isArray(config.boletim_pdfs) ? config.boletim_pdfs : [],
     pd_sections:        config.pd_sections         || [],
   };
+
+  const pt = withTexts(PRODUTOS_TEXTS, config); // Painel › Produtos e serviços › Textos da página
+  const tabName = (tab) => pt[`tab_${tab.id}`] || tab.name;
+  // Aba aberta: título e apresentação
+  const current = TABS.find(t => t.id === activeTab);
+  const tabTitle1 = current ? cfg[`${current.id}_title_line1`] : '';
+  const tabTitle2 = current ? cfg[`${current.id}_title_highlight`] : '';
+  const tabIntro = current ? cfg[`${current.id}_intro`] : '';
 
   return (
     <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
@@ -182,7 +275,7 @@ export default function ProdutosServicos() {
                   <button key={tab.id} type="button" role="tab" aria-selected={on} onClick={() => setActiveTab(tab.id)}
                     className={`relative shrink-0 flex items-center gap-2 pt-2 pb-3.5 text-sm font-semibold transition-colors ${on ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
                     <tab.icon size={16} className={on ? 'text-[#007a3d]' : ''} />
-                    {tab.name}
+                    {tabName(tab)}
                     <span className={`absolute left-0 right-0 -bottom-px h-[2px] bg-[#007a3d] transition-transform duration-300 origin-left ${on ? 'scale-x-100' : 'scale-x-0'}`} />
                   </button>
                 );
@@ -190,39 +283,41 @@ export default function ProdutosServicos() {
             </div>
           </div>
 
-          {/* CONTEÚDO DAS ABAS */}
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {TABS.map((tab) => {
-              if (activeTab !== tab.id) return null;
-              const titleLine1  = cfg[`${tab.id}_title_line1`];
-              const titleHighlight = cfg[`${tab.id}_title_highlight`];
-              const intro       = cfg[`${tab.id}_intro`];
-              const sections    = cfg[`${tab.id}_sections`];
-
-              return (
-                <div key={tab.id} className="space-y-10 max-w-5xl mx-auto">
-                  <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">
-                    {titleLine1}{' '}
-                    <span className="text-[#007a3d]">{titleHighlight}</span>
-                  </h2>
-
-                  {intro && (
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-8 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#007a3d]/10 rounded-full blur-[40px] translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                      <p className="text-[#1f2937] text-base leading-relaxed font-medium relative">{intro}</p>
-                    </div>
-                  )}
-
-                  {tab.id === 'boletim' ? (
-                    <BoletimGrid pdfs={cfg.boletim_pdfs} legacySections={cfg.boletim_sections} />
-                  ) : (
-                    <ContentSectionsRenderer sections={sections} />
-                  )}
+          {/* ABERTURA DA ABA: mesmo desenho do "Sobre" dos eventos e treinamentos
+              (título à esquerda, apresentação à direita) */}
+          {current && (
+            <div key={current.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
+              <div className={tabIntro ? 'lg:col-span-5' : 'lg:col-span-12'}>
+                <span className="sif-eyebrow mb-4">{tabName(current)}</span>
+                <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">
+                  {tabTitle1}{' '}
+                  <span className="text-[#007a3d]">{tabTitle2}</span>
+                </h2>
+                <span className="hidden lg:block mt-8 h-px w-16 bg-sif-green/40" aria-hidden="true" />
+              </div>
+              {tabIntro && (
+                <div className="lg:col-span-7 min-w-0">
+                  <p className="text-xl leading-relaxed text-gray-700 whitespace-pre-line">{tabIntro}</p>
                 </div>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          )}
+
+          {/* Boletim: grade com paginação, na largura da página */}
+          {current?.id === 'boletim' && (
+            <div className="max-w-6xl mx-auto mt-12 md:mt-16">
+              <BoletimGrid pdfs={cfg.boletim_pdfs} legacySections={cfg.boletim_sections} tag={pt.boletim_card_tag} searchPlaceholder={pt.boletim_search_placeholder} />
+            </div>
+          )}
         </div>
+
+        {/* Demais abas: blocos em faixas de largura total, no mesmo modelo dos
+            Grupos Temáticos e eventos (fundo de cada faixa escolhido no painel) */}
+        {current && current.id !== 'boletim' && (
+          <div key={current.id} className="mt-6 md:mt-10">
+            <ContentSectionsRenderer sections={cfg[`${current.id}_sections`]} layout="page" bgPhoto={cfg.hero_image ? getImageUrl(cfg.hero_image, 1600) : ''} />
+          </div>
+        )}
       </main>
 
       {/* ── CARD GERMINAR: sempre visível no final, leva para Trabalhe Conosco ── */}
@@ -242,7 +337,7 @@ export default function ProdutosServicos() {
                 {cfg.germinar_card_text && <p className="text-sm md:text-base text-white/80 leading-relaxed max-w-2xl font-medium">{cfg.germinar_card_text}</p>}
               </div>
               <Link
-                to="/trabalhe-conosco"
+                to={pt.germinar_card_btn_link || '/trabalhe-conosco'}
                 className={`${buttonClass('light', 'lg')} flex-shrink-0`}
               >
                 <span className="py-2">{cfg.germinar_card_btn || 'Ver vagas abertas'}</span>

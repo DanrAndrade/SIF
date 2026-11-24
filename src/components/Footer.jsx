@@ -37,7 +37,7 @@ export default function Footer() {
             <div className="md:col-span-5 space-y-6">
               <div className="flex items-center gap-2">
                 <Link to="/">
-                    <img src={logoSif} alt="SIF - Sociedade de Investigações Florestais" className="h-12 w-auto object-contain [filter:brightness(1.7)_saturate(1.1)]" />
+                    <img src={logoSif} alt="SIF - Sociedade de Investigações Florestais" className="h-12 w-auto object-contain" />
                 </Link>
               </div>
               {c.about && <p className="text-white/70 leading-relaxed max-w-sm">{c.about}</p>}

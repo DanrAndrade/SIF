@@ -38,7 +38,7 @@ function StepPhoto({ src, fallback, className, style, onFail }) {
   return <img src={failed || !src ? fallback : src} alt="" loading="lazy" decoding="async" onError={() => { setFailed(true); onFail?.(); }} className={className} style={style} />;
 }
 
-export default function Process({ config = {} }) {
+export default function Process({ config = {}, btnLabel = 'Acessar' }) {
   const [active, setActive] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
   const [failed, setFailed] = useState({}); // fotos do painel que não carregaram
@@ -127,7 +127,7 @@ export default function Process({ config = {} }) {
                         <span key={j} className="px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-white/90">{b}</span>
                       ))}
                       <span className={`ml-3 ${buttonClass('light', 'sm')}`}>
-                        <span className="py-2">Acessar</span>
+                        <span className="py-2">{btnLabel}</span>
                         <BtnArrow variant="light" size="sm" />
                       </span>
                     </div>
@@ -151,7 +151,7 @@ export default function Process({ config = {} }) {
                     <div className="flex flex-wrap gap-2 mb-5">
                       {step.benefits.map((b, j) => <span key={j} className="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] text-white/90">{b}</span>)}
                     </div>
-                    <span className={`self-start ${buttonClass('light', 'sm')}`}><span className="py-2">Acessar</span><BtnArrow variant="light" size="sm" /></span>
+                    <span className={`self-start ${buttonClass('light', 'sm')}`}><span className="py-2">{btnLabel}</span><BtnArrow variant="light" size="sm" /></span>
                   </div>
                 </StepLink>
               ))}

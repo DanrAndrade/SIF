@@ -58,7 +58,7 @@ function CopyButton({ text }) {
 
 // Lado escuro do painel de contato: canais diretos (telefone, e-mail) e
 // endereço. Todos os textos vêm do painel (/admin/contato).
-export default function ContactChannels({ title, phrase, phraseMuted, phoneLabel, phoneValue, emailLabel, emailValue, addressLabel, addressValue }) {
+export default function ContactChannels({ mapLabel = 'Como chegar', title, phrase, phraseMuted, phoneLabel, phoneValue, emailLabel, emailValue, addressLabel, addressValue }) {
   const phoneDigits = String(phoneValue || '').replace(/[^\d+]/g, '');
   const mapsUrl = addressValue
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(addressValue).replace(/\s*\n\s*/g, ', ').replace(/\s*\|\s*/g, ', '))}`
@@ -90,7 +90,7 @@ export default function ContactChannels({ title, phrase, phraseMuted, phoneLabel
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 py-3 -my-3 text-sm font-bold text-white"
           >
-            <span className="border-b border-white/30 pb-0.5 transition-colors duration-300 group-hover:border-sif-lime group-hover:text-sif-lime">Como chegar</span>
+            <span className="border-b border-white/30 pb-0.5 transition-colors duration-300 group-hover:border-sif-lime group-hover:text-sif-lime">{mapLabel}</span>
             <ArrowUpRight size={16} className="transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-sif-lime" />
           </a>
         </div>

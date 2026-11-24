@@ -87,7 +87,7 @@ export default function Treinamentos() {
              </div>
              
              <div className="hidden lg:flex items-center gap-4 text-gray-400">
-                <span className="text-[10px] font-bold uppercase tracking-widest italic">{filteredTrainings.length} Cursos disponíveis</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest italic">{filteredTrainings.length} {t.count_label}</span>
              </div>
           </div>
 

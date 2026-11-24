@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ASSOCIADAS_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import { AdminPage, AdminCard, useDirty, useConfirm, ItemActions, moveItem, SaveButton, SecondaryButton, useUnsavedGuard } from '../../components/admin/kit';
 import {
   Save, Image as ImageIcon, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft, ListOrdered,
-} from 'lucide-react';
+  Home as HomeIcon, Award, Building2, Sparkles, Loader2, Check, X, ToggleLeft, ToggleRight, AlertTriangle, Edit, Globe, AlignLeft, ListOrdered, Type } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import QuillEditor from '../../components/admin/QuillEditor';
 import { API_BASE_URL, getImageUrl, toExternalUrl } from '../../apiConfig';
@@ -71,6 +72,7 @@ const DEFAULTS = {
   ],
 
   logos_tag: 'Nossa Rede',
+  logos_show_names: true,
   logos_title_line1: 'Empresas que',
   logos_title_highlight: 'Confiam na SIF',
 
@@ -87,6 +89,7 @@ const TABS = [
   { id: 'empresas',   label: 'Empresas',     icon: Building2 },
   { id: 'cta',        label: 'CTA Final',    icon: Sparkles },
   { id: 'ordem',      label: 'Ordem das seções', icon: ListOrdered },
+  { id: 'textos',     label: 'Textos', icon: Type },
 ];
 
 const mergeCfg = (base, incoming) => {
@@ -177,6 +180,8 @@ export default function AssociadasAdmin() {
       // A ordem das seções tem botão próprio (aba Ordem das seções): não vai
       // junto aqui, senão uma versão antiga dela apagaria a nova.
       const { [SECTION_ORDER_FIELD]: _ordem, ...toSave } = config;
+      // A etiqueta de benefícios tem cartão próprio (aba Textos): não reenviar a cópia antiga
+      for (const k of Object.keys(ASSOCIADAS_TEXTS.defaults)) delete toSave[k];
       fd.append('content_json', JSON.stringify(toSave));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const data = await apiRequest(PAGE_URL, { method: 'POST', body: fd });
@@ -209,12 +214,12 @@ export default function AssociadasAdmin() {
     <AdminPage
       title="Página Empresas Associadas"
       subtitle="Os textos vêm preenchidos com o conteúdo atual. As empresas são salvas uma a uma, na aba Empresas."
-      save={{ onSave: handleSavePage, saving, dirty, savedAt, disabled: loadError }}
+      save={activeTab !== 'textos' && activeTab !== 'ordem' ? { onSave: handleSavePage, saving, dirty, savedAt, disabled: loadError } : undefined}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard className={activeTab === 'ordem' ? 'hidden' : ''}>
+     <AdminCard className={activeTab === 'ordem' || activeTab === 'textos' ? 'hidden' : ''}>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -234,6 +239,9 @@ export default function AssociadasAdmin() {
       )}
      </AdminCard>
      {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+     <div className={activeTab === 'textos' ? '' : 'hidden'}>
+       <PageTextsForm pageKey="associadas" spec={ASSOCIADAS_TEXTS} title="Outros textos da página" />
+     </div>
      <div className={activeTab === 'ordem' ? '' : 'hidden'}>
        <SectionOrderForm pageKey="associadas" sections={PAGE_SECTIONS.associadas} />
      </div>
@@ -341,6 +349,12 @@ function CtaForm({ cfg, set }) {
         <Field label="Título — linha 1" value={cfg.logos_title_line1} onChange={v => set('logos_title_line1', v)} />
         <Field label="Título — destaque em verde" value={cfg.logos_title_highlight} onChange={v => set('logos_title_highlight', v)} />
       </div>
+      <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer w-fit">
+        <input type="checkbox" className="w-4 h-4 mt-0.5 accent-[#007a3d]" checked={cfg.logos_show_names !== false} onChange={e => set('logos_show_names', e.target.checked)} />
+        <span>Mostrar o nome da empresa abaixo da logo
+          <span className="block text-xs text-gray-400">Desmarcado, o nome some da tela, mas continua no cadastro e na descrição da imagem (ajuda o Google a identificar a empresa).</span>
+        </span>
+      </label>
     </div>
   );
 }

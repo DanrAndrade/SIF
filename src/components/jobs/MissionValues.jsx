@@ -33,9 +33,9 @@ export default function MissionValues({ cfg }) {
       <PhotoBand photo={BG} className="max-w-[1400px] mx-auto rounded-panel py-14 md:py-20 shadow-[0_40px_80px_-40px_rgba(6,25,15,0.7)]">
         <div className="relative px-6 md:px-12">
           <div className="text-center mb-12 md:mb-14">
-            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-4">{cfg.proposito_tag || 'Nosso propósito'}</span>
+            <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-4">{cfg.proposito_tag ?? 'Nosso propósito'}</span>
             <h2 className="sif-title text-3xl md:text-5xl text-white tracking-tight">
-              {cfg.proposito_title_line1 || 'O que nos'} <span className="text-sif-lime">{cfg.proposito_title_line2 || 'move'}</span>
+              {cfg.proposito_title_line1 ?? 'O que nos'} <span className="text-sif-lime">{cfg.proposito_title_line2 ?? 'move'}</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-white/15 gap-10 md:gap-0">

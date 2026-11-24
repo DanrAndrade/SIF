@@ -37,7 +37,7 @@ const PRIMARY_ICON = 'flex h-10 w-10 items-center justify-center rounded-full bg
 
 // Janela da vaga em dois passos: 1) detalhes  2) candidatura.
 // Envio para sif-api/candidates.php (multipart com o currículo em "cv").
-export default function ApplicationModal({ job, catLabel, onClose }) {
+export default function ApplicationModal({ job, catLabel, onClose, intro = 'Preencha seus dados e anexe o currículo. Levamos menos de dois minutos.' }) {
   const [step, setStep] = useState(1);
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [data, setData] = useState(EMPTY);
@@ -234,7 +234,7 @@ export default function ApplicationModal({ job, catLabel, onClose }) {
           ) : (
             <form id="form-candidatura" key="s2" onSubmit={handleSubmit} noValidate className="sif-job-step">
               <p className="mb-5 text-[15px] leading-relaxed text-gray-500">
-                Preencha seus dados e anexe o currículo. Levamos menos de dois minutos.
+                {intro}
               </p>
               <div className="grid grid-cols-1 gap-x-10 gap-y-1 md:grid-cols-2">
                 <LineField label="Nome completo" name="name" maxLength={100} autoComplete="name" value={data.name} onChange={handleChange} onBlur={handleBlur} required error={show('name')} />

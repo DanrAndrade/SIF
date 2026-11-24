@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { EMBRAPII_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -54,6 +55,7 @@ export default function ProjetosEmbrapii() {
   usePageTitle('Projetos SIF e EMBRAPII');
   const { config } = usePageConfig('embrapii');
   const c = { ...EMBRAPII_DEFAULTS, ...config };
+  const tx = withTexts(EMBRAPII_TEXTS, config); // Painel › Projetos SIF e EMBRAPII › Textos da página
   const frentes = Array.isArray(c.frentes) ? c.frentes.filter(f => f && f.title) : [];
   const sections = Array.isArray(c.sections) ? c.sections : [];
   const [projetos, setProjetos] = useState([]);
@@ -82,7 +84,7 @@ export default function ProjetosEmbrapii() {
       case 'steps': return <EmbSteps key={s.sec.id} sec={s.sec} photo={c.parceria_image} />;
       case 'textdoc': return <EmbTextDoc key={s.sec.id} sec={s.sec} docs={s.docs} />;
       case 'team': return <EmbTeam key={s.sec.id} sec={s.sec} />;
-      case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} photo={bandPhoto} />;
+      case 'committee': return <EmbCommittee key={(s.intro || s.people).id} intro={s.intro} people={s.people} bios={s.bios} photo={bandPhoto} labels={tx} />;
       case 'logos': return <EmbLogos key={s.sec.id} sec={s.sec} />;
       default: return <ContentSectionsRenderer key={s.sec.id || i} sections={[s.sec]} layout="page" bgPhoto={bandPhoto} />;
     }
@@ -108,7 +110,7 @@ export default function ProjetosEmbrapii() {
                 {c.projects_title && <h2 className="sif-title sif-h2 text-[#1f2937]">{c.projects_title}</h2>}
               </div>
               <Link to="/projetos" className={`shrink-0 self-start md:self-auto ${buttonClass('outline', 'sm')}`}>
-                <span className="py-2">Ver todos os projetos</span>
+                <span className="py-2">{tx.projects_all_btn}</span>
                 <BtnArrow variant="outline" size="sm" />
               </Link>
             </div>
@@ -135,7 +137,7 @@ export default function ProjetosEmbrapii() {
     logos: logoScenes.length > 0 ? logoScenes.map(renderScene) : null,
 
     // FALE CONOSCO: texto + formulário próprio (mensagens em Painel › Mensagens EMBRAPII)
-    contact: (c.cta_title || c.cta_text) ? <EmbContact c={c} photo={contactPhoto} /> : null,
+    contact: (c.cta_title || c.cta_text) ? <EmbContact c={c} photo={contactPhoto} labels={tx} /> : null,
   };
 
   return (

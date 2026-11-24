@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { JOBS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { JOB_CATEGORIES, jobCategory, jobCategoryLabel } from '../utils/jobCategories';
 import Navbar from '../components/Navbar';
@@ -67,6 +68,7 @@ export default function Jobs() {
   usePageTitle('Trabalhe Conosco');
   const { config: pageConfig } = usePageConfig('jobs');
   const cfg = { ...CONTENT_DEFAULTS, ...pageConfig };
+  const jt = withTexts(JOBS_TEXTS, pageConfig); // Painel › Trabalhe Conosco › Outros textos
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -95,7 +97,7 @@ export default function Jobs() {
   const currentJobs = filteredJobs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const goToPage = (page) => { setCurrentPage(page); scrollToJobs(); };
-  const openBanco = () => setSelectedJob(BANCO_JOB);
+  const openBanco = () => setSelectedJob({ ...BANCO_JOB, location: jt.banco_location, type: jt.banco_type, description: jt.banco_description });
   const closeModal = useCallback(() => setSelectedJob(null), []);
 
   const filterItems = [
@@ -142,15 +144,15 @@ export default function Jobs() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="rounded-panel bg-white px-6 py-14 text-center shadow-card sm:px-12 md:py-20">
-            <span className="sif-eyebrow mb-4">Nenhuma vaga no momento</span>
+            <span className="sif-eyebrow mb-4">{jt.empty_tag}</span>
             <p className="sif-title sif-h3 mx-auto max-w-xl text-sif-ink">
-              As próximas oportunidades <span className="text-sif-green">aparecem aqui.</span>
+              {jt.empty_title} <span className="text-sif-green">{jt.empty_title_hl}</span>
             </p>
             <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-gray-500">
-              Enquanto isso, deixe seu currículo no banco de talentos. Quando surgir uma vaga com o seu perfil, falamos com você.
+              {jt.empty_text}
             </p>
             <button type="button" onClick={openBanco} className={`mt-8 ${buttonClass('primary')}`}>
-              <span className="py-2">Cadastrar meu currículo</span>
+              <span className="py-2">{jt.empty_btn}</span>
               <BtnArrow variant="primary" />
             </button>
           </div>
@@ -222,6 +224,7 @@ export default function Jobs() {
           job={selectedJob}
           catLabel={selectedJob.id === 'banco' ? cfg.banco_tag : jobCategoryLabel(jobCategory(selectedJob), cfg)}
           onClose={closeModal}
+          intro={jt.apply_intro}
         />
       )}
     </div>

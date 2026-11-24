@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { CONTATO_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import { AdminPage, AdminCard, SaveButton, SaveStatus, useDirty } from '../../components/admin/kit';
 import { Save, Check, Loader2 } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -127,6 +129,7 @@ export default function ContatoAdmin() {
           <strong>Sobre o formulário:</strong> os campos do formulário são fixos (Nome, E-mail, Telefone, Assunto e Mensagem). As mensagens recebidas aparecem em <strong>Mensagens de contato</strong>.
         </p>
       </div>
+      <PageTextsForm pageKey={PAGE_KEY} spec={CONTATO_TEXTS} title="Outros textos da página" />
     </AdminPage>
   );
 }

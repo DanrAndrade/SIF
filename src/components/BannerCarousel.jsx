@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { http } from '../utils/http';
 import { API_BASE_URL, getImageUrl, heroW } from '../apiConfig';
 
-export default function BannerCarousel() {
+export default function BannerCarousel({ title = 'Destaques' }) {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -105,11 +105,13 @@ export default function BannerCarousel() {
     <section className="w-full mt-16 mb-8 py-10 bg-transparent relative z-20"> 
       
       {/* TÍTULO PADRÃO PARTNERS */}
+      {title && (
       <div className="text-center mb-10">
           <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">
-              Destaques
+              {title}
           </h2>
       </div>
+      )}
 
       {/* LARGURA E CONTAINER — full-bleed no mobile, centralizado no desktop */}
       <div className="w-full px-0 md:px-6 md:max-w-[1280px] md:mx-auto">

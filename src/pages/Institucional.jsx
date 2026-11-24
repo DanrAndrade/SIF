@@ -89,12 +89,6 @@ const DEFAULTS = {
   historia_title_highlight: 'Décadas',
   historia_title_line2: 'de Ciência',
 
-  cta_title_line1: 'O Amanhã é',
-  cta_title_highlight: 'Científico',
-  cta_btn1_label: 'Seja uma Associada',
-  cta_btn1_link: '/contato',
-  cta_btn2_label: 'Trabalhe Conosco',
-  cta_btn2_link: '/trabalhe-conosco',
   cta_card_enabled: true,
   cta_card_tag: 'Faça parte',
   cta_card_title: 'Sua empresa na maior rede de pesquisa florestal do Brasil',
@@ -246,7 +240,7 @@ export default function Institucional() {
   const blocks = {
     // QUEM SOMOS
     quem_somos: (
-        <div id="quem-somos" className="py-14 md:py-24">
+        <div id="quem-somos" className="py-14 md:py-16">
           <div className="container mx-auto px-6 md:px-12 lg:px-24">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
                   <div className="space-y-8 animate-in slide-in-from-left duration-1000">
@@ -282,7 +276,7 @@ export default function Institucional() {
 
     team: (
       // NOSSA GENTE: some inteira quando não há ninguém visível
-      <div id="nossa-gente" className={`py-14 md:py-32 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
+      <div id="nossa-gente" className={`py-14 md:py-16 ${teamFromApi && teamGroups.length === 0 ? 'hidden' : ''}`}>
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
               <div className="text-center mb-10 md:mb-20">
                   <span className="sif-eyebrow mb-4">{cfg.team_tag}</span>
@@ -298,14 +292,14 @@ export default function Institucional() {
 
     // ÁREAS DE ATUAÇÃO / REGIONAL
     areas: (
-      <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-14 md:py-32 overflow-hidden`}>
+      <div id="areas-atuacao" className={`${areas.length === 0 ? 'hidden ' : ''}bg-transparent py-14 md:py-16 overflow-hidden`}>
           {areas.length > 0 && <AreasAtuacao cfg={cfg} areas={areas} iconMap={AREA_ICON_MAP} />}
       </div>
     ),
 
     // ESTATUTO E NORMAS
     estatuto: (
-      <div id="estatutos-normas" className="bg-transparent py-14 md:py-32">
+      <div id="estatutos-normas" className="bg-transparent py-14 md:py-16">
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
 
               {/* Cabeçalho */}
@@ -379,7 +373,7 @@ export default function Institucional() {
 
     // LINHA DO TEMPO + CHAMADA FINAL
     historia: (
-      <div id="historia" className="history-container py-14 md:py-24" ref={mainRef}>
+      <div id="historia" className="history-container py-14 md:py-16" ref={mainRef}>
           <div className="container mx-auto px-6 md:px-12 max-w-7xl">
               <div className="text-center mb-32 relative z-10 flex flex-col items-center">
                   <div className="start-marker w-1 h-1 bg-transparent mb-16"></div>
@@ -409,29 +403,9 @@ export default function Institucional() {
                   ))}
               </div>
 
-              {/* CTA FINAL */}
-              <div className="mt-32 text-center">
-                  <div className="timeline-marker w-1 h-1 bg-transparent mb-12 mx-auto"></div>
-                  <h2 className="sif-title text-5xl md:text-8xl text-[#1f2937] mb-12 leading-none">
-                      {cfg.cta_title_line1}<br/><span className="text-[#007a3d]">{cfg.cta_title_highlight}</span>
-                  </h2>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                      {cfg.cta_btn1_label && (
-                        <Button href={cfg.cta_btn1_link} variant="primary" icon={ArrowRight}>
-                            {cfg.cta_btn1_label}
-                        </Button>
-                      )}
-                      {cfg.cta_btn2_label && (
-                        <Button href={cfg.cta_btn2_link} variant="outline">
-                            {cfg.cta_btn2_label}
-                        </Button>
-                      )}
-                  </div>
-              </div>
-
               {/* CARD DE CHAMADA — editável em Painel › Institucional › CTA Final */}
               {cfg.cta_card_enabled !== false && (cfg.cta_card_title || cfg.cta_card_text) && (
-                <div className="mt-32 relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
+                <div className="mt-16 md:mt-24 relative overflow-hidden rounded-panel bg-gradient-to-br from-[#007a3d] to-[#0f3d24] text-white shadow-2xl">
                   <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#7FBA00] rounded-full blur-[120px] opacity-25 pointer-events-none"></div>
                   <div className={`relative grid grid-cols-1 ${cfg.cta_card_image ? 'md:grid-cols-2' : ''} items-stretch`}>
                     <div className="p-10 md:p-16 flex flex-col justify-center">
@@ -478,7 +452,7 @@ export default function Institucional() {
       {/* Seções na ordem de Painel › Institucional › Ordem das seções */}
       <React.Fragment key={firstKey}>{blocks[firstKey]}</React.Fragment>
 
-      <div className="bg-transparent md:pt-20">
+      <div className="bg-transparent">
         {restKeys.map((k) => <React.Fragment key={k}>{blocks[k]}</React.Fragment>)}
       </div>
 

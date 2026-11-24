@@ -94,12 +94,6 @@ const DEFAULTS = {
   historia_title_highlight: 'Décadas',
   historia_title_line2: 'de Ciência',
 
-  cta_title_line1: 'O Amanhã é',
-  cta_title_highlight: 'Científico',
-  cta_btn1_label: 'Seja uma Associada',
-  cta_btn1_link: '/contato',
-  cta_btn2_label: 'Trabalhe Conosco',
-  cta_btn2_link: '/trabalhe-conosco',
   cta_card_enabled: true,
   cta_card_tag: 'Faça parte',
   cta_card_title: 'Sua empresa na maior rede de pesquisa florestal do Brasil',
@@ -218,7 +212,7 @@ export default function InstitucionalAdmin() {
     <AdminPage
       title="Página Institucional"
       subtitle="Edite os textos, a equipe e a linha do tempo. O botão Salvar vale para todas as abas."
-      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loadError }}
+      save={activeTab !== 'textos' && activeTab !== 'ordem' ? { onSave: handleSave, saving, dirty, savedAt, disabled: loadError } : undefined}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
@@ -558,18 +552,7 @@ function TimelineHeaderForm({ cfg, set }) {
 function CtaForm({ cfg, set, onFile, preview, onRemoveImage }) {
   return (
     <div className="space-y-5">
-      <p className="text-xs font-bold uppercase text-gray-500 tracking-widest">Título final e botões</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Título — linha 1" value={cfg.cta_title_line1} onChange={v => set('cta_title_line1', v)} />
-        <Field label="Título — destaque em verde" value={cfg.cta_title_highlight} onChange={v => set('cta_title_highlight', v)} />
-        <Field label="Botão 1 — texto" value={cfg.cta_btn1_label} onChange={v => set('cta_btn1_label', v)} />
-        <Field label="Botão 1 — link" value={cfg.cta_btn1_link} onChange={v => set('cta_btn1_link', v)} />
-        <Field label="Botão 2 — texto" value={cfg.cta_btn2_label} onChange={v => set('cta_btn2_label', v)} />
-        <Field label="Botão 2 — link" value={cfg.cta_btn2_link} onChange={v => set('cta_btn2_link', v)} />
-      </div>
-      <p className="text-xs text-gray-500">Deixe o texto de um botão vazio para escondê-lo.</p>
-
-      <div className="border-t border-gray-100 pt-5 space-y-5">
+      <div className="space-y-5">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs font-bold uppercase text-gray-500 tracking-widest">Card de chamada (último bloco da página)</p>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">

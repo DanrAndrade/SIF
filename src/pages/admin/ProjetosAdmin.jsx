@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { PROJETOS_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import { useConfirm, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useDirty, SaveButton, useCanLeave } from '../../components/admin/kit';
 import { Plus, Edit3, Trash2, X, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -139,6 +141,7 @@ export default function ProjetosAdmin() {
     >
 
       {view === 'list' && <PageHeaderForm pageKey="projetos" defaults={HERO_DEFAULTS} title="Cabeçalho da página /projetos" />}
+      {view === 'list' && <PageTextsForm pageKey="projetos" spec={PROJETOS_TEXTS} title="Textos da página /projetos e de cada projeto" />}
       {view === 'list' && <PageContactForm pageKey="projetos" title="Contato responsável por Projetos" />}
 
       {/* LISTA */}

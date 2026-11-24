@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ASSOCIADAS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { http } from '../utils/http';
 import Navbar from '../components/Navbar';
@@ -83,6 +84,7 @@ const DEFAULTS = {
   ],
 
   logos_tag: 'Nossa Rede',
+  logos_show_names: true, // nome abaixo da logo (desligado: o nome segue no alt da imagem, para o Google)
   logos_title_line1: 'Empresas que',
   logos_title_highlight: 'Confiam na SIF',
 
@@ -206,8 +208,11 @@ export default function Associadas() {
                     <span className="text-sm font-bold uppercase text-gray-400 text-center">{partner.name}</span>
                   )}
                 </div>
+                {(cfg.logos_show_names !== false || partner.address || partner.website) && (
                 <div className="mt-auto border-t border-gray-200 pt-3 md:pt-4">
-                  <p className="text-[12px] md:text-sm font-bold text-[#1f2937] uppercase tracking-tight leading-tight break-words">{partner.name}</p>
+                  {cfg.logos_show_names !== false && (
+                    <p className="text-[12px] md:text-sm font-bold text-[#1f2937] uppercase tracking-tight leading-tight break-words">{partner.name}</p>
+                  )}
                   {partner.address && (
                     <p className="text-[11px] md:text-xs text-gray-500 mt-1 leading-snug">{partner.address}</p>
                   )}
@@ -217,6 +222,7 @@ export default function Associadas() {
                     </span>
                   )}
                 </div>
+                )}
               </Card>
               );
             })}
@@ -305,6 +311,7 @@ function BenefitBig({ b, state }) {
 }
 
 function BenefitsScroller({ cfg }) {
+  const at = withTexts(ASSOCIADAS_TEXTS, cfg);
   const items = (cfg.benefits || []).filter(b => b && (b.title || b.description));
   const n = items.length;
   const wrap = useRef(null);
@@ -359,7 +366,7 @@ function BenefitsScroller({ cfg }) {
 
   const title = (
     <div>
-      <span className="sif-eyebrow !text-sif-lime mb-5">Benefícios</span>
+      {at.beneficios_tag && <span className="sif-eyebrow !text-sif-lime mb-5">{at.beneficios_tag}</span>}
       <h2 className="sif-title sif-h2 text-white leading-tight">
         {cfg.beneficios_title_line1} <br/>
         <span className="text-sif-lime">{cfg.beneficios_title_highlight}</span>

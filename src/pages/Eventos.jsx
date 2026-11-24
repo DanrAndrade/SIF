@@ -49,7 +49,7 @@ function formatEventDate(ev) {
   return ev.date || '';
 }
 
-function EventoCard({ ev, faded = false }) {
+function EventoCard({ ev, faded = false, badgeOpen = 'Inscrições Abertas', badgeDone = 'Concluído' }) {
   return (
     <Link
       to={`/eventos/${ev.slug}`}
@@ -93,7 +93,7 @@ function EventoCard({ ev, faded = false }) {
         )}
 
         <div className="flex items-center justify-between pt-5 border-t border-gray-50 mt-auto">
-          <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{faded ? 'Concluído' : 'Inscrições Abertas'}</span>
+          <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{faded ? badgeDone : badgeOpen}</span>
           <span className="flex items-center gap-1 text-[#007a3d] text-[10px] font-black uppercase tracking-wider group-hover:text-[#007a3d] transition-all">
             Ver Detalhes <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </span>
@@ -182,7 +182,7 @@ export default function Eventos() {
         {/* ── EVENTOS EM ANDAMENTO / PRÓXIMOS ── */}
         <section className={`${eincolActive ? 'pt-8 md:pt-12 pb-14 md:pb-24' : 'py-14 md:py-24'} bg-transparent scroll-mt-24`}>
           <div className="container mx-auto px-6 max-w-7xl">
-            <SectionTitle title="Eventos em" accent="Andamento" />
+            <SectionTitle title={et.list_open_title} accent={et.list_open_accent} />
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -198,7 +198,7 @@ export default function Eventos() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {ativos.map(ev => <EventoCard key={ev.id} ev={ev} />)}
+                {ativos.map(ev => <EventoCard key={ev.id} ev={ev} badgeOpen={et.badge_open} badgeDone={et.badge_done} />)}
               </div>
             )}
           </div>
@@ -208,9 +208,9 @@ export default function Eventos() {
         {!loading && concluidos.length > 0 && (
           <section className="py-14 md:py-24 pb-16 md:pb-32">
             <div className="container mx-auto px-6 max-w-7xl">
-              <SectionTitle title="Eventos" accent="Concluídos" />
+              <SectionTitle title={et.list_done_title} accent={et.list_done_accent} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {concluidos.map(ev => <EventoCard key={ev.id} ev={ev} faded />)}
+                {concluidos.map(ev => <EventoCard key={ev.id} ev={ev} faded badgeOpen={et.badge_open} badgeDone={et.badge_done} />)}
               </div>
             </div>
           </section>

@@ -358,7 +358,7 @@ function Avatar({ p, className = '' }) {
 // Notebook: foto da pessoa ocupando a coluna da esquerda (nome e cargo por cima)
 // e, à direita, barra fixa com "Fechar" e o texto rolando (lado da rolagem reto).
 // Celular: abre de baixo, com foto redonda, nome e "Fechar" no topo.
-function BioDialog({ person, bio, onClose }) {
+function BioDialog({ person, bio, onClose, label = 'Minibio' }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -396,7 +396,7 @@ function BioDialog({ person, bio, onClose }) {
           <div className="shrink-0 flex items-center gap-4 px-6 sm:px-10 lg:px-14 py-5 lg:py-6 border-b border-gray-100">
             <Avatar p={person} className="lg:hidden w-14 h-14 ring-2 ring-sif-green/20" />
             <div className="min-w-0 flex-1">
-              <span className="hidden lg:block text-[11px] font-bold uppercase tracking-[0.22em] text-sif-green">Minibio</span>
+              <span className="hidden lg:block text-[11px] font-bold uppercase tracking-[0.22em] text-sif-green">{label}</span>
               <p className="lg:hidden font-semibold leading-tight text-sif-ink">{person.name}</p>
               {person.role && <p className="lg:hidden mt-0.5 text-sm text-sif-green leading-snug">{person.role}</p>}
             </div>
@@ -410,7 +410,7 @@ function BioDialog({ person, bio, onClose }) {
   );
 }
 
-export function EmbCommittee({ intro, people, bios, photo }) {
+export function EmbCommittee({ intro, people, bios, photo, labels = {} }) {
   const items = (people?.items || []).filter(i => i && i.name);
   const bioMap = matchBios(items, bios?.tabs);
   const [open, setOpen] = useState(null);
@@ -449,7 +449,7 @@ export function EmbCommittee({ intro, people, bios, photo }) {
                       {bio && (
                         <span className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-sif-lime">
                           <span className="w-5 h-5 rounded-full bg-sif-lime/15 flex items-center justify-center transition-transform duration-300 group-hover:rotate-90"><Plus size={12} /></span>
-                          Ler minibio
+                          {labels.minibio_btn || 'Ler minibio'}
                         </span>
                       )}
                     </span>
@@ -460,7 +460,7 @@ export function EmbCommittee({ intro, people, bios, photo }) {
           </div>
         </div>
       </div>
-      {open && <BioDialog person={open} bio={bioMap.get(open)} onClose={() => setOpen(null)} />}
+      {open && <BioDialog person={open} bio={bioMap.get(open)} onClose={() => setOpen(null)} label={labels.minibio_label || 'Minibio'} />}
     </PhotoBand>
   );
 }
@@ -504,7 +504,7 @@ export function EmbLogos({ sec }) {
 }
 
 /* ─── FALE CONOSCO (texto + formulário próprio) ────────────────────── */
-export function EmbContact({ c, photo }) {
+export function EmbContact({ c, photo, labels = {} }) {
   return (
     <section id="fale-conosco" className="relative py-12 md:py-28 scroll-mt-24">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
@@ -525,7 +525,7 @@ export function EmbContact({ c, photo }) {
                 {c.cta_title && <h2 className="sif-title text-3xl leading-[1.1] tracking-tight text-sif-ink">{c.cta_title}</h2>}
               </div>
             )}
-            <EmbrapiiForm buttonLabel={c.form_button || 'Quero uma demonstração'} />
+            <EmbrapiiForm buttonLabel={c.form_button || 'Quero uma demonstração'} successTitle={labels.form_success_title} successText={labels.form_success_text} />
           </div>
         </div>
       </div>

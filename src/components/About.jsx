@@ -23,7 +23,7 @@ const DEFAULTS = {
 // ID do YouTube para usar a capa do próprio vídeo.
 const youtubeId = (url = '') => (url.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i) || [])[1];
 
-export default function About({ config = {} }) {
+export default function About({ config = {}, videoTitle = 'Vídeo Institucional SIF' }) {
   const c = { ...DEFAULTS, ...config };
   const txt = (v) => (v && String(v).trim()) || PENDING;
   const [video, setVideo] = useState(false);
@@ -97,7 +97,7 @@ export default function About({ config = {} }) {
         </div>
       </section>
 
-      {video && <VideoModal url={c.video_url} title="Vídeo Institucional SIF" onClose={() => setVideo(false)} />}
+      {video && <VideoModal url={c.video_url} title={videoTitle} onClose={() => setVideo(false)} />}
     </div>
   );
 }

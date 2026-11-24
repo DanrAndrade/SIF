@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { HOME_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { resolveGradient, TEXTURES } from '../utils/homeVisual';
 import NumbersBento from '../components/NumbersBento';
 import JobsCtaSection from '../components/JobsCtaSection';
@@ -23,6 +24,7 @@ export default function Home() {
 
   // Config editável via /admin/home. Tudo tem fallback nos componentes filhos.
   const { config } = usePageConfig('home');
+  const ht = withTexts(HOME_TEXTS, config); // títulos e botões (Painel › Página inicial › Textos da página)
   const grad = resolveGradient(config.visual);
   const texture = config.visual?.texture || 'nenhuma';
 
@@ -118,12 +120,12 @@ export default function Home() {
   // ficam sempre fixos no lugar.
   const order = pageSectionOrder('home', config);
   const blocks = {
-    banners: <BannerCarousel />,
+    banners: <BannerCarousel title={ht.banners_title} />,
 
     // --- SOBRE NÓS ---
     about: (
       <div id="quem-somos" className="py-12">
-        <About config={config.about} />
+        <About config={config.about} videoTitle={ht.video_title} />
       </div>
     ),
 
@@ -143,7 +145,7 @@ export default function Home() {
     ),
 
     // --- PARCEIROS ---
-    partners: <Partners />,
+    partners: <Partners title={ht.partners_title} />,
 
     // --- TRABALHE CONOSCO (card para a página de vagas) ---
     jobs_cta: <JobsCtaSection config={config.jobs_cta} />,
@@ -152,12 +154,12 @@ export default function Home() {
     process: (
       <div className="py-14 px-0 md:py-24 md:px-6">
         <div className="w-full max-w-[1280px] mx-auto px-0">
-          <Process config={config.process} />
+          <Process config={config.process} btnLabel={ht.process_btn} />
         </div>
       </div>
     ),
 
-    faq: <FAQ pageKey="home" sideConfig={config.faq_side} />,
+    faq: <FAQ pageKey="home" sideConfig={config.faq_side} tag={ht.faq_tag} title={ht.faq_title} />,
   };
   const orderSig = order.join(',');
 

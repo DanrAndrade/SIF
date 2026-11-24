@@ -108,7 +108,7 @@ export function DetailNotFound({ title, backHref, backLabel }) {
 
 export default function DetailPage({
   cover, crumbs, eyebrow, title, summary, chips = [], facts = [], about, sections, videoUrl,
-  cta, pageKey, contactTitle = 'Fale com a equipe', bandPhotos = [],
+  cta, pageKey, contactTitle = 'Fale com a equipe', contactButton = 'Falar com a equipe', bandPhotos = [],
 }) {
   const [contact, setContact] = useState(null);
   const [activeId, setActiveId] = useState('');
@@ -196,7 +196,7 @@ export default function DetailPage({
           )}
           {onContact && (
             <button type="button" onClick={onContact} className={buttonClass(ctaExternal ? 'ghostLight' : 'light', 'sm')}>
-              <span className="py-2">Falar com a equipe</span><BtnArrow variant={ctaExternal ? 'ghostLight' : 'light'} size="sm" icon={MessageCircle} />
+              <span className="py-2">{contactButton}</span><BtnArrow variant={ctaExternal ? 'ghostLight' : 'light'} size="sm" icon={MessageCircle} />
             </button>
           )}
         </> : null}

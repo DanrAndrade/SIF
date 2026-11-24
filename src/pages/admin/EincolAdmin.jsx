@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { EINCOL_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
 import LogosEditor from '../../components/admin/sections/LogosEditor';
 import { TitleField, TitleExtraControls } from '../../components/admin/sections/TitleStyleFields';
 import { useConfirm, AdminPage, SaveButton, useDirty, ItemActions } from '../../components/admin/kit';
@@ -468,6 +470,7 @@ export default function EincolAdmin() {
           <SaveButton type="submit" saving={loading} label="Salvar configuração EINCOL" />
         </div>
       </form>
+      <PageTextsForm pageKey="eincol" spec={EINCOL_TEXTS} title="Títulos e botões da página" />
     </AdminPage>
   );
 }

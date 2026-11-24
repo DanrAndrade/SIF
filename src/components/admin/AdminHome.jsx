@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { HOME_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from './PageTextsForm';
 import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, moveItem, ImageField as KitImageField } from './kit';
 import { GRADIENT_PRESETS, TEXTURES, resolveGradient } from '../../utils/homeVisual';
 import axios from 'axios';
 import {
   Save, UploadCloud, Plus, Trash2, ChevronUp, ChevronDown,
-  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase, ListOrdered,
-} from 'lucide-react';
+  Home as HomeIcon, Award, FileText, LayoutGrid, Compass, HelpCircle, Loader2, Check, BarChart3, Briefcase, ListOrdered, Type } from 'lucide-react';
 import { Input, TextArea } from '../ui/FormElements';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
 import { API_BASE_URL, getImageUrl } from '../../apiConfig';
@@ -144,6 +145,7 @@ const TABS = [
   { id: 'jobs_cta',    label: 'Trabalhe Conosco', icon: Briefcase },
   { id: 'faq',         label: 'FAQ',          icon: HelpCircle },
   { id: 'ordem',       label: 'Ordem das seções', icon: ListOrdered },
+  { id: 'textos',      label: 'Textos', icon: Type },
 ];
 
 export default function AdminHome() {
@@ -198,6 +200,8 @@ export default function AdminHome() {
       // A ordem das seções tem botão próprio (aba Ordem das seções): não vai
       // junto aqui, senão uma versão antiga dela apagaria a nova.
       const { [SECTION_ORDER_FIELD]: _ordem, ...toSave } = config;
+      // Os títulos/botões têm cartão próprio (aba Textos): não reenviar a cópia antiga
+      for (const k of Object.keys(HOME_TEXTS.defaults)) delete toSave[k];
       fd.append('content_json', JSON.stringify(toSave));
       for (const [field, file] of Object.entries(pendingFiles)) fd.append(field, file);
       const res = await axios.post(API_URL, fd);
@@ -231,12 +235,12 @@ export default function AdminHome() {
     <AdminPage
       title="Página Home"
       subtitle="Os campos já vêm preenchidos com o conteúdo atual do site. Edite e clique em Salvar."
-      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loadError }}
+      save={activeTab !== 'textos' && activeTab !== 'ordem' ? { onSave: handleSave, saving, dirty, savedAt, disabled: loadError } : undefined}
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-     <AdminCard className={activeTab === 'ordem' ? 'hidden' : ''}>
+     <AdminCard className={activeTab === 'ordem' || activeTab === 'textos' ? 'hidden' : ''}>
       {error && <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">{error}</div>}
 
       {activeTab === 'hero' && (
@@ -273,6 +277,9 @@ export default function AdminHome() {
       )}
      </AdminCard>
      {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+     <div className={activeTab === 'textos' ? '' : 'hidden'}>
+       <PageTextsForm pageKey="home" spec={HOME_TEXTS} title="Títulos e botões da página inicial" />
+     </div>
      <div className={activeTab === 'ordem' ? '' : 'hidden'}>
        <SectionOrderForm pageKey={PAGE_KEY} sections={PAGE_SECTIONS.home} fixedTop="Topo verde (vídeo ou foto + Missão, Visão e Valores)" />
      </div>
@@ -514,7 +521,15 @@ function HeroVideoFields({ config, update }) {
           </div>
         )}
         {hasVideo && <video src={getImageUrl(config.video_loop_short || config.video_loop)} poster={config.video_poster ? getImageUrl(config.video_poster) : undefined} className="w-full max-w-md rounded-lg" muted loop autoPlay playsInline />}
-        <Input label="Texto do botão de vídeo (embaixo, no centro)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo" />
+        <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer w-fit">
+          <input type="checkbox" className="w-4 h-4 mt-0.5 accent-[#007a3d]" checked={config.video_full_enabled !== false} onChange={(e) => update({ video_full_enabled: e.target.checked })} />
+          <span>Mostrar o botão para assistir o vídeo completo
+            <span className="block text-xs text-gray-400">Desmarcado, o vídeo continua no fundo e o botão dá lugar à seta de rolar a página.</span>
+          </span>
+        </label>
+        {config.video_full_enabled !== false && (
+          <Input label="Texto do botão de vídeo (embaixo, no centro)" value={config.video_full_label || ''} onChange={(e) => update({ video_full_label: e.target.value })} placeholder="Assistir vídeo" />
+        )}
       </>)}
     </div>
   );

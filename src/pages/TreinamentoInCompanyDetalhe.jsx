@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { IN_COMPANY_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import { useParams } from 'react-router-dom';
 import { Clock, MapPin, Layers, Building2, MonitorSmartphone } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -14,6 +16,8 @@ export default function TreinamentoInCompanyDetalhe() {
   const { slug } = useParams();
   const [training, setTraining] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { config: pageCfg } = usePageConfig('treinamentos_in_company');
+  const tx = withTexts(IN_COMPANY_TEXTS, pageCfg); // Painel › Treinamentos In-Company › Textos da página
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,23 +47,25 @@ export default function TreinamentoInCompanyDetalhe() {
     <DetailPage
       cover={cover}
       crumbs={[{ label: 'Treinamentos In-Company', to: '/treinamentos-in-company' }]}
-      eyebrow="Treinamento In-Company"
+      eyebrow={tx.detail_eyebrow}
       title={training.title}
       summary={extra.summary || ""}
       chips={[{ icon: Clock, text: hours }, { icon: Layers, text: training.segment }]}
       facts={[
-        { icon: Layers, label: 'Área', value: training.segment },
+        { icon: Layers, label: tx.fact_area, value: training.segment },
         // In-company é sempre uma turma fechada, montada para a empresa
-        { icon: Building2, label: 'Turma', value: 'Exclusiva para a sua empresa' },
-        { icon: MonitorSmartphone, label: 'Formato', value: extra.modality },
-        { icon: Clock, label: 'Carga horária', value: hours },
-        { icon: MapPin, label: 'Local', value: training.location },
+        { icon: Building2, label: tx.fact_class, value: tx.class_value },
+        { icon: MonitorSmartphone, label: tx.fact_format, value: extra.modality },
+        { icon: Clock, label: tx.fact_hours, value: hours },
+        { icon: MapPin, label: tx.fact_place, value: training.location },
       ]}
-      about={{ title: 'Sobre o treinamento', html: legacy.aboutHtml }}
+      about={{ title: tx.detail_about_title, html: legacy.aboutHtml }}
       sections={legacy.sections}
       videoUrl={training.video_url}
       cta={ctaFrom(extra, 'Solicitar proposta')}
       pageKey="treinamentos_in_company"
+      contactTitle={tx.contact_title}
+      contactButton={tx.contact_btn}
       bandPhotos={training.image_url ? [getImageUrl(training.image_url, 1280)] : []}
     />
   );

@@ -57,7 +57,7 @@ export default function PageTextsForm({ pageKey, spec, title = 'Textos da págin
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {g.fields.map(f => (
                 <div key={f.key} className={f.wide ? 'md:col-span-3' : ''}>
-                  <Field label={f.label} type={f.type} rows={f.rows} value={cfg[f.key] ?? ''} onChange={v => set(f.key, v)} />
+                  <Field label={f.label} type={f.type} rows={f.rows} hint={f.hint} value={cfg[f.key] ?? ''} onChange={v => set(f.key, v)} />
                 </div>
               ))}
             </div>

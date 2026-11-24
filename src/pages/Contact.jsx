@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { CONTATO_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -36,6 +37,7 @@ export default function Contact() {
   const { hash } = useLocation();
   const { config } = usePageConfig('contato');
   const cfg = { ...CONTENT_DEFAULTS, ...config };
+  const tx = withTexts(CONTATO_TEXTS, config); // Painel › Contato › Outros textos
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -62,6 +64,7 @@ export default function Contact() {
             {/* no celular os canais diretos ficam abaixo do formulário */}
             <div className="order-2 lg:order-1 lg:col-span-5">
               <ContactChannels
+                mapLabel={tx.map_link}
                 title={cfg.canais_title}
                 phrase={cfg.canais_frase ?? 'Prefere falar direto?'}
                 phraseMuted={cfg.canais_frase_suave ?? 'Ligue, escreva ou venha até nós.'}
@@ -74,7 +77,7 @@ export default function Contact() {
               />
             </div>
             <div className="order-1 lg:order-2 lg:col-span-7">
-              <ContactForm tag={cfg.form_tag} titleLine1={cfg.form_title_line1} titleLine2={cfg.form_title_line2} />
+              <ContactForm successTitle={tx.success_title} successText={tx.success_text} tag={cfg.form_tag} titleLine1={cfg.form_title_line1} titleLine2={cfg.form_title_line2} />
             </div>
           </div>
         </div>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { EINCOL_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import ParallaxLayer from '../components/ui/ParallaxLayer';
 import LogoCarousel from '../components/sections/LogoCarousel';
 import SectionTitle from '../components/sections/SectionTitle';
@@ -15,6 +17,8 @@ const API_URL = `${API_BASE_URL}/eincol.php`;
 
 export default function Eincol() {
   const [config, setConfig] = useState(null);
+  const { config: textCfg } = usePageConfig('eincol');
+  const tx = withTexts(EINCOL_TEXTS, textCfg); // Painel › EINCOL › Textos da página
   usePageTitle(config?.hero_title || 'EINCOL'); // título da aba do navegador / Google
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
@@ -74,7 +78,7 @@ export default function Eincol() {
 
         {/* Conteúdo do Hero */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">Evento Especial SIF</span>
+          <span className="block text-xs font-bold uppercase tracking-[0.25em] text-sif-lime mb-8">{tx.hero_tag}</span>
 
           <h1 className="sif-title sif-title-strong text-6xl sm:text-8xl md:text-[10rem] text-white tracking-tighter leading-none mb-6 drop-shadow-2xl">
             {title}
@@ -93,7 +97,7 @@ export default function Eincol() {
             }}
             className="flex flex-col items-center gap-3 text-white/50 hover:text-white transition-colors group"
           >
-            <span className="text-[10px] font-black uppercase tracking-[0.25em]">Saiba Mais</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em]">{tx.hero_scroll}</span>
             <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#007a3d] group-hover:bg-[#007a3d] transition-all">
               <ChevronDown size={20} className="animate-bounce" />
             </div>
@@ -147,16 +151,16 @@ export default function Eincol() {
                   </div>
                 )}
                 <div className="flex-shrink-0 md:w-72 text-center md:text-left">
-                  <span className="text-[#7FBA00] text-[10px] font-black uppercase tracking-[0.25em] block mb-4">Planta do Evento</span>
+                  <span className="text-[#7FBA00] text-[10px] font-black uppercase tracking-[0.25em] block mb-4">{tx.plant_tag}</span>
                   <h2 className="sif-title sif-title-strong text-3xl md:text-4xl leading-[1.1] text-white tracking-tight mb-8">
-                    Conheça o<br /><span className="text-sif-lime">Espaço</span>
+                    {tx.plant_title}<br /><span className="text-sif-lime">{tx.plant_title_hl}</span>
                   </h2>
                   {config.planta_url && (
                     <SmartLink
                       href={config.planta_url}
                       className={buttonClass('light', 'lg')}
                     >
-                      <span className="py-2">Baixar Planta</span>
+                      <span className="py-2">{tx.plant_btn}</span>
                       <BtnArrow variant="light" size="lg" icon={Download} />
                     </SmartLink>
                   )}
@@ -171,7 +175,7 @@ export default function Eincol() {
           <section className="py-16 bg-transparent border-t border-gray-100">
             <div className="container mx-auto px-6 max-w-4xl">
               <h2 className="sif-title sif-title-strong text-2xl tracking-tighter text-[#1f2937] mb-8">
-                Downloads
+                {tx.downloads_title}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {pdfs.map((pdf, i) => (
@@ -202,7 +206,7 @@ export default function Eincol() {
           <section className="py-14 md:py-24">
             <div className="container mx-auto px-6 max-w-5xl">
               <h2 className="sif-title sif-title-strong text-4xl tracking-tighter text-[#1f2937] mb-12">
-                Programação
+                {tx.schedule_title}
               </h2>
 
               {/* Tab pills */}

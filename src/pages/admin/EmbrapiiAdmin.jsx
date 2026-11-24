@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Plus, Info, Layers, FolderKanban, Megaphone, ListOrdered } from 'lucide-react';
+import { EMBRAPII_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from '../../components/admin/PageTextsForm';
+import { Loader2, Plus, Info, Layers, FolderKanban, Megaphone, ListOrdered, Type } from 'lucide-react';
 import { AdminPage, AdminCard, SecondaryButton, ItemActions, moveItem, useDirty, useConfirm, ImageField } from '../../components/admin/kit';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
@@ -17,6 +19,7 @@ const TABS = [
   { id: 'projetos', label: 'Projetos',     icon: FolderKanban },
   { id: 'cta',      label: 'Fale conosco', icon: Megaphone },
   { id: 'ordem',    label: 'Ordem das seções', icon: ListOrdered },
+  { id: 'textos',   label: 'Textos', icon: Type },
 ];
 const KEYS = Object.keys(EMBRAPII_DEFAULTS);
 
@@ -73,11 +76,12 @@ export default function EmbrapiiAdmin() {
     <AdminPage
       title="Projetos SIF e EMBRAPII"
       subtitle="Página /projetos-sif-embrapii. O cabeçalho tem botão próprio; o resto é salvo pelo botão do topo."
-      save={{ onSave: handleSave, saving, dirty, savedAt, disabled: loading || uploading || loadError }}
+      save={tab !== 'textos' && tab !== 'ordem' ? { onSave: handleSave, saving, dirty, savedAt, disabled: loading || uploading || loadError } : undefined}
       tabs={TABS} activeTab={tab} onTabChange={setTab}
     >
       <div className={tab === 'intro' ? '' : 'hidden'}><PageHeaderForm pageKey={PAGE_KEY} defaults={EMBRAPII_HERO_DEFAULTS} title="Cabeçalho da página" /></div>
       {/* Sempre montado (só escondido): trocar de aba não perde a ordem não salva */}
+      <div className={tab === 'textos' ? '' : 'hidden'}><PageTextsForm pageKey={PAGE_KEY} spec={EMBRAPII_TEXTS} title="Outros textos da página" /></div>
       <div className={tab === 'ordem' ? '' : 'hidden'}><SectionOrderForm pageKey={PAGE_KEY} sections={PAGE_SECTIONS.embrapii} /></div>
 
       {loading ? (

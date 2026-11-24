@@ -78,6 +78,20 @@ export default function Navbar({ scrolled: forceScrolled }) {
     { 
       name: 'Produtos e Serviços', 
       href: '/produtos-servicos', 
+      // Cada item abre a aba (e sub-aba) correspondente da página Produtos e Serviços.
+      // O "#..." é o nome da sub-aba no painel: se o nome da sub-aba mudar, ajuste aqui.
+      submenu: [
+        { name: 'Visão Geral', href: '/produtos-servicos', mobileOnly: true },
+        { name: 'Comercial', href: '/produtos-servicos?aba=comercial', group: true },
+        { name: 'Sementes', href: '/produtos-servicos?aba=comercial#venda-de-sementes', indent: true },
+        { name: 'Tubetes Biodegradáveis', href: '/produtos-servicos?aba=comercial#tubetes-biodegradaveis-ellepots', indent: true },
+        { name: 'Treinamentos In Company', href: '/produtos-servicos?aba=comercial#treinamentos', indent: true },
+        { name: 'Serviços Especializados', href: '/produtos-servicos?aba=pd', indent: true },
+        { name: 'Programa Germinar', href: '/produtos-servicos?aba=germinar', indent: true },
+        { name: 'Boletim Técnico', href: '/produtos-servicos?aba=boletim' },
+        { name: 'Importação e Exportação', href: '/produtos-servicos?aba=comercial#importacao-e-exportacao-florestal' },
+        { name: 'Proteção de Cultivares', href: '/produtos-servicos?aba=comercial#protecao-de-cultivares' },
+      ],
     },
     {
       name: 'Eventos & Treinamentos',
@@ -95,10 +109,8 @@ export default function Navbar({ scrolled: forceScrolled }) {
       name: 'Projetos', 
       href: '#', 
       submenu: [
-        { name: 'Projetos', href: '/projetos' },
-        { name: 'Portal da Transparência', href: 'https://sif.conveniar.com.br/portaltransparencia/', external: true },
-        { name: 'Conveniar', href: 'https://sif.conveniar.com.br/', external: true },
-        { name: 'SIF e EMBRAPII', href: '/projetos-sif-embrapii' },
+        { name: 'Projetos SIF', href: '/projetos' },
+        { name: 'Embrapii', href: '/projetos-sif-embrapii' },
       ]
     },
     { 
@@ -157,7 +169,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
 
                         {link.submenu && (
                             <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 border border-gray-100 overflow-hidden">
-                                {link.submenu.filter(s => !s.mobileOnly).map((sub) => (
+                                {link.submenu.filter(s => !s.mobileOnly).map((sub, si, arr) => (
                                     sub.external ? (
                                         <a
                                             key={sub.name}
@@ -172,7 +184,9 @@ export default function Navbar({ scrolled: forceScrolled }) {
                                         <Link
                                             key={sub.name}
                                             to={sub.href}
-                                            className="block px-6 py-4 text-[10px] font-medium uppercase tracking-widest text-gray-600 hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0"
+                                            className={sub.indent
+                                              ? 'block pl-10 pr-6 py-2.5 text-[10px] font-medium uppercase tracking-widest text-gray-500 hover:bg-gray-50 hover:text-[#007a3d] transition-colors'
+                                              : `block px-6 py-4 text-[10px] uppercase tracking-widest hover:bg-gray-50 hover:text-[#007a3d] transition-colors border-b border-gray-50 last:border-0 ${sub.group ? 'font-bold text-[#1f2937] border-b-0 pb-2' : 'font-medium text-gray-600'} ${arr[si - 1]?.indent ? 'border-t border-gray-100 mt-1' : ''}`}
                                         >
                                             {sub.name}
                                         </Link>
@@ -244,7 +258,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
                         <div className="overflow-hidden">
                           <div className="pb-4 pl-4 border-l border-white/15 ml-1 flex flex-col">
                             {link.submenu.map((sub) => {
-                              const cls = 'py-2.5 text-[15px] text-white/70 hover:text-white transition-colors';
+                              const cls = `py-2.5 text-[15px] hover:text-white transition-colors ${sub.indent ? 'pl-4 text-white/60' : sub.group ? 'text-white font-semibold' : 'text-white/70'}`;
                               return sub.external
                                 ? <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className={cls}>{sub.name}</a>
                                 : <Link key={sub.name} to={sub.href} onClick={closeMenu} className={cls}>{sub.name}</Link>;

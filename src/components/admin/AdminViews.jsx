@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { JOBS_TEXTS } from '../../utils/pageTextDefaults';
+import PageTextsForm from './PageTextsForm';
 import { jobCategory } from '../../utils/jobCategories';
-import { useConfirm, useDirty, AdminPage, PrimaryButton, SecondaryButton, ItemActions } from './kit';
+import { useConfirm, useDirty, AdminPage, PrimaryButton, SecondaryButton, ItemActions, useCanLeave } from './kit';
 import { Search, Mail, Phone, Calendar, CheckCircle2, XCircle, Eye, Trash2, Edit, Plus, Send, AlertTriangle, FileText, Download, User, X, Undo2, RefreshCw } from 'lucide-react';
 import { Input, TextArea, Select } from '../ui/FormElements';
 import Button from './kit/AdminButton'; // botão do painel (sem a seta do site)
@@ -262,6 +264,7 @@ export const CandidatesView = () => {
 // --- VIEW 3: CRUD VAGAS ---
 export const JobsManagerView = () => {
   const confirm = useConfirm();
+  const canLeave = useCanLeave(); // textos/cabeçalho não salvos nos cartões de cima
     const [jobs, setJobs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentJob, setCurrentJob] = useState({ title: '', location: '', type: '', salary: '', description: '', active: 1, tipo_vaga: 'Interna', requirements: [] });
@@ -356,9 +359,10 @@ export const JobsManagerView = () => {
 
     return (
         <AdminPage title="Trabalhe Conosco" subtitle="Cabeçalho, textos da página e vagas abertas. Cada bloco tem o próprio botão de salvar."
-            actions={<PrimaryButton icon={Plus} onClick={()=>{setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova vaga</PrimaryButton>}>
+            actions={<PrimaryButton icon={Plus} onClick={async ()=>{ if (!(await canLeave())) return; setCurrentJob({title:'', location:'', type:'', salary:'', description:'', active: 1, tipo_vaga: 'Interna', requirements:[]}); setIsEditing(true);}}>Nova vaga</PrimaryButton>}>
             <PageHeaderForm pageKey="jobs" defaults={JOBS_HERO_DEFAULTS} title="Cabeçalho da página /trabalhe-conosco" />
             <PageContentForm pageKey="jobs" defaults={JOBS_CONTENT_DEFAULTS} fields={JOBS_CONTENT_FIELDS} title="Textos da página /trabalhe-conosco" />
+            <PageTextsForm pageKey="jobs" spec={JOBS_TEXTS} title="Outros textos da página /trabalhe-conosco" />
             <SectionOrderForm pageKey="jobs" sections={PAGE_SECTIONS.jobs} title="Ordem das seções da página /trabalhe-conosco" />
             <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest pt-2">Vagas cadastradas</h3>
             <div className="grid gap-4">
@@ -375,7 +379,7 @@ export const JobsManagerView = () => {
                           <p className="text-xs text-gray-500 font-bold uppercase mt-1">{job.location} • {job.type}</p>
                         </div>
                         <div className="flex gap-2">
-                            <ItemActions onEdit={()=>{setCurrentJob({ ...job, tipo_vaga: jobCategory(job) }); setIsEditing(true);}} onDelete={()=>handleDelete(job.id)} />
+                            <ItemActions onEdit={async ()=>{ if (!(await canLeave())) return; setCurrentJob({ ...job, tipo_vaga: jobCategory(job) }); setIsEditing(true);}} onDelete={()=>handleDelete(job.id)} />
                         </div>
                     </div>
                 ))}

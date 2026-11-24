@@ -38,7 +38,7 @@ const validate = (d) => {
 // Formulário da página de contato: mesmos campos e mesmo envio para
 // sif-api/leads.php de antes, agora com validação campo a campo e botão
 // com estados (enviando / enviado).
-export default function ContactForm({ tag, titleLine1, titleLine2 }) {
+export default function ContactForm({ tag, titleLine1, titleLine2, successTitle = 'Mensagem enviada.', successText = 'Obrigado pelo contato. Sua mensagem foi entregue à nossa secretaria técnica.' }) {
   const [data, setData] = useState(EMPTY);
   const [touched, setTouched] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -102,9 +102,9 @@ export default function ContactForm({ tag, titleLine1, titleLine2 }) {
           <div className="w-16 h-16 rounded-full bg-sif-green text-white flex items-center justify-center mb-8">
             <Check size={30} strokeWidth={2.5} />
           </div>
-          <p className="sif-h3 sif-title text-sif-ink mb-3">Mensagem enviada.</p>
+          <p className="sif-h3 sif-title text-sif-ink mb-3">{successTitle}</p>
           <p className="text-gray-500 leading-relaxed max-w-md mb-10">
-            Obrigado pelo contato. Sua mensagem foi entregue à nossa secretaria técnica.
+            {successText}
           </p>
           <button
             type="button"

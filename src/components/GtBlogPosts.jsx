@@ -12,7 +12,7 @@ const fmt = (d) => (d ? new Date(String(d).replace(' ', 'T')).toLocaleDateString
 //  - posts: lista já carregada pela página (senão busca sozinho pelo gtId)
 //  - sec: bloco "Blog do grupo" (título/etiqueta escolhidos no painel)
 // Some quando o grupo ainda não tem posts.
-export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null, dark = false }) {
+export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null, dark = false, btnLabel = 'Ver o blog completo' }) {
   const [fetched, setFetched] = useState([]);
   useEffect(() => {
     if (given || !gtId) return;
@@ -31,7 +31,7 @@ export default function GtBlogPosts({ gtId, posts: given, limit = 3, sec = null,
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
         <BlockHeader sec={header} dark={dark} className="mb-0" />
         <Link to="/blog" className={`shrink-0 self-start md:self-auto ${buttonClass(dark ? 'ghostLight' : 'outline', 'sm')}`}>
-          <span className="py-2">Ver o blog completo</span>
+          <span className="py-2">{btnLabel}</span>
           <BtnArrow variant={dark ? 'ghostLight' : 'outline'} size="sm" />
         </Link>
       </div>

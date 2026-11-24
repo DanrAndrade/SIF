@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { IN_COMPANY_TEXTS, withTexts } from '../utils/pageTextDefaults';
+import { usePageConfig } from '../hooks/usePageConfig';
 import LoadError from '../components/ui/LoadError';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
@@ -19,6 +21,8 @@ const HERO_DEFAULTS = {
 
 export default function TreinamentosInCompany() {
   const [loadError, setLoadError] = useState(false);
+  const { config: pageCfg } = usePageConfig('treinamentos_in_company');
+  const tx = withTexts(IN_COMPANY_TEXTS, pageCfg);
   usePageTitle('Treinamentos In-Company'); // título da aba do navegador / Google
   const [trainings, setTrainings] = useState([]);
   const [segments, setSegments] = useState(['Todos']);
@@ -75,7 +79,7 @@ export default function TreinamentosInCompany() {
               ))}
             </div>
             <div className="hidden lg:flex items-center gap-4 text-gray-400">
-              <span className="text-[10px] font-bold uppercase tracking-widest italic">{filteredTrainings.length} Cursos disponíveis</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest italic">{filteredTrainings.length} {tx.count_label}</span>
             </div>
           </div>
 
