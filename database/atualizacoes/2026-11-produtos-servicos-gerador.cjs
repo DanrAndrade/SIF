@@ -8,6 +8,8 @@ const ul = (items) => '<ul>' + items.map(i => `<li>${i}</li>`).join('') + '</ul>
 const table = (head, rows, foot) => `<div class="sif-table-wrap" contenteditable="false"><table class="sif-table"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>${foot ? `<tfoot><tr>${foot.map(c => `<td>${c}</td>`).join('')}</tr></tfoot>` : ''}</table></div>`;
 let n = 0; const id = (p) => `prod-${p}-${++n}`;
 
+// Texto original das sub-abas; títulos grandes (h1) viram subtítulo e o alinhamento volta para a esquerda
+const tidy = (h) => String(h || '').replace(/<h1(\s[^>]*)?>/g, '<h3>').replace(/<\/h1>/g, '</h3>').replace(/ class="ql-align-center"/g, '');
 const tabC = Object.fromEntries((live.comercial_sections[0].tabs || []).map(t => [t.title, t.content]));
 const editorFinal = live.comercial_sections[1]; // "Não perca tempo..." (conteúdo original da SIF)
 
@@ -46,7 +48,7 @@ const comercial = [
   { id: id('sementes'), type: 'stats', title: 'Valor comercial', items: [
     { value: '$100', label: 'por 5 g de sementes Deforsa' },
     { value: '300', label: 'mudas, em média, com 5 g' },
-    { value: '-5 g', label: 'também comercializamos quantidades inferiores a 5 g' },
+    { value: '< 5 g', label: 'também comercializamos quantidades inferiores a 5 g' },
   ] },
   { id: id('sementes'), type: 'logos', title: 'Empresas que já adquiriram nossas sementes', images: ['arborgen', 'paracel', 'suzano', 'bracell', 'cmpc', 'amcel', 'klabin', 'eldorado'].map(l => ({ url: IMG('logo-' + l), alt: l })) },
   { id: id('sementes'), type: 'cta', title: 'Aumente a variabilidade genética do seu programa',
@@ -66,7 +68,7 @@ const comercial = [
     { title: 'Qualidade de mudas', text: 'Aumento de 25% na sobrevivência das mudas no campo e melhoria do sistema radicular.', image: IMG('ellepot-muda-na-mao') },
   ] },
   { id: id('tubetes'), type: 'editor', title: 'Tubete plástico x tubete Ellepot',
-    content: (tabC['Tubetes Biodegradáveis Ellepots'] || '').replace(/<p[^>]*>\s*Entre em contato[\s\S]*$/i, '') +
+    content: tidy(tabC['Tubetes Biodegradáveis Ellepots']).replace(/<p[^>]*>\s*Entre em contato[\s\S]*$/i, '') +
       table(['', 'Tubete de plástico', 'Tubete Ellepot biodegradável'], [
         ['Impacto ambiental', 'Gera resíduos plásticos persistentes (não degradáveis)', 'Degrada-se no solo em curto prazo, reduzindo a poluição'],
         ['Custos operacionais', 'Exige retorno, desinfecção, reposição e armazenamento', 'Elimina custos com retorno, desinfecção, logística reversa e armazenamento'],
@@ -97,7 +99,7 @@ const comercial = [
 
   // Treinamentos In Company
   { id: id('treinamentos'), type: 'text_image', nav_label: 'Treinamentos In Company', eyebrow: 'Capacitação', title: 'Treinamentos In Company', image: IMG('germinar-reuniao-mapas'), image_side: 'right',
-    content: tabC['Treinamentos'] || '' },
+    content: tidy(tabC['Treinamentos']) },
   { id: id('treinamentos'), type: 'cta', title: 'Conheça os treinamentos In Company',
     text: 'Veja os programas disponíveis e leve um treinamento alinhado às necessidades da sua equipe.',
     btn_label: 'Ver treinamentos', btn_link: '/treinamentos-in-company' },

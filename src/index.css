@@ -573,6 +573,9 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 }
 .sif-table-wrap .sif-table th,
 .sif-table-wrap .sif-table td { border: 0; padding: .65rem 1.25rem; text-align: center; vertical-align: middle; white-space: nowrap; }
+/* textos longos quebram linha (ex.: comparativos); números curtos ficam numa linha só */
+.sif-table-wrap .sif-table td { white-space: normal; min-width: 4.5rem; }
+.sif-table-wrap .sif-table td:first-child { white-space: nowrap; }
 .sif-table-wrap .sif-table thead th { background: #007a3d; color: #fff; font-weight: 800; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; }
 .sif-table-wrap .sif-table tbody td { border-top: 1px solid #e5efe8; }
 .sif-table-wrap .sif-table tbody tr:first-child td { border-top: 0; }

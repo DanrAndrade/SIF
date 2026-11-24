@@ -276,18 +276,25 @@ export default function ProdutosServicos() {
   const shortcuts = tabSections.filter(s => (s.nav_label || '').trim());
 
   // Endereço com #atalho (ex.: link do menu "Sementes"): rola até a seção
-  useEffect(() => {
+  const hashTarget = (() => {
     const want = decodeURIComponent((location.hash || '').replace(/^#/, ''));
-    if (!want || lastHash.current === want + current?.id) return;
-    const sec = tabSections.find(s => s.nav_label && tabSlug(s.nav_label) === want);
-    if (!sec) return;
-    lastHash.current = want + current?.id;
-    const t = setTimeout(() => {
-      const el = document.getElementById(sectionAnchor(sec));
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 110, behavior: 'smooth' });
-    }, 250);
-    return () => clearTimeout(t);
-  });
+    const sec = want && tabSections.find(s => s.nav_label && tabSlug(s.nav_label) === want);
+    return sec ? sectionAnchor(sec) : '';
+  })();
+  useEffect(() => {
+    if (!hashTarget || lastHash.current === hashTarget + location.key) return;
+    lastHash.current = hashTarget + location.key;
+    // espera a página montar as seções (e as fotos começarem a carregar) antes de rolar
+    // Ao abrir o link direto, a página volta ao topo logo após carregar: tenta de novo se não chegou
+    const go = () => {
+      const el = document.getElementById(hashTarget);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      if (Math.abs(top - 110) > 40) window.scrollTo({ top: top + window.pageYOffset - 110, behavior: 'smooth' });
+    };
+    const timers = [400, 1300, 2400].map(ms => setTimeout(go, ms));
+    return () => timers.forEach(clearTimeout);
+  }, [hashTarget, location.key]);
   const goToSection = (sec) => {
     const el = document.getElementById(sectionAnchor(sec));
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 110, behavior: 'smooth' });
