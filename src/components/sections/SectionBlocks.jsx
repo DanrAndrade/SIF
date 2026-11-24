@@ -76,18 +76,36 @@ export function LeafMark({ className = '' }) {
 
 export function CardsBlock({ sec, dark }) {
   const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
-  // até 6 cards: uma fileira só (o card cresce ao passar o mouse); mais que isso, grade
-  const row = items.length <= 6;
-  const wide = items.length > 4; // 5 ou 6 cards: fileira só a partir de telas largas
-  const bp = wide ? 'lg' : 'md';
+  // até 4 cards: uma fileira que ocupa a largura (o card cresce ao passar o mouse);
+  // mais que isso: uma fileira só, que desliza para o lado com setas
+  const slide = items.length > 4;
+  const wide = slide;
+  const ref = useRef(null);
+  const [pos, setPos] = useState({ start: true, end: false });
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    setPos({ start: el.scrollLeft <= 4, end: el.scrollLeft >= el.scrollWidth - el.clientWidth - 4 });
+  };
+  useEffect(() => { onScroll(); }, [items.length]);
+  const go = (dir) => {
+    const el = ref.current;
+    if (!el) return;
+    const w = (el.firstElementChild?.getBoundingClientRect().width || 300) + 20;
+    el.scrollBy({ left: dir * w, behavior: 'smooth' });
+  };
+  const arrow = `w-11 h-11 rounded-full border flex items-center justify-center transition-all active:scale-95 disabled:opacity-35 ${dark ? 'border-white/25 text-white hover:bg-white hover:text-sif-dark' : 'border-gray-200 bg-white text-sif-ink hover:bg-sif-green hover:text-white hover:border-sif-green'}`;
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className={row ? `grid grid-cols-1 sm:grid-cols-2 ${bp}:flex ${bp}:flex-row gap-4 ${bp}:gap-5` : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}>
+      <div ref={slide ? ref : undefined} onScroll={slide ? onScroll : undefined}
+        className={slide
+          ? '-mx-6 px-6 py-3 -my-3 flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-6'
+          : 'grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 md:gap-5'}>
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 ${wide ? 'lg:p-7' : 'md:p-8'} md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? (wide ? 'lg:flex-1 lg:hover:flex-[1.7] lg:focus-within:flex-[1.7]' : 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]') : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 md:p-8 md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'shrink-0 snap-start w-[80%] sm:w-[46%] lg:w-[calc((100%-3.75rem)/4)]' : 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
               {!dark && <LeafMark className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500 group-hover:opacity-0 group-focus:opacity-0" />}
               <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[28px]" />
@@ -106,6 +124,12 @@ export function CardsBlock({ sec, dark }) {
           );
         })}
       </div>
+      {slide && (
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" aria-label="Cards anteriores" onClick={() => go(-1)} disabled={pos.start} className={arrow}><ChevronLeft size={18} /></button>
+          <button type="button" aria-label="Próximos cards" onClick={() => go(1)} disabled={pos.end} className={arrow}><ChevronRight size={18} /></button>
+        </div>
+      )}
     </div>
   );
 }
@@ -385,8 +409,8 @@ export function TabsBlock({ sec, dark }) {
     <div key={active} role="tabpanel"
       className={`relative overflow-hidden rounded-card p-7 md:p-12 animate-in fade-in duration-500 ${dark ? 'bg-white/[0.06] border border-white/10' : 'bg-white shadow-card'} ${extra}`}>
       {!dark && <LeafMark className="-right-10 -bottom-14 w-48 md:w-64 rotate-[-12deg]" />}
-      {!single && cur.title && <h3 className={`relative font-heading font-semibold text-2xl md:text-3xl tracking-tight mb-6 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{cur.title}</h3>}
-      <div className={`relative ${proseCls(dark)} sif-tab-prose`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />
+      {!single && !wide && cur.title && <h3 className={`relative font-heading font-semibold text-2xl md:text-3xl tracking-tight mb-6 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{cur.title}</h3>}
+      <div className={`relative ${proseCls(dark)} sif-tab-prose ${wide ? 'sif-tab-wide' : ''}`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />
     </div>
   );
   if (single) return <div ref={boxRef}><BlockHeader sec={sec} dark={dark} />{panel()}</div>;

@@ -607,3 +607,21 @@ html[data-nav-hidden="1"] .sif-tabbar { top: 0; }
 }
 .sif-tabbar[data-stuck="1"]::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .sif-subnav, .sif-tabbar, .sif-tabbar::before { transition: none; } }
+
+/* Abas com tabela larga (ex.: dados climáticos): tabela compacta na largura do card,
+   linhas mais altas e a última coluna (Anual) em destaque */
+.sif-tab-wide .sif-table-wrap { margin: 1.5rem 0 0; border-radius: 1rem; }
+.sif-tab-wide .sif-table-wrap table.sif-table { width: 100%; }
+.sif-tab-wide .sif-table-wrap .sif-table th,
+.sif-tab-wide .sif-table-wrap .sif-table td { padding: 1.05rem .45rem; min-width: 0; font-size: .875rem; }
+.sif-tab-wide .sif-table-wrap .sif-table thead th { font-size: .72rem; letter-spacing: .04em; }
+.sif-tab-wide .sif-table-wrap .sif-table td:first-child { text-align: left; padding-left: 1.1rem; font-weight: 600; color: #1f2937; }
+.sif-tab-wide .sif-table-wrap .sif-table th:first-child { text-align: left; padding-left: 1.1rem; }
+.sif-tab-wide .sif-table-wrap .sif-table th:last-child,
+.sif-tab-wide .sif-table-wrap .sif-table td:last-child { padding-right: 1.1rem; font-weight: 700; }
+.sif-tab-wide .sif-table-wrap .sif-table thead th:last-child { background: #0b3320; color: #b5e05c; }
+.sif-tab-wide .sif-table-wrap .sif-table tbody td:last-child { background: #eaf4ee; color: #0b3320; }
+.sif-tab-wide > p:first-child { font-size: 1rem; }
+@media (max-width: 767px) {
+  .sif-tab-wide .sif-table-wrap .sif-table th, .sif-tab-wide .sif-table-wrap .sif-table td { padding: .8rem .6rem; min-width: 3.25rem; }
+}
