@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-do
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import AutoReveal from './components/ui/AutoReveal';
-import LeafCursor from './components/ui/LeafCursor';
 import { API_BASE_URL } from './apiConfig';
 
 // --- CARREGAMENTO IMEDIATO: só a Home; o resto carrega quando for aberto ---
@@ -100,7 +99,6 @@ export default function App() {
     <AuthProvider>
       <BoundaryByRoute>
       <AutoReveal />
-      <LeafCursor />
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
 
