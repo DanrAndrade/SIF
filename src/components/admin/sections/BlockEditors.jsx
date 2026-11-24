@@ -119,6 +119,26 @@ export function CardsEditor({ sec, onUpdate }) {
   );
 }
 
+export function CompareEditor({ sec, onUpdate }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Field label="Lado A (convencional)" value={sec.a_label} placeholder="Ex.: Tubete de plástico" onChange={(a_label) => onUpdate({ a_label })} />
+        <Field label="Lado B (em destaque)" value={sec.b_label} placeholder="Ex.: Tubete Ellepot" onChange={(b_label) => onUpdate({ b_label })} />
+      </div>
+      <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} addLabel="Adicionar critério"
+        empty="Nenhum critério." newItem={() => ({ label: '', a: '', b: '' })}
+        render={(it, set) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Field label="Critério" value={it.label} onChange={(label) => set({ label })} />
+            <Field label="Lado A" textarea rows={2} value={it.a} onChange={(a) => set({ a })} />
+            <Field label="Lado B" textarea rows={2} value={it.b} onChange={(b) => set({ b })} />
+          </div>
+        )} />
+    </div>
+  );
+}
+
 export function StatsEditor({ sec, onUpdate }) {
   return (
     <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} grid addLabel="Adicionar número"

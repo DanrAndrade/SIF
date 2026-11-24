@@ -25,6 +25,7 @@ export const SECTION_TYPES = {
   tabs:       { label: 'Abas',              icon: 'Layers',      desc: 'Conteúdo dividido em abas (programação, módulos...).', create: () => ({ tabs: [] }) },
   pdfs:       { label: 'Arquivos e documentos', icon: 'FileText', desc: 'Arquivos para baixar: PDF, Word, Excel, PowerPoint, planilhas e imagens.', create: () => ({ pdfs: [] }) },
   logos:      { label: 'Carrossel de logos', icon: 'Building2',  desc: 'Logos de empresas, patrocinadores ou parceiros.', create: () => ({ images: [] }) },
+  compare:    { label: 'Comparativo',        icon: 'ArrowLeftRight', desc: 'Dois lados comparados ponto a ponto (ex.: tubete de plástico x Ellepot); o segundo lado fica em destaque.', create: () => ({ a_label: '', b_label: '', items: [{ label: '', a: '', b: '' }, { label: '', a: '', b: '' }] }) },
   highlights: { label: 'Destaques com foto', icon: 'Presentation',    desc: 'Painel escuro com foto de fundo que troca entre os itens (eixos temáticos, módulos, áreas...). Mesmo estilo de "Áreas de atuação".', create: () => ({ items: [{ title: '', text: '', image: '' }, { title: '', text: '', image: '' }, { title: '', text: '', image: '' }] }) },
   // Blocos especiais da página de Grupo Temático (só posição/título; o conteúdo vem de outro lugar)
   gt_intro:   { label: 'Apresentação do grupo', icon: 'Info',    desc: 'Texto de apresentação do grupo.', only: ['gt'], create: () => ({ content: '' }) },
@@ -98,6 +99,7 @@ export function isSectionEmpty(s) {
     case 'pdfs':       return !(s.pdfs || []).some(p => p && (p.url || p.pdf_url)); // arquivos e documentos
     case 'logos':      return !(s.images || []).some(Boolean);
     case 'highlights': return !(s.items || []).some(i => i && String(i.title || '').trim());
+    case 'compare':    return !(s.items || []).some(i => i && (i.label || i.a || i.b));
     default:           return false; // gt_blog / gt_contact: o próprio bloco decide
   }
 }

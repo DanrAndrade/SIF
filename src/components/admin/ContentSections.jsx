@@ -2,9 +2,9 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { UploadTrackerContext, useUploadTracker, useLatest } from './sections/uploadTracker';
 import { useConfirm, ItemActions, moveItem } from './kit';
 import { SECTION_TYPES, BAND_STYLES, createSection, normalizeSections, PAGE_TEMPLATES, createTemplate, typesFor } from '../sections/sectionTypes';
-import { TextImageEditor, CardsEditor, StatsEditor, PeopleEditor, GalleryEditor, VideoEditor, QuoteEditor, CtaEditor, HighlightsEditor, SpecialNote } from './sections/BlockEditors';
-import { Type, Image as ImageIcon, LayoutGrid, BarChart3, Users, GalleryHorizontal as Images, PlayCircle, Quote, Megaphone, Layers, FileText as FileTextIcon, Building2, Info, Newspaper, UserCircle2 as UserRound, Square } from 'lucide-react';
-const Icons = { Presentation, Type, ImageIcon, LayoutGrid, BarChart3, Users, Images, PlayCircle, Quote, Megaphone, Layers, FileText: FileTextIcon, Building2, Info, Newspaper, UserRound, Square };
+import { TextImageEditor, CardsEditor, StatsEditor, CompareEditor, PeopleEditor, GalleryEditor, VideoEditor, QuoteEditor, CtaEditor, HighlightsEditor, SpecialNote } from './sections/BlockEditors';
+import { Type, Image as ImageIcon, LayoutGrid, BarChart3, Users, GalleryHorizontal as Images, PlayCircle, Quote, Megaphone, Layers, FileText as FileTextIcon, Building2, Info, Newspaper, UserCircle2 as UserRound, Square, ArrowLeftRight, Map as MapIcon } from 'lucide-react';
+const Icons = { Presentation, Type, ImageIcon, LayoutGrid, BarChart3, Users, Images, PlayCircle, Quote, Megaphone, Layers, FileText: FileTextIcon, Building2, Info, Newspaper, UserRound, Square, ArrowLeftRight, MapIcon };
 import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
 import LogosEditor from './sections/LogosEditor';
 import { Plus, Loader2, Presentation } from 'lucide-react';
@@ -67,6 +67,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
         {section.type === 'text_image' && <TextImageEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'cards' && <CardsEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'stats' && <StatsEditor sec={section} onUpdate={onUpdate} />}
+        {section.type === 'compare' && <CompareEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'people' && <PeopleEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'gallery' && <GalleryEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'video' && <VideoEditor sec={section} onUpdate={onUpdate} />}

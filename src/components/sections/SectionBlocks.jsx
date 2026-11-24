@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import {
   Download, ArrowRight, Play, Quote as QuoteIcon, X, ExternalLink, ChevronLeft, ChevronRight,
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
-  Factory, FlaskConical, HeartHandshake, Rocket, Droplets, Flame, Recycle, Truck, Settings, Map,
+  Factory, FlaskConical, HeartHandshake, Rocket, Droplets, Flame, Recycle, Truck, Settings, Map, Check
 } from 'lucide-react';
 import { getImageUrl, cleanRichHtml, htmlToText } from '../../apiConfig';
 import SectionTitle from './SectionTitle';
@@ -14,6 +14,7 @@ import { buttonClass, BtnArrow } from '../ui/Button';
 import CountUp from '../ui/CountUp';
 import { fileExt, fileIcon, fileMetaLabel, fileUrl } from './fileMeta';
 import HighlightsBlock from './HighlightsBlock';
+import leafIcon from '../../assets/icone.svg';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
@@ -66,25 +67,35 @@ export function TextImageBlock({ sec, dark }) {
 
 // Cards lado a lado (até 4): filete na cor do grupo, número grande e, ao
 // passar o mouse, o card cresce e escurece. Com 5 ou mais, vira grade.
+// Folha da SIF (com o "i" branco) como marca d'água discreta nos cards brancos
+export function LeafMark({ className = '' }) {
+  return <img src={leafIcon} alt="" aria-hidden="true" draggable="false" loading="lazy"
+    className={`pointer-events-none select-none absolute [filter:grayscale(1)] opacity-[0.07] ${className}`} />;
+}
+
 export function CardsBlock({ sec, dark }) {
   const items = (sec.items || []).filter(i => i && (i.title || i.subtitle || i.text));
-  const row = items.length <= 4;
+  // até 6 cards: uma fileira só (o card cresce ao passar o mouse); mais que isso, grade
+  const row = items.length <= 6;
+  const wide = items.length > 4; // 5 ou 6 cards: fileira só a partir de telas largas
+  const bp = wide ? 'lg' : 'md';
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div className={row ? 'flex flex-col md:flex-row gap-4 md:gap-5' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}>
+      <div className={row ? `grid grid-cols-1 sm:grid-cols-2 ${bp}:flex ${bp}:flex-row gap-4 ${bp}:gap-5` : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'}>
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 md:p-8 md:min-h-[260px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]' : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
-              <span className={`text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
+              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 ${wide ? 'lg:p-7' : 'md:p-8'} md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${row ? (wide ? 'lg:flex-1 lg:hover:flex-[1.7] lg:focus-within:flex-[1.7]' : 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]') : ''} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              {!dark && <LeafMark className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500 group-hover:opacity-0 group-focus:opacity-0" />}
+              <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[28px]" />
-              {it.title && <h3 className={`text-xl md:text-2xl font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
-              {it.subtitle && <p className={`mt-2 text-sm md:text-[15px] leading-snug max-w-[22rem] transition-colors duration-500 ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)] group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{it.subtitle}</p>}
+              {it.title && <h3 className={`relative ${wide ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
+              {it.subtitle && <p className={`relative mt-2 text-sm md:text-[15px] leading-snug max-w-[22rem] transition-colors duration-500 ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)] group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{it.subtitle}</p>}
               {/* Texto: no computador fica escondido e SOBE ao passar o mouse
                   (ou focar pelo teclado); no celular aparece sempre */}
               {it.text && (
-                <div className="sif-reveal-more">
+                <div className="sif-reveal-more relative">
                   <div className="overflow-hidden">
                     <p className={`pt-3 leading-relaxed whitespace-pre-line max-w-[22rem] ${dark ? 'text-white/75' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
                   </div>
@@ -365,25 +376,112 @@ export function TabsBlock({ sec, dark }) {
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash, tabs.length]);
+  const single = tabs.length === 1 && !tabs[0].title;
+  // Abas com tabela larga (ex.: dados climáticos): barra no topo e painel na largura toda.
+  // Demais: lista de abas à esquerda e painel grande à direita.
+  const wide = tabs.some(t => /sif-table/.test(t.content || ''));
+  const panel = (extra = '') => cur && (
+    <div key={active} role="tabpanel"
+      className={`relative overflow-hidden rounded-card p-7 md:p-12 animate-in fade-in duration-500 ${dark ? 'bg-white/[0.06] border border-white/10' : 'bg-white shadow-card'} ${extra}`}>
+      {!dark && <LeafMark className="-right-10 -bottom-14 w-48 md:w-64 rotate-[-12deg]" />}
+      {!single && cur.title && <h3 className={`relative font-heading font-semibold text-2xl md:text-3xl tracking-tight mb-6 ${dark ? 'text-white' : 'text-[#1f2937]'}`}>{cur.title}</h3>}
+      <div className={`relative ${proseCls(dark)} sif-tab-prose`} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />
+    </div>
+  );
+  if (single) return <div ref={boxRef}><BlockHeader sec={sec} dark={dark} />{panel()}</div>;
+
+  const num = (i) => String(i + 1).padStart(2, '0');
+  if (wide) {
+    return (
+      <div ref={boxRef}>
+        <BlockHeader sec={sec} dark={dark} />
+        <div className="-mx-6 px-6 overflow-x-auto no-scrollbar mb-5">
+          <div role="tablist" className={`inline-flex gap-1 p-1.5 rounded-full ${dark ? 'bg-white/10' : 'bg-white shadow-card'}`}>
+            {tabs.map((t, i) => (
+              <button key={i} type="button" role="tab" aria-selected={active === i} onClick={() => setActive(i)}
+                className={`shrink-0 px-5 md:px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${active === i
+                  ? 'bg-[#0b3320] text-white shadow-md'
+                  : dark ? 'text-white/70 hover:text-white' : 'text-gray-500 hover:text-[#007a3d]'}`}>
+                {t.title || `Aba ${i + 1}`}
+              </button>
+            ))}
+          </div>
+        </div>
+        {panel('md:min-h-[420px]')}
+      </div>
+    );
+  }
+
   return (
     <div ref={boxRef}>
       <BlockHeader sec={sec} dark={dark} />
-      {/* uma aba só e sem título: mostra o conteúdo direto, sem a barra */}
-      {!(tabs.length === 1 && !tabs[0].title) && <div className="flex flex-wrap gap-2 mb-6" role="tablist">
-        {tabs.map((t, i) => (
-          <button key={i} type="button" role="tab" aria-selected={active === i} onClick={() => setActive(i)}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all border ${active === i
-              ? 'bg-[var(--accent,#007a3d)] text-white border-transparent shadow-md'
-              : dark ? 'bg-transparent text-white/70 border-white/20 hover:border-white/50' : 'bg-white text-gray-500 border-gray-200 hover:border-[var(--accent,#007a3d)] hover:text-[var(--accent,#007a3d)]'}`}>
-            {t.title || `Aba ${i + 1}`}
-          </button>
-        ))}
-      </div>}
-      {cur && (
-        <div className={`rounded-card p-6 md:p-10 ${dark ? 'bg-white/[0.06] border border-white/10' : 'sif-card border border-gray-100'}`}>
-          <div className={proseCls(dark)} dangerouslySetInnerHTML={{ __html: cleanRichHtml(cur.content || '') }} />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start">
+        {/* lista de abas: no celular desliza para o lado; no computador, coluna à esquerda */}
+        <div role="tablist" aria-orientation="vertical"
+          className="lg:col-span-4 -mx-6 px-6 lg:mx-0 lg:px-0 flex lg:flex-col gap-2 overflow-x-auto no-scrollbar lg:overflow-visible lg:sticky lg:top-40">
+          {tabs.map((t, i) => {
+            const on = active === i;
+            return (
+              <button key={i} type="button" role="tab" aria-selected={on} onClick={() => setActive(i)}
+                className={`group shrink-0 lg:w-full text-left flex items-center gap-4 rounded-2xl px-5 py-4 lg:py-5 transition-all duration-300 ${on
+                  ? 'bg-[#0b3320] text-white shadow-card-hover'
+                  : dark ? 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12]' : 'bg-white/70 text-[#1f2937] hover:bg-white hover:shadow-card'}`}>
+                <span className={`font-heading text-sm font-bold tabular-nums ${on ? 'text-[#b5e05c]' : 'text-gray-300 group-hover:text-[#007a3d]'}`}>{num(i)}</span>
+                <span className="flex-1 font-semibold text-[15px] lg:text-base leading-snug whitespace-nowrap lg:whitespace-normal">{t.title || `Aba ${i + 1}`}</span>
+                <ChevronRight size={18} className={`hidden lg:block shrink-0 transition-all duration-300 ${on ? 'text-[#b5e05c] translate-x-0' : 'text-gray-300 -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+              </button>
+            );
+          })}
         </div>
-      )}
+        <div className="lg:col-span-8 min-w-0">{panel('lg:min-h-[360px]')}</div>
+      </div>
+    </div>
+  );
+}
+
+// Comparativo (tipo 'compare'): dois lados lado a lado (ex.: tubete de plástico x Ellepot);
+// o lado B é o destaque (fundo escuro, ícone de confirmação).
+export function CompareBlock({ sec, dark }) {
+  const rows = (sec.items || []).filter(r => r && (r.label || r.a || r.b));
+  const A = sec.a_label || 'Opção A';
+  const Bl = sec.b_label || 'Opção B';
+  return (
+    <div>
+      <BlockHeader sec={sec} dark={dark} />
+      {/* computador: tabela de 3 colunas com o lado B em destaque */}
+      <div className="hidden md:grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] rounded-panel overflow-hidden shadow-card bg-white">
+        <div className="px-8 pt-8 pb-5" />
+        <div className="px-8 pt-8 pb-5 border-l border-gray-100">
+          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-1">Convencional</span>
+          <span className="font-heading text-xl font-semibold text-[#1f2937]">{A}</span>
+        </div>
+        <div className="px-8 pt-8 pb-5 bg-[#0b3320] relative overflow-hidden">
+          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#b5e05c] mb-1">Recomendado</span>
+          <span className="font-heading text-xl font-semibold text-white">{Bl}</span>
+        </div>
+        {rows.map((r, i) => (
+          <React.Fragment key={i}>
+            <div className="px-8 py-6 border-t border-gray-100 font-semibold text-[#1f2937]">{r.label}</div>
+            <div className="px-8 py-6 border-t border-l border-gray-100 flex gap-3 text-gray-500 leading-relaxed">
+              <X size={18} className="shrink-0 mt-0.5 text-gray-300" />{r.a}
+            </div>
+            <div className="px-8 py-6 border-t border-white/10 bg-[#0b3320] flex gap-3 text-white/85 leading-relaxed">
+              <Check size={18} className="shrink-0 mt-0.5 text-[#b5e05c]" />{r.b}
+            </div>
+          </React.Fragment>
+        ))}
+        <div className="h-3" /><div className="h-3 border-l border-gray-100" /><div className="h-3 bg-[#0b3320]" />
+      </div>
+      {/* celular: um card por critério */}
+      <div className="md:hidden space-y-4">
+        {rows.map((r, i) => (
+          <div key={i} className="rounded-card overflow-hidden bg-white shadow-card">
+            <p className="px-5 pt-5 pb-3 font-semibold text-[#1f2937]">{r.label}</p>
+            <div className="px-5 pb-4 flex gap-3 text-sm text-gray-500"><X size={16} className="shrink-0 mt-0.5 text-gray-300" /><span><strong className="block text-gray-400 text-[11px] uppercase tracking-widest">{A}</strong>{r.a}</span></div>
+            <div className="px-5 py-4 bg-[#0b3320] flex gap-3 text-sm text-white/85"><Check size={16} className="shrink-0 mt-0.5 text-[#b5e05c]" /><span><strong className="block text-[#b5e05c] text-[11px] uppercase tracking-widest">{Bl}</strong>{r.b}</span></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -428,5 +526,5 @@ export function LogosBlock({ sec, dark }) {
 export const BLOCKS = {
   editor: EditorBlock, gt_intro: EditorBlock, text_image: TextImageBlock, cards: CardsBlock, stats: StatsBlock,
   people: PeopleBlock, gallery: GalleryBlock, video: VideoBlock, quote: QuoteBlock, cta: CtaBlock,
-  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock, highlights: HighlightsBlock,
+  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock, highlights: HighlightsBlock, compare: CompareBlock,
 };
