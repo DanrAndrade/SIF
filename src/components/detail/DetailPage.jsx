@@ -5,7 +5,7 @@ import Footer from '../Footer';
 import Button, { buttonClass, BtnArrow } from '../ui/Button';
 import SmartLink from '../ui/SmartLink';
 import DetailHero from '../DetailHero';
-import PageNav from './PageNav';
+import PageNav, { scrollToSection } from './PageNav';
 import EditablePageContact from '../EditablePageContact';
 import ContentSectionsRenderer, { renderableSections, sectionAnchor } from '../ContentSectionsRenderer';
 import { BlockHeader } from '../sections/SectionBlocks';
@@ -132,7 +132,7 @@ export default function DetailPage({
     [about, sections, videoUrl, contact, contactTitle],
   );
 
-  const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const go = scrollToSection;
 
   // Blocos desta página com desenho próprio
   const special = {
@@ -182,7 +182,7 @@ export default function DetailPage({
   const ctaExternal = !!(cta && /^https?:\/\//i.test(cta.href));
 
   return (
-    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-clip selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       <DetailHero

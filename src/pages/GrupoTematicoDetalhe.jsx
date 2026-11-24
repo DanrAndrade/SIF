@@ -9,7 +9,7 @@ import Button from '../components/ui/Button';
 import ContentSectionsRenderer, { renderableSections, sectionAnchor } from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import DetailHero from '../components/DetailHero';
-import PageNav from '../components/detail/PageNav';
+import PageNav, { scrollToSection } from '../components/detail/PageNav';
 import GtBlogPosts from '../components/GtBlogPosts';
 import { BlockHeader } from '../components/sections/SectionBlocks';
 import { withGtDefaults, htmlExcerpt } from '../components/sections/sectionTypes';
@@ -127,12 +127,12 @@ export default function GrupoTematicoDetalhe() {
   // Fundo das faixas escuras: capa do grupo; sem capa, a 1ª foto da página
   const pagePhotos = (sections || []).flatMap(s => [s.image, ...(s.images || [])]).filter(Boolean);
   const bandPhoto = [gt.image_url, ...pagePhotos].filter(Boolean).slice(0, 6).map(p => getImageUrl(p, 1280));
-  const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const go = scrollToSection;
   const contactSec = visible.find(s => s.type === 'gt_contact');
   const blogSec = visible.find(s => s.type === 'gt_blog');
 
   return (
-    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white" style={accentVars}>
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-clip selection:bg-[#007a3d] selection:text-white" style={accentVars}>
       <Navbar />
 
       {/* TOPO (padrão das páginas de detalhe) */}

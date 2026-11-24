@@ -110,6 +110,18 @@ const BOLETINS_POR_PAGINA = 9;
 // Busca sem diferenciar maiúsculas e acentos ("protecao" acha "Proteção")
 const semAcento = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
+// Rola até um elemento deixando-o logo abaixo da barra de abas fixa. Descendo, o menu
+// principal some (a barra encosta no topo); subindo, ele volta e fica acima da barra.
+function scrollBelowBar(el, gap = 16) {
+  if (!el) return;
+  const bar = document.getElementById('produtos-tabbar');
+  const barH = bar ? bar.offsetHeight : 0;
+  const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sif-nav-h')) || 76;
+  let top = el.getBoundingClientRect().top + window.pageYOffset - barH - gap;
+  if (top < window.pageYOffset) top -= navH;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+}
+
 function BoletimGrid({ pdfs: all, legacySections, tag = 'Boletim Técnico', searchPlaceholder = 'Buscar boletim pelo título' }) {
   // Só boletins com PDF (cadastro vazio no painel não vira card em branco)
   const allPdfs = (all || []).filter(p => p && p.pdf_url);
@@ -125,7 +137,7 @@ function BoletimGrid({ pdfs: all, legacySections, tag = 'Boletim Técnico', sear
   const goToPage = (n) => {
     setPage(n);
     const el = topRef.current;
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+    scrollBelowBar(el, 24);
   };
 
   // Se ainda não houver PDFs novos publicados mas existir conteúdo legado
@@ -237,8 +249,7 @@ export default function ProdutosServicos() {
     lastHash.current = '';
     if (!location.hash) {
       const t = setTimeout(() => {
-        const el = document.getElementById('produtos-content');
-        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+        scrollBelowBar(document.getElementById('produtos-tab-content'), 24);
       }, 150);
       return () => clearTimeout(t);
     }
@@ -290,31 +301,53 @@ export default function ProdutosServicos() {
       const el = document.getElementById(hashTarget);
       if (!el) return;
       const top = el.getBoundingClientRect().top;
-      if (Math.abs(top - 110) > 40) window.scrollTo({ top: top + window.pageYOffset - 110, behavior: 'smooth' });
+      const barH = document.getElementById('produtos-tabbar')?.offsetHeight || 0;
+      const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sif-nav-h')) || 76;
+      const want = barH + 16;
+      if (Math.abs(top - want) > 40 && Math.abs(top - want - navH) > 40) scrollBelowBar(el);
     };
     const timers = [400, 1300, 2400].map(ms => setTimeout(go, ms));
     return () => timers.forEach(clearTimeout);
   }, [hashTarget, location.key]);
   const goToSection = (sec) => {
     const el = document.getElementById(sectionAnchor(sec));
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 110, behavior: 'smooth' });
+    scrollBelowBar(el);
   };
+  // Barra de abas fixa: ganha fundo translúcido só quando está grudada
+  const tabbarRef = useRef(null);
+  useEffect(() => {
+    const bar = tabbarRef.current;
+    if (!bar) return undefined;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const stuck = bar.getBoundingClientRect().top <= (parseFloat(getComputedStyle(bar).top) || 0) + 0.5
+        && window.pageYOffset > 0;
+      bar.dataset.stuck = stuck ? '1' : '0';
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
   const tabTitle1 = current ? cfg[`${current.id}_title_line1`] : '';
   const tabTitle2 = current ? cfg[`${current.id}_title_highlight`] : '';
   const tabIntro = current ? cfg[`${current.id}_intro`] : '';
 
   return (
-    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-hidden selection:bg-[#007a3d] selection:text-white">
+    <div className="sif-page min-h-screen flex flex-col font-sans overflow-x-clip selection:bg-[#007a3d] selection:text-white">
       <Navbar />
 
       <EditablePageHero pageKey="produtos" defaults={HERO_DEFAULTS} scrollTargetId="produtos-content" />
 
       <main className="flex-grow pt-14 md:pt-24 pb-8 md:pb-12" id="produtos-content">
-        <div className="container mx-auto px-6 max-w-7xl">
-
+        {/* A barra de abas fica direto no <main> para grudar durante toda a página */}
           {/* NAVEGAÇÃO DE ABAS: mesmo padrão das abas da equipe (sublinhado verde).
               No celular ficam numa linha que desliza para o lado. */}
-          <div className="-mx-6 px-6 mb-12 md:mb-20 overflow-x-auto no-scrollbar">
+          <div id="produtos-tabbar" ref={tabbarRef} className="sif-tabbar mb-12 md:mb-20">
+          <div className="container mx-auto px-6 max-w-7xl">
+           <div className="-mx-6 px-6 overflow-x-auto no-scrollbar">
             <div className="flex gap-x-7 border-b border-gray-200 min-w-max" role="tablist" aria-label="Produtos e serviços">
               {visibleTabs.map((tab) => {
                 const on = current?.id === tab.id;
@@ -328,12 +361,16 @@ export default function ProdutosServicos() {
                 );
               })}
             </div>
+           </div>
           </div>
+          </div>
+
+        <div className="container mx-auto px-6 max-w-7xl">
 
           {/* ABERTURA DA ABA: mesmo desenho do "Sobre" dos eventos e treinamentos
               (título à esquerda, apresentação à direita) */}
           {current && (
-            <div key={current.id} className="animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
+            <div key={current.id} id="produtos-tab-content" className="animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
               <div className={tabIntro ? 'lg:col-span-5' : 'lg:col-span-12'}>
                 <span className="sif-eyebrow mb-4">{tabName(current)}</span>
                 <h2 className="sif-title sif-h2 text-[#1f2937] tracking-tight">

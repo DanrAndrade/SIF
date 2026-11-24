@@ -499,8 +499,6 @@ a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
 
 /* Submenu fixo (ex.: página do GT): fica logo abaixo do menu e sobe junto
    quando o menu some ao rolar para baixo */
-.sif-subnav { top: 72px; transition: top .3s cubic-bezier(.2,.7,.2,1); }
-html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 
 /* Card de chamada com brilho que segue o mouse (components/ui/GlowCta.jsx) */
 .sif-cta-glow { overflow: hidden; transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease; box-shadow: 0 30px 60px -30px rgba(6,25,15,.55); }
@@ -587,3 +585,25 @@ html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
 .ql-editor .sif-table-wrap { cursor: pointer; }
 .ql-editor .sif-table-wrap:hover table.sif-table { box-shadow: 0 0 0 2px #007a3d; }
 .sif-table-wrap .sif-table thead, .sif-table-wrap .sif-table tbody tr, .sif-table-wrap .sif-table tfoot { border: 0; }
+
+/* Menus fixos da página (abas de Produtos e Serviços, "Nesta página" dos detalhes):
+   ficam logo abaixo do menu principal e sobem para o topo quando ele some.
+   --sif-nav-h = altura real do menu fixo (medida: 76px no celular, 81px no desktop). */
+:root { --sif-nav-h: 76px; }
+@media (min-width: 1024px) { :root { --sif-nav-h: 81px; } }
+.sif-subnav { top: calc(var(--sif-nav-h) + 6px); transition: top .3s cubic-bezier(.2,.7,.2,1); }
+html[data-nav-hidden="1"] .sif-subnav { top: 12px; }
+
+/* Barra de abas de Produtos e Serviços: encosta no menu e, sem ele, no topo da tela */
+.sif-tabbar { position: sticky; z-index: 30; top: var(--sif-nav-h); transition: top .3s cubic-bezier(.2,.7,.2,1); }
+html[data-nav-hidden="1"] .sif-tabbar { top: 0; }
+/* fundo de largura total, só aparece quando a barra está grudada */
+.sif-tabbar::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  top: 0; bottom: 0; left: 50%; width: 100vw; transform: translateX(-50%);
+  background: rgba(255,255,255,.85); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 6px 18px -10px rgba(6,25,15,.25);
+  opacity: 0; transition: opacity .3s ease;
+}
+.sif-tabbar[data-stuck="1"]::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .sif-subnav, .sif-tabbar, .sif-tabbar::before { transition: none; } }

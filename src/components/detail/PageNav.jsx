@@ -1,6 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Rola até uma seção deixando o título logo abaixo do menu fixo "Nesta página".
+// Descendo, o menu principal some (o menu da página fica a 12px do topo); subindo,
+// o menu principal volta e o da página desce para ficar abaixo dele.
+export function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const bar = document.querySelector('.sif-subnav');
+  const barH = bar ? bar.offsetHeight : 0;
+  const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sif-nav-h')) || 76;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let top = el.getBoundingClientRect().top + window.pageYOffset - (12 + barH + 16);
+  if (top < window.pageYOffset) top -= navH - 6; // subindo: o menu volta e empurra a barra para baixo
+  window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+}
+
 // Menu "Nesta página" (pílula branca translúcida). Quando há itens escondidos
 // nas pontas, mostra um esfumado e uma seta que rola o menu; o item ativo é
 // trazido para a área visível. Rola com o dedo no celular.
