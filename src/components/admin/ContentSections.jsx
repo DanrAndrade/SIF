@@ -9,6 +9,7 @@ import { TitleField, TitleExtraControls } from './sections/TitleStyleFields';
 import LogosEditor from './sections/LogosEditor';
 import { Plus, Loader2, Presentation } from 'lucide-react';
 import FilesEditor from './sections/FilesEditor';
+import BrazilMapEditor from './sections/BrazilMapEditor';
 import QuillEditor from './QuillEditor';
 import TabManager from './TabManager';
 
@@ -67,6 +68,7 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
         {section.type === 'text_image' && <TextImageEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'cards' && <CardsEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'stats' && <StatsEditor sec={section} onUpdate={onUpdate} />}
+        {section.type === 'brazil_map' && <BrazilMapEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'compare' && <CompareEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'people' && <PeopleEditor sec={section} onUpdate={onUpdate} />}
         {section.type === 'gallery' && <GalleryEditor sec={section} onUpdate={onUpdate} />}

@@ -172,7 +172,7 @@ export default function Associadas() {
         <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
           <div className="text-center mb-10 md:mb-20">
             <span className="sif-eyebrow mb-4">{cfg.logos_tag}</span>
-            <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.logos_title_line1} <br/><span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
+            <h2 className="sif-title sif-h2 text-[#1f2937]">{cfg.logos_title_line1} <span className="text-[#007a3d]">{cfg.logos_title_highlight}</span></h2>
             <div className="w-16 h-1 bg-[#007a3d] mx-auto mt-6"></div>
           </div>
 
@@ -368,7 +368,7 @@ function BenefitsScroller({ cfg }) {
     <div>
       {at.beneficios_tag && <span className="sif-eyebrow !text-sif-lime mb-5">{at.beneficios_tag}</span>}
       <h2 className="sif-title sif-h2 text-white leading-tight">
-        {cfg.beneficios_title_line1} <br/>
+        {cfg.beneficios_title_line1}{' '}
         <span className="text-sif-lime">{cfg.beneficios_title_highlight}</span>
       </h2>
     </div>

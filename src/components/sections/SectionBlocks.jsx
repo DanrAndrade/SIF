@@ -14,6 +14,7 @@ import { buttonClass, BtnArrow } from '../ui/Button';
 import CountUp from '../ui/CountUp';
 import { fileExt, fileIcon, fileMetaLabel, fileUrl } from './fileMeta';
 import HighlightsBlock from './HighlightsBlock';
+import BrazilMapBlock from './BrazilMapBlock';
 import leafIcon from '../../assets/icone.svg';
 
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
@@ -526,5 +527,5 @@ export function LogosBlock({ sec, dark }) {
 export const BLOCKS = {
   editor: EditorBlock, gt_intro: EditorBlock, text_image: TextImageBlock, cards: CardsBlock, stats: StatsBlock,
   people: PeopleBlock, gallery: GalleryBlock, video: VideoBlock, quote: QuoteBlock, cta: CtaBlock,
-  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock, highlights: HighlightsBlock, compare: CompareBlock,
+  tabs: TabsBlock, pdfs: PdfsBlock, logos: LogosBlock, highlights: HighlightsBlock, compare: CompareBlock, brazil_map: BrazilMapBlock,
 };
