@@ -116,6 +116,8 @@ export const PRODUTOS_TEXTS = {
     tab_germinar: 'Programa Germinar',
     tab_boletim: 'Boletim Técnico',
     tab_pd: 'Serviços de P&D',
+    tab_cultivares: 'Proteção de Cultivares',
+    tab_importacao: 'Importação e Exportação',
     boletim_card_tag: 'Boletim Técnico',
     boletim_search_placeholder: 'Buscar boletim pelo título',
     germinar_card_btn_link: '/trabalhe-conosco',
@@ -126,6 +128,8 @@ export const PRODUTOS_TEXTS = {
       { key: 'tab_germinar', label: 'Nome da aba Programa Germinar' },
       { key: 'tab_boletim', label: 'Nome da aba Boletim Técnico' },
       { key: 'tab_pd', label: 'Nome da aba Serviços de P&D' },
+      { key: 'tab_cultivares', label: 'Nome da aba Proteção de Cultivares' },
+      { key: 'tab_importacao', label: 'Nome da aba Importação e Exportação' },
     ] },
     { title: 'Boletim Técnico', fields: [
       { key: 'boletim_card_tag', label: 'Etiqueta em cada boletim' },

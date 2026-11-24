@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menu, X, Phone, ChevronRight, User, ChevronDown } from 'lucide-react';
 import logoSif from '../assets/sif.svg';
 import { useEincolActive } from '../hooks/useEincolActive';
+import { usePageConfig } from '../hooks/usePageConfig';
 
 export default function Navbar({ scrolled: forceScrolled }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -10,6 +11,9 @@ export default function Navbar({ scrolled: forceScrolled }) {
   const [hidden, setHidden] = useState(false); // some ao descer, volta ao subir
   const [mobileExpanded, setMobileExpanded] = useState(null);
   const eincolActive = useEincolActive();
+  // Abas de Produtos e Serviços escondidas no painel saem do menu
+  const { config: prodCfg } = usePageConfig('produtos');
+  const tabOn = (id) => !prodCfg?.[`${id}_hidden`];
 
   useEffect(() => {
     let lastY = window.scrollY, raf = 0;
@@ -78,20 +82,21 @@ export default function Navbar({ scrolled: forceScrolled }) {
     { 
       name: 'Produtos e Serviços', 
       href: '/produtos-servicos', 
-      // Cada item abre a aba (e sub-aba) correspondente da página Produtos e Serviços.
-      // O "#..." é o nome da sub-aba no painel: se o nome da sub-aba mudar, ajuste aqui.
+      // Cada item abre a aba correspondente da página Produtos e Serviços.
+      // Os itens do Comercial usam o "Atalho no topo da aba" dos blocos
+      // (Sementes, Tubetes Biodegradáveis, Treinamentos In Company).
       submenu: [
         { name: 'Visão Geral', href: '/produtos-servicos', mobileOnly: true },
-        { name: 'Comercial', href: '/produtos-servicos?aba=comercial', group: true },
-        { name: 'Sementes', href: '/produtos-servicos?aba=comercial#venda-de-sementes', indent: true },
-        { name: 'Tubetes Biodegradáveis', href: '/produtos-servicos?aba=comercial#tubetes-biodegradaveis-ellepots', indent: true },
-        { name: 'Treinamentos In Company', href: '/produtos-servicos?aba=comercial#treinamentos', indent: true },
-        { name: 'Serviços Especializados', href: '/produtos-servicos?aba=pd', indent: true },
-        { name: 'Programa Germinar', href: '/produtos-servicos?aba=germinar', indent: true },
-        { name: 'Boletim Técnico', href: '/produtos-servicos?aba=boletim' },
-        { name: 'Importação e Exportação', href: '/produtos-servicos?aba=comercial#importacao-e-exportacao-florestal' },
-        { name: 'Proteção de Cultivares', href: '/produtos-servicos?aba=comercial#protecao-de-cultivares' },
-      ],
+        { name: 'Comercial', href: '/produtos-servicos?aba=comercial', group: true, tab: 'comercial' },
+        { name: 'Sementes', href: '/produtos-servicos?aba=comercial#sementes', indent: true, tab: 'comercial' },
+        { name: 'Tubetes Biodegradáveis', href: '/produtos-servicos?aba=comercial#tubetes-biodegradaveis', indent: true, tab: 'comercial' },
+        { name: 'Treinamentos In Company', href: '/produtos-servicos?aba=comercial#treinamentos-in-company', indent: true, tab: 'comercial' },
+        { name: 'Programa Germinar', href: '/produtos-servicos?aba=germinar', tab: 'germinar' },
+        { name: 'Boletim Técnico', href: '/produtos-servicos?aba=boletim', tab: 'boletim' },
+        { name: 'Serviços de P&D', href: '/produtos-servicos?aba=pd', tab: 'pd' },
+        { name: 'Proteção de Cultivares', href: '/produtos-servicos?aba=cultivares', tab: 'cultivares' },
+        { name: 'Importação e Exportação', href: '/produtos-servicos?aba=importacao', tab: 'importacao' },
+      ].filter(i => !i.tab || tabOn(i.tab)),
     },
     {
       name: 'Eventos & Treinamentos',

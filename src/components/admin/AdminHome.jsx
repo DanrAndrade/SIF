@@ -451,13 +451,13 @@ function HeroVideoFields({ config, update }) {
     if (!file) return;
     if (!/^video\//.test(file.type)) { window.showToast?.('Escolha um arquivo de vídeo.', 'error'); return; }
     if (file.size > 600 * 1024 * 1024) { window.showToast?.('Vídeo muito grande (máximo 600 MB antes da otimização).', 'error'); return; }
-    let video = file, poster = null, loop = null;
+    let video = file, poster = null, loop = null, orig = false;
     try {
       const { canOptimizeVideo, optimizeVideo } = await import('../../utils/videoOptimize');
       if (canOptimizeVideo()) {
         setBusy('convert'); setProgress(0);
         const out = await optimizeVideo(file, setProgress, { loopStart: Number(config.video_loop_start) || 0 });
-        video = out.video; poster = out.poster; loop = out.loop;
+        video = out.video; poster = out.poster; loop = out.loop; orig = !!out.original;
       } else if (file.size > 40 * 1024 * 1024) {
         window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 40 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
         return;
@@ -474,7 +474,7 @@ function HeroVideoFields({ config, update }) {
       const data = await apiRequest(`${API_BASE_URL}/upload_video.php`, { method: 'POST', body: fd });
       update({ video_loop: data.url, video_loop_short: data.loop || '', video_poster: data.poster || '', bg_mode: 'video', video_loop_url: '', video_full_url: '' });
       const mb = (video.size / 1024 / 1024).toFixed(1);
-      window.showToast?.(`Vídeo otimizado e enviado (${mb} MB). Clique em Salvar para publicar.`);
+      window.showToast?.(`${orig ? 'Vídeo enviado sem recompressão' : 'Vídeo otimizado e enviado'} (${mb} MB). Clique em Salvar para publicar.`);
     } catch (err) { toastError(err); }
     finally { setBusy(''); setProgress(0); }
   };
@@ -496,7 +496,7 @@ function HeroVideoFields({ config, update }) {
 
       {mode === 'video' && (<>
         <p className="text-xs text-gray-500">
-          Envie <strong>um vídeo</strong> (MP4, MOV ou WebM). Antes de subir, o painel reduz o tamanho (até 1280 px de largura) e comprime o arquivo para o site carregar rápido. Isso leva o mesmo tempo do vídeo: mantenha esta aba aberta até terminar.
+          Envie <strong>um vídeo</strong> (MP4, MOV ou WebM). Antes de subir, o painel limita a largura a 1920 px e comprime o arquivo para o site carregar rápido. Se o arquivo já for um MP4 ou WebM leve (até 25 MB), ele é enviado como está, sem perder qualidade. Quando comprime, leva o mesmo tempo do vídeo: mantenha esta aba aberta até terminar.
           No site, ele toca sem som e em loop no fundo; o botão "Assistir vídeo" abre o mesmo vídeo com som.
         </p>
         <div className="flex flex-wrap items-center gap-3">
@@ -513,7 +513,7 @@ function HeroVideoFields({ config, update }) {
         </div>
         <div className="max-w-xs">
           <Input label="O fundo começa em (segundos)" type="number" min="0" step="1" value={config.video_loop_start ?? ''} onChange={(e) => update({ video_loop_start: e.target.value })} placeholder="0"
-            hint="Use para pular a abertura do vídeo. O fundo usa 20 segundos a partir daqui. Vale para o próximo envio." />
+            hint="Use para pular a abertura do vídeo. Vídeos de até 60 segundos tocam inteiros no fundo; os mais longos usam 30 segundos a partir daqui. Vale para o próximo envio." />
         </div>
         {busy === 'convert' && (
           <div className="h-2 w-full max-w-md bg-gray-200 rounded-full overflow-hidden" aria-hidden="true">

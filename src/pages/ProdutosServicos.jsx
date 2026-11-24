@@ -4,8 +4,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
-import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
-import { Sprout, Briefcase, FileText, Microscope, ArrowRight, ArrowLeft, Download, Search, X } from 'lucide-react';
+import ContentSectionsRenderer, { sectionAnchor } from '../components/ContentSectionsRenderer';
+import { tabSlug } from '../components/sections/SectionBlocks';
+import { Sprout, Briefcase, FileText, Microscope, ArrowRight, ArrowLeft, Download, Search, X, ShieldCheck, Globe2 } from 'lucide-react';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { getImageUrl } from '../apiConfig';
 import { PRODUTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
@@ -83,6 +84,16 @@ const CONTENT_DEFAULTS = {
   pd_title_highlight: 'Desenvolvimento',
   pd_intro: 'Ofertamos excelência técnica em consultoria, estudos de viabilidade e desenvolvimento de novas tecnologias para toda a cadeia produtiva florestal.',
   pd_sections: [],
+
+  cultivares_title_line1: 'Proteção de',
+  cultivares_title_highlight: 'Cultivares',
+  cultivares_intro: '',
+  cultivares_sections: [],
+
+  importacao_title_line1: 'Importação e',
+  importacao_title_highlight: 'Exportação Florestal',
+  importacao_intro: '',
+  importacao_sections: [],
 };
 
 const TABS = [
@@ -90,6 +101,8 @@ const TABS = [
   { id: 'germinar',  name: 'Programa Germinar', icon: Briefcase },
   { id: 'boletim',   name: 'Boletim Técnico',   icon: FileText },
   { id: 'pd',        name: 'Serviços de P&D',   icon: Microscope },
+  { id: 'cultivares', name: 'Proteção de Cultivares',  icon: ShieldCheck },
+  { id: 'importacao', name: 'Importação e Exportação', icon: Globe2 },
 ];
 
 const BOLETINS_POR_PAGINA = 9;
@@ -161,16 +174,16 @@ function BoletimGrid({ pdfs: all, legacySections, tag = 'Boletim Técnico', sear
           className="group bg-white rounded-card overflow-hidden shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col"
         >
           {p.cover_url ? (
-            <div className="h-48 bg-gray-100 overflow-hidden">
+            <div className="h-72 bg-[#eef3ef] overflow-hidden p-4">
               <img
                 src={getImageUrl(p.cover_url, 640)}
                 alt={p.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="w-full h-full object-contain drop-shadow-md transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
               />
             </div>
           ) : (
-            <div className="h-48 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+            <div className="h-72 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
               <FileText size={48} className="text-[#007a3d]/40" />
             </div>
           )}
@@ -214,12 +227,14 @@ export default function ProdutosServicos() {
     const a = new URLSearchParams(location.search).get('aba');
     return TABS.some(t => t.id === a) ? a : 'comercial';
   };
+  const lastHash = useRef('');
   const [activeTab, setActiveTabState] = useState(tabFromUrl);
   // Link do menu (?aba=...): troca a aba e leva até o conteúdo
   useEffect(() => {
     const a = new URLSearchParams(location.search).get('aba');
     if (!a || !TABS.some(t => t.id === a)) return;
     setActiveTabState(a);
+    lastHash.current = '';
     if (!location.hash) {
       const t = setTimeout(() => {
         const el = document.getElementById('produtos-content');
@@ -246,12 +261,37 @@ export default function ProdutosServicos() {
     boletim_sections:   config.boletim_sections   || [],
     boletim_pdfs:       Array.isArray(config.boletim_pdfs) ? config.boletim_pdfs : [],
     pd_sections:        config.pd_sections         || [],
+    cultivares_sections: config.cultivares_sections   || [],
+    importacao_sections: config.importacao_sections   || [],
   };
+  // Abas escondidas no painel ("Mostrar esta aba no site") não aparecem
+  const visibleTabs = TABS.filter(t => !cfg[`${t.id}_hidden`]);
 
   const pt = withTexts(PRODUTOS_TEXTS, config); // Painel › Produtos e serviços › Textos da página
   const tabName = (tab) => pt[`tab_${tab.id}`] || tab.name;
   // Aba aberta: título e apresentação
-  const current = TABS.find(t => t.id === activeTab);
+  const current = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0];
+  const tabSections = current ? (cfg[`${current.id}_sections`] || []).filter(s => s && s.visible !== false) : [];
+  // Atalhos no topo da aba: seções com "Atalho no topo da aba" preenchido
+  const shortcuts = tabSections.filter(s => (s.nav_label || '').trim());
+
+  // Endereço com #atalho (ex.: link do menu "Sementes"): rola até a seção
+  useEffect(() => {
+    const want = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+    if (!want || lastHash.current === want + current?.id) return;
+    const sec = tabSections.find(s => s.nav_label && tabSlug(s.nav_label) === want);
+    if (!sec) return;
+    lastHash.current = want + current?.id;
+    const t = setTimeout(() => {
+      const el = document.getElementById(sectionAnchor(sec));
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 110, behavior: 'smooth' });
+    }, 250);
+    return () => clearTimeout(t);
+  });
+  const goToSection = (sec) => {
+    const el = document.getElementById(sectionAnchor(sec));
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 110, behavior: 'smooth' });
+  };
   const tabTitle1 = current ? cfg[`${current.id}_title_line1`] : '';
   const tabTitle2 = current ? cfg[`${current.id}_title_highlight`] : '';
   const tabIntro = current ? cfg[`${current.id}_intro`] : '';
@@ -269,8 +309,8 @@ export default function ProdutosServicos() {
               No celular ficam numa linha que desliza para o lado. */}
           <div className="-mx-6 px-6 mb-12 md:mb-20 overflow-x-auto no-scrollbar">
             <div className="flex gap-x-7 border-b border-gray-200 min-w-max" role="tablist" aria-label="Produtos e serviços">
-              {TABS.map((tab) => {
-                const on = activeTab === tab.id;
+              {visibleTabs.map((tab) => {
+                const on = current?.id === tab.id;
                 return (
                   <button key={tab.id} type="button" role="tab" aria-selected={on} onClick={() => setActiveTab(tab.id)}
                     className={`relative shrink-0 flex items-center gap-2 pt-2 pb-3.5 text-sm font-semibold transition-colors ${on ? 'text-[#1f2937]' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -304,15 +344,32 @@ export default function ProdutosServicos() {
           )}
 
           {/* Boletim: grade com paginação, na largura da página */}
+          {current?.id === 'boletim' && tabSections.length > 0 && (
+            <div className="max-w-6xl mx-auto mt-12 md:mt-16">
+              <ContentSectionsRenderer sections={tabSections} />
+            </div>
+          )}
           {current?.id === 'boletim' && (
             <div className="max-w-6xl mx-auto mt-12 md:mt-16">
-              <BoletimGrid pdfs={cfg.boletim_pdfs} legacySections={cfg.boletim_sections} tag={pt.boletim_card_tag} searchPlaceholder={pt.boletim_search_placeholder} />
+              <BoletimGrid pdfs={cfg.boletim_pdfs} legacySections={[]} tag={pt.boletim_card_tag} searchPlaceholder={pt.boletim_search_placeholder} />
             </div>
           )}
         </div>
 
         {/* Demais abas: blocos em faixas de largura total, no mesmo modelo dos
             Grupos Temáticos e eventos (fundo de cada faixa escolhido no painel) */}
+        {current && current.id !== 'boletim' && shortcuts.length > 1 && (
+          <div className="container mx-auto px-6 max-w-6xl mt-10 md:mt-14">
+            <nav aria-label="Nesta aba" className="flex flex-wrap gap-2">
+              {shortcuts.map(s => (
+                <button key={s.id} type="button" onClick={() => goToSection(s)}
+                  className="px-5 py-2.5 rounded-full text-sm font-semibold bg-white border border-gray-200 text-gray-600 shadow-card transition-colors hover:border-[#007a3d] hover:text-[#007a3d]">
+                  {s.nav_label}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
         {current && current.id !== 'boletim' && (
           <div key={current.id} className="mt-6 md:mt-10">
             <ContentSectionsRenderer sections={cfg[`${current.id}_sections`]} layout="page" bgPhoto={cfg.hero_image ? getImageUrl(cfg.hero_image, 1600) : ''} />

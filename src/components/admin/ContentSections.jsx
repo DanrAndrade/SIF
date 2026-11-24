@@ -14,7 +14,7 @@ import TabManager from './TabManager';
 
 const typeIcon = (type) => Icons[SECTION_TYPES[type]?.icon] || Icons.Square;
 
-function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUploadingChange, bands }) {
+function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUploadingChange, bands, navField }) {
   const hidden = section.visible === false;
   const setField = (k, v) => onUpdate({ [k]: v });
   const def = SECTION_TYPES[section.type] || { label: section.type };
@@ -42,6 +42,12 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
             <div className="w-full sm:w-56">
               <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Etiqueta acima do título</label>
               <input className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.eyebrow || ''} placeholder="opcional" onChange={e => onUpdate({ eyebrow: e.target.value })} />
+            </div>
+          )}
+          {navField && (
+            <div className="w-full sm:w-56">
+              <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Atalho no topo da aba</label>
+              <input className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.nav_label || ''} placeholder="opcional (ex.: Sementes)" onChange={e => onUpdate({ nav_label: e.target.value })} />
             </div>
           )}
           {bands && section.type !== 'cta' && (
@@ -101,7 +107,8 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
 // template: tipo de página (PAGE_TEMPLATES) → oferece a estrutura padrão.
 // autoTemplate: item novo → já começa com a estrutura padrão.
 // bands: mostra a escolha de fundo da faixa (páginas em layout "página", ex.: GT)
-export default function ContentSections({ sections = [], onChange, onUploading, template, autoTemplate = false, bands = false, title = 'Seções de Conteúdo' }) {
+// navField: mostra o campo "Atalho no topo da aba" (páginas com atalhos, ex.: Produtos e Serviços)
+export default function ContentSections({ sections = [], onChange, onUploading, template, autoTemplate = false, bands = false, navField = false, title = 'Seções de Conteúdo' }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const confirm = useConfirm();
   const [uploadCount, setUploadCount] = useState(0);
@@ -206,6 +213,7 @@ export default function ContentSections({ sections = [], onChange, onUploading, 
             onUpdate={(updates) => update(section.id, updates)}
             onUploadingChange={handleUploadingChange}
             bands={bands}
+            navField={navField}
           />
         ))}
       </div>

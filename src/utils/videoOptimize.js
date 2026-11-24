@@ -1,18 +1,26 @@
 // Otimiza um vídeo NO NAVEGADOR antes de enviar (a hospedagem não tem
 // conversor de vídeo). O vídeo é tocado escondido, redesenhado em no máximo
-// 1280 px de largura e regravado com compressão (MP4 H.264 quando o
-// navegador permite; senão WebM). O áudio é mantido (para o "Assistir vídeo")
+// 1920 px de largura e regravado com compressão (MP4 H.264 quando o
+// navegador permite; senão WebM). Se o arquivo original já for um MP4/WebM
+// leve (até 25 MB e até 1920 px), ele é enviado como está: regravar só piora. O áudio é mantido (para o "Assistir vídeo")
 // e não toca alto durante a conversão. Também gera uma capa em WebP (1º
 // quadro), mostrada enquanto o vídeo carrega.
 //
 // A conversão leva o mesmo tempo do vídeo (é gravada em tempo real).
 
-const MAX_W = 1280;
-const VIDEO_BPS = 2_500_000; // ~2,5 Mbps: bom para 720p
+const MAX_W = 1920;
+const VIDEO_BPS = 6_000_000; // ~6 Mbps: bom para Full HD
 const AUDIO_BPS = 128_000;
-const LOOP_SECONDS = 20;     // trecho do fundo (sem áudio)
-const LOOP_MAX_W = 1280;     // fundo em 1280px (leve; o vídeo completo continua em melhor qualidade)
-const LOOP_BPS = 900_000;    // ~0,9 Mbps: cerca de 2 MB para 20 s
+const LOOP_SECONDS = 30;     // trecho do fundo (sem áudio) quando o vídeo é longo
+const LOOP_FULL_UNTIL = 60;  // vídeo até 60 s: o fundo cobre o vídeo inteiro (não corta)
+const LOOP_MAX_W = 1920;
+const LOOP_BPS = 4_000_000;  // ~4 Mbps no fundo
+// Limites do servidor (upload_video.php): 40 MB o vídeo e 15 MB o fundo.
+// A taxa é reduzida só quando a duração faria passar disso.
+const VIDEO_MAX_BYTES = 32 * 1024 * 1024;
+const LOOP_MAX_BYTES = 12 * 1024 * 1024;
+const KEEP_ORIGINAL_BYTES = 25 * 1024 * 1024;
+const capBps = (bps, bytes, seconds) => Math.max(500_000, Math.min(bps, Math.floor((bytes * 8) / Math.max(1, seconds))));
 
 const MIME_OPTIONS = [
   'video/mp4;codecs=avc1.42E01F,mp4a.40.2',
@@ -39,10 +47,11 @@ const once = (el, ev) => new Promise((res, rej) => {
 /**
  * @param {File} file
  * @param {(p:number)=>void} onProgress  0..1
- * @returns {Promise<{ video: File, loop: File|null, poster: File|null, width:number, height:number }>}
- * video = completo, com som (botão "Assistir vídeo"); loop = primeiros
- * segundos, sem som e mais leve (fundo do topo). Os dois saem da mesma
- * passada, sem gastar mais tempo.
+ * @returns {Promise<{ video: File, loop: File|null, poster: File|null, width:number, height:number, original?:boolean }>}
+ * video = completo, com som (botão "Assistir vídeo"); loop = trecho sem som
+ * (fundo do topo; o vídeo inteiro se tiver até 60 s). Os dois saem da mesma
+ * passada, sem gastar mais tempo. original = true quando o arquivo foi
+ * mantido sem regravar (loop vem nulo e o fundo usa o próprio vídeo).
  */
 // opts.loopStart: segundo em que o trecho do fundo começa (pula aberturas)
 export async function optimizeVideo(file, onProgress = () => {}, opts = {}) {
@@ -84,6 +93,14 @@ export async function optimizeVideo(file, onProgress = () => {}, opts = {}) {
     video.currentTime = 0;
     await once(video, 'seeked');
 
+    // Arquivo já leve e em formato web: usa o original, sem regravar
+    const base0 = (file.name || 'video').replace(/\.[^.]+$/, '');
+    if (/^video\/(mp4|webm)$/.test(file.type) && file.size <= KEEP_ORIGINAL_BYTES && video.videoWidth <= MAX_W) {
+      const posterOnly = posterBlob ? new File([posterBlob], `${base0}-capa.webp`, { type: 'image/webp' }) : null;
+      onProgress(1);
+      return { video: file, loop: null, poster: posterOnly, width: video.videoWidth, height: video.videoHeight, original: true };
+    }
+
     // Trilhas: imagem do canvas + áudio do vídeo (sem sair nas caixas de som)
     const stream = canvas.captureStream(30);
     try {
@@ -97,23 +114,25 @@ export async function optimizeVideo(file, onProgress = () => {}, opts = {}) {
       }
     } catch { /* vídeo sem áudio ou navegador sem suporte: segue só com a imagem */ }
 
+    const dur0 = video.duration || LOOP_SECONDS;
     const mimeType = MIME_OPTIONS.find(m => MediaRecorder.isTypeSupported(m));
-    const rec = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: VIDEO_BPS, audioBitsPerSecond: AUDIO_BPS });
+    const rec = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: capBps(VIDEO_BPS, VIDEO_MAX_BYTES, dur0), audioBitsPerSecond: AUDIO_BPS });
     const chunks = [];
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     const stopped = new Promise(r => { rec.onstop = r; });
 
     // Trecho do fundo: só imagem, primeiros segundos, taxa menor
     const loopStream = loopCanvas.captureStream(30);
+    const loopSpan = Math.min(dur0 <= LOOP_FULL_UNTIL ? dur0 : LOOP_SECONDS, dur0);
     const sameFamily = /mp4/.test(mimeType) ? ['video/mp4;codecs=avc1.42E01F', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
     const loopMime = sameFamily.find(m => MediaRecorder.isTypeSupported(m)) || mimeType;
-    const loopRec = new MediaRecorder(loopStream, { mimeType: loopMime, videoBitsPerSecond: LOOP_BPS });
+    const loopRec = new MediaRecorder(loopStream, { mimeType: loopMime, videoBitsPerSecond: capBps(LOOP_BPS, LOOP_MAX_BYTES, loopSpan) });
     const loopChunks = [];
     loopRec.ondataavailable = (e) => { if (e.data && e.data.size) loopChunks.push(e.data); };
     const loopStopped = new Promise(r => { loopRec.onstop = r; });
     const dur = video.duration || LOOP_SECONDS;
     const loopFrom = Math.max(0, Math.min(Number(opts.loopStart) || 0, Math.max(0, dur - 3)));
-    const loopLimit = Math.min(loopFrom + LOOP_SECONDS, dur);
+    const loopLimit = dur <= LOOP_FULL_UNTIL ? dur : Math.min(loopFrom + LOOP_SECONDS, dur);
     let loopStarted = false;
     let loopDone = false;
     const stopLoop = () => { if (!loopDone) { loopDone = true; try { if (loopRec.state !== 'inactive') loopRec.stop(); } catch { /* já parou */ } loopStream.getTracks().forEach(t => t.stop()); } };

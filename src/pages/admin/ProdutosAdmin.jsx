@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PRODUTOS_TEXTS } from '../../utils/pageTextDefaults';
 import PageTextsForm from '../../components/admin/PageTextsForm';
 import { useConfirm, AdminPage, AdminCard, useDirty, ItemActions, SecondaryButton } from '../../components/admin/kit';
-import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown, Type } from 'lucide-react';
+import { Save, Sprout, Briefcase, FileText, Microscope, Home as HomeIcon, Check, Loader2, Plus, Trash2, Upload, X, Image as ImageIcon, ChevronUp, ChevronDown, Type, ShieldCheck, Globe2 } from 'lucide-react';
 import Button from '../../components/admin/kit/AdminButton'; // botão do painel (sem a seta do site)
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import ContentSections from '../../components/admin/ContentSections';
@@ -84,6 +84,16 @@ const CONTENT_DEFAULTS = {
   pd_title_highlight: 'Desenvolvimento',
   pd_intro: 'Ofertamos excelência técnica em consultoria, estudos de viabilidade e desenvolvimento de novas tecnologias para toda a cadeia produtiva florestal.',
   pd_sections: [],
+
+  cultivares_title_line1: 'Proteção de',
+  cultivares_title_highlight: 'Cultivares',
+  cultivares_intro: '',
+  cultivares_sections: [],
+
+  importacao_title_line1: 'Importação e',
+  importacao_title_highlight: 'Exportação Florestal',
+  importacao_intro: '',
+  importacao_sections: [],
 };
 
 const SECTION_TABS = [
@@ -92,10 +102,12 @@ const SECTION_TABS = [
   { id: 'germinar',  label: 'Programa Germinar',  icon: Briefcase },
   { id: 'boletim',   label: 'Boletim Técnico',    icon: FileText  },
   { id: 'pd',        label: 'Serviços de P&D',    icon: Microscope},
+  { id: 'cultivares', label: 'Proteção de Cultivares', icon: ShieldCheck },
+  { id: 'importacao', label: 'Importação e Exportação', icon: Globe2 },
   { id: 'textos',    label: 'Textos',             icon: Type },
 ];
 
-const CONTENT_IDS = ['comercial', 'germinar', 'boletim', 'pd'];
+const CONTENT_IDS = ['comercial', 'germinar', 'boletim', 'pd', 'cultivares', 'importacao'];
 
 function mergeCfg(defaults, data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return defaults;
@@ -108,6 +120,8 @@ function mergeCfg(defaults, data) {
     boletim_sections:   data.boletim_sections   || [],
     boletim_pdfs:       Array.isArray(data.boletim_pdfs) ? data.boletim_pdfs : [],
     pd_sections:        data.pd_sections         || [],
+    cultivares_sections: data.cultivares_sections   || [],
+    importacao_sections: data.importacao_sections   || [],
   };
 }
 
@@ -235,6 +249,7 @@ export default function ProdutosAdmin() {
 function BoletimEditor({ config, set, onUploading }) {
   return (
     <div className="space-y-6">
+      <TabVisibility prefix="boletim" config={config} set={set} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field
           label="Título — parte 1"
@@ -259,6 +274,16 @@ function BoletimEditor({ config, set, onUploading }) {
         onChange={list => set('boletim_pdfs', list)}
         onUploading={onUploading}
       />
+      <div className="pt-6 border-t border-gray-100">
+        <ContentSections
+          template="produtos"
+          title="Documentos para autores (aparecem acima dos boletins)"
+          sections={config.boletim_sections || []}
+          onChange={v => set('boletim_sections', v)}
+          onUploading={onUploading}
+        />
+        <p className="mt-2 text-xs text-gray-400">Use o bloco "Arquivos e documentos" para o modelo do boletim, as normas de submissão etc.</p>
+      </div>
     </div>
   );
 }
@@ -437,11 +462,26 @@ function BoletimEntryRow({ item, index, total, onMoveUp, onMoveDown, onRemove, o
   );
 }
 
+// Mostrar/esconder a aba no site (e o link dela no menu)
+function TabVisibility({ prefix, config, set }) {
+  const hidden = !!config[`${prefix}_hidden`];
+  return (
+    <label className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer ${hidden ? 'border-amber-200 bg-amber-50/60' : 'border-gray-200 bg-gray-50/60'}`}>
+      <input type="checkbox" className="w-4 h-4 mt-0.5 accent-[#007a3d]" checked={!hidden} onChange={e => set(`${prefix}_hidden`, !e.target.checked)} />
+      <span>
+        <span className="block text-sm font-semibold text-gray-800">Mostrar esta aba no site</span>
+        <span className="block text-xs text-gray-500 mt-0.5">{hidden ? 'Escondida: a aba e o link dela no menu não aparecem no site. O conteúdo continua salvo aqui.' : 'Desmarque para esconder a aba (e o link no menu) enquanto o conteúdo não estiver pronto.'}</span>
+      </span>
+    </label>
+  );
+}
+
 // ─── Editor de seção (título + intro + ContentSections) ────────
 function SectionEditor({ prefix, config, set, onUploading }) {
   const k = (suffix) => `${prefix}_${suffix}`;
   return (
     <div className="space-y-6">
+      <TabVisibility prefix={prefix} config={config} set={set} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field
           label="Título — parte 1"
@@ -455,7 +495,7 @@ function SectionEditor({ prefix, config, set, onUploading }) {
         />
       </div>
       <Field
-        label="Parágrafo de introdução (caixa verde)"
+        label="Apresentação (aparece ao lado do título)"
         type="textarea"
         rows={3}
         value={config[k('intro')] || ''}
@@ -464,6 +504,7 @@ function SectionEditor({ prefix, config, set, onUploading }) {
       <ContentSections
         template="produtos"
         bands
+        navField
         title="Blocos da aba"
         sections={config[k('sections')] || []}
         onChange={v => set(k('sections'), v)}

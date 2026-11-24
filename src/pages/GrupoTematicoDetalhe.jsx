@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import ContentSectionsRenderer, { renderableSections, sectionAnchor } from '../components/ContentSectionsRenderer';
 import EditablePageContact from '../components/EditablePageContact';
 import DetailHero from '../components/DetailHero';
+import PageNav from '../components/detail/PageNav';
 import GtBlogPosts from '../components/GtBlogPosts';
 import { BlockHeader } from '../components/sections/SectionBlocks';
 import { withGtDefaults, htmlExcerpt } from '../components/sections/sectionTypes';
@@ -154,14 +155,8 @@ export default function GrupoTematicoDetalhe() {
       {navItems.length > 1 && (
         <div className="sif-subnav sticky z-30 mt-6">
           <div className="max-w-6xl mx-auto px-6">
-            <nav aria-label="Nesta página" className="flex gap-1 overflow-x-auto no-scrollbar p-1.5 rounded-full bg-white/85 backdrop-blur-md border border-gray-100 shadow-card w-fit max-w-full">
-              {navItems.map(n => (
-                <button key={n.id} type="button" onClick={() => go(n.id)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-colors ${activeId === n.id ? 'bg-[var(--accent)] text-white' : 'text-gray-600 hover:text-[var(--accent)]'}`}>
-                  {n.title}
-                </button>
-              ))}
-            </nav>
+            <PageNav items={navItems} activeId={activeId} onSelect={go}
+              activeClass="bg-[var(--accent)] text-white" idleClass="text-gray-600 hover:text-[var(--accent)]" />
           </div>
         </div>
       )}
