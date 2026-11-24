@@ -458,12 +458,12 @@ function HeroVideoFields({ config, update }) {
         setBusy('convert'); setProgress(0);
         const out = await optimizeVideo(file, setProgress, { loopStart: Number(config.video_loop_start) || 0 });
         video = out.video; poster = out.poster; loop = out.loop; orig = !!out.original;
-      } else if (file.size > 40 * 1024 * 1024) {
-        window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 40 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
+      } else if (file.size > 60 * 1024 * 1024) {
+        window.showToast?.('Este navegador não consegue otimizar o vídeo e ele passa de 60 MB. Use o Chrome ou o Edge, ou um vídeo menor.', 'error');
         return;
       }
-      if (video.size > 40 * 1024 * 1024) {
-        window.showToast?.('Mesmo otimizado, o vídeo passou de 40 MB. Use um vídeo mais curto.', 'error');
+      if (video.size > 60 * 1024 * 1024) {
+        window.showToast?.('Mesmo otimizado, o vídeo passou de 60 MB. Use um vídeo mais curto.', 'error');
         return;
       }
       setBusy('send');

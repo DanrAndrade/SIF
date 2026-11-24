@@ -15,10 +15,10 @@ const LOOP_SECONDS = 30;     // trecho do fundo (sem áudio) quando o vídeo é 
 const LOOP_FULL_UNTIL = 60;  // vídeo até 60 s: o fundo cobre o vídeo inteiro (não corta)
 const LOOP_MAX_W = 1920;
 const LOOP_BPS = 4_000_000;  // ~4 Mbps no fundo
-// Limites do servidor (upload_video.php): 40 MB o vídeo e 15 MB o fundo.
+// Limites do servidor (upload_video.php): 60 MB o vídeo e 30 MB o fundo.
 // A taxa é reduzida só quando a duração faria passar disso.
-const VIDEO_MAX_BYTES = 32 * 1024 * 1024;
-const LOOP_MAX_BYTES = 12 * 1024 * 1024;
+const VIDEO_MAX_BYTES = 55 * 1024 * 1024;
+const LOOP_MAX_BYTES = 26 * 1024 * 1024;
 const KEEP_ORIGINAL_BYTES = 25 * 1024 * 1024;
 const capBps = (bps, bytes, seconds) => Math.max(500_000, Math.min(bps, Math.floor((bytes * 8) / Math.max(1, seconds))));
 
