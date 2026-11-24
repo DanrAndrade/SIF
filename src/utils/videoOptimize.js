@@ -2,27 +2,31 @@
 // conversor de vídeo). O vídeo é tocado escondido, redesenhado em no máximo
 // 1920 px de largura e regravado com compressão (MP4 H.264 quando o
 // navegador permite; senão WebM). Se o arquivo original já for um MP4/WebM
-// leve (até 25 MB e até 1920 px), ele é enviado como está: regravar só piora. O áudio é mantido (para o "Assistir vídeo")
+// leve (até 40 MB e até 1920 px), ele é enviado como está: regravar só piora. O áudio é mantido (para o "Assistir vídeo")
 // e não toca alto durante a conversão. Também gera uma capa em WebP (1º
 // quadro), mostrada enquanto o vídeo carrega.
 //
 // A conversão leva o mesmo tempo do vídeo (é gravada em tempo real).
 
 const MAX_W = 1920;
-const VIDEO_BPS = 6_000_000; // ~6 Mbps: bom para Full HD
+const VIDEO_BPS = 10_000_000; // ~10 Mbps: Full HD sem blocos nas folhagens
 const AUDIO_BPS = 128_000;
 const LOOP_SECONDS = 30;     // trecho do fundo (sem áudio) quando o vídeo é longo
 const LOOP_FULL_UNTIL = 60;  // vídeo até 60 s: o fundo cobre o vídeo inteiro (não corta)
 const LOOP_MAX_W = 1920;
-const LOOP_BPS = 4_000_000;  // ~4 Mbps no fundo
+const LOOP_BPS = 8_000_000;  // ~8 Mbps no fundo
 // Limites do servidor (upload_video.php): 60 MB o vídeo e 30 MB o fundo.
 // A taxa é reduzida só quando a duração faria passar disso.
 const VIDEO_MAX_BYTES = 55 * 1024 * 1024;
 const LOOP_MAX_BYTES = 26 * 1024 * 1024;
-const KEEP_ORIGINAL_BYTES = 25 * 1024 * 1024;
+const KEEP_ORIGINAL_BYTES = 40 * 1024 * 1024;
 const capBps = (bps, bytes, seconds) => Math.max(500_000, Math.min(bps, Math.floor((bytes * 8) / Math.max(1, seconds))));
 
+// Perfil High nível 4.0 primeiro: o Baseline 3.1 (42E01F) é limitado a 720p e
+// degrada vídeos Full HD
 const MIME_OPTIONS = [
+  'video/mp4;codecs=avc1.640028,mp4a.40.2',
+  'video/mp4;codecs=avc1.4D4028,mp4a.40.2',
   'video/mp4;codecs=avc1.42E01F,mp4a.40.2',
   'video/mp4;codecs=avc1,mp4a.40.2',
   'video/mp4',
@@ -124,7 +128,7 @@ export async function optimizeVideo(file, onProgress = () => {}, opts = {}) {
     // Trecho do fundo: só imagem, primeiros segundos, taxa menor
     const loopStream = loopCanvas.captureStream(30);
     const loopSpan = Math.min(dur0 <= LOOP_FULL_UNTIL ? dur0 : LOOP_SECONDS, dur0);
-    const sameFamily = /mp4/.test(mimeType) ? ['video/mp4;codecs=avc1.42E01F', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    const sameFamily = /mp4/.test(mimeType) ? ['video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1.4D4028', 'video/mp4;codecs=avc1.42E01F', 'video/mp4;codecs=avc1', 'video/mp4'] : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
     const loopMime = sameFamily.find(m => MediaRecorder.isTypeSupported(m)) || mimeType;
     const loopRec = new MediaRecorder(loopStream, { mimeType: loopMime, videoBitsPerSecond: capBps(LOOP_BPS, LOOP_MAX_BYTES, loopSpan) });
     const loopChunks = [];
