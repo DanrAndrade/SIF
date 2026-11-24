@@ -8,12 +8,12 @@
 //
 // A conversão leva o mesmo tempo do vídeo (é gravada em tempo real).
 
-const MAX_W = 1920;
+const MAX_W = 2560;
 const VIDEO_BPS = 10_000_000; // ~10 Mbps: Full HD sem blocos nas folhagens
 const AUDIO_BPS = 128_000;
 const LOOP_SECONDS = 30;     // trecho do fundo (sem áudio) quando o vídeo é longo
 const LOOP_FULL_UNTIL = 60;  // vídeo até 60 s: o fundo cobre o vídeo inteiro (não corta)
-const LOOP_MAX_W = 1920;
+const LOOP_MAX_W = 2560;
 const LOOP_BPS = 8_000_000;  // ~8 Mbps no fundo
 // Limites do servidor (upload_video.php): 60 MB o vídeo e 30 MB o fundo.
 // A taxa é reduzida só quando a duração faria passar disso.

@@ -496,7 +496,7 @@ function HeroVideoFields({ config, update }) {
 
       {mode === 'video' && (<>
         <p className="text-xs text-gray-500">
-          Envie <strong>um vídeo</strong> (MP4, MOV ou WebM). Antes de subir, o painel limita a largura a 1920 px e comprime o arquivo para o site carregar rápido. Se o arquivo já for um MP4 ou WebM de até 40 MB e 1920 px, ele é enviado como está, sem perder qualidade (é o melhor caminho: exporte o vídeo em Full HD, até 40 MB, antes de enviar). Quando comprime, leva o mesmo tempo do vídeo: mantenha esta aba aberta até terminar.
+          Envie <strong>um vídeo</strong> (MP4, MOV ou WebM). Antes de subir, o painel limita a largura a 2560 px e comprime o arquivo para o site carregar rápido. Se o arquivo já for um MP4 ou WebM de até 40 MB e 2560 px, ele é enviado como está, sem perder qualidade (é o melhor caminho: exporte o vídeo em 1440p ou Full HD, até 40 MB, antes de enviar). Quando comprime, leva o mesmo tempo do vídeo: mantenha esta aba aberta até terminar.
           No site, ele toca sem som e em loop no fundo; o botão "Assistir vídeo" abre o mesmo vídeo com som.
         </p>
         <div className="flex flex-wrap items-center gap-3">
