@@ -31,8 +31,14 @@ export default function HeroSection({ wrapperRef, bgRef, contentRef, config = {}
   const loopFile  = config.video_loop || '';
   const bgMode    = config.bg_mode || (loopFile ? 'video' : 'image');
   const useVideo  = bgMode === 'video' && !!loopFile;
-  // Fundo: trecho curto e leve (se houver); o completo só carrega no botão
-  const loopSrc   = useVideo ? getImageUrl(config.video_loop_short || loopFile) : '';
+  // Fundo: no computador, o arquivo principal (qualidade alta); no celular ou
+  // com economia de dados, o trecho curto e leve (se houver)
+  const [lite] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const saveData = navigator.connection?.saveData === true;
+    return saveData || !window.matchMedia?.('(min-width: 768px)').matches;
+  });
+  const loopSrc   = useVideo ? getImageUrl((lite && config.video_loop_short) || loopFile) : '';
   const poster    = config.video_poster ? getImageUrl(config.video_poster, heroW()) : resolvedBg;
   // botão para assistir o vídeo completo: pode ser desligado no painel (sem ele, volta a seta de rolar)
   const fullUrl   = useVideo && config.video_full_enabled !== false ? loopFile : '';

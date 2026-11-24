@@ -69,9 +69,9 @@ export function TextImageBlock({ sec, dark }) {
 // Cards lado a lado (até 4): filete na cor do grupo, número grande e, ao
 // passar o mouse, o card cresce e escurece. Com 5 ou mais, vira grade.
 // Folha da SIF (com o "i" branco) como marca d'água discreta nos cards brancos
-export function LeafMark({ className = '' }) {
+export function LeafMark({ className = '', opacity = 'opacity-[0.07]' }) {
   return <img src={leafIcon} alt="" aria-hidden="true" draggable="false" loading="lazy"
-    className={`pointer-events-none select-none absolute [filter:grayscale(1)] opacity-[0.07] ${className}`} />;
+    className={`pointer-events-none select-none absolute [filter:grayscale(1)] ${opacity} ${className}`} />;
 }
 
 export function CardsBlock({ sec, dark }) {
@@ -106,7 +106,7 @@ export function CardsBlock({ sec, dark }) {
           return (
             <article key={i} tabIndex={0}
               className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 md:p-8 md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'shrink-0 snap-start w-[80%] sm:w-[46%] lg:w-[calc((100%-3.75rem)/4)]' : 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
-              {!dark && <LeafMark className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500 group-hover:opacity-0 group-focus:opacity-0" />}
+              {!dark && <LeafMark opacity="opacity-[0.14] group-hover:opacity-[0.16] group-focus:opacity-[0.16]" className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500" />}
               <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[28px]" />
               {it.title && <h3 className={`relative ${wide ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
