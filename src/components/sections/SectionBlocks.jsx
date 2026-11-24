@@ -82,12 +82,25 @@ export function CardsBlock({ sec, dark }) {
   const wide = slide;
   const ref = useRef(null);
   const [pos, setPos] = useState({ start: true, end: false });
+  // Largura mínima fixa dos cards (nunca ficam achatados): se não couberem
+  // na linha, ela rola para o lado e as setas aparecem
+  const [overflow, setOverflow] = useState(false);
   const onScroll = () => {
     const el = ref.current;
     if (!el) return;
     setPos({ start: el.scrollLeft <= 4, end: el.scrollLeft >= el.scrollWidth - el.clientWidth - 4 });
   };
-  useEffect(() => { onScroll(); }, [items.length]);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => { setOverflow(el.scrollWidth > el.clientWidth + 4); onScroll(); };
+    check();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [items.length]);
+  const scrollable = slide || overflow;
   const go = (dir) => {
     const el = ref.current;
     if (!el) return;
@@ -98,14 +111,14 @@ export function CardsBlock({ sec, dark }) {
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      <div ref={slide ? ref : undefined} onScroll={slide ? onScroll : undefined}
+      <div ref={ref} onScroll={onScroll}
         className={slide
           ? '-mx-6 px-6 py-3 -my-3 flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-6'
-          : 'grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 md:gap-5'}>
+          : 'grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 md:gap-5 md:-mx-6 md:px-6 md:py-3 md:-my-3 md:overflow-x-auto md:no-scrollbar md:snap-x md:scroll-px-6'}>
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col min-w-0 rounded-card overflow-hidden p-7 md:p-8 md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'shrink-0 snap-start w-[80%] sm:w-[46%] lg:w-[calc((100%-3.75rem)/4)]' : 'md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              className={`group relative flex flex-col rounded-card overflow-hidden p-7 md:p-8 md:min-h-[280px] outline-none transition-[flex-grow,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'min-w-[250px] shrink-0 snap-start w-[80%] sm:w-[46%] lg:w-[calc((100%-3.75rem)/4)]' : 'min-w-0 md:min-w-[250px] md:snap-start md:flex-1 md:hover:flex-[1.45] md:focus-within:flex-[1.45]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
               {!dark && <LeafMark opacity="opacity-[0.14] group-hover:opacity-[0.16] group-focus:opacity-[0.16]" className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500" />}
               <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
               <div className="flex-1 min-h-[28px]" />
@@ -124,7 +137,7 @@ export function CardsBlock({ sec, dark }) {
           );
         })}
       </div>
-      {slide && (
+      {scrollable && (
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" aria-label="Cards anteriores" onClick={() => go(-1)} disabled={pos.start} className={arrow}><ChevronLeft size={18} /></button>
           <button type="button" aria-label="Próximos cards" onClick={() => go(1)} disabled={pos.end} className={arrow}><ChevronRight size={18} /></button>
