@@ -1,40 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { PROJETOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { ArrowLeft, ExternalLink, Calendar, MapPin, Tag, Clock, Download, ChevronRight } from 'lucide-react';
-import { API_BASE_URL, getImageUrl, cleanRichHtml, toExternalUrl, htmlToText, heroW } from '../apiConfig';
-import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
+import { API_BASE_URL, getImageUrl } from '../apiConfig';
 import EditablePageContact from '../components/EditablePageContact';
 import { useSeo } from '../hooks/useSeo';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { getEffectiveProjectStatus, STATUS_DOT } from '../utils/helpers';
-import DetailHero from '../components/DetailHero';
-import { buttonClass, BtnArrow } from '../components/ui/Button';
+import { getEffectiveProjectStatus } from '../utils/helpers';
 import { loadBlogFonts } from '../utils/blogFonts';
-import { FlaskConical } from 'lucide-react';
+import ProjectDossier, { buildChapters } from '../components/projeto/ProjectDossier';
 
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
+const parseJson = (s, fallback) => { try { return s ? JSON.parse(s) : fallback; } catch { return fallback; } };
 
-function formatDate(dateStr) {
-  if (!dateStr) return null;
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+// Projetos antigos (abas e PDF soltos) viram capítulos, sem perder nada
+function legacySections(projeto) {
+  const out = [];
+  const tabs = parseJson(projeto.tabs, []);
+  if (Array.isArray(tabs) && tabs.length) out.push({ id: 'legado-abas', type: 'tabs', title: 'Detalhamento', tabs });
+  if (projeto.pdf_url) out.push({ id: 'legado-pdf', type: 'pdfs', title: 'Documentos', pdfs: [{ url: projeto.pdf_url, title: 'Documento do Projeto' }] });
+  return out;
 }
 
 export default function ProjetoDetalhe() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [projeto, setProjeto] = useState(null);
-  usePageTitle(projeto?.title);
-  useSeo({ description: projeto?.description, image: projeto?.image_url ? getImageUrl(projeto.image_url) : undefined });
   const [loading, setLoading] = useState(true);
   const { config: pageCfg } = usePageConfig('projetos');
   const tx = withTexts(PROJETOS_TEXTS, pageCfg); // Painel › Projetos P&D › Textos da página
-  const [activeTab, setActiveTab] = useState(0);
-  const [projSections, setProjSections] = useState(null);
+  usePageTitle(projeto?.title);
+  useSeo({ description: projeto?.lead || projeto?.description, image: projeto?.image_url ? getImageUrl(projeto.image_url) : undefined });
   useEffect(() => { if (projeto?.description) loadBlogFonts(projeto.description); }, [projeto?.description]); // fontes escolhidas no texto
 
   useEffect(() => {
@@ -42,24 +41,26 @@ export default function ProjetoDetalhe() {
     fetch(`${API_URL}?slug=${slug}`)
       .then(res => res.json())
       .then(data => {
-        if (!data || data.error || !data.id) {
-          navigate('/projetos');
-        } else {
-          setProjeto(data);
-
-          try {
-            const extra = data.extra_data ? JSON.parse(data.extra_data) : {};
-            const s = extra.sections;
-            setProjSections(Array.isArray(s) && s.length > 0 ? s : null);
-          } catch { setProjSections(null); }
-        }
+        if (!data || data.error || !data.id) navigate('/projetos');
+        else setProjeto(data);
         setLoading(false);
       })
       .catch(err => {
-        console.error("Erro ao buscar projeto:", err);
+        console.error('Erro ao buscar projeto:', err);
         navigate('/projetos');
       });
   }, [slug, navigate]);
+
+  const view = useMemo(() => {
+    if (!projeto) return null;
+    const extra = parseJson(projeto.extra_data, {}) || {};
+    const saved = Array.isArray(extra.sections) && extra.sections.length > 0 ? extra.sections : null;
+    return {
+      lead: typeof extra.lead === 'string' ? extra.lead : '',
+      ficha: Array.isArray(extra.ficha) ? extra.ficha : [],
+      chapters: buildChapters({ description: projeto.description, sections: saved || legacySections(projeto) }),
+    };
+  }, [projeto]);
 
   if (loading) {
     return (
@@ -68,109 +69,29 @@ export default function ProjetoDetalhe() {
       </div>
     );
   }
-
-  if (!projeto) return null;
+  if (!projeto || !view) return null;
 
   return (
-    <div className="sif-page min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col">
-      <Navbar />
-
-      {/* TOPO (padrão das páginas de detalhe) */}
-      {(() => {
-        const es = getEffectiveProjectStatus(projeto);
-        return (
-          <DetailHero
-            cover={projeto.image_url ? getImageUrl(projeto.image_url, heroW()) : ''}
-            crumbs={[{ label: 'Projetos', to: '/projetos' }]}
-            eyebrow={tx.detail_eyebrow} icon={FlaskConical}
-            title={projeto.title}
-            chips={[
-              { icon: Tag, text: projeto.tag },
-              { dot: STATUS_DOT[es] || 'bg-gray-400', text: es },
-              { icon: MapPin, text: projeto.lab },
-              { icon: Clock, text: projeto.data_limite ? `Prazo: ${formatDate(projeto.data_limite)}` : '' },
-            ]}
-          />
-        );
-      })()}
-
-      {/* CONTENT SECTION */}
-      <main className="flex-grow container mx-auto px-6 py-16 max-w-4xl relative z-20 -mt-10">
-        <div className="bg-white rounded-card md:rounded-panel shadow-sm border border-gray-100 p-5 md:p-16">
-          {projeto.image_url && (
-            <div className="w-full h-[300px] md:h-[400px] rounded-3xl overflow-hidden mb-12 shadow-sm">
-              <img src={getImageUrl(projeto.image_url, 1280)} alt={projeto.title} className="w-full h-full object-cover" />
-            </div>
+    <div className="sif-page min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col overflow-x-clip">
+      <Navbar scrolled />
+      <main className="flex-grow">
+        <ProjectDossier
+          projeto={projeto}
+          status={getEffectiveProjectStatus(projeto)}
+          ficha={view.ficha}
+          lead={view.lead}
+          chapters={view.chapters}
+          tx={tx}
+          contact={(
+            <section className="py-16 bg-transparent">
+              <div className="container mx-auto px-6 max-w-3xl">
+                {/* CONTATO RESPONSÁVEL: configurado em /admin/projetos */}
+                <EditablePageContact pageKey="projetos" fallbackTitle={tx.contact_title} />
+              </div>
+            </section>
           )}
-
-          {/* Renderização do Rich Text */}
-          <div 
-            className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-            dangerouslySetInnerHTML={{ __html: htmlToText(projeto.description || '').trim() ? cleanRichHtml(projeto.description) : (projSections ? '' : '<p class="text-gray-400 italic text-center">Nenhuma descrição disponível para este projeto.</p>') }}
-          />
-
-          {projSections ? (
-            <div className="mt-12">
-              <ContentSectionsRenderer sections={projSections} />
-            </div>
-          ) : (
-            <>
-              {projeto.pdf_url && (
-                <div className="mt-12 flex justify-center border-b border-gray-100 pb-12">
-                  <a href={getImageUrl(projeto.pdf_url)} target="_blank" rel="noreferrer"
-                    className={buttonClass('primary', 'lg')}>
-                    <span className="py-2">{tx.pdf_btn}</span>
-                    <BtnArrow variant="primary" size="lg" icon={Download} />
-                  </a>
-                </div>
-              )}
-              {projeto.tabs && (() => {
-                let tabs = [];
-                try { tabs = JSON.parse(projeto.tabs); } catch {}
-                if (!Array.isArray(tabs) || !tabs.length) return null;
-                return (
-                  <div className="mt-16 space-y-8">
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {tabs.map((tab, idx) => (
-                        <button key={idx} onClick={() => setActiveTab(idx)}
-                          className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === idx ? 'bg-sif-dark text-white shadow-lg' : 'bg-gray-50 text-gray-400 hover:text-[#1f2937] hover:bg-gray-100'}`}>
-                          {tab.title}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="bg-gray-50 p-8 md:p-12 rounded-card border border-gray-100">
-                      <div className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:uppercase prose-headings:tracking-tight prose-a:text-[#007a3d] prose-img:rounded-3xl prose-img:shadow-sm"
-                        dangerouslySetInnerHTML={{ __html: cleanRichHtml(tabs[activeTab]?.content) }} />
-                    </div>
-                  </div>
-                );
-              })()}
-            </>
-          )}
-
-          {projeto.link_url && (
-            <div className="mt-16 pt-12 border-t border-gray-100 flex justify-center">
-              <a 
-                href={toExternalUrl(projeto.link_url) || undefined} 
-                target="_blank" 
-                rel="noreferrer"
-                className={buttonClass('primary', 'lg')}
-              >
-                <span className="py-2">{tx.link_btn}</span>
-                <BtnArrow variant="primary" size="lg" icon={ExternalLink} />
-              </a>
-            </div>
-          )}
-        </div>
+        />
       </main>
-
-      {/* CONTATO RESPONSÁVEL — configurado em /admin/projetos */}
-      <section className="py-16 bg-transparent">
-        <div className="container mx-auto px-6 max-w-3xl">
-          <EditablePageContact pageKey="projetos" fallbackTitle={tx.contact_title} />
-        </div>
-      </section>
-
       <Footer />
     </div>
   );

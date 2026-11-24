@@ -7,6 +7,8 @@ import Button from '../../components/admin/kit/AdminButton'; // botão do painel
 import QuillEditor from '../../components/admin/QuillEditor';
 import ImageUploadArea from '../../components/admin/ImageUploadArea';
 import ContentSections from '../../components/admin/ContentSections';
+import { Field } from '../../components/admin/sections/BlockEditors';
+import { FichaEditor } from '../../components/admin/sections/ProjectEditors';
 import PageHeaderForm from '../../components/admin/PageHeaderForm';
 import PageContactForm from '../../components/admin/PageContactForm';
 import { generateSlug, projectStatusColor, getEffectiveProjectStatus } from '../../utils/helpers';
@@ -30,7 +32,7 @@ const normStatus = (s) => (!s || s === 'Automático (por data)' ? '' : s);
 const emptyForm = {
   title: '', description: '', tag: '', lab: '',
   status: '', data_limite: '', link_url: '',
-  image_url: '', imageFile: null, sections: [],
+  image_url: '', imageFile: null, sections: [], lead: '', ficha: [],
 };
 
 export default function ProjetosAdmin() {
@@ -58,9 +60,14 @@ export default function ProjetosAdmin() {
 
   const handleEdit = async (p) => {
     if (!(await canLeave())) return; // cabeçalho/contato com edição não salva
-    let sections = null;
+    let sections = null, lead = '', ficha = [];
     if (p.extra_data) {
-      try { const s = JSON.parse(p.extra_data).sections; sections = Array.isArray(s) && s.length > 0 ? s : null; } catch {}
+      try {
+        const ex = JSON.parse(p.extra_data) || {};
+        const s = ex.sections; sections = Array.isArray(s) && s.length > 0 ? s : null;
+        lead = typeof ex.lead === 'string' ? ex.lead : '';
+        ficha = Array.isArray(ex.ficha) ? ex.ficha : [];
+      } catch {}
     }
     if (!sections) {
       sections = [];
@@ -74,7 +81,7 @@ export default function ProjetosAdmin() {
       title: p.title, description: p.description || '', tag: p.tag || '',
       lab: p.lab || '', status: normStatus(p.status),
       data_limite: p.data_limite || '', link_url: p.link_url || '',
-      image_url: p.image_url || '', imageFile: null, sections,
+      image_url: p.image_url || '', imageFile: null, sections, lead, ficha,
     });
     setPreview(p.image_url ? getImageUrl(p.image_url) : null);
     setView('form');
@@ -114,7 +121,7 @@ export default function ProjetosAdmin() {
     fd.append('status', form.status);
     fd.append('data_limite', form.data_limite || '');
     fd.append('link_url', form.link_url);
-    fd.append('extra_data', JSON.stringify({ sections: form.sections }));
+    fd.append('extra_data', JSON.stringify({ sections: form.sections, lead: form.lead || '', ficha: (form.ficha || []).filter(r => r && (r.label || r.value)) }));
     if (editingId) fd.append('id', editingId);
     if (form.imageFile) fd.append('image', form.imageFile);
     if (editingId && form.removeImage && !form.imageFile) fd.append('remove_image', '1'); // imagem removida no formulário
@@ -229,13 +236,28 @@ export default function ProjetosAdmin() {
               label="Imagem de Capa"
             />
 
+            <div className="p-5 bg-gray-50 border border-gray-200 rounded-2xl space-y-5">
+              <div>
+                <p className="text-sm font-bold text-gray-800">Resumo e ficha técnica</p>
+                <p className="text-xs text-gray-500 mt-1">Aparecem no topo da página do projeto. O resumo é a frase de abertura; a ficha é a faixa de informações logo abaixo da capa.</p>
+              </div>
+              <Field label="Resumo (1 ou 2 frases)" textarea rows={3} value={form.lead}
+                placeholder="O que é o projeto e por que ele importa, em poucas linhas."
+                onChange={lead => setForm(f => ({ ...f, lead }))} />
+              <div>
+                <p className="text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-2">Ficha técnica (linhas extras)</p>
+                <FichaEditor rows={form.ficha} onChange={ficha => setForm(f => ({ ...f, ficha }))} />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Descrição do Projeto</label>
-              {/* página em estilo blog (texto livre): permite escolher a fonte, como no Blog */}
-              <QuillEditor fonts value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[550px]" />
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Texto de apresentação (opcional)</label>
+              <p className="text-xs text-gray-500 ml-1">Se preenchido, vira o primeiro capítulo, "Sobre o projeto". Para uma página mais estruturada, deixe vazio e use os capítulos abaixo.</p>
+              <QuillEditor fonts value={form.description} onChange={val => setForm(f => ({...f, description: val}))} height="h-[320px]" />
             </div>
 
             <ContentSections
+              title="Capítulos do projeto"
               template="projetos" autoTemplate={!editingId}
               sections={form.sections}
               onChange={sections => setForm(f => ({...f, sections}))}

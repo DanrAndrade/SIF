@@ -25,7 +25,7 @@ export function Field({ label, value, onChange, placeholder, textarea, rows = 3 
 }
 
 // Lista genérica de itens com ↑↓ e excluir
-function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = false }) {
+export function ItemList({ items, onChange, empty, render, addLabel, newItem, grid = false }) {
   const confirm = useConfirm();
   const list = items || [];
   const latest = useLatest(list);
