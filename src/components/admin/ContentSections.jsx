@@ -48,8 +48,8 @@ function SectionBlock({ section, index, total, onMove, onRemove, onUpdate, onUpl
           )}
           {navField && (
             <div className="w-full sm:w-56">
-              <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Atalho no topo da aba</label>
-              <input className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.nav_label || ''} placeholder="opcional (ex.: Sementes)" onChange={e => onUpdate({ nav_label: e.target.value })} />
+              <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-widest mb-1">Botão no topo da aba</label>
+              <input className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm outline-none focus:border-[#007a3d]" value={section.nav_label || ''} placeholder="opcional (ex.: Sementes)" title="Cria um botão no topo da aba. Ao clicar, a página mostra só este bloco e os seguintes, até o próximo botão." onChange={e => onUpdate({ nav_label: e.target.value })} />
             </div>
           )}
           {bands && section.type !== 'cta' && (

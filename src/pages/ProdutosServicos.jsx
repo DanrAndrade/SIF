@@ -283,14 +283,34 @@ export default function ProdutosServicos() {
   // Aba aberta: título e apresentação
   const current = visibleTabs.find(t => t.id === activeTab) || visibleTabs[0];
   const tabSections = current ? (cfg[`${current.id}_sections`] || []).filter(s => s && s.visible !== false) : [];
-  // Atalhos no topo da aba: seções com "Atalho no topo da aba" preenchido
-  const shortcuts = tabSections.filter(s => (s.nav_label || '').trim());
+  // Botões no topo da aba: seções com "Atalho no topo da aba" preenchido. Cada botão
+  // abre SÓ o seu tema: a seção do botão e as seguintes, até o próximo botão.
+  // Seções antes do 1º botão aparecem em todos os temas.
+  const { commonSections, groups } = (() => {
+    const common = [];
+    const gs = [];
+    let cur = null;
+    tabSections.forEach(s => {
+      if ((s.nav_label || '').trim()) { cur = { id: tabSlug(s.nav_label), label: s.nav_label, sections: [s] }; gs.push(cur); }
+      else if (cur) cur.sections.push(s);
+      else common.push(s);
+    });
+    return { commonSections: common, groups: gs };
+  })();
+  const switcher = !!current && current.id !== 'boletim' && groups.length > 1;
+  const hashSlug = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+  const activeGroup = switcher ? (groups.find(g => g.id === hashSlug) || groups[0]) : null;
+  const shownSections = switcher ? [...commonSections, ...activeGroup.sections] : cfg[`${current?.id}_sections`];
+  const pickGroup = (g) => {
+    if (g.id === activeGroup?.id) return;
+    navigate({ pathname: location.pathname, search: `?aba=${current.id}`, hash: `#${g.id}` }, { replace: true });
+  };
 
-  // Endereço com #atalho (ex.: link do menu "Sementes"): rola até a seção
+  // Endereço com #atalho (ex.: link do menu "Sementes"): abre esse tema e leva até ele
   const hashTarget = (() => {
-    const want = decodeURIComponent((location.hash || '').replace(/^#/, ''));
-    const sec = want && tabSections.find(s => s.nav_label && tabSlug(s.nav_label) === want);
-    return sec ? sectionAnchor(sec) : '';
+    const sec = hashSlug && tabSections.find(s => s.nav_label && tabSlug(s.nav_label) === hashSlug);
+    if (!sec) return '';
+    return switcher ? 'produtos-chips' : sectionAnchor(sec);
   })();
   useEffect(() => {
     if (!hashTarget || lastHash.current === hashTarget + location.key) return;
@@ -309,10 +329,6 @@ export default function ProdutosServicos() {
     const timers = [400, 1300, 2400].map(ms => setTimeout(go, ms));
     return () => timers.forEach(clearTimeout);
   }, [hashTarget, location.key]);
-  const goToSection = (sec) => {
-    const el = document.getElementById(sectionAnchor(sec));
-    scrollBelowBar(el);
-  };
   // Barra de abas fixa: ganha fundo translúcido só quando está grudada
   const tabbarRef = useRef(null);
   useEffect(() => {
@@ -402,21 +418,26 @@ export default function ProdutosServicos() {
 
         {/* Demais abas: blocos em faixas de largura total, no mesmo modelo dos
             Grupos Temáticos e eventos (fundo de cada faixa escolhido no painel) */}
-        {current && current.id !== 'boletim' && shortcuts.length > 1 && (
-          <div className="container mx-auto px-6 max-w-6xl mt-10 md:mt-14">
-            <nav aria-label="Nesta aba" className="flex flex-wrap gap-2">
-              {shortcuts.map(s => (
-                <button key={s.id} type="button" onClick={() => goToSection(s)}
-                  className="px-5 py-2.5 rounded-full text-sm font-semibold bg-white border border-gray-200 text-gray-600 shadow-card transition-colors hover:border-[#007a3d] hover:text-[#007a3d]">
-                  {s.nav_label}
-                </button>
-              ))}
-            </nav>
+        {switcher && (
+          <div id="produtos-chips" className="container mx-auto px-6 max-w-6xl mt-10 md:mt-14">
+            <div role="tablist" aria-label="Temas desta aba" className="flex flex-wrap gap-2">
+              {groups.map(g => {
+                const on = g.id === activeGroup.id;
+                return (
+                  <button key={g.id} type="button" role="tab" aria-selected={on} onClick={() => pickGroup(g)}
+                    className={`px-5 py-2.5 rounded-full text-sm font-semibold border shadow-card transition-colors ${on
+                      ? 'bg-[#0b3320] border-[#0b3320] text-white'
+                      : 'bg-white border-gray-200 text-gray-600 hover:border-[#007a3d] hover:text-[#007a3d]'}`}>
+                    {g.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
         {current && current.id !== 'boletim' && (
-          <div key={current.id} className="mt-6 md:mt-10">
-            <ContentSectionsRenderer sections={cfg[`${current.id}_sections`]} layout="page" bgPhoto={cfg.hero_image ? getImageUrl(cfg.hero_image, 1600) : ''} />
+          <div key={`${current.id}:${activeGroup?.id || ''}`} className={`mt-6 md:mt-10 ${switcher ? 'animate-in fade-in duration-500' : ''}`}>
+            <ContentSectionsRenderer sections={shownSections} layout="page" bgPhoto={cfg.hero_image ? getImageUrl(cfg.hero_image, 1600) : ''} />
           </div>
         )}
       </main>
