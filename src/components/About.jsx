@@ -90,7 +90,7 @@ export default function About({ config = {}, videoTitle = 'Vídeo Institucional 
           <Button href={c.cta_link || '/institucional'} variant="primary">{txt(c.cta_label)}</Button>
           {hasBadge && (
             <div className="flex flex-wrap items-end gap-x-4 gap-y-1">
-              <span className="sif-title text-5xl md:text-6xl leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
+              <span className="sif-title text-5xl md:text-6xl font-bold leading-none tracking-tight text-sif-green whitespace-nowrap">{c.badge_value}</span>
               {c.badge_label && <span className="pb-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sif-ink/55">{c.badge_label}</span>}
             </div>
           )}
