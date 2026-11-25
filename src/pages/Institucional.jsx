@@ -18,6 +18,7 @@ import TeamDirectory from '../components/team/TeamDirectory';
 import { PageHeroView } from '../components/EditablePageHero';
 import { pageSectionOrder } from '../utils/sectionOrder';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 // Conteúdo padrão (textos atuais hardcoded da página) — usado como fallback
 // quando o admin ainda não preencheu nada.
 const DEFAULTS = {
@@ -219,13 +220,13 @@ export default function Institucional() {
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = 'manual';
       }
-      window.scrollTo(0, 0);
+      if (!isRestoringScroll()) window.scrollTo(0, 0);
       return;
     }
     const id = hash.replace('#', '');
     const scrollToSection = () => {
       const el = document.getElementById(id);
-      if (el) {
+      if (el && !isRestoringScroll()) {
         const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }

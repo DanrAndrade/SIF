@@ -12,6 +12,7 @@ import { API_BASE_URL, getImageUrl, cleanRichHtml, toDate } from '../apiConfig';
 import { useSeo } from '../hooks/useSeo';
 import ContentSectionsRenderer from '../components/ContentSectionsRenderer';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 const API_URL = `${API_BASE_URL}/blog.php`;
 
 const formatDate = (value) => {
@@ -100,7 +101,7 @@ export default function BlogPost() {
       }
     };
 
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     fetchPostData();
   }, [slug]);
 

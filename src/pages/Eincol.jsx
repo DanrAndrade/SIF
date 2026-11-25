@@ -13,6 +13,7 @@ import Footer from '../components/Footer';
 import { Download, FileText, MapPin, ChevronDown } from 'lucide-react';
 import { API_BASE_URL, getImageUrl, cleanRichHtml, heroW } from '../apiConfig';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 const API_URL = `${API_BASE_URL}/eincol.php`;
 
 export default function Eincol() {
@@ -24,7 +25,7 @@ export default function Eincol() {
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     fetch(API_URL)
       .then(r => r.json())
       .then(data => { setConfig(data); setLoading(false); })

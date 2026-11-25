@@ -10,6 +10,7 @@ import { htmlExcerpt } from '../components/sections/sectionTypes';
 import DetailPage, { DetailLoading, DetailNotFound } from '../components/detail/DetailPage';
 import { parseExtra, isoDate, longDate, weekday, eventSituation, ctaFrom, eventLegacySections } from '../components/detail/detailData';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 // Página de um Evento: mesmo modelo estruturado do Grupo Temático
 // (topo, informações rápidas, menu da página e blocos montados no painel).
 // O campo "Descrição" do painel vira o bloco "Sobre o evento".
@@ -21,7 +22,7 @@ export default function EventoDetalhe() {
   const tx = withTexts(EVENTOS_TEXTS, pageCfg); // Painel › Eventos › Textos da página
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     setLoading(true);
     fetch(`${API_BASE_URL}/eventos.php?slug=${encodeURIComponent(slug)}`)
       .then(r => r.json())

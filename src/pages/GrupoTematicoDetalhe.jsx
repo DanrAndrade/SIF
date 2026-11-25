@@ -18,6 +18,7 @@ import { useSeo } from '../hooks/useSeo';
 import { API_BASE_URL, getImageUrl, heroW } from '../apiConfig';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 // Página de um Grupo Temático: topo com capa, menu da página (âncoras) e
 // blocos configuráveis em faixas (ordem, conteúdo e fundo vêm do painel).
 // Blocos especiais: "Blog do grupo" e "Responsável" (posição também configurável).
@@ -36,7 +37,7 @@ export default function GrupoTematicoDetalhe() {
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     setLoading(true);
     setPosts(null); // não mostrar o blog do GT anterior enquanto o novo carrega
     fetch(`${API_BASE_URL}/gt.php?slug=${encodeURIComponent(slug)}`)

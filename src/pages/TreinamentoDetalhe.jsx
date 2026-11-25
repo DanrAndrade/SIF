@@ -10,6 +10,7 @@ import { htmlExcerpt } from '../components/sections/sectionTypes';
 import DetailPage, { DetailLoading, DetailNotFound } from '../components/detail/DetailPage';
 import { parseExtra, isoDate, dateRange, hoursText, ctaFrom, trainingLegacy } from '../components/detail/detailData';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 // Página de um Treinamento: mesmo modelo estruturado do Grupo Temático.
 // O 1º bloco de Texto montado no painel vira o "Sobre" (duas colunas).
 export default function TreinamentoDetalhe() {
@@ -20,7 +21,7 @@ export default function TreinamentoDetalhe() {
   const tx = withTexts(TREINAMENTOS_TEXTS, pageCfg); // Painel › Treinamentos › Textos da página
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     setLoading(true);
     fetch(`${API_BASE_URL}/treinamentos.php?slug=${encodeURIComponent(slug)}`)
       .then(r => r.json())

@@ -9,6 +9,7 @@ import ContactForm from '../components/contact/ContactForm';
 import { usePageConfig } from '../hooks/usePageConfig';
 import { usePageTitle } from '../hooks/usePageTitle';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 const HERO_DEFAULTS = {
   hero_image: '',
   hero_badge: 'Conecte-se Conosco',
@@ -40,8 +41,8 @@ export default function Contact() {
   const tx = withTexts(CONTATO_TEXTS, config); // Painel › Contato › Outros textos
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    if (hash) {
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
+    if (hash && !isRestoringScroll()) {
       const element = document.querySelector(hash);
       if (element) {
         setTimeout(() => {

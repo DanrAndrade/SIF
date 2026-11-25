@@ -12,6 +12,7 @@ import { getEffectiveProjectStatus } from '../utils/helpers';
 import { loadBlogFonts } from '../utils/blogFonts';
 import ProjectDossier, { buildChapters } from '../components/projeto/ProjectDossier';
 
+import { isRestoringScroll } from '../utils/scrollMemory';
 const API_URL = `${API_BASE_URL}/projetos.php`;
 
 const parseJson = (s, fallback) => { try { return s ? JSON.parse(s) : fallback; } catch { return fallback; } };
@@ -37,7 +38,7 @@ export default function ProjetoDetalhe() {
   useEffect(() => { if (projeto?.description) loadBlogFonts(projeto.description); }, [projeto?.description]); // fontes escolhidas no texto
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (!isRestoringScroll()) window.scrollTo(0, 0);
     fetch(`${API_URL}?slug=${slug}`)
       .then(res => res.json())
       .then(data => {

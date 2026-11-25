@@ -12,6 +12,7 @@ import { getImageUrl } from '../apiConfig';
 import { PRODUTOS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { buttonClass, BtnArrow } from '../components/ui/Button';
 
+import { isRestoringScroll, wasRestored } from '../utils/scrollMemory';
 const HERO_DEFAULTS = {
   hero_image: '',
   hero_badge: 'Inovação & Mercado',
@@ -247,8 +248,9 @@ export default function ProdutosServicos() {
     if (!a || !TABS.some(t => t.id === a)) return;
     setActiveTabState(a);
     lastHash.current = '';
-    if (!location.hash) {
+    if (!location.hash && !wasRestored(location.key)) {
       const t = setTimeout(() => {
+        if (isRestoringScroll()) return;
         scrollBelowBar(document.getElementById('produtos-tab-content'), 24);
       }, 150);
       return () => clearTimeout(t);
@@ -314,6 +316,8 @@ export default function ProdutosServicos() {
   })();
   useEffect(() => {
     if (!hashTarget || lastHash.current === hashTarget + location.key) return;
+    // Recarregou ou voltou: a página já foi devolvida a onde a pessoa parou
+    if (wasRestored(location.key)) return;
     lastHash.current = hashTarget + location.key;
     // espera a página montar as seções (e as fotos começarem a carregar) antes de rolar
     // Ao abrir o link direto, a página volta ao topo logo após carregar: tenta de novo se não chegou
@@ -325,7 +329,7 @@ export default function ProdutosServicos() {
     const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
     userEvents.forEach(e => window.addEventListener(e, stop, { passive: true }));
     const go = () => {
-      if (stopped) return;
+      if (stopped || isRestoringScroll()) return;
       const el = document.getElementById(hashTarget);
       if (!el) return;
       const top = el.getBoundingClientRect().top;
