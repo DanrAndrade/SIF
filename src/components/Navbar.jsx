@@ -5,7 +5,10 @@ import logoSif from '../assets/sif.svg';
 import { useEincolActive } from '../hooks/useEincolActive';
 import { usePageConfig } from '../hooks/usePageConfig';
 
-export default function Navbar({ scrolled: forceScrolled }) {
+// adaptive: o texto do menu (sem fundo) usa a cor --sif-nav-fg, que a página
+// atualiza ao rolar (ex.: topo do projeto, com a foto subindo por trás do menu).
+// Enquanto <html data-nav-hold="1">, o menu fica visível e sem fundo (não esconde).
+export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [hidden, setHidden] = useState(false); // some ao descer, volta ao subir
@@ -20,6 +23,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
     const update = () => {
       raf = 0;
       const y = window.scrollY;
+      if (document.documentElement.dataset.navHold === '1') { setHidden(false); setIsScrolled(false); lastY = y; return; }
       // No topo: transparente e visível.
       // Descendo: o menu só sobe, SEM trocar de cor (antes ele ficava branco
       // e depois sumia, dando uma "piscada").
@@ -138,7 +142,7 @@ export default function Navbar({ scrolled: forceScrolled }) {
     ? 'bg-white/[0.97] shadow-sm py-4 border-gray-100' 
     : 'bg-transparent py-4 border-transparent';
 
-  const commonTextColor = scrolled ? 'text-[#1f2937]' : 'text-white';
+  const commonTextColor = scrolled ? 'text-[#1f2937]' : adaptive ? 'text-[color:var(--sif-nav-fg,#1f2937)]' : 'text-white';
   const hoverColor = scrolled ? 'hover:text-[#7FBA00]' : 'hover:text-[#7FBA00]'; // Estabilizando cor de hover
   
 // Se a página for branca e não tivermos scroll, a navbar transparente com texto branco fica invisível.

@@ -6,6 +6,7 @@ import { PROJECT_BLOCKS } from '../sections/projectBlocks';
 import { SECTION_TYPES, visibleSections, isSectionEmpty } from '../sections/sectionTypes';
 import { cleanRichHtml, htmlToText, getImageUrl, toExternalUrl, heroW } from '../../apiConfig';
 import { buttonClass, BtnArrow } from '../ui/Button';
+import ScrollCoverHero from './ScrollCoverHero';
 
 // Página de Projeto no formato "dossiê": cabeçalho editorial, faixa de ficha
 // técnica, índice lateral fixo (com progresso) e capítulos numerados.
@@ -127,43 +128,44 @@ export default function ProjectDossier({ projeto, status, ficha = [], lead = '',
   const link = toExternalUrl(projeto.link_url) || '';
   const pdf = projeto.pdf_url ? getImageUrl(projeto.pdf_url) : '';
 
+  const actions = (link || pdf) ? (
+    <>
+      {link && (
+        <a href={link} target="_blank" rel="noreferrer" className={buttonClass('primary', 'lg')}>
+          <span className="py-2">{tx.link_btn}</span><BtnArrow variant="primary" size="lg" icon={ExternalLink} />
+        </a>
+      )}
+      {pdf && (
+        <a href={pdf} target="_blank" rel="noreferrer" className={buttonClass(link ? 'outline' : 'primary', 'lg')}>
+          <span className="py-2">{tx.pdf_btn}</span><BtnArrow variant={link ? 'outline' : 'primary'} size="lg" icon={Download} />
+        </a>
+      )}
+    </>
+  ) : null;
+
   return (
     <>
-      <header className="sif-container pt-[calc(var(--sif-nav-h)+2.5rem)] md:pt-[calc(var(--sif-nav-h)+4rem)] pb-10 md:pb-14">
-        <nav aria-label="Você está em" className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-8">
-          <Link to="/" className="hover:text-sif-green">Início</Link>
-          <ChevronRight size={12} />
-          <Link to="/projetos" className="hover:text-sif-green">Projetos</Link>
-          <ChevronRight size={12} />
-          <span className="text-sif-ink truncate max-w-[60vw]">{projeto.title}</span>
-        </nav>
-        {tx.detail_eyebrow && <span className="sif-eyebrow mb-5">{tx.detail_eyebrow}</span>}
-        <h1 className="sif-title sif-h1 text-sif-ink max-w-4xl">{projeto.title}</h1>
-        {lead && <p className="mt-7 max-w-3xl text-xl md:text-2xl leading-snug font-light text-gray-600 whitespace-pre-line">{lead}</p>}
-        {(link || pdf) && (
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            {link && (
-              <a href={link} target="_blank" rel="noreferrer" className={buttonClass('primary', 'lg')}>
-                <span className="py-2">{tx.link_btn}</span><BtnArrow variant="primary" size="lg" icon={ExternalLink} />
-              </a>
-            )}
-            {pdf && (
-              <a href={pdf} target="_blank" rel="noreferrer" className={buttonClass(link ? 'outline' : 'primary', 'lg')}>
-                <span className="py-2">{tx.pdf_btn}</span><BtnArrow variant={link ? 'outline' : 'primary'} size="lg" icon={Download} />
-              </a>
-            )}
-          </div>
-        )}
-      </header>
-
-      {cover && (
-        <figure className="sif-container">
-          <img src={cover} alt="" fetchpriority="high" decoding="async" className="w-full aspect-[16/9] md:aspect-[21/9] object-cover rounded-card md:rounded-panel shadow-card" />
-        </figure>
+      {cover ? (
+        // Com capa: a foto sobe por trás do título e vira o topo padrão (ao rolar)
+        <ScrollCoverHero cover={cover} title={projeto.title} eyebrow={tx.detail_eyebrow} lead={lead} actions={actions} />
+      ) : (
+        <header className="sif-container pt-[calc(var(--sif-nav-h)+2.5rem)] md:pt-[calc(var(--sif-nav-h)+4rem)] pb-10 md:pb-14">
+          <nav aria-label="Você está em" className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-8">
+            <Link to="/" className="hover:text-sif-green">Início</Link>
+            <ChevronRight size={12} />
+            <Link to="/projetos" className="hover:text-sif-green">Projetos</Link>
+            <ChevronRight size={12} />
+            <span className="text-sif-ink truncate max-w-[60vw]">{projeto.title}</span>
+          </nav>
+          {tx.detail_eyebrow && <span className="sif-eyebrow mb-5">{tx.detail_eyebrow}</span>}
+          <h1 className="sif-title sif-h1 text-sif-ink max-w-4xl">{projeto.title}</h1>
+          {lead && <p className="mt-7 max-w-3xl text-xl md:text-2xl leading-snug font-light text-gray-600 whitespace-pre-line">{lead}</p>}
+          {actions && <div className="mt-9 flex flex-wrap items-center gap-3">{actions}</div>}
+        </header>
       )}
 
       {facts.length > 0 && (
-        <section aria-label="Ficha técnica" className="sif-container mt-10 md:mt-14">
+        <section aria-label="Ficha técnica" className="sif-container mt-12 md:mt-16">
           <dl className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-7 border-y border-gray-200 py-8">
             {facts.map((f, i) => (
               <div key={i} className="min-w-0">

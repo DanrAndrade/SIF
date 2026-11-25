@@ -73,7 +73,7 @@ export default function ProjetoDetalhe() {
 
   return (
     <div className="sif-page min-h-screen font-sans selection:bg-[#007a3d] selection:text-white flex flex-col overflow-x-clip">
-      <Navbar scrolled />
+      <Navbar adaptive />
       <main className="flex-grow">
         <ProjectDossier
           projeto={projeto}
