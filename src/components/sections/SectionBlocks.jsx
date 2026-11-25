@@ -18,6 +18,7 @@ import HighlightsBlock from './HighlightsBlock';
 import BrazilMapBlock from './BrazilMapBlock';
 import leafIcon from '../../assets/icone.svg';
 
+import { isRestoringScroll, wasRestored } from '../../utils/scrollMemory';
 // Ícones disponíveis para os cards de destaque (nome salvo → componente)
 export const BLOCK_ICONS = {
   Target, Microscope, Leaf, Sprout, TreePine, Users, Shield, Globe, Lightbulb, BarChart3, BookOpen, Award,
@@ -114,26 +115,40 @@ export function CardsBlock({ sec, dark }) {
       <BlockHeader sec={sec} dark={dark} />
       <div ref={ref} onScroll={onScroll}
         className={slide
-          ? '-mx-6 px-6 py-3 -my-3 flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-6'
-          : 'grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 md:gap-5 md:-mx-6 md:px-6 md:py-3 md:-my-3 md:overflow-x-auto md:no-scrollbar md:snap-x md:scroll-px-6'}>
+          ? '-mx-6 px-6 py-5 -my-5 flex gap-5 overflow-x-auto overflow-y-hidden no-scrollbar snap-x snap-mandatory scroll-px-6'
+          : 'grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 md:gap-5 md:-mx-6 md:px-6 md:py-5 md:-my-5 md:overflow-x-auto md:overflow-y-hidden md:no-scrollbar md:snap-x md:scroll-px-6'}>
         {items.map((it, i) => {
           return (
             <article key={i} tabIndex={0}
-              className={`group relative flex flex-col rounded-card overflow-hidden p-7 md:p-8 md:min-h-[280px] outline-none transition-[width,background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'shrink-0 snap-start w-[80%] sm:w-[46%] md:w-[340px] md:hover:w-[380px] md:focus-within:w-[380px]' : 'min-w-0 md:shrink-0 md:snap-start md:w-[340px] md:hover:w-[380px] md:focus-within:w-[380px]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
+              className={`group relative rounded-card overflow-hidden overflow-clip outline-none transition-[background-color,box-shadow] duration-700 ease-[cubic-bezier(.65,0,.35,1)] focus-visible:ring-2 focus-visible:ring-[var(--accent,#007a3d)] ${slide ? 'shrink-0 snap-start w-[80%] sm:w-[46%] md:w-[340px]' : 'min-w-0 md:shrink-0 md:snap-start md:w-[340px]'} ${dark ? 'bg-white/[0.06] hover:bg-white/[0.12]' : 'bg-white shadow-card hover:bg-[#0b3320] hover:shadow-card-hover focus:bg-[#0b3320]'}`}>
               {!dark && <LeafMark opacity="opacity-[0.14] group-hover:opacity-[0.16] group-focus:opacity-[0.16]" className="-right-6 -bottom-8 w-32 md:w-36 rotate-[-12deg] transition-opacity duration-500" />}
-              <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
-              <div className="flex-1 min-h-[28px]" />
-              {it.title && <h3 className={`relative ${wide ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
-              {it.subtitle && <p className={`relative mt-2 text-sm md:text-[15px] leading-snug max-w-[22rem] transition-colors duration-500 ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)] group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{it.subtitle}</p>}
-              {/* Texto: no computador fica escondido e SOBE ao passar o mouse
-                  (ou focar pelo teclado); no celular aparece sempre */}
-              {it.text && (
-                <div className="sif-reveal-more relative">
-                  <div className="overflow-hidden">
-                    <p className={`pt-3 leading-relaxed whitespace-pre-line max-w-[22rem] ${dark ? 'text-white/75' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
+
+              {/* No computador o card tem SEMPRE o tamanho com o texto aberto (esta cópia invisível
+                  só reserva o espaço). Assim, ao passar o mouse, o texto sobe por dentro do card
+                  e nada ao redor se mexe. */}
+              <div aria-hidden="true" className="invisible hidden md:flex flex-col p-8 md:min-h-[280px] select-none">
+                <span className="text-5xl font-medium tracking-tight tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <div className="min-h-[28px]" />
+                {it.title && <h3 className={`${wide ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-semibold leading-tight max-w-[22rem]`}>{it.title}</h3>}
+                {it.subtitle && <p className="mt-2 text-[15px] leading-snug max-w-[22rem]">{it.subtitle}</p>}
+                {it.text && <p className="pt-3 leading-relaxed whitespace-pre-line max-w-[22rem]">{it.text}</p>}
+              </div>
+
+              <div className="relative flex flex-col p-7 md:p-8 md:absolute md:inset-0">
+                <span className={`relative text-4xl md:text-5xl font-medium tracking-tight tabular-nums transition-colors duration-500 ${dark ? 'text-white/40 group-hover:text-[#b5e05c]' : 'text-gray-200 group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{String(i + 1).padStart(2, '0')}</span>
+                <div className="flex-1 min-h-[28px]" />
+                {it.title && <h3 className={`relative ${wide ? 'text-lg md:text-xl' : 'text-xl md:text-2xl'} font-semibold leading-tight max-w-[22rem] transition-colors duration-500 ${dark ? 'text-white' : 'text-[#1f2937] group-hover:text-white group-focus:text-white'}`}>{it.title}</h3>}
+                {it.subtitle && <p className={`relative mt-2 text-sm md:text-[15px] leading-snug max-w-[22rem] transition-colors duration-500 ${dark ? 'text-[#b5e05c]' : 'text-[var(--accent,#007a3d)] group-hover:text-[#b5e05c] group-focus:text-[#b5e05c]'}`}>{it.subtitle}</p>}
+                {/* Texto: no computador fica escondido e SOBE ao passar o mouse
+                    (ou focar pelo teclado); no celular aparece sempre */}
+                {it.text && (
+                  <div className="sif-reveal-more relative">
+                    <div className="overflow-hidden">
+                      <p className={`pt-3 leading-relaxed whitespace-pre-line max-w-[22rem] ${dark ? 'text-white/75' : 'text-gray-500 group-hover:text-white/80 group-focus:text-white/80'}`}>{it.text}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </article>
           );
         })}
@@ -401,7 +416,7 @@ export function TabsBlock({ sec, dark }) {
   const cur = tabs[Math.min(active, tabs.length - 1)];
   const boxRef = useRef(null);
   const areaRef = useRef(null); // lista de abas + card: o "início" para onde a página volta
-  const { hash } = useLocation();
+  const { hash, key: navKey } = useLocation();
   // Ao trocar de aba, a página volta para o início do card (quem leu até o fim do
   // texto anterior começa o novo tópico do topo). Se o início já está à vista, não rola.
   const pick = (i) => {
@@ -423,7 +438,7 @@ export function TabsBlock({ sec, dark }) {
     setActive(i);
     const t = setTimeout(() => {
       const el = boxRef.current;
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
+      if (el && !isRestoringScroll() && !wasRestored(navKey)) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 140, behavior: 'smooth' });
     }, 150);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
