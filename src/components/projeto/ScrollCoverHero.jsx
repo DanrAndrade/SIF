@@ -52,6 +52,12 @@ export default function ScrollCoverHero({ cover, title, eyebrow, lead, actions }
     if (!wrap || !stage || !text || !photo) return;
     let raf = 0;
     let m = null;
+    let cur = null;          // progresso desenhado (suavizado)
+    let lastY = window.scrollY;
+    let dir = 1;             // última direção da rolagem (1 desce, -1 sobe)
+    let idleT = 0;
+    let snapping = false;
+    let snapT = 0;
 
     const measure = () => {
       const H = window.innerHeight;
@@ -73,11 +79,9 @@ export default function ScrollCoverHero({ cover, title, eyebrow, lead, actions }
       stage.style.height = `${H}px`;
     };
 
-    const paint = () => {
-      raf = 0;
-      if (!m) return;
-      const r = wrap.getBoundingClientRect();
-      const p = clamp01(-r.top / m.travel);
+    const target = () => clamp01(-wrap.getBoundingClientRect().top / m.travel);
+
+    const render = (p) => {
       const e = ease(p);
       const top = m.startTop * (1 - e);
       const side = m.inset * (1 - e);
@@ -94,7 +98,8 @@ export default function ScrollCoverHero({ cover, title, eyebrow, lead, actions }
       // foto chega nele; fica visível até o topo completar, depois sobe ao rolar
       const root = document.documentElement;
       const navH = 81;
-      const photoBottom = Math.min(0, r.top + m.travel) + (m.H - bottom);
+      const stageTop = Math.min(0, wrap.getBoundingClientRect().top + m.travel);
+      const photoBottom = stageTop + (m.H - bottom);
       const qNav = Math.min(clamp01((navH - top) / navH), clamp01((photoBottom - 24) / 80));
       root.style.setProperty('--sif-nav-fg', mix(INK, [255, 255, 255], qNav));
       root.dataset.navHold = p < 0.999 ? '1' : '0';
@@ -104,21 +109,74 @@ export default function ScrollCoverHero({ cover, title, eyebrow, lead, actions }
         el.style.textShadow = q > 0.4 ? '0 2px 18px rgba(0,0,0,.45)' : 'none';
       });
     };
-    const request = () => { if (!raf) raf = requestAnimationFrame(paint); };
-    const onResize = () => { measure(); request(); };
+
+    // Desenha acompanhando a rolagem com um leve atraso (movimento fluido, sem
+    // saltos mesmo com a roda do mouse em passos grandes)
+    const tick = () => {
+      raf = 0;
+      if (!m) return;
+      const t = target();
+      if (cur === null) cur = t;
+      cur += (t - cur) * 0.2;
+      if (Math.abs(t - cur) < 0.0008) cur = t;
+      render(cur);
+      if (cur !== t) raf = requestAnimationFrame(tick);
+    };
+    const request = () => { if (!raf) raf = requestAnimationFrame(tick); };
+
+    // ÍMÃ: ao parar de rolar no meio da transição, completa para o lado em que a
+    // pessoa ia (topo da página ou topo padrão pronto). Um passo pequeno além do
+    // topo pronto também volta para ele. Rolar com a roda/toque cancela o ímã.
+    const snapTo = (p) => {
+      const base = window.scrollY + wrap.getBoundingClientRect().top;
+      snapping = true;
+      window.scrollTo({ top: Math.round(base + p * m.travel), behavior: 'smooth' });
+      clearTimeout(snapT);
+      snapT = setTimeout(() => { snapping = false; }, 900);
+    };
+    const settle = () => {
+      if (!m || snapping) return;
+      const s = -wrap.getBoundingClientRect().top; // quanto já rolou dentro do topo
+      if (s <= 2) return;
+      const p = s / m.travel;
+      if (p < 1) {
+        if (dir >= 0) snapTo(p > 0.08 ? 1 : 0);
+        else snapTo(p < 0.92 ? 0 : 1);
+      } else if (s < m.travel + m.H * 0.07 && dir >= 0 && s > m.travel + 2) {
+        snapTo(1);
+      }
+    };
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) > 1) { dir = y > lastY ? 1 : -1; lastY = y; }
+      request();
+      clearTimeout(idleT);
+      idleT = setTimeout(settle, 140);
+    };
+    const cancelSnap = () => { snapping = false; clearTimeout(snapT); };
+    const onResize = () => { measure(); cur = null; request(); };
 
     measure();
-    paint();
-    window.addEventListener('scroll', request, { passive: true });
+    cur = target();
+    render(cur);
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+    window.addEventListener('wheel', cancelSnap, { passive: true });
+    window.addEventListener('touchstart', cancelSnap, { passive: true });
+    window.addEventListener('keydown', cancelSnap);
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
     ro?.observe(text);
     if (document.fonts?.ready) document.fonts.ready.then(onResize).catch(() => {});
     return () => {
-      window.removeEventListener('scroll', request);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('wheel', cancelSnap);
+      window.removeEventListener('touchstart', cancelSnap);
+      window.removeEventListener('keydown', cancelSnap);
       ro?.disconnect();
       if (raf) cancelAnimationFrame(raf);
+      clearTimeout(idleT);
+      clearTimeout(snapT);
       document.documentElement.style.removeProperty('--sif-nav-fg');
       document.documentElement.dataset.navHold = '0';
     };
