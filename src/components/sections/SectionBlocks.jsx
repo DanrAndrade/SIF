@@ -13,6 +13,7 @@ import { videoEmbedUrl } from '../ui/VideoModal';
 import { buttonClass, BtnArrow } from '../ui/Button';
 import CountUp from '../ui/CountUp';
 import { fileExt, fileIcon, fileMetaLabel, fileUrl } from './fileMeta';
+import { normalizeCompare } from './sectionTypes';
 import HighlightsBlock from './HighlightsBlock';
 import BrazilMapBlock from './BrazilMapBlock';
 import leafIcon from '../../assets/icone.svg';
@@ -399,7 +400,20 @@ export function TabsBlock({ sec, dark }) {
   const [active, setActive] = useState(0);
   const cur = tabs[Math.min(active, tabs.length - 1)];
   const boxRef = useRef(null);
+  const areaRef = useRef(null); // lista de abas + card: o "início" para onde a página volta
   const { hash } = useLocation();
+  // Ao trocar de aba, a página volta para o início do card (quem leu até o fim do
+  // texto anterior começa o novo tópico do topo). Se o início já está à vista, não rola.
+  const pick = (i) => {
+    if (i === active) return;
+    setActive(i);
+    setTimeout(() => {
+      const el = areaRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      if (top < 130) window.scrollTo({ top: top + window.pageYOffset - 140, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }, 40);
+  };
   // Endereço com #nome-da-aba (ex.: link do menu): abre essa aba e rola até ela
   useEffect(() => {
     const want = decodeURIComponent((hash || '').replace(/^#/, ''));
@@ -433,10 +447,10 @@ export function TabsBlock({ sec, dark }) {
     return (
       <div ref={boxRef}>
         <BlockHeader sec={sec} dark={dark} />
-        <div className="-mx-6 px-6 overflow-x-auto no-scrollbar mb-5">
+        <div ref={areaRef} className="-mx-6 px-6 overflow-x-auto no-scrollbar mb-5">
           <div role="tablist" className={`inline-flex gap-1 p-1.5 rounded-full ${dark ? 'bg-white/10' : 'bg-white shadow-card'}`}>
             {tabs.map((t, i) => (
-              <button key={i} type="button" role="tab" aria-selected={active === i} onClick={() => setActive(i)}
+              <button key={i} type="button" role="tab" aria-selected={active === i} onClick={() => pick(i)}
                 className={`shrink-0 px-5 md:px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 ${active === i
                   ? 'bg-[#0b3320] text-white shadow-md'
                   : dark ? 'text-white/70 hover:text-white' : 'text-gray-500 hover:text-[#007a3d]'}`}>
@@ -453,14 +467,14 @@ export function TabsBlock({ sec, dark }) {
   return (
     <div ref={boxRef}>
       <BlockHeader sec={sec} dark={dark} />
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start">
+      <div ref={areaRef} className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start">
         {/* lista de abas: no celular desliza para o lado; no computador, coluna à esquerda */}
         <div role="tablist" aria-orientation="vertical"
           className="lg:col-span-4 -mx-6 px-6 lg:mx-0 lg:px-0 flex lg:flex-col gap-2 overflow-x-auto no-scrollbar lg:overflow-visible lg:sticky lg:top-40">
           {tabs.map((t, i) => {
             const on = active === i;
             return (
-              <button key={i} type="button" role="tab" aria-selected={on} onClick={() => setActive(i)}
+              <button key={i} type="button" role="tab" aria-selected={on} onClick={() => pick(i)}
                 className={`group shrink-0 lg:w-full text-left flex items-center gap-4 rounded-2xl px-5 py-4 lg:py-5 transition-all duration-300 ${on
                   ? 'bg-[#0b3320] text-white shadow-card-hover'
                   : dark ? 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12]' : 'bg-white/70 text-[#1f2937] hover:bg-white hover:shadow-card'}`}>
@@ -477,48 +491,55 @@ export function TabsBlock({ sec, dark }) {
   );
 }
 
-// Comparativo (tipo 'compare'): dois lados lado a lado (ex.: tubete de plástico x Ellepot);
-// o lado B é o destaque (fundo escuro, ícone de confirmação).
+// Tabela / comparativo (tipo 'compare'): quantas linhas e colunas o painel definir.
+// Cresce além do espaço? Ganha rolagem horizontal e vertical dentro dela, com o
+// cabeçalho e a primeira coluna fixos. Uma coluna pode ficar em destaque (fundo
+// escuro) e, no modo comparativo, as colunas mostram ✕ e ✓.
 export function CompareBlock({ sec, dark }) {
-  const rows = (sec.items || []).filter(r => r && (r.label || r.a || r.b));
-  const A = sec.a_label || 'Opção A';
-  const Bl = sec.b_label || 'Opção B';
+  const { cols, rows, highlight, icons } = normalizeCompare(sec);
+  const caps = icons && cols.length === 3 && highlight === 2;
+  const HL = 'bg-[#0b3320] text-white';
   return (
     <div>
       <BlockHeader sec={sec} dark={dark} />
-      {/* computador: tabela de 3 colunas com o lado B em destaque */}
-      <div className="hidden md:grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] rounded-panel overflow-hidden shadow-card bg-white">
-        <div className="px-8 pt-8 pb-5" />
-        <div className="px-8 pt-8 pb-5 border-l border-gray-100">
-          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-1">Convencional</span>
-          <span className="font-heading text-xl font-semibold text-[#1f2937]">{A}</span>
-        </div>
-        <div className="px-8 pt-8 pb-5 bg-[#0b3320] relative overflow-hidden">
-          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-[#b5e05c] mb-1">Recomendado</span>
-          <span className="font-heading text-xl font-semibold text-white">{Bl}</span>
-        </div>
-        {rows.map((r, i) => (
-          <React.Fragment key={i}>
-            <div className="px-8 py-6 border-t border-gray-100 font-semibold text-[#1f2937]">{r.label}</div>
-            <div className="px-8 py-6 border-t border-l border-gray-100 flex gap-3 text-gray-500 leading-relaxed">
-              <X size={18} className="shrink-0 mt-0.5 text-gray-300" />{r.a}
-            </div>
-            <div className="px-8 py-6 border-t border-white/10 bg-[#0b3320] flex gap-3 text-white/85 leading-relaxed">
-              <Check size={18} className="shrink-0 mt-0.5 text-[#b5e05c]" />{r.b}
-            </div>
-          </React.Fragment>
-        ))}
-        <div className="h-3" /><div className="h-3 border-l border-gray-100" /><div className="h-3 bg-[#0b3320]" />
-      </div>
-      {/* celular: um card por critério */}
-      <div className="md:hidden space-y-4">
-        {rows.map((r, i) => (
-          <div key={i} className="rounded-card overflow-hidden bg-white shadow-card">
-            <p className="px-5 pt-5 pb-3 font-semibold text-[#1f2937]">{r.label}</p>
-            <div className="px-5 pb-4 flex gap-3 text-sm text-gray-500"><X size={16} className="shrink-0 mt-0.5 text-gray-300" /><span><strong className="block text-gray-400 text-[11px] uppercase tracking-widest">{A}</strong>{r.a}</span></div>
-            <div className="px-5 py-4 bg-[#0b3320] flex gap-3 text-sm text-white/85"><Check size={16} className="shrink-0 mt-0.5 text-[#b5e05c]" /><span><strong className="block text-[#b5e05c] text-[11px] uppercase tracking-widest">{Bl}</strong>{r.b}</span></div>
-          </div>
-        ))}
+      <div tabIndex={0} role="region" aria-label={sec.title || 'Tabela'}
+        className={`overflow-auto max-h-[72vh] rounded-card md:rounded-panel shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-sif-green ${dark ? 'bg-white/[0.06]' : 'bg-white'}`}>
+        <table className="w-full border-separate border-spacing-0 text-left">
+          <thead>
+            <tr>
+              {cols.map((c, j) => (
+                <th key={j} scope="col"
+                  className={`sticky top-0 z-20 px-5 md:px-8 pt-6 md:pt-8 pb-4 md:pb-5 align-bottom min-w-[11rem] ${j === 0 ? 'left-0 z-30' : ''} ${j === highlight ? HL : (dark ? 'bg-[#16281f]' : 'bg-white')} ${j > 0 && j !== highlight ? 'border-l border-gray-100' : ''}`}>
+                  {caps && (j === 1 || j === 2) && (
+                    <span className={`block text-[11px] font-bold uppercase tracking-[0.2em] mb-1 ${j === 2 ? 'text-[#b5e05c]' : 'text-gray-400'}`}>{j === 1 ? 'Convencional' : 'Recomendado'}</span>
+                  )}
+                  <span className={`font-heading text-lg md:text-xl font-semibold ${j === highlight ? 'text-white' : (dark ? 'text-white' : 'text-[#1f2937]')}`}>{c}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i}>
+                {r.map((cell, j) => {
+                  const hl = j === highlight;
+                  const first = j === 0;
+                  return (
+                    <td key={j}
+                      className={`px-5 md:px-8 py-5 md:py-6 align-top leading-relaxed whitespace-pre-line min-w-[11rem] max-w-[30rem] border-t ${first ? 'sticky left-0 z-10 font-semibold' : ''} ${hl ? `${HL} border-white/10` : `${first ? (dark ? 'bg-[#16281f] text-white' : 'bg-white text-[#1f2937]') : (dark ? 'text-white/80' : 'text-gray-500')} border-gray-100`} ${j > 0 && !hl ? 'border-l' : ''}`}>
+                      {icons && j > 0 && String(cell).trim() ? (
+                        <span className="flex gap-3">
+                          {hl ? <Check size={18} className="shrink-0 mt-0.5 text-[#b5e05c]" /> : <X size={18} className="shrink-0 mt-0.5 text-gray-300" />}
+                          <span className={hl ? 'text-white/85' : ''}>{cell}</span>
+                        </span>
+                      ) : cell}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

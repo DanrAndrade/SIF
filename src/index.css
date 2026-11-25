@@ -561,12 +561,16 @@ a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
 .ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
 .ql-toolbar.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Playfair Display'; font-family: 'Playfair Display', Georgia, serif; }
 
-/* Tabela do editor de texto (botão "Tabela"): verde da SIF, rola de lado no celular */
-.sif-table-wrap { overflow-x: auto; margin: 1.75rem 0; -webkit-overflow-scrolling: touch; }
+/* Tabela do editor de texto (botão "Tabela"): verde da SIF. Passou do espaço? Rola de
+   lado e para baixo DENTRO da tabela (cabeçalho fixo ao rolar). */
+.sif-table-wrap {
+  width: fit-content; max-width: 100%; max-height: min(72vh, 680px); margin: 1.75rem auto;
+  overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  background: #fff; border: 1px solid #d9e6dd; border-radius: 14px;
+}
 .sif-table-wrap table.sif-table {
-  table-layout: auto; width: auto; min-width: min(100%, 620px); margin: 0 auto;
-  border-collapse: separate; border-spacing: 0; background: #fff;
-  border: 1px solid #d9e6dd; border-radius: 14px; overflow: hidden;
+  table-layout: auto; width: auto; min-width: min(100%, 620px); margin: 0;
+  border-collapse: separate; border-spacing: 0; background: #fff; border: 0;
   font-size: .95rem; line-height: 1.4; color: #1f2937; text-align: center;
 }
 .sif-table-wrap .sif-table th,
@@ -574,6 +578,8 @@ a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
 /* textos longos quebram linha (ex.: comparativos); números curtos ficam numa linha só */
 .sif-table-wrap .sif-table td { white-space: normal; min-width: 4.5rem; }
 .sif-table-wrap .sif-table td:first-child { white-space: nowrap; }
+.sif-table-wrap .sif-table thead th { position: sticky; top: 0; z-index: 2; }
+.sif-table-wrap .sif-table tfoot td { position: sticky; bottom: 0; z-index: 2; }
 .sif-table-wrap .sif-table thead th { background: #007a3d; color: #fff; font-weight: 800; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; }
 .sif-table-wrap .sif-table tbody td { border-top: 1px solid #e5efe8; }
 .sif-table-wrap .sif-table tbody tr:first-child td { border-top: 0; }
@@ -583,7 +589,7 @@ a.rounded-card, a.rounded-panel, a.rounded-3xl, a.shadow-card {
   .sif-table-wrap .sif-table th, .sif-table-wrap .sif-table td { padding: .55rem .85rem; }
 }
 .ql-editor .sif-table-wrap { cursor: pointer; }
-.ql-editor .sif-table-wrap:hover table.sif-table { box-shadow: 0 0 0 2px #007a3d; }
+.ql-editor .sif-table-wrap:hover { box-shadow: 0 0 0 2px #007a3d; }
 .sif-table-wrap .sif-table thead, .sif-table-wrap .sif-table tbody tr, .sif-table-wrap .sif-table tfoot { border: 0; }
 
 /* Menus fixos da página (abas de Produtos e Serviços, "Nesta página" dos detalhes):
@@ -610,7 +616,7 @@ html[data-nav-hidden="1"] .sif-tabbar { top: 0; }
 
 /* Abas com tabela larga (ex.: dados climáticos): tabela compacta na largura do card,
    linhas mais altas e a última coluna (Anual) em destaque */
-.sif-tab-wide .sif-table-wrap { margin: 1.5rem 0 0; border-radius: 1rem; }
+.sif-tab-wide .sif-table-wrap { width: 100%; margin: 1.5rem 0 0; border-radius: 1rem; }
 .sif-tab-wide .sif-table-wrap table.sif-table { width: 100%; }
 .sif-tab-wide .sif-table-wrap .sif-table th,
 .sif-tab-wide .sif-table-wrap .sif-table td { padding: 1.05rem .45rem; min-width: 0; font-size: .875rem; }

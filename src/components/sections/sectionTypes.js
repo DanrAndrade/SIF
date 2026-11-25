@@ -26,7 +26,7 @@ export const SECTION_TYPES = {
   pdfs:       { label: 'Arquivos e documentos', icon: 'FileText', desc: 'Arquivos para baixar: PDF, Word, Excel, PowerPoint, planilhas e imagens.', create: () => ({ pdfs: [] }) },
   logos:      { label: 'Carrossel de logos', icon: 'Building2',  desc: 'Logos de empresas, patrocinadores ou parceiros.', create: () => ({ images: [] }) },
   brazil_map: { label: 'Mapa do Brasil',     icon: 'MapIcon', desc: 'Mapa do Brasil em relevo com os estados citados em destaque e as cidades de cada um.', create: () => ({ content: '', items: [{ uf: '', text: '' }] }) },
-  compare:    { label: 'Comparativo',        icon: 'ArrowLeftRight', desc: 'Dois lados comparados ponto a ponto (ex.: tubete de plástico x Ellepot); o segundo lado fica em destaque.', create: () => ({ a_label: '', b_label: '', items: [{ label: '', a: '', b: '' }, { label: '', a: '', b: '' }] }) },
+  compare:    { label: 'Tabela / comparativo', icon: 'ArrowLeftRight', desc: 'Tabela com quantas linhas e colunas você quiser (ex.: tubete de plástico x Ellepot). Com muito conteúdo, ganha rolagem sozinha.', create: () => ({ cols: ['Critério', 'Opção A', 'Opção B'], rows: [['', '', ''], ['', '', '']], highlight: 2, icons: true }) },
   highlights: { label: 'Destaques com foto', icon: 'Presentation',    desc: 'Painel escuro com foto de fundo que troca entre os itens (eixos temáticos, módulos, áreas...). Mesmo estilo de "Áreas de atuação".', create: () => ({ items: [{ title: '', text: '', image: '' }, { title: '', text: '', image: '' }, { title: '', text: '', image: '' }] }) },
   // Blocos só da página de Projeto (layout "dossiê": ficha técnica + capítulos numerados)
   proj_objetivos:  { label: 'Objetivos',                 icon: 'Target',        desc: 'Objetivo geral em destaque e objetivos específicos numerados.', only: ['projetos'], create: () => ({ general: '', items: [{ title: '', text: '' }, { title: '', text: '' }] }) },
@@ -49,6 +49,24 @@ export const BAND_STYLES = {
   photo:  'Foto desfocada (escuro)',
   dark:   'Verde escuro',
 };
+
+// Tabela / comparativo (tipo 'compare'): { cols, rows, highlight, icons }.
+// Aceita o formato antigo ({ a_label, b_label, items: [{ label, a, b }] }) e converte.
+export function normalizeCompare(sec = {}) {
+  if (Array.isArray(sec.cols)) {
+    const cols = sec.cols.map(c => String(c ?? ''));
+    const n = Math.max(1, cols.length);
+    const rows = (Array.isArray(sec.rows) ? sec.rows : []).map(r => Array.from({ length: n }, (_, i) => String((Array.isArray(r) ? r[i] : '') ?? '')));
+    const hl = Number.isInteger(sec.highlight) && sec.highlight >= 0 && sec.highlight < n ? sec.highlight : -1;
+    return { cols: cols.length ? cols : [''], rows, highlight: hl, icons: !!sec.icons };
+  }
+  const items = (sec.items || []).filter(Boolean);
+  return {
+    cols: ['', sec.a_label || 'Opção A', sec.b_label || 'Opção B'],
+    rows: items.map(i => [String(i.label || ''), String(i.a || ''), String(i.b || '')]),
+    highlight: 2, icons: true, legacy: true,
+  };
+}
 
 export const newSectionId = () => `s-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -106,7 +124,7 @@ export function isSectionEmpty(s) {
     case 'logos':      return !(s.images || []).some(Boolean);
     case 'highlights': return !(s.items || []).some(i => i && String(i.title || '').trim());
     case 'brazil_map': return !(s.items || []).some(i => i && i.uf);
-    case 'compare':    return !(s.items || []).some(i => i && (i.label || i.a || i.b));
+    case 'compare':    return !normalizeCompare(s).rows.some(r => r.some(c => String(c).trim()));
     case 'proj_objetivos':  return !String(s.general || '').trim() && !(s.items || []).some(i => i && (i.title || i.text));
     case 'proj_fases':      return !(s.items || []).some(i => i && String(i.name || '').trim());
     case 'proj_cronograma': return !(s.items || []).some(i => i && String(i.name || '').trim() && /^\d{4}-\d{1,2}/.test(i.start || ''));

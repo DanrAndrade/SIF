@@ -5,6 +5,7 @@ import { uploadImageNow, toastError } from '../../../utils/adminApi';
 import { BLOCK_ICONS } from '../../sections/SectionBlocks';
 import QuillEditor from '../QuillEditor';
 import { useUploadTracker, useLatest } from './uploadTracker';
+import { normalizeCompare } from '../../sections/sectionTypes';
 
 // Editores dos blocos novos (cards, números, pessoas, galeria, vídeo,
 // citação, chamada, texto + imagem). Os antigos (texto, abas, PDFs, logos)
@@ -119,22 +120,88 @@ export function CardsEditor({ sec, onUpdate }) {
   );
 }
 
+// Tabela / comparativo: o número de colunas e de linhas é livre; cada célula tem
+// o próprio texto. Uma coluna pode ficar em destaque e o modo "comparativo" mostra ✕ e ✓.
 export function CompareEditor({ sec, onUpdate }) {
+  const confirm = useConfirm();
+  const t = normalizeCompare(sec);
+  const save = (patch) => onUpdate({ cols: t.cols, rows: t.rows, highlight: t.highlight, icons: t.icons, ...patch, items: undefined, a_label: undefined, b_label: undefined });
+  const n = t.cols.length;
+
+  const setCol = (j, v) => save({ cols: t.cols.map((c, i) => (i === j ? v : c)) });
+  const setCell = (i, j, v) => save({ rows: t.rows.map((r, a) => (a === i ? r.map((c, b) => (b === j ? v : c)) : r)) });
+  const addCol = () => save({ cols: [...t.cols, `Coluna ${n + 1}`], rows: t.rows.map(r => [...r, '']) });
+  const addRow = () => save({ rows: [...t.rows, Array(n).fill('')] });
+  const delCol = async (j) => {
+    if (n < 2) return;
+    if (!(await confirm({ title: 'Excluir esta coluna?', message: 'O conteúdo dela sai da tabela.', confirmLabel: 'Excluir', danger: true }))) return;
+    const hl = t.highlight === j ? -1 : (t.highlight > j ? t.highlight - 1 : t.highlight);
+    save({ cols: t.cols.filter((_, i) => i !== j), rows: t.rows.map(r => r.filter((_, i) => i !== j)), highlight: hl });
+  };
+  const delRow = async (i) => {
+    if (!(await confirm({ title: 'Excluir esta linha?', confirmLabel: 'Excluir', danger: true }))) return;
+    save({ rows: t.rows.filter((_, a) => a !== i) });
+  };
+  const moveCol = (j, d) => {
+    const k = j + d;
+    if (k < 0 || k >= n) return;
+    const swap = (arr) => { const c = [...arr]; [c[j], c[k]] = [c[k], c[j]]; return c; };
+    save({ cols: swap(t.cols), rows: t.rows.map(swap), highlight: t.highlight === j ? k : (t.highlight === k ? j : t.highlight) });
+  };
+
+  const btn = 'text-[11px] font-bold text-gray-400 hover:text-red-600 disabled:opacity-30';
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Field label="Lado A (convencional)" value={sec.a_label} placeholder="Ex.: Tubete de plástico" onChange={(a_label) => onUpdate({ a_label })} />
-        <Field label="Lado B (em destaque)" value={sec.b_label} placeholder="Ex.: Tubete Ellepot" onChange={(b_label) => onUpdate({ b_label })} />
+      <p className="text-xs text-gray-500">Monte a tabela do jeito que precisar: use "+ Coluna" e "+ Linha". Se ela ficar maior que o espaço da página, o site cria a rolagem sozinho.</p>
+      <div className="overflow-auto max-h-[560px] border border-gray-200 rounded-xl bg-white">
+        <table className="border-separate border-spacing-0">
+          <thead>
+            <tr>
+              {t.cols.map((c, j) => (
+                <th key={j} className="sticky top-0 z-10 bg-gray-50 p-2 align-top border-b border-gray-200">
+                  <input value={c} onChange={e => setCol(j, e.target.value)} placeholder={`Coluna ${j + 1}`} aria-label={`Título da coluna ${j + 1}`}
+                    className="w-44 p-2 rounded-lg border border-gray-200 bg-white text-sm font-bold outline-none focus:border-[#007a3d]" />
+                  <div className="flex items-center justify-between gap-1 mt-1.5 text-[11px] text-gray-500">
+                    <label className="inline-flex items-center gap-1 cursor-pointer font-semibold">
+                      <input type="radio" name={`hl-${sec.id}`} checked={t.highlight === j} onChange={() => save({ highlight: j })} onClick={() => { if (t.highlight === j) save({ highlight: -1 }); }} className="accent-[#007a3d]" /> Destaque
+                    </label>
+                    <span className="inline-flex items-center gap-1.5">
+                      <button type="button" className={btn} onClick={() => moveCol(j, -1)} disabled={j === 0} title="Mover para a esquerda">←</button>
+                      <button type="button" className={btn} onClick={() => moveCol(j, 1)} disabled={j === n - 1} title="Mover para a direita">→</button>
+                      <button type="button" className={btn} onClick={() => delCol(j)} disabled={n < 2} title="Excluir coluna">excluir</button>
+                    </span>
+                  </div>
+                </th>
+              ))}
+              <th className="bg-gray-50 border-b border-gray-200" />
+            </tr>
+          </thead>
+          <tbody>
+            {t.rows.map((r, i) => (
+              <tr key={i}>
+                {r.map((cell, j) => (
+                  <td key={j} className="p-1.5 align-top">
+                    <textarea value={cell} rows={2} onChange={e => setCell(i, j, e.target.value)} aria-label={`Linha ${i + 1}, coluna ${j + 1}`}
+                      className={`w-44 p-2 rounded-lg border text-sm outline-none focus:border-[#007a3d] resize-y ${t.highlight === j ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white border-gray-200'}`} />
+                  </td>
+                ))}
+                <td className="p-1.5 align-top">
+                  <button type="button" className={`${btn} p-2`} onClick={() => delRow(i)} title="Excluir linha">excluir</button>
+                </td>
+              </tr>
+            ))}
+            {t.rows.length === 0 && <tr><td colSpan={n + 1} className="p-4 text-sm text-gray-400 italic">Nenhuma linha. Clique em "+ Linha".</td></tr>}
+          </tbody>
+        </table>
       </div>
-      <ItemList items={sec.items} onChange={(items) => onUpdate({ items })} addLabel="Adicionar critério"
-        empty="Nenhum critério." newItem={() => ({ label: '', a: '', b: '' })}
-        render={(it, set) => (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Field label="Critério" value={it.label} onChange={(label) => set({ label })} />
-            <Field label="Lado A" textarea rows={2} value={it.a} onChange={(a) => set({ a })} />
-            <Field label="Lado B" textarea rows={2} value={it.b} onChange={(b) => set({ b })} />
-          </div>
-        )} />
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" onClick={addRow} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50"><Plus size={15} /> Linha</button>
+        <button type="button" onClick={addCol} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50"><Plus size={15} /> Coluna</button>
+        <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer ml-2">
+          <input type="checkbox" checked={t.icons} onChange={e => save({ icons: e.target.checked })} className="accent-[#007a3d] w-4 h-4" />
+          Mostrar ✕ e ✓ (modo comparativo)
+        </label>
+      </div>
     </div>
   );
 }
