@@ -1,15 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Phone, ChevronRight, User, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Phone, ChevronRight, User, ChevronDown, ExternalLink } from 'lucide-react';
 import logoSif from '../assets/sif.svg';
 import { useEincolActive } from '../hooks/useEincolActive';
 import { usePageConfig } from '../hooks/usePageConfig';
+import { buttonClass, BtnArrow } from './ui/Button';
 
 // adaptive: o texto do menu (sem fundo) usa a cor --sif-nav-fg, que a página
 // atualiza ao rolar (ex.: topo do projeto, com a foto subindo por trás do menu).
 // Enquanto <html data-nav-hold="1">, o menu fica visível e sem fundo (não esconde).
 export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // O menu completo só aparece se CABE: a logo (que leva para a Home) nunca pode
+  // encolher e nenhum item pode ficar cortado. Se não couber, vira o menu lateral
+  // (botão de menu). Uma cópia invisível do menu completo, na mesma largura, é medida
+  // antes de cada pintura, então não há "piscada".
+  const [compact, setCompact] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const measureRef = useRef(null);
+  const burgerRef = useRef(null);
+  const closeRef = useRef(null);
+  const panelRef = useRef(null);
+  const { pathname, search, hash } = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [hidden, setHidden] = useState(false); // some ao descer, volta ao subir
   const [mobileExpanded, setMobileExpanded] = useState(null);
@@ -54,6 +65,43 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
     return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
   }, [mobileMenuOpen]);
 
+  useLayoutEffect(() => {
+    const box = measureRef.current;
+    if (!box) return undefined;
+    const check = () => {
+      if (window.innerWidth < 1024) { setCompact(true); return; }
+      const logo = box.querySelector('[data-logo]');
+      const links = [...box.querySelectorAll('[data-navitem]')];
+      const naturalW = logo && logo.naturalWidth ? (logo.naturalWidth / logo.naturalHeight) * logo.clientHeight : 0;
+      const logoOk = !logo || !naturalW || logo.getBoundingClientRect().width >= naturalW - 1;
+      // nenhum item (nem o "Conveniar") pode chegar a menos de 16 px da borda da tela
+      const edge = box.getBoundingClientRect().right - 16;
+      const last = box.querySelector('[data-last]');
+      const inside = [...links, last].filter(Boolean).every(a => a.getBoundingClientRect().right <= edge);
+      const lines = links.every(a => {
+        const cs = getComputedStyle(a);
+        const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.5;
+        return a.getBoundingClientRect().height <= lh * 2.2;
+      });
+      setCompact(!(logoOk && inside && lines));
+    };
+    check();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(check) : null;
+    ro?.observe(box);
+    window.addEventListener('resize', check);
+    const img = box.querySelector('[data-logo]');
+    img?.addEventListener('load', check);
+    document.fonts?.ready?.then(check).catch(() => {});
+    return () => { ro?.disconnect(); window.removeEventListener('resize', check); img?.removeEventListener('load', check); };
+  }, []);
+
+  // Voltou a caber: o menu lateral fecha; a altura do cabeçalho acompanha o modo
+  useEffect(() => { if (!compact) { setMobileMenuOpen(false); setMobileExpanded(null); } }, [compact]);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--sif-nav-h', compact ? '76px' : '81px');
+    return () => document.documentElement.style.removeProperty('--sif-nav-h');
+  }, [compact]);
+
   const scrolled = forceScrolled || isScrolled;
   
   // Se estivermos em uma página que NÃO inicia com Hero escuro, podemos forçar o estado 'scrolled'
@@ -65,6 +113,36 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
 
   const toggleMobileExpanded = (name) => {
     setMobileExpanded(mobileExpanded === name ? null : name);
+  };
+
+  // Rota atual (para destacar no menu lateral)
+  const isCurrent = (href) => {
+    const base = String(href || '').split(/[?#]/)[0];
+    if (!base || base === '#') return false;
+    return base === pathname || (base !== '/' && pathname.startsWith(base + '/'));
+  };
+  // Item de submenu atual: compara também ?aba= e #tema (ex.: Produtos > Comercial > Sementes)
+  const isCurrentSub = (href) => {
+    const [rest, frag = ''] = String(href || '').split('#');
+    const [base, qs = ''] = rest.split('?');
+    if (!base || base === '#') return false;
+    if (base !== pathname) return !qs && !frag && base !== '/' && pathname.startsWith(base + '/');
+    const want = new URLSearchParams(qs).get('aba') || '';
+    const have = new URLSearchParams(search).get('aba') || '';
+    return want === have && (frag ? '#' + frag : '') === (hash || '');
+  };
+  const linkIsActive = (link) => isCurrent(link.href) || (link.submenu || []).some(s => !s.external && isCurrent(s.href));
+
+  // Fecha e devolve o foco ao botão de menu (teclado e leitores de tela)
+  const closeAndFocus = () => { closeMenu(); burgerRef.current?.focus(); };
+  // Tab fica preso dentro do painel enquanto ele está aberto
+  const onPanelKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+    const f = [...(panelRef.current?.querySelectorAll('a[href], button:not([disabled])') || [])].filter(el => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
 
   const navLinks = [
@@ -132,6 +210,16 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
     }
   ];
 
+  // Ao abrir o menu lateral: foco no botão de fechar e abre o grupo da página atual
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const cur = navLinks.find(l => l.submenu && linkIsActive(l));
+    setMobileExpanded(cur ? cur.name : null);
+    const tm = setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 120);
+    return () => clearTimeout(tm);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileMenuOpen]);
+
   const associadoLinks = [
     { name: 'Acesso ao Pesquisador', href: 'https://sif.conveniar.com.br/Pesquisador/Login.aspx?ReturnUrl=%2fpesquisador' },
     { name: 'Acesso do Fornecedor', href: 'https://sif.conveniar.com.br/Fornecedor/Login.aspx?ReturnUrl=%2ffornecedor' },
@@ -152,13 +240,13 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
     <>
       {/* --- DESKTOP HEADER --- */}
       <header className={`fixed top-0 left-0 w-full z-50 transition-[transform,background-color,box-shadow] duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${headerBg} ${hidden && !mobileMenuOpen ? '-translate-y-full' : 'translate-y-0'}`}>
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center gap-16">
+        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center gap-6 min-[1280px]:gap-10 min-[1440px]:gap-16">
             
-            <Link to="/" className="flex items-center gap-2 cursor-pointer z-20">
-                <img src={logoSif} alt="SIF" className="h-10 w-auto object-contain" />
+            <Link to="/" aria-label="SIF: página inicial" className="flex items-center gap-2 cursor-pointer z-20 shrink-0">
+                <img src={logoSif} alt="SIF" className="h-10 w-auto max-w-none shrink-0 object-contain" />
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-10">
+            <nav className={`${compact ? 'hidden' : 'flex'} items-center gap-5 min-[1280px]:gap-7 min-[1440px]:gap-10`}>
                 {navLinks.map((link) => {
                     const parentClasses = `flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors ${commonTextColor} ${hoverColor}`;
                     const hasRoute = link.href && link.href !== '#';
@@ -208,7 +296,7 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
                 })}
             </nav>
 
-            <div className="hidden lg:block z-20 relative group py-2">
+            <div className={`${compact ? 'hidden' : 'block'} shrink-0 z-20 relative group py-2`}>
                 <button className={`text-[10px] font-bold uppercase tracking-widest bg-transparent ${commonTextColor} hover:text-[#007a3d] transition-all duration-300 flex items-center gap-2 cursor-pointer`}>
                     <User size={14} />
                     Conveniar
@@ -230,87 +318,131 @@ export default function Navbar({ scrolled: forceScrolled, adaptive = false }) {
                 </div>
             </div>
 
-            <button aria-label="Abrir menu" className={`lg:hidden p-2 rounded-md ${commonTextColor}`} onClick={() => setMobileMenuOpen(true)}>
+            <button ref={burgerRef} aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={mobileMenuOpen} className={`${compact ? 'block' : 'hidden'} shrink-0 p-2 rounded-md ${commonTextColor}`} onClick={() => setMobileMenuOpen(true)}>
                 <Menu size={28} />
             </button>
         </div>
+
+        {/* Cópia invisível do menu completo, só para medir se cabe (não aparece nem recebe clique) */}
+        <div ref={measureRef} aria-hidden="true" className="invisible pointer-events-none absolute left-0 right-0 top-0 overflow-hidden">
+          <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-4 flex justify-between items-center gap-6 min-[1280px]:gap-10 min-[1440px]:gap-16">
+            <span className="flex items-center gap-2 shrink-0"><img data-logo src={logoSif} alt="" className="h-10 w-auto max-w-none shrink-0 object-contain" /></span>
+            <span className="flex items-center gap-5 min-[1280px]:gap-7 min-[1440px]:gap-10">
+              {navLinks.map((link) => (
+                <span key={link.name} className="relative py-2">
+                  <span data-navitem className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.15em]">
+                    {link.name}{link.submenu && <ChevronDown size={12} />}
+                  </span>
+                </span>
+              ))}
+            </span>
+            <span className="shrink-0 py-2"><span data-last className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"><User size={14} />Conveniar<ChevronDown size={12} /></span></span>
+          </div>
+        </div>
       </header>
 
-      {/* --- MENU DO CELULAR: tela cheia, cinza-escuro translúcido com desfoque, texto branco --- */}
+      {/* --- MENU LATERAL: tela cheia de vidro fosco (cinza-escuro translúcido com desfoque).
+          Aparece no celular e sempre que o menu completo não cabe no cabeçalho. --- */}
       <div
         role="dialog" aria-modal="true" aria-label="Menu"
-        className={`fixed inset-0 z-[70] lg:hidden flex flex-col bg-[#121614]/85 backdrop-blur-xl text-white transition-[opacity,visibility] duration-300 ease-out ${mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
+        onKeyDown={onPanelKeyDown}
+        ref={panelRef}
+        className={`fixed inset-0 z-[70] ${compact ? '' : 'hidden'} flex flex-col bg-[#121614]/85 backdrop-blur-xl text-white transition-[opacity,visibility] duration-300 ease-out ${mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
       >
-        <div className="flex justify-between items-center px-6 h-20 shrink-0">
-          <Link to="/" onClick={closeMenu}><img src={logoSif} alt="SIF" className="h-9 w-auto object-contain" /></Link>
-          <button onClick={closeMenu} aria-label="Fechar menu" className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center text-white active:bg-white/15 transition-colors">
-            <X size={20} />
-          </button>
-        </div>
+        <div className="mx-auto w-full max-w-md flex flex-col h-full">
+          <div className="flex justify-between items-center px-6 h-[72px] shrink-0">
+            <Link to="/" onClick={closeMenu} aria-label="SIF: página inicial" className="shrink-0"><img src={logoSif} alt="SIF" className="h-9 w-auto max-w-none object-contain" /></Link>
+            <button ref={closeRef} onClick={() => closeAndFocus()} aria-label="Fechar menu" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 active:bg-white/15 transition-colors">
+              <X size={18} />
+            </button>
+          </div>
 
-        <nav className="flex-1 overflow-y-auto px-6 pt-2 pb-8">
-          <ul className="divide-y divide-white/10 border-y border-white/10">
-            {navLinks.map((link, idx) => {
-              const open = mobileExpanded === link.name;
-              const enter = { transitionDelay: mobileMenuOpen ? `${80 + idx * 45}ms` : '0ms' };
-              const item = `transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`;
-              return (
-                <li key={link.name} style={enter} className={item}>
-                  {link.submenu ? (
-                    <>
-                      <button onClick={() => toggleMobileExpanded(link.name)} aria-expanded={open}
-                        className="w-full flex items-center justify-between py-4 text-left text-lg font-semibold tracking-tight">
-                        <span className={open ? 'text-sif-lime' : ''}>{link.name}</span>
-                        <ChevronDown size={18} className={`shrink-0 transition-transform duration-300 ${open ? 'rotate-180 text-sif-lime' : 'text-white/40'}`} />
-                      </button>
-                      <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                        <div className="overflow-hidden">
-                          <div className="pb-4 pl-4 border-l border-white/15 ml-1 flex flex-col">
-                            {link.submenu.map((sub) => {
-                              const cls = `py-2.5 text-[15px] hover:text-white transition-colors ${sub.indent ? 'pl-4 text-white/60' : sub.group ? 'text-white font-semibold' : 'text-white/70'}`;
-                              return sub.external
-                                ? <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className={cls}>{sub.name}</a>
-                                : <Link key={sub.name} to={sub.href} onClick={closeMenu} className={cls}>{sub.name}</Link>;
-                            })}
+          <nav aria-label="Menu principal" className="flex-1 overflow-y-auto overscroll-contain px-6 pt-1 pb-5">
+            <ul className="divide-y divide-white/10 border-y border-white/10">
+              {navLinks.map((link, idx) => {
+                const open = mobileExpanded === link.name;
+                const active = linkIsActive(link);
+                const enter = { transitionDelay: mobileMenuOpen ? `${80 + idx * 40}ms` : '0ms' };
+                const item = `transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`;
+                return (
+                  <li key={link.name} style={enter} className={item}>
+                    {link.submenu ? (
+                      <>
+                        <button onClick={() => toggleMobileExpanded(link.name)} aria-expanded={open}
+                          className="w-full min-h-[50px] flex items-center justify-between py-3 text-left text-base font-semibold">
+                          <span className={open || active ? 'text-sif-lime' : ''}>{link.name}</span>
+                          <ChevronDown size={17} className={`shrink-0 transition-transform duration-300 ${open ? 'rotate-180 text-sif-lime' : 'text-white/40'}`} />
+                        </button>
+                        <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                          <div className="overflow-hidden">
+                            <div className="pb-3 pl-4 border-l border-white/15 ml-1 flex flex-col">
+                              {link.submenu.map((sub) => {
+                                const cur = !sub.external && isCurrentSub(sub.href);
+                                const cls = `py-2 text-sm leading-snug transition-colors hover:text-white ${cur ? 'text-sif-lime font-semibold' : sub.indent ? 'pl-4 text-white/55' : sub.group ? 'text-white font-semibold' : 'text-white/70'}`;
+                                return sub.external
+                                  ? <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" onClick={closeMenu} className={cls}>{sub.name}</a>
+                                  : <Link key={sub.name} to={sub.href} onClick={closeMenu} className={cls}>{sub.name}</Link>;
+                              })}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </>
-                  ) : (
-                    <Link to={link.href} onClick={closeMenu} className="group flex items-center justify-between py-4 text-lg font-semibold tracking-tight">
-                      {link.name}
-                      <ChevronRight size={18} className="shrink-0 text-white/40 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sif-lime" />
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                      </>
+                    ) : (
+                      <Link to={link.href} onClick={closeMenu} aria-current={active ? 'page' : undefined}
+                        className="group min-h-[50px] flex items-center justify-between py-3 text-base font-semibold">
+                        <span className={active ? 'text-sif-lime' : ''}>{link.name}</span>
+                        <ChevronRight size={17} className="shrink-0 text-white/40 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-sif-lime" />
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
 
-          {/* Conveniar */}
-          <div style={{ transitionDelay: mobileMenuOpen ? `${80 + navLinks.length * 45}ms` : '0ms' }}
-            className={`mt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-            <button onClick={() => toggleMobileExpanded('associado')} aria-expanded={mobileExpanded === 'associado'}
-              className="w-full flex items-center justify-between rounded-full border border-white/20 pl-5 pr-4 py-3 text-xs font-bold uppercase tracking-[0.18em]">
-              <span className="flex items-center gap-2"><User size={15} className="text-sif-lime" /> Conveniar</span>
-              <ChevronDown size={16} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180 text-sif-lime' : 'text-white/40'}`} />
-            </button>
-            <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${mobileExpanded === 'associado' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-              <div className="overflow-hidden">
-                <div className="flex flex-col pt-3 pl-5">
-                  {associadoLinks.map((sub) => (
-                    <a key={sub.name} href={sub.href} target="_blank" rel="noopener noreferrer" className="py-2.5 text-[15px] text-white/70 hover:text-white transition-colors">{sub.name}</a>
-                  ))}
+            {/* Conveniar: mesmo botão do site (contorno branco, seta no círculo) */}
+            <div style={{ transitionDelay: mobileMenuOpen ? `${80 + navLinks.length * 40}ms` : '0ms' }}
+              className={`mt-6 transition-[opacity,transform] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+              <button type="button" onClick={() => toggleMobileExpanded('associado')} aria-expanded={mobileExpanded === 'associado'}
+                className={`${buttonClass('ghostLight', 'sm')} w-full justify-between`}>
+                <span className="flex items-center gap-2"><User size={14} className="text-sif-lime" /> Conveniar</span>
+                <span className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full bg-white/10 transition-colors duration-500 group-hover/btn:bg-white group-hover/btn:text-sif-dark" aria-hidden="true">
+                  <ChevronDown size={15} className={`transition-transform duration-300 ${mobileExpanded === 'associado' ? 'rotate-180' : ''}`} />
+                </span>
+              </button>
+              <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${mobileExpanded === 'associado' ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                <div className="overflow-hidden">
+                  <ul className="pt-2 px-1">
+                    {associadoLinks.map((sub) => (
+                      <li key={sub.name}>
+                        <a href={sub.href} target="_blank" rel="noopener noreferrer"
+                          className="group flex items-center justify-between py-2.5 text-sm text-white/70 hover:text-white transition-colors">
+                          {sub.name}
+                          <ExternalLink size={14} className="shrink-0 text-white/30 group-hover:text-sif-lime transition-colors" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
-          </div>
-        </nav>
+          </nav>
 
-        <a href="tel:+553136123950" className="shrink-0 flex items-center gap-3 px-6 py-5 border-t border-white/10 text-white/80 hover:text-white">
-          <Phone size={17} className="text-sif-lime" />
-          <span className="text-sm"><span className="text-white/50 mr-2">Contato</span>(31) 3612-3950</span>
-        </a>
+          {/* Contato: botão do site + telefone */}
+          <div className="shrink-0 px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-white/10 flex flex-col gap-3">
+            <Link to="/contato" onClick={closeMenu} className={`${buttonClass('light', 'md')} w-full justify-between`}>
+              <span className="py-1">Fale conosco</span>
+              <BtnArrow variant="light" size="md" />
+            </Link>
+            <a href="tel:+553136123950"
+              className="group flex items-center gap-3 rounded-full border border-white/15 pl-1.5 pr-5 py-1.5 transition-colors hover:bg-white/10 hover:border-white/30">
+              <span className="flex w-9 h-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-sif-lime transition-colors group-hover:bg-sif-lime group-hover:text-sif-dark"><Phone size={16} /></span>
+              <span className="leading-tight">
+                <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Ligue para a SIF</span>
+                <span className="block text-[15px] font-semibold">(31) 3612-3950</span>
+              </span>
+            </a>
+          </div>
+        </div>
       </div>
     </>
   );
