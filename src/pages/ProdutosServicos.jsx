@@ -317,7 +317,15 @@ export default function ProdutosServicos() {
     lastHash.current = hashTarget + location.key;
     // espera a página montar as seções (e as fotos começarem a carregar) antes de rolar
     // Ao abrir o link direto, a página volta ao topo logo após carregar: tenta de novo se não chegou
+    // As novas tentativas só valem enquanto a pessoa NÃO mexeu na página: se ela já
+    // rolou, clicou ou usou o teclado, o site para de corrigir a posição (antes, a
+    // página era puxada de volta para cima no meio da leitura).
+    let stopped = false;
+    const stop = () => { stopped = true; };
+    const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+    userEvents.forEach(e => window.addEventListener(e, stop, { passive: true }));
     const go = () => {
+      if (stopped) return;
       const el = document.getElementById(hashTarget);
       if (!el) return;
       const top = el.getBoundingClientRect().top;
@@ -327,7 +335,7 @@ export default function ProdutosServicos() {
       if (Math.abs(top - want) > 40 && Math.abs(top - want - navH) > 40) scrollBelowBar(el);
     };
     const timers = [400, 1300, 2400].map(ms => setTimeout(go, ms));
-    return () => timers.forEach(clearTimeout);
+    return () => { timers.forEach(clearTimeout); userEvents.forEach(e => window.removeEventListener(e, stop)); };
   }, [hashTarget, location.key]);
   // Barra de abas fixa: ganha fundo translúcido só quando está grudada
   const tabbarRef = useRef(null);
