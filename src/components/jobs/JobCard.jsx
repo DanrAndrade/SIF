@@ -1,10 +1,11 @@
 import React from 'react';
-import { ArrowRight, MapPin, Clock } from 'lucide-react';
+import { ArrowRight, MapPin, Clock, ExternalLink, Building2 } from 'lucide-react';
 import { jobDate, jobSummary } from './jobFormat';
 
 // Card de vaga: categoria e data no alto, título, resumo curto e
 // local/regime. O card inteiro abre a janela de detalhes.
-export default function JobCard({ job, category, onOpen }) {
+// external: vaga de empresa associada (a candidatura é no site da empresa).
+export default function JobCard({ job, category, onOpen, external = false }) {
   const date = jobDate(job);
   const summary = jobSummary(job);
   const open = () => onOpen(job);
@@ -23,6 +24,12 @@ export default function JobCard({ job, category, onOpen }) {
       <h3 className="mt-5 font-heading text-[22px] md:text-2xl font-medium leading-snug text-sif-ink transition-colors duration-300 group-hover:text-sif-green">
         {job.title}
       </h3>
+
+      {external && job.empresa && (
+        <p className="mt-2 flex items-center gap-2 text-[14px] font-medium text-sif-ink/70">
+          <Building2 size={15} className="shrink-0 text-sif-green/70" aria-hidden="true" />{job.empresa}
+        </p>
+      )}
 
       {summary && (
         <p className="mt-3 text-[15px] leading-relaxed text-gray-500 line-clamp-2">{summary}</p>
@@ -49,7 +56,9 @@ export default function JobCard({ job, category, onOpen }) {
         <div className="mt-6 flex items-center justify-between border-t border-sif-ink/10 pt-5">
           <span className="text-[13px] text-gray-400">{date || 'Ver detalhes'}</span>
           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-sif-ink/10 text-sif-ink/60 transition-all duration-500 group-hover:border-sif-dark group-hover:bg-sif-dark group-hover:text-white">
-            <ArrowRight size={17} className="transition-transform duration-500 group-hover:-rotate-45" />
+            {external
+              ? <ExternalLink size={16} aria-hidden="true" />
+              : <ArrowRight size={17} className="transition-transform duration-500 group-hover:-rotate-45" />}
           </span>
         </div>
       </div>

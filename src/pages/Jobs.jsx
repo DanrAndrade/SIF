@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { JOBS_TEXTS, withTexts } from '../utils/pageTextDefaults';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { JOB_CATEGORIES, jobCategory, jobCategoryLabel } from '../utils/jobCategories';
+import { jobCategories, jobCategory, jobCategoryLabel, categoryResponsavel, isDivulgacaoJob } from '../utils/jobCategories';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import EditablePageHero from '../components/EditablePageHero';
@@ -34,9 +34,6 @@ const CONTENT_DEFAULTS = {
   valores_text: 'Inovação • Proatividade • Sustentabilidade • Integridade • Comprometimento • Profissionalismo',
   vagas_tag: 'Oportunidades',
   vagas_title: 'Vagas Abertas',
-  vagas_cat_interna: 'Vagas Internas',
-  vagas_cat_associadas: 'Vagas nas Associadas',
-  vagas_cat_germinar: 'Germinar',
   banco_tag: 'Banco de Talentos',
   banco_title: 'Cresça com a SIF',
   banco_text: 'Não encontrou sua vaga ideal? Cadastre seu currículo para futuras oportunidades estratégicas em nossos pilares técnicos.',
@@ -89,10 +86,11 @@ export default function Jobs() {
   }, []);
 
   // Filtro por categoria (só aparecem as categorias que têm vaga aberta)
-  const catCounts = JOB_CATEGORIES
-    .map(c => ({ ...c, count: jobs.filter(j => jobCategory(j) === c.key).length }))
+  const cats = jobCategories(cfg); // categorias criadas no painel
+  const catCounts = cats
+    .map(c => ({ ...c, count: jobs.filter(j => jobCategory(j, cats) === c.id).length }))
     .filter(c => c.count > 0);
-  const filteredJobs = catFilter === 'todas' ? jobs : jobs.filter(j => jobCategory(j) === catFilter);
+  const filteredJobs = catFilter === 'todas' ? jobs : jobs.filter(j => jobCategory(j, cats) === catFilter);
   const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
   const currentJobs = filteredJobs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -102,7 +100,7 @@ export default function Jobs() {
 
   const filterItems = [
     { key: 'todas', label: 'Todas', count: jobs.length },
-    ...catCounts.map(c => ({ key: c.key, label: jobCategoryLabel(c.key, cfg), count: c.count })),
+    ...catCounts.map(c => ({ key: c.id, label: c.nome, modo: c.modo, count: c.count })),
   ];
 
   // Seções da página, na ordem de Painel › Trabalhe Conosco › Ordem das
@@ -159,7 +157,7 @@ export default function Jobs() {
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {currentJobs.map(job => (
-              <JobCard key={job.id} job={job} category={jobCategoryLabel(jobCategory(job), cfg)} onOpen={setSelectedJob} />
+              <JobCard key={job.id} job={job} external={isDivulgacaoJob(job, cats)} category={jobCategoryLabel(jobCategory(job, cats), cats)} onOpen={setSelectedJob} />
             ))}
           </div>
         )}
@@ -222,7 +220,9 @@ export default function Jobs() {
       {selectedJob && (
         <ApplicationModal
           job={selectedJob}
-          catLabel={selectedJob.id === 'banco' ? cfg.banco_tag : jobCategoryLabel(jobCategory(selectedJob), cfg)}
+          catLabel={selectedJob.id === 'banco' ? cfg.banco_tag : jobCategoryLabel(jobCategory(selectedJob, cats), cats)}
+          external={selectedJob.id !== 'banco' && isDivulgacaoJob(selectedJob, cats)}
+          responsavel={selectedJob.id === 'banco' ? null : categoryResponsavel(jobCategory(selectedJob, cats), cats)}
           onClose={closeModal}
           intro={jt.apply_intro}
         />

@@ -11,8 +11,8 @@ if ($method === 'GET') {
         echo json_encode(['error' => 'Não autorizado']);
         exit;
     }
-    // Agora buscamos também o status
-    $stmt = $pdo->query("SELECT * FROM candidates ORDER BY created_at DESC");
+    // Com a categoria da vaga (SIF, Germinar) para o painel mostrar de quem é a candidatura
+    $stmt = $pdo->query("SELECT c.*, j.tipo_vaga AS job_category FROM candidates c LEFT JOIN jobs j ON j.id = c.job_id ORDER BY c.created_at DESC");
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
@@ -31,6 +31,22 @@ elseif ($method === 'POST') {
         $linkedin = mb_substr(preg_replace('/[?#].*$/', '', $str('linkedin', 2000)), 0, 255);
         $jobTitle = $str('job_title', 150) ?: 'Banco de Talentos';
         $jobId = isset($_POST['job_id']) && ctype_digit((string)$_POST['job_id']) ? (int)$_POST['job_id'] : null;
+
+        // Categoria de só divulgação (ex.: empresas associadas): a SIF não recebe currículo
+        if ($jobId) {
+            try {
+                $st = $pdo->prepare("SELECT tipo_vaga FROM jobs WHERE id = ?");
+                $st->execute([$jobId]);
+                $tv = (string)$st->fetchColumn();
+                if ($tv === 'Externa') $tv = 'Associadas';
+                $cats = sif_job_categories($pdo);
+                if (($cats[$tv] ?? 'candidatura') === 'divulgacao') {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Esta vaga é divulgada pela empresa. Candidate-se pelo site dela.']);
+                    exit;
+                }
+            } catch (Throwable $e) { /* sem a tabela de vagas: segue */ }
+        }
 
         // Robôs: campo escondido preenchido = finge que deu certo e descarta
         if ($str('website', 10) !== '') { echo json_encode(['success' => true]); exit; }

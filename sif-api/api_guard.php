@@ -178,7 +178,7 @@ function sif_safe_name(string $ext): string {
 // session.php/login quando o admin entra — não pesa nas visitas do site.
 // Cada comando roda sozinho: se um falhar (ex.: banco antigo), fica no log
 // e os outros continuam — uma falha não trava as versões seguintes.
-const SIF_SCHEMA_VERSION = 6;
+const SIF_SCHEMA_VERSION = 7;
 
 function sif_ensure_schema(PDO $pdo): void {
     static $done = false;
@@ -302,12 +302,39 @@ function sif_ensure_schema(PDO $pdo): void {
             $addCol('leads', 'cargo', 'VARCHAR(120) NULL');
         }
 
+        if ($current < 7) {
+            // Vagas de empresas associadas: só divulgação (empresa + link da vaga no site dela)
+            $addCol('jobs', 'empresa', 'VARCHAR(150) NULL');
+            $addCol('jobs', 'external_url', 'VARCHAR(500) NULL');
+        }
+
         $pdo->prepare("INSERT INTO page_configs (page_key, config_json) VALUES ('_schema', ?)
                        ON DUPLICATE KEY UPDATE config_json = VALUES(config_json)")
             ->execute([json_encode(['version' => SIF_SCHEMA_VERSION, 'applied_at' => date('c')])]);
     } catch (Throwable $e) {
         error_log('[sif-api] migração do banco falhou: ' . $e->getMessage());
     }
+}
+
+// ---------------------------------------------------------------- categorias de vaga
+// Categorias criadas em Painel › Trabalhe Conosco (page_configs 'jobs' → categorias_vaga).
+// Devolve [id => modo], com modo 'candidatura' (a SIF recebe o currículo) ou 'divulgacao'
+// (só divulga e leva para o link da empresa). Sem lista salva, valem as três originais.
+function sif_job_categories(PDO $pdo): array {
+    try {
+        $raw = $pdo->query("SELECT config_json FROM page_configs WHERE page_key = 'jobs'")->fetchColumn();
+        $cfg = $raw ? json_decode($raw, true) : [];
+        $list = is_array($cfg) ? ($cfg['categorias_vaga'] ?? null) : null;
+        if (is_array($list) && $list) {
+            $out = [];
+            foreach ($list as $c) {
+                if (!is_array($c) || trim((string)($c['id'] ?? '')) === '') continue;
+                $out[trim((string)$c['id'])] = (($c['modo'] ?? '') === 'divulgacao') ? 'divulgacao' : 'candidatura';
+            }
+            if ($out) return $out;
+        }
+    } catch (Throwable $e) { /* sem a tabela de páginas: usa as originais */ }
+    return ['Interna' => 'candidatura', 'Germinar' => 'candidatura', 'Associadas' => 'divulgacao'];
 }
 
 // ---------------------------------------------------------------- 1d) segurança de arquivos e HTML

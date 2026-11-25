@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AlertCircle, ArrowLeft, ArrowRight, Check, Loader2, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, Check, ExternalLink, Loader2, X } from 'lucide-react';
 import LineField from '../contact/LineField';
 import CvUpload from './CvUpload';
-import { API_BASE_URL, stripNbsp } from '../../apiConfig';
+import JobResponsavel from './JobResponsavel';
+import { API_BASE_URL, stripNbsp, toExternalUrl } from '../../apiConfig';
 import { jobDate, maskPhone } from './jobFormat';
 
 const EMPTY = { name: '', email: '', phone: '', linkedin: '' };
@@ -37,7 +38,10 @@ const PRIMARY_ICON = 'flex h-10 w-10 items-center justify-center rounded-full bg
 
 // Janela da vaga em dois passos: 1) detalhes  2) candidatura.
 // Envio para sif-api/candidates.php (multipart com o currículo em "cv").
-export default function ApplicationModal({ job, catLabel, onClose, intro = 'Preencha seus dados e anexe o currículo. Levamos menos de dois minutos.' }) {
+// Vaga de categoria só de divulgação (ex.: empresa associada): sem candidatura pela SIF. A janela mostra os dados
+// da vaga e leva para a página da empresa (a SIF não recebe o currículo).
+// responsavel: contato do responsável pela categoria da vaga (opcional).
+export default function ApplicationModal({ job, catLabel, onClose, external: isExternal = false, responsavel = null, intro = 'Preencha seus dados e anexe o currículo. Levamos menos de dois minutos.' }) {
   const [step, setStep] = useState(1);
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [data, setData] = useState(EMPTY);
@@ -50,6 +54,8 @@ export default function ApplicationModal({ job, catLabel, onClose, intro = 'Pree
   const errors = validate(data, file);
   const show = (k) => (touched[k] || submitted) ? errors[k] : undefined;
   const isBanco = job.id === 'banco';
+  const external = !isBanco && isExternal;
+  const externalUrl = external ? toExternalUrl(job.external_url) : '';
   const date = jobDate(job);
 
   // Trava a rolagem da página, fecha no Esc e foca o botão de fechar
@@ -123,6 +129,7 @@ export default function ApplicationModal({ job, catLabel, onClose, intro = 'Pree
   };
 
   const meta = [
+    { label: 'Empresa', value: external ? job.empresa : '' },
     { label: 'Local', value: job.location },
     { label: 'Regime', value: job.type },
     { label: 'Remuneração', value: job.salary },
@@ -156,7 +163,7 @@ export default function ApplicationModal({ job, catLabel, onClose, intro = 'Pree
             </button>
           </div>
 
-          {status !== 'success' && (
+          {status !== 'success' && !external && (
             <ol className="mt-7 grid grid-cols-2 gap-3" aria-label="Etapas">
               {steps.map((label, i) => {
                 const n = i + 1;
@@ -230,6 +237,14 @@ export default function ApplicationModal({ job, catLabel, onClose, intro = 'Pree
                   </ul>
                 </section>
               )}
+
+              {external && (
+                <p className="mt-9 rounded-2xl bg-sif-dark/[0.04] px-5 py-4 text-[14px] leading-relaxed text-sif-ink/75">
+                  Esta vaga é divulgada pela SIF, mas a candidatura e o envio do currículo são feitos no site da empresa.
+                </p>
+              )}
+
+              {!isBanco && <JobResponsavel resp={responsavel} label={external ? 'Responsável pela divulgação na SIF' : 'Responsável pela vaga'} />}
             </div>
           ) : (
             <form id="form-candidatura" key="s2" onSubmit={handleSubmit} noValidate className="sif-job-step">
@@ -260,7 +275,19 @@ export default function ApplicationModal({ job, catLabel, onClose, intro = 'Pree
         {/* Rodapé com ações */}
         {status !== 'success' && (
           <footer className="shrink-0 border-t border-sif-ink/10 bg-white px-6 py-5 sm:px-10">
-            {step === 1 ? (
+            {external ? (
+              <div key="rodape-ext" className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-center text-[12px] text-gray-400 sm:text-left">Você será levado ao site da empresa</p>
+                {externalUrl
+                  ? (
+                    <a href={externalUrl} target="_blank" rel="noopener noreferrer" className={PRIMARY}>
+                      <span className="py-2">Ver vaga no site da empresa</span>
+                      <span className={PRIMARY_ICON}><ExternalLink size={18} /></span>
+                    </a>
+                  )
+                  : <p className="text-sm text-gray-500">O link da vaga não está disponível no momento.</p>}
+              </div>
+            ) : step === 1 ? (
               <div key="rodape-1" className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-center text-[12px] text-gray-400 sm:text-left">Etapa 1 de 2</p>
                 <button key="avancar" type="button" onClick={() => goStep(2)} className={PRIMARY}>

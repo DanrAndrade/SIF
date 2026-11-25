@@ -29,14 +29,38 @@ if ($method === 'POST') {
         exit;
     }
 
+    sif_ensure_schema($pdo); // garante as colunas empresa e external_url (vagas de associadas)
+
     $reqs      = isset($data['requirements']) ? json_encode($data['requirements']) : '[]';
     $active    = isset($data['active']) ? (int)$data['active'] : 1;
-    $tipo_vaga = $data['tipo_vaga'] ?? 'Interna';
+    // A categoria precisa existir (Painel › Trabalhe Conosco › Categorias de vaga)
+    $cats = sif_job_categories($pdo);
+    $tipo_vaga = (string)($data['tipo_vaga'] ?? '');
     if ($tipo_vaga === 'Externa') $tipo_vaga = 'Associadas';
-    if (!in_array($tipo_vaga, ['Interna', 'Associadas', 'Germinar'], true)) $tipo_vaga = 'Interna';
+    if (!isset($cats[$tipo_vaga])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Categoria de vaga inválida. Escolha uma das categorias cadastradas.']);
+        exit;
+    }
+
+    // Categoria de só divulgação (ex.: empresas associadas): a SIF não recebe currículo.
+    // Precisa do link da vaga no site da empresa; nas outras categorias, sem link.
+    $empresa = null;
+    $externalUrl = null;
+    if ($cats[$tipo_vaga] === 'divulgacao') {
+        $empresa = mb_substr(trim((string)($data['empresa'] ?? '')), 0, 150);
+        $externalUrl = trim((string)($data['external_url'] ?? ''));
+        if ($externalUrl !== '' && !preg_match('#^https?://#i', $externalUrl)) $externalUrl = 'https://' . $externalUrl;
+        $okUrl = $externalUrl !== '' && filter_var($externalUrl, FILTER_VALIDATE_URL) && preg_match('#^https?://#i', $externalUrl);
+        if (!$okUrl || mb_strlen($externalUrl) > 500) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Informe o link da vaga no site da empresa (começando com https://).']);
+            exit;
+        }
+    }
 
     if (isset($data['id'])) {
-        $sql  = "UPDATE jobs SET title=?, location=?, type=?, salary=?, description=?, requirements=?, active=?, tipo_vaga=? WHERE id=?";
+        $sql  = "UPDATE jobs SET title=?, location=?, type=?, salary=?, description=?, requirements=?, active=?, tipo_vaga=?, empresa=?, external_url=? WHERE id=?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $data['title']    ?? '',
@@ -47,10 +71,12 @@ if ($method === 'POST') {
             $reqs,
             $active,
             $tipo_vaga,
+            $empresa,
+            $externalUrl,
             $data['id']
         ]);
     } else {
-        $sql  = "INSERT INTO jobs (title, location, type, salary, description, requirements, active, tipo_vaga) VALUES (?,?,?,?,?,?,?,?)";
+        $sql  = "INSERT INTO jobs (title, location, type, salary, description, requirements, active, tipo_vaga, empresa, external_url) VALUES (?,?,?,?,?,?,?,?,?,?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             $data['title']    ?? '',
@@ -60,7 +86,9 @@ if ($method === 'POST') {
             $data['description'] ?? '',
             $reqs,
             $active,
-            $tipo_vaga
+            $tipo_vaga,
+            $empresa,
+            $externalUrl
         ]);
     }
     echo json_encode(['success' => true]);

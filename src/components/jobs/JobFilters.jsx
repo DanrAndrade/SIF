@@ -13,7 +13,7 @@ export default function JobFilters({ items, value, onChange }) {
       <div role="tablist" aria-label="Categorias de vaga" className="flex min-w-max gap-x-7 border-b border-gray-200">
         {items.map((c) => {
           const on = value === c.key;
-          const Icon = ICONS[c.key] || LayoutGrid;
+          const Icon = ICONS[c.key] || (c.modo === 'divulgacao' ? Users : c.modo ? Building2 : LayoutGrid);
           return (
             <button
               key={c.key}
