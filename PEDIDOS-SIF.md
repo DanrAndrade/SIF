@@ -8,6 +8,8 @@
 
 ## Situação da publicação
 
+- **25/11/2026:** banco local refeito a partir da produção + conteúdo novo de Produtos e Serviços; SQL de publicação regenerado e verificado (`Downloads/atualizacao-banco-2026-11-25.sql`, 13 campos). Ver HANDOFF-IA.md §15. O SQL de 24/11 deve ser descartado.
+
 - Pacote pronto para subir: `Downloads/sif-atualizacao-2026-11-24.zip`
   (`index.html`, `assets/` e `sif-api/` direto na raiz do zip; extrair em
   `public_html/sif-novo-h7k2x9/`). Leva `upload_video.php`, `.user.ini`, as 32 fotos

@@ -375,3 +375,41 @@ vivem só no XAMPP local e no zip, porque `uploads/` não é versionado.
   com o passo a passo no LEIA-ME. Ele tem dados pessoais e **não vai para o GitHub**.
 - Vídeo do topo: no computador toca o `video_loop` (arquivo principal); o
   `video_loop_short` (leve) só entra no celular ou com economia de dados.
+
+## 15. Sincronização com a produção de 25/11/2026 (leia antes de publicar)
+
+A SIF pediu que o site novo suba **com tudo o que eles colocaram no ar** mais o conteúdo
+dos slides. Em 25/11 o Dan baixou a cópia do site (`sif-novo-h7k2x9.zip`) e o banco
+(`siforg98_site_Sif.sql`, MySQL 5.7). O que foi feito:
+
+- **Código:** todos os `sif-api/*.php` do servidor (sem comentários) são idênticos a versões
+  do histórico do Git. Ninguém subiu código fora do repositório. O `testeconexao.php` não
+  está mais lá.
+- **Banco:** o local (`sif_producao`, porta 3306 neste PC) foi **refeito a partir do dump de
+  produção**. Por cima entrou só o conteúdo novo de Produtos e Serviços. Conferido
+  tabela por tabela: o resto é idêntico à produção (usuários dos GTs, GTs, evento "SIF Summit
+  2027", equipe, rodapé, associadas, blog, EINCOL etc.). A SIF **não mexeu** em Produtos e
+  Serviços desde 23/11, então não houve conflito.
+- **Usuário de teste local:** `claude-teste@sif.test` existe só no banco local. **Nunca**
+  inclua em dump que vá para a produção. Ele é recriado a cada refação do banco.
+- **Arquivos:** copiados para o local os que existiam só na produção (85 em `uploads/`,
+  4 banners, 9 fotos de `nossa-gente`). Nada foi sobrescrito.
+- **SQL de publicação:** `database/atualizacoes/2026-11-produtos-servicos.sql` (cópia em
+  `Downloads/atualizacao-banco-2026-11-25.sql`), gerado por `gera_sql_produtos.php`.
+  Troca só 13 campos de Produtos e Serviços; verificado numa cópia limpa da produção
+  (resultado idêntico ao local, nenhuma outra tabela ou página alterada, roda mais de uma
+  vez). **O SQL de 24/11 estava desatualizado** (faltavam 6 campos de Cultivares e Importação).
+- **Arquivos que o pacote de publicação precisa levar** (não existem na produção): as 32
+  imagens de `uploads/pages/produtos/slides/` e `uploads/pdfs/boletim-diretrizes-de-submissao.pdf`
+  (5,5 MB). Lista exata gerada na sincronização; refazer com o gerador se o conteúdo mudar.
+- **Migração do banco:** a versão nova do código eleva o esquema para a v7
+  (`jobs.empresa`, `jobs.external_url`). Roda sozinha no primeiro login do painel e foi
+  testada sobre os dados reais de produção.
+- Não use o banco local inteiro para substituir o da produção: ele tem o usuário de teste.
+
+### Menu (cabeçalho)
+- O menu completo só aparece se **cabe**; senão vira o menu lateral (botão de menu). A
+  decisão é feita em `Navbar.jsx` medindo uma cópia invisível do menu (logo nunca encolhe,
+  nenhum item passa de 16 px da borda, nenhum item quebra em 3 linhas). Na prática: menu
+  completo a partir de ~1280 px; abaixo disso, menu lateral. A logo (link para a Home) fica
+  sempre visível.
